@@ -2,13 +2,13 @@ use crate::{conf::Conf, util::*};
 use clap::Parser;
 
 #[derive(Parser, Debug, Clone, Copy)]
-#[clap(about = "Status shows a summary of the local and remote buckets")]
-pub struct StatusCmd {}
+#[clap(about = "Fetch metadata only from the remote bucket")]
+pub struct FetchCmd {}
 
-impl StatusCmd {
+impl FetchCmd {
     pub async fn run(self, conf: Conf) -> ResultOrAnyErr<()> {
         println!("");
-        println!("s3d status:");
+        println!("s3d fetch:");
         println!("");
         println!("Local {:#?}", conf.local);
         println!("");

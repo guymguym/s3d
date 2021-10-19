@@ -34,7 +34,7 @@ impl DaemonCmd {
             }))
         });
         let server = Server::bind(&addr).serve(service);
-        println!("Listening on http://{}", addr);
+        info!("Listening on http://{}", addr);
         server.await?;
         Ok(())
     }
@@ -49,7 +49,7 @@ impl DaemonCmd {
         // generate request uuid
         let reqid = Uuid::new_v4().to_string();
 
-        println!(
+        info!(
             "<== HTTP {} {} {:?} [{}]",
             req.method(),
             req.uri(),
@@ -85,7 +85,7 @@ impl DaemonCmd {
         self.set_headers_reqid(res.headers_mut(), &reqid);
         self.set_headers_cors(&req, &mut res);
 
-        println!(
+        info!(
             "==> HTTP {} {} {} {:?} [{}]",
             res.status(),
             req.method(),
@@ -180,7 +180,7 @@ impl DaemonCmd {
     }
 
     pub fn handle_error(&self, _req: &HttpRequest, _err: S3Error) -> HttpResponse {
-        println!("TODO handle_error not yet implemented");
+        warn!("TODO handle_error not yet implemented");
         http_response()
             .status(StatusCode::INTERNAL_SERVER_ERROR)
             .body(Body::from("ERROR FROM S3D !!!"))
@@ -193,7 +193,7 @@ impl DaemonCmd {
         _bucket: &str,
         _key: &str,
     ) -> ResultOrAnyErr<()> {
-        println!("TODO authenticate() not yet implemented");
+        warn!("TODO authenticate() not yet implemented");
         Ok(())
     }
 }

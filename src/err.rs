@@ -84,10 +84,10 @@ mod tests {
 
     #[test]
     fn it_works() {
-        assert_eq!(S3Errors::_BadRequest._name(), "BadRequest");
-        assert_eq!(S3Errors::_BucketAlreadyExists._name(), "BucketAlreadyExists");
-        assert_eq!(S3Errors::_NoSuchBucket._name(), "NoSuchBucket");
-        assert_eq!(S3Errors::_NoSuchKey._name(), "NoSuchKey");
-        assert_eq!(S3Errors::_InternalError._name(), "InternalError");
+        assert_eq!(S3Errors::_BadRequest._name(), "_BadRequest");
+        assert_eq!(S3Errors::_BucketAlreadyExists._name(), "_BucketAlreadyExists");
+        assert_eq!(S3Errors::_NoSuchBucket._name(), "_NoSuchBucket");
+        assert_eq!(S3Errors::_NoSuchKey._name(), "_NoSuchKey");
+        assert_eq!(S3Errors::_InternalError._name(), "_InternalError");
     }
 }

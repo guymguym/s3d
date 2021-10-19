@@ -5,8 +5,9 @@
 mod cli;
 mod conf;
 mod daemon;
-mod status;
 mod err;
+mod fetch;
+mod status;
 
 #[macro_use]
 mod util;
