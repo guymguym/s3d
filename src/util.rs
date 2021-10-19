@@ -11,13 +11,3 @@ pub type HttpResultOrErr<E> = Result<HttpResponse, E>;
 pub fn http_response() -> hyper::http::response::Builder {
     hyper::http::response::Builder::new()
 }
-
-// #[macro_export]
-// macro_rules! log {
-//     ($fmt:expr) => {
-//         println!($fmt)
-//     };
-//     ($fmt:expr, $($arg:tt)*) => {
-//         println!($fmt, $($arg)*)
-//     }
-// }

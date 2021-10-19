@@ -3,11 +3,9 @@
 //! - https://github.com/s3d-rs/s3d
 
 mod cli;
+mod cmds;
 mod conf;
-mod daemon;
 mod err;
-mod fetch;
-mod status;
 
 #[macro_use]
 mod util;
