@@ -2,17 +2,31 @@
 //! - https://s3d.rs
 //! - https://github.com/s3d-rs/s3d
 
+mod cli;
+mod conf;
+mod daemon;
+mod status;
+mod err;
+
 #[macro_use]
 mod util;
 
-mod cli;
-mod conf;
-mod s3;
+#[macro_use]
+extern crate log;
 
 use crate::cli::CLI;
 use crate::util::*;
 
 #[tokio::main]
 pub async fn main() -> ResultOrAnyErr<()> {
-    CLI::run().await
+    match CLI::run().await {
+        Ok(_) => {
+            info!("Done.");
+            Ok(())
+        }
+        Err(err) => {
+            error!("Exit on Error: {}", err);
+            std::process::exit(1);
+        }
+    }
 }

@@ -6,38 +6,40 @@ use tokio::{fs::File, io::AsyncReadExt};
 #[derive(Debug, PartialEq, Serialize, Deserialize)]
 pub struct Conf {
     pub kind: String,
-    pub hub: Option<HubConf>,
+    pub local: LocalConf,
+    pub remote: RemoteConf,
 }
 
 #[derive(Debug, PartialEq, Serialize, Deserialize)]
-pub struct HubConf {
+pub struct LocalConf {
+    pub dir: String,
+}
+
+#[derive(Debug, PartialEq, Serialize, Deserialize)]
+pub struct RemoteConf {
     pub endpoint: String,
     pub access_key: String,
     pub secret_key: String,
 }
 
 impl Conf {
-    pub fn defaults() -> Self {
+    pub fn _defaults() -> Self {
         Self {
-            kind: "s3d".to_string(),
-            hub: None,
+            kind: String::from("s3d"),
+            local: LocalConf {
+                dir: String::from("."),
+            },
+            remote: RemoteConf {
+                endpoint: String::from("localhost:9000"),
+                access_key: String::from(""),
+                secret_key: String::from(""),
+            },
         }
     }
 
-    pub async fn load(file_path: &str, ignore_not_found: bool) -> ResultOrAnyErr<Conf> {
+    pub async fn load(file_path: &str) -> ResultOrAnyErr<Conf> {
         let mut contents = String::new();
-        let mut file = match File::open(file_path).await {
-            Ok(file) => file,
-            Err(err) => {
-                if ignore_not_found {
-                    return Ok(Conf::defaults());
-                    // return Err(err);
-                }
-                println!("{:?}", err);
-                return Ok(Conf::defaults());
-                // return Err(err);
-            }
-        };
+        let mut file = File::open(file_path).await?;
         file.read_to_string(&mut contents).await?;
         let conf: Conf = serde_yaml::from_str(&contents)?;
         Ok(conf)

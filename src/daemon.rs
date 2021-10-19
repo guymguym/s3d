@@ -1,5 +1,6 @@
-use crate::{conf::Conf, util::*};
-use super::*;
+// use super::*;
+use crate::{conf::Conf, err::S3Error, util::*};
+use clap::Parser;
 use hyper::{
     header,
     service::{make_service_fn, service_fn},
@@ -12,17 +13,19 @@ pub type S3Result = HttpResultOrErr<S3Error>;
 
 // keep the server alive statically
 // because we need it for the lifetime of the program
-static DAEMON: OnceCell<Daemon> = OnceCell::const_new();
+static DAEMON: OnceCell<DaemonCmd> = OnceCell::const_new();
 
-#[derive(Debug)]
-pub struct Daemon {
-    // api: Box<dyn ApiLayer>,
+#[derive(Parser, Debug, Clone)]
+#[clap(about = "Run the daemon")]
+pub struct DaemonCmd {
+    #[clap(long, short)]
+    debug: bool,
 }
 
-impl Daemon {
+impl DaemonCmd {
     /// Starts http server with s3 service.
     /// This should be called only once at the start of the program.
-    pub async fn run(_conf: Conf) -> ResultOrAnyErr<()> {
+    pub async fn run(&self, _conf: Conf) -> ResultOrAnyErr<()> {
         let addr = ([127, 0, 0, 1], 3000).into();
         DAEMON.set(Self::new()).unwrap();
         let service = make_service_fn(|_| async {
@@ -39,7 +42,7 @@ impl Daemon {
     pub fn new() -> Self {
         // let api = Box::new(MockLayer::new());
         // Self { api }
-        Self {}
+        Self { debug: false }
     }
 
     pub async fn handle_request(&self, mut req: HttpRequest) -> HttpResult {
