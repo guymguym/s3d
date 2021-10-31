@@ -3,9 +3,10 @@
 //! - https://github.com/s3d-rs/s3d
 
 mod cli;
-mod cmds;
 mod conf;
+mod daemon;
 mod err;
+mod store;
 
 #[macro_use]
 mod util;
@@ -13,18 +14,20 @@ mod util;
 #[macro_use]
 extern crate log;
 
+#[macro_use]
+extern crate anyhow;
+
 use crate::cli::CLI;
-use crate::util::*;
 
 #[tokio::main]
-pub async fn main() -> ResultOrAnyErr<()> {
+pub async fn main() -> anyhow::Result<()> {
     match CLI::run().await {
         Ok(_) => {
             info!("Done.");
             Ok(())
         }
         Err(err) => {
-            error!("Exit on Error: {}", err);
+            error!("{}", err);
             std::process::exit(1);
         }
     }

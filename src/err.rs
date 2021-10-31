@@ -1,6 +1,10 @@
+use crate::util::*;
+
+pub type S3Result = HttpResultOrErr<S3Error>;
+
 #[derive(Debug, Clone)]
 pub enum S3Errors {
-    _BadRequest,
+    BadRequest,
     _BucketAlreadyExists,
     _NoSuchBucket,
     _NoSuchKey,
@@ -37,40 +41,40 @@ impl S3Errors {
 }
 
 impl S3Error {
-    pub fn _from(kind: S3Errors) -> S3Error {
+    pub fn new(kind: S3Errors) -> S3Error {
         match kind {
-            S3Errors::_BadRequest => S3Error {
+            S3Errors::BadRequest => S3Error {
                 status_code: hyper::StatusCode::BAD_REQUEST,
                 code: "BadRequest".to_owned(),
-                msg: "".to_owned(),
+                msg: "BadRequest".to_owned(),
                 resource: "".to_owned(),
                 request_id: "".to_owned(),
             },
             S3Errors::_BucketAlreadyExists => S3Error {
                 status_code: hyper::StatusCode::CONFLICT,
                 code: "BucketAlreadyExists".to_owned(),
-                msg: "".to_owned(),
+                msg: "BucketAlreadyExists".to_owned(),
                 resource: "".to_owned(),
                 request_id: "".to_owned(),
             },
             S3Errors::_NoSuchBucket => S3Error {
                 status_code: hyper::StatusCode::NOT_FOUND,
                 code: "NoSuchBucket".to_owned(),
-                msg: "".to_owned(),
+                msg: "NoSuchBucket".to_owned(),
                 resource: "".to_owned(),
                 request_id: "".to_owned(),
             },
             S3Errors::_NoSuchKey => S3Error {
                 status_code: hyper::StatusCode::NOT_FOUND,
                 code: "NoSuchKey".to_owned(),
-                msg: "".to_owned(),
+                msg: "NoSuchKey".to_owned(),
                 resource: "".to_owned(),
                 request_id: "".to_owned(),
             },
             _ => S3Error {
                 status_code: hyper::StatusCode::INTERNAL_SERVER_ERROR,
                 code: "InternalError".to_owned(),
-                msg: "".to_owned(),
+                msg: "InternalError".to_owned(),
                 resource: "".to_owned(),
                 request_id: "".to_owned(),
             },
@@ -84,7 +88,7 @@ mod tests {
 
     #[test]
     fn it_works() {
-        assert_eq!(S3Errors::_BadRequest._name(), "_BadRequest");
+        assert_eq!(S3Errors::BadRequest._name(), "BadRequest");
         assert_eq!(S3Errors::_BucketAlreadyExists._name(), "_BucketAlreadyExists");
         assert_eq!(S3Errors::_NoSuchBucket._name(), "_NoSuchBucket");
         assert_eq!(S3Errors::_NoSuchKey._name(), "_NoSuchKey");

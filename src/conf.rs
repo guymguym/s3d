@@ -1,20 +1,19 @@
-use std::path::PathBuf;
-
-use crate::util::*;
 use serde::{Deserialize, Serialize};
 use serde_yaml;
+use std::path::PathBuf;
 use tokio::{fs::File, io::AsyncReadExt};
 
 #[derive(Debug, PartialEq, Serialize, Deserialize)]
 pub struct Conf {
-    pub s3d: String,
+    pub kind: String,
     pub local: LocalConf,
     pub remotes: Vec<RemoteConf>,
 }
 
 #[derive(Debug, PartialEq, Serialize, Deserialize)]
 pub struct LocalConf {
-    pub ttl_seconds: String,
+    pub port: u16,
+    pub ttl: String,
     pub max_disk_usage: String,
 }
 
@@ -22,11 +21,11 @@ pub struct LocalConf {
 pub struct RemoteConf {
     pub name: String,
     pub endpoint: String,
-    pub profile: String,
+    // pub profile: String,
 }
 
 impl Conf {
-    pub async fn load(file_path: &PathBuf) -> ResultOrAnyErr<Conf> {
+    pub async fn load(file_path: &PathBuf) -> anyhow::Result<Conf> {
         let mut contents = String::new();
         let mut file = File::open(file_path).await?;
         file.read_to_string(&mut contents).await?;
@@ -36,7 +35,7 @@ impl Conf {
 
     // pub fn _defaults() -> Self {
     //     Self {
-    //         s3d: String::from("config"),
+    //         kind: String::from("s3d.rs/config"),
     //         local: LocalConf {
     //             ttl: 0,
     //         },
