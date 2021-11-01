@@ -1,11 +1,21 @@
-use crate::{conf::Conf, err::*, store, util::*};
+use crate::{
+    conf::Conf,
+    err::*,
+    store::S3Request,
+    store::{self, S3BucketSubResource, S3ObjectSubResource},
+    util::*,
+};
 use hyper::{
     header,
     service::{make_service_fn, service_fn},
-    Body, HeaderMap, Method, Server,
+    Body, HeaderMap, Server,
 };
-use std::net::{IpAddr, Ipv4Addr, SocketAddr};
+use std::{
+    collections::HashMap,
+    net::{IpAddr, Ipv4Addr, SocketAddr},
+};
 use tokio::sync::OnceCell;
+use url::Url;
 use uuid::Uuid;
 
 #[derive(Debug)]
@@ -33,98 +43,215 @@ pub async fn run(conf: Conf) -> anyhow::Result<()> {
 }
 
 impl Daemon {
-    pub async fn serve_request(&self, mut req: HttpRequest) -> HttpResult {
-        // generate request uuid
-        let reqid = Uuid::new_v4().to_string();
-
-        info!(
-            "<== HTTP {} {} {:?} [{}]",
-            req.method(),
-            req.uri(),
-            &req.headers(),
-            reqid,
-        );
-
-        self.set_headers_reqid(req.headers_mut(), &reqid);
-
-        // handle errors
+    pub async fn serve_request(&self, http_req: HttpRequest) -> HttpResult {
+        let mut req = self.new_request(http_req);
         let mut res = self
-            .handle_request(&req)
+            .handle_request(&mut req)
             .await
-            .unwrap_or_else(|err| self.handle_error(&req, &reqid, err));
-
-        // set response headers
-        self.set_headers_reqid(res.headers_mut(), &reqid);
-        self.set_headers_cors(&req, &mut res);
-
-        info!(
-            "==> HTTP {} {} {} {:?} [{}]",
-            res.status(),
-            req.method(),
-            req.uri(),
-            &res.headers(),
-            reqid,
-        );
-
+            .unwrap_or_else(|err| self.handle_error(&req, err));
+        self.finish_response(&req, &mut res);
         Ok(res)
     }
 
-    pub async fn handle_request(&self, req: &HttpRequest) -> S3Result {
-        let (bucket, key) = self.parse_request(&req)?;
+    fn new_request(&self, http_req: HttpRequest) -> S3Request {
+        let (parts, body) = http_req.into_parts();
+        let path = parts.uri.path();
+        let query = parts.uri.query().unwrap_or("");
+        let req = S3Request {
+            method: parts.method,
+            path: path.to_owned(),
+            query: query.to_owned(),
+            headers: parts.headers,
+            body,
+            reqid: Uuid::new_v4().to_string(),
+            params: HashMap::<String, String>::new(),
+            bucket: "".to_owned(),
+            key: "".to_owned(),
+            bucket_sub_resource: S3BucketSubResource::None,
+            object_sub_resource: S3ObjectSubResource::None,
+        };
+        info!(
+            "==> HTTP {} {} {:?} [{}]",
+            req.method, req.path, &req.headers, req.reqid,
+        );
+        req
+    }
 
-        self.authenticate(&req, &bucket, &key).await?;
+    pub fn finish_response(&self, req: &S3Request, res: &mut HttpResponse) {
+        self.set_headers_reqid(res.headers_mut(), &req.reqid);
+        info!(
+            "<== HTTP {} {} {} {:?} [{}]",
+            res.status(),
+            req.method,
+            req.path,
+            &req.headers,
+            req.reqid,
+        );
+    }
 
-        // call an op handler
-        if req.method() == Method::OPTIONS {
-            Ok(HttpResponse::new(Body::empty()))
-        } else if bucket.is_empty() {
-            self.handle_service_ops(&req).await
-        } else if key.is_empty() {
-            self.handle_bucket_ops(&req, &bucket).await
-        } else {
-            self.handle_object_ops(&req, &bucket, &key).await
+    pub async fn handle_request(&self, req: &mut S3Request) -> S3Result {
+        self.prepare_request(req).await?;
+        self.authenticate(&req).await?;
+        match req.method.as_str() {
+            "GET" => self.handle_get(req).await,
+            "HEAD" => self.handle_head(req).await,
+            "PUT" => self.handle_put(req).await,
+            "POST" => self.handle_post(req).await,
+            "DELETE" => self.handle_delete(req).await,
+            "OPTIONS" => self.handle_options(req).await,
+            "FETCH" => self.handle_fetch(req).await,
+            "PULL" => self.handle_pull(req).await,
+            "PUSH" => self.handle_push(req).await,
+            "PRUNE" => self.handle_prune(req).await,
+            "STATUS" => self.handle_status(req).await,
+            "DIFF" => self.handle_diff(req).await,
+            _ => Err(S3Error::new(S3Errors::BadRequest)),
         }
     }
 
-    fn parse_request(&self, req: &HttpRequest) -> Result<(String, String), S3Error> {
+    pub async fn prepare_request(&self, req: &mut S3Request) -> Result<(), S3Error> {
         // parse path-style addressing for bucket names
         // TODO: add support for host-style addressing
-        assert!(req.uri().path().starts_with("/"));
-        let path_items: Vec<_> = req.uri().path()[1..].splitn(2, "/").collect();
+        assert!(req.path.starts_with("/"));
+        let path_items: Vec<_> = req.path[1..].splitn(2, "/").collect();
         let (bucket, key) = match path_items.len() {
             0 => ("", ""),
             1 => (path_items[0], ""),
             2 => (path_items[0], path_items[1]),
-            _ => return Err(S3Error::new(S3Errors::BadRequest)),
+            _ => panic!("unexpected path {:?}", req),
         };
-        Ok((bucket.to_owned(), key.to_owned()))
+        req.bucket = bucket.to_owned();
+        req.key = key.to_owned();
+
+        // parse query string
+        for (key, val) in Url::parse(&req.query).unwrap().query_pairs() {
+            if req.key.is_empty() {
+                let sub = S3BucketSubResource::from(key.as_ref());
+                if sub != S3BucketSubResource::None && sub != req.bucket_sub_resource {
+                    return Err(S3Error::new(S3Errors::BadRequest));
+                }
+                req.bucket_sub_resource = sub;
+            } else {
+                let sub = S3ObjectSubResource::from(key.as_ref());
+                if sub != S3ObjectSubResource::None && sub != req.object_sub_resource {
+                    return Err(S3Error::new(S3Errors::BadRequest));
+                }
+                req.object_sub_resource = sub;
+            }
+            req.params.insert(String::from(key), String::from(val));
+        }
+
+        Ok(())
     }
 
-    async fn handle_service_ops(&self, req: &HttpRequest) -> S3Result {
-        match *req.method() {
-            Method::GET => store::list_buckets().await,
+    pub async fn authenticate(&self, _req: &S3Request) -> Result<(), S3Error> {
+        warn!("TODO authenticate() not yet implemented");
+        Ok(())
+    }
+
+    pub async fn handle_get(&self, req: &mut S3Request) -> S3Result {
+        if req.bucket.is_empty() {
+            return store::list_buckets(req).await;
+        }
+        if req.key.is_empty() {
+            return match req.bucket_sub_resource {
+                S3BucketSubResource::None => store::list_objects(req).await,
+                _ => store::get_bucket_sub_resource(req).await,
+            };
+        }
+        match req.object_sub_resource {
+            S3ObjectSubResource::None => store::get_object(req).await,
+            _ => store::get_object_sub_resource(req).await,
+        }
+    }
+
+    pub async fn handle_head(&self, req: &mut S3Request) -> S3Result {
+        if req.bucket.is_empty() {
+            return Err(S3Error::new(S3Errors::BadRequest));
+        }
+        if req.key.is_empty() {
+            return store::head_bucket(req).await;
+        }
+        store::head_object(req).await
+    }
+
+    pub async fn handle_put(&self, req: &mut S3Request) -> S3Result {
+        if req.bucket.is_empty() {
+            return Err(S3Error::new(S3Errors::BadRequest));
+        }
+        if req.key.is_empty() {
+            return match req.bucket_sub_resource {
+                S3BucketSubResource::None => store::put_bucket(req).await,
+                _ => store::put_bucket_sub_resource(req).await,
+            };
+        }
+        match req.object_sub_resource {
+            S3ObjectSubResource::None => store::put_object(req).await,
+            _ => store::put_object_sub_resource(req).await,
+        }
+    }
+
+    pub async fn handle_delete(&self, req: &mut S3Request) -> S3Result {
+        if req.bucket.is_empty() {
+            return Err(S3Error::new(S3Errors::BadRequest));
+        }
+        if req.key.is_empty() {
+            return match req.bucket_sub_resource {
+                S3BucketSubResource::None => store::delete_bucket(req).await,
+                _ => store::delete_bucket_sub_resource(req).await,
+            };
+        }
+        match req.object_sub_resource {
+            S3ObjectSubResource::None => store::delete_object(req).await,
+            _ => store::delete_object_sub_resource(req).await,
+        }
+    }
+
+    pub async fn handle_post(&self, req: &mut S3Request) -> S3Result {
+        if req.bucket.is_empty() {
+            return Err(S3Error::new(S3Errors::BadRequest));
+        }
+        if req.key.is_empty() {
+            return match req.bucket_sub_resource {
+                S3BucketSubResource::None => store::post_object(req).await,
+                _ => store::post_bucket_sub_resource(req).await,
+            };
+        }
+        match req.object_sub_resource {
+            S3ObjectSubResource::Uploads => store::create_multipart_upload(req).await,
+            S3ObjectSubResource::UploadId => store::complete_multipart_upload(req).await,
             _ => Err(S3Error::new(S3Errors::BadRequest)),
         }
     }
 
-    async fn handle_bucket_ops(&self, req: &HttpRequest, bucket: &str) -> S3Result {
-        match *req.method() {
-            Method::GET => store::list_objects(bucket).await,
-            Method::PUT => store::put_bucket(bucket).await,
-            Method::HEAD => store::head_bucket(bucket).await,
-            Method::DELETE => store::delete_bucket(bucket).await,
-            _ => Err(S3Error::new(S3Errors::BadRequest)),
-        }
+    pub async fn handle_options(&self, req: &mut S3Request) -> S3Result {
+        let mut res = HttpResponse::new(Body::empty());
+        self.set_headers_cors(&req, &mut res);
+        Ok(res)
     }
 
-    async fn handle_object_ops(&self, req: &HttpRequest, bucket: &str, key: &str) -> S3Result {
-        match *req.method() {
-            Method::GET => store::get_object(bucket, key).await,
-            Method::PUT => store::put_object(bucket, key).await,
-            Method::HEAD => store::head_object(bucket, key).await,
-            Method::DELETE => store::delete_object(bucket, key).await,
-            _ => Err(S3Error::new(S3Errors::BadRequest)),
-        }
+    pub async fn handle_fetch(&self, req: &mut S3Request) -> S3Result {
+        store::fetch_flow(req).await
+    }
+
+    pub async fn handle_pull(&self, req: &mut S3Request) -> S3Result {
+        store::pull_flow(req).await
+    }
+
+    pub async fn handle_push(&self, req: &mut S3Request) -> S3Result {
+        store::push_flow(req).await
+    }
+
+    pub async fn handle_prune(&self, req: &mut S3Request) -> S3Result {
+        store::prune_flow(req).await
+    }
+
+    pub async fn handle_status(&self, req: &mut S3Request) -> S3Result {
+        store::status_flow(req).await
+    }
+
+    pub async fn handle_diff(&self, req: &mut S3Request) -> S3Result {
+        store::diff_flow(req).await
     }
 
     fn set_headers_reqid(&self, h: &mut HeaderMap, reqid: &str) {
@@ -135,7 +262,7 @@ impl Daemon {
         h.insert(x_amz_id_2, reqid_val.clone());
     }
 
-    fn set_headers_cors(&self, _req: &HttpRequest, res: &mut HttpResponse) {
+    fn set_headers_cors(&self, _req: &S3Request, res: &mut HttpResponse) {
         // note that browsers do not really allow origin=* with allow credentials
         let h = res.headers_mut();
         h.insert(header::ACCESS_CONTROL_ALLOW_ORIGIN, "*".parse().unwrap());
@@ -155,32 +282,20 @@ impl Daemon {
         );
     }
 
-    pub fn handle_error(&self, req: &HttpRequest, reqid: &str, err: S3Error) -> HttpResponse {
+    pub fn handle_error(&self, req: &S3Request, err: S3Error) -> HttpResponse {
         http_response()
             .status(err.status_code)
+            .header(header::CONTENT_TYPE, "application/xml")
             .body(Body::from(format!(
                 "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n\
-                <Error>\n\
-                    <Code>{}</Code>\n\
-                    <Message>{}</Message>\n\
-                    <Resource>{}</HostId>\n\
-                    <RequestId>{}</RequestId>\n\
-                </Error>\n",
-                err.code,
-                err.msg,
-                req.uri(),
-                reqid
+                <Error>\
+                    <Code>{}</Code>\
+                    <Message>{}</Message>\
+                    <Resource>{}</HostId>\
+                    <RequestId>{}</RequestId>\
+                </Error>",
+                err.code, err.msg, req.path, req.reqid,
             )))
             .unwrap()
-    }
-
-    pub async fn authenticate(
-        &self,
-        _req: &HttpRequest,
-        _bucket: &str,
-        _key: &str,
-    ) -> Result<(), S3Error> {
-        warn!("TODO authenticate() not yet implemented");
-        Ok(())
     }
 }
