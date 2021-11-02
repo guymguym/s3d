@@ -4,11 +4,11 @@ pub type S3Result = HttpResultOrErr<S3Error>;
 
 #[derive(Debug, Clone)]
 pub enum S3Errors {
+    InternalError,
     BadRequest,
     _BucketAlreadyExists,
     _NoSuchBucket,
     _NoSuchKey,
-    _InternalError,
 }
 
 #[derive(Debug, Clone)]
@@ -88,10 +88,10 @@ mod tests {
 
     #[test]
     fn it_works() {
+        assert_eq!(S3Errors::InternalError._name(), "InternalError");
         assert_eq!(S3Errors::BadRequest._name(), "BadRequest");
         assert_eq!(S3Errors::_BucketAlreadyExists._name(), "_BucketAlreadyExists");
         assert_eq!(S3Errors::_NoSuchBucket._name(), "_NoSuchBucket");
         assert_eq!(S3Errors::_NoSuchKey._name(), "_NoSuchKey");
-        assert_eq!(S3Errors::_InternalError._name(), "_InternalError");
     }
 }
