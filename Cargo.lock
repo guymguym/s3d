@@ -1156,6 +1156,7 @@ dependencies = [
  "aws-config",
  "aws-sdk-s3",
  "aws-sdk-signer",
+ "aws-smithy-http",
  "aws-types",
  "clap",
  "env_logger",

@@ -6,7 +6,8 @@ mod cli;
 mod conf;
 mod daemon;
 mod err;
-mod store;
+mod ops;
+mod parse;
 
 #[macro_use]
 mod util;

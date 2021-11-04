@@ -1,8 +1,8 @@
 use crate::{
     conf::Conf,
     err::*,
-    store::S3Request,
-    store::{self, S3BucketSubResource, S3ObjectSubResource},
+    ops::{self, S3BucketSubResource, S3ObjectSubResource, S3Request},
+    parse,
     util::*,
 };
 use hyper::{
@@ -206,17 +206,23 @@ impl Daemon {
 
     pub async fn handle_get(&self, req: &S3Request) -> S3Result {
         if req.bucket.is_empty() {
-            return store::list_buckets(req, &self.s3c).await;
+            return parse::list_buckets_output(
+                ops::list_buckets(&self.s3c, parse::list_buckets_input(req)?).await?,
+            );
         }
         if req.key.is_empty() {
             return match req.bucket_subresource {
-                S3BucketSubResource::None => store::list_objects(req, &self.s3c).await,
-                _ => store::get_bucket_subresource(req).await,
+                S3BucketSubResource::None => parse::list_objects_output(
+                    ops::list_objects(&self.s3c, parse::list_objects_input(req)?).await?,
+                ),
+                _ => ops::get_bucket_subresource(req).await,
             };
         }
         match req.object_subresource {
-            S3ObjectSubResource::None => store::get_object(req).await,
-            _ => store::get_object_subresource(req).await,
+            S3ObjectSubResource::None => parse::get_object_output(
+                ops::get_object(&self.s3c, parse::get_object_input(req)?).await?,
+            ),
+            _ => ops::get_object_subresource(req).await,
         }
     }
 
@@ -225,9 +231,9 @@ impl Daemon {
             return Err(S3Error::new(S3Errors::BadRequest));
         }
         if req.key.is_empty() {
-            return store::head_bucket(req).await;
+            return ops::head_bucket(req).await;
         }
-        store::head_object(req).await
+        ops::head_object(req).await
     }
 
     pub async fn handle_put(&self, req: &S3Request) -> S3Result {
@@ -236,13 +242,13 @@ impl Daemon {
         }
         if req.key.is_empty() {
             return match req.bucket_subresource {
-                S3BucketSubResource::None => store::put_bucket(req).await,
-                _ => store::put_bucket_subresource(req).await,
+                S3BucketSubResource::None => ops::put_bucket(req).await,
+                _ => ops::put_bucket_subresource(req).await,
             };
         }
         match req.object_subresource {
-            S3ObjectSubResource::None => store::put_object(req).await,
-            _ => store::put_object_subresource(req).await,
+            S3ObjectSubResource::None => ops::put_object(req).await,
+            _ => ops::put_object_subresource(req).await,
         }
     }
 
@@ -252,13 +258,13 @@ impl Daemon {
         }
         if req.key.is_empty() {
             return match req.bucket_subresource {
-                S3BucketSubResource::None => store::delete_bucket(req).await,
-                _ => store::delete_bucket_subresource(req).await,
+                S3BucketSubResource::None => ops::delete_bucket(req).await,
+                _ => ops::delete_bucket_subresource(req).await,
             };
         }
         match req.object_subresource {
-            S3ObjectSubResource::None => store::delete_object(req).await,
-            _ => store::delete_object_subresource(req).await,
+            S3ObjectSubResource::None => ops::delete_object(req).await,
+            _ => ops::delete_object_subresource(req).await,
         }
     }
 
@@ -268,13 +274,13 @@ impl Daemon {
         }
         if req.key.is_empty() {
             return match req.bucket_subresource {
-                S3BucketSubResource::None => store::post_object(req).await,
-                _ => store::post_bucket_subresource(req).await,
+                S3BucketSubResource::None => ops::post_object(req).await,
+                _ => ops::post_bucket_subresource(req).await,
             };
         }
         match req.object_subresource {
-            S3ObjectSubResource::Uploads => store::create_multipart_upload(req).await,
-            S3ObjectSubResource::UploadId => store::complete_multipart_upload(req).await,
+            S3ObjectSubResource::Uploads => ops::create_multipart_upload(req).await,
+            S3ObjectSubResource::UploadId => ops::complete_multipart_upload(req).await,
             _ => Err(S3Error::new(S3Errors::BadRequest)),
         }
     }
@@ -286,27 +292,27 @@ impl Daemon {
     }
 
     pub async fn handle_fetch(&self, req: &S3Request) -> S3Result {
-        store::fetch_flow(req).await
+        ops::fetch_flow(req).await
     }
 
     pub async fn handle_pull(&self, req: &S3Request) -> S3Result {
-        store::pull_flow(req).await
+        ops::pull_flow(req).await
     }
 
     pub async fn handle_push(&self, req: &S3Request) -> S3Result {
-        store::push_flow(req).await
+        ops::push_flow(req).await
     }
 
     pub async fn handle_prune(&self, req: &S3Request) -> S3Result {
-        store::prune_flow(req).await
+        ops::prune_flow(req).await
     }
 
     pub async fn handle_status(&self, req: &S3Request) -> S3Result {
-        store::status_flow(req).await
+        ops::status_flow(req).await
     }
 
     pub async fn handle_diff(&self, req: &S3Request) -> S3Result {
-        store::diff_flow(req).await
+        ops::diff_flow(req).await
     }
 
     fn set_headers_reqid(&self, h: &mut HeaderMap, reqid: &str) {
