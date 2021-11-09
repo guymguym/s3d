@@ -15,6 +15,7 @@ pub struct LocalConf {
     pub port: u16,
     pub ttl: String,
     pub max_disk_usage: String,
+    pub fuse_mount_point: String,
 }
 
 #[derive(Debug, PartialEq, Serialize, Deserialize)]

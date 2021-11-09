@@ -13,6 +13,7 @@ use hyper::{
 use std::{
     collections::HashMap,
     net::{IpAddr, Ipv4Addr, SocketAddr},
+    time::Duration,
 };
 use tokio::sync::OnceCell;
 use url::Url;
@@ -33,7 +34,16 @@ static DAEMON: OnceCell<Daemon> = OnceCell::const_new();
 pub async fn run(conf: Conf) -> anyhow::Result<()> {
     let ip = IpAddr::V4(Ipv4Addr::new(127, 0, 0, 1));
     let addr = SocketAddr::new(ip, conf.local.port);
+    let mountpoint = conf.local.fuse_mount_point.to_owned();
+
     DAEMON.set(Daemon::new(conf).await).unwrap();
+
+    fuser::mount2(
+        DAEMON.get().unwrap(),
+        mountpoint,
+        &[fuser::MountOption::AutoUnmount],
+    )?;
+
     let service = make_service_fn(|_| async {
         Ok::<_, anyhow::Error>(service_fn(|req: HttpRequest| async {
             DAEMON.get().unwrap().serve_request(req).await
@@ -341,5 +351,201 @@ impl Daemon {
             header::ACCESS_CONTROL_EXPOSE_HEADERS,
             "ETag,X-Amz-Version-Id".parse().unwrap(),
         );
+    }
+
+    fn make_attr(&self, ino: u64, kind: fuser::FileType, size: u64) -> fuser::FileAttr {
+        let now = std::time::SystemTime::now();
+        let blksize: u32 = 512;
+        fuser::FileAttr {
+            ino,
+            size,
+            blocks: (size + (blksize as u64) - 1) / blksize as u64,
+            atime: now,
+            mtime: now,
+            ctime: now,
+            crtime: now,
+            kind,
+            perm: 0o644,
+            nlink: 1,
+            uid: 0,
+            gid: 0,
+            rdev: 0,
+            blksize,
+            flags: 0,
+        }
+    }
+}
+
+impl fuser::Filesystem for &Daemon {
+    fn statfs(&mut self, _req: &fuser::Request<'_>, ino: u64, reply: fuser::ReplyStatfs) {
+        info!("FUSE::statfs() ino={}", ino);
+        reply.statfs(0, 0, 0, 0, 0, 512, 255, 0);
+    }
+
+    fn open(&mut self, _req: &fuser::Request<'_>, ino: u64, flags: i32, reply: fuser::ReplyOpen) {
+        info!("FUSE::open() ino={} flags={}", ino, flags);
+        reply.opened(ino, flags as u32);
+    }
+
+    fn release(
+        &mut self,
+        _req: &fuser::Request<'_>,
+        ino: u64,
+        fh: u64,
+        flags: i32,
+        lock_owner: Option<u64>,
+        flush: bool,
+        reply: fuser::ReplyEmpty,
+    ) {
+        info!(
+            "FUSE::release() ino={} fh={} flags={} lock_owner={:?} flush={}",
+            ino, fh, flags, lock_owner, flush
+        );
+        reply.ok();
+    }
+
+    fn opendir(
+        &mut self,
+        _req: &fuser::Request<'_>,
+        ino: u64,
+        flags: i32,
+        reply: fuser::ReplyOpen,
+    ) {
+        info!("FUSE::opendir() ino={} flags={}", ino, flags);
+        if ino < 1000 {
+            reply.opened(ino, flags as u32);
+        } else {
+            reply.error(libc::ENOTDIR);
+        }
+    }
+
+    fn releasedir(
+        &mut self,
+        _req: &fuser::Request<'_>,
+        ino: u64,
+        fh: u64,
+        flags: i32,
+        reply: fuser::ReplyEmpty,
+    ) {
+        info!("FUSE::releasedir() ino={} fh={} flags={}", ino, fh, flags);
+        if ino < 1000 {
+            reply.ok();
+        } else {
+            reply.error(libc::ENOTDIR);
+        }
+    }
+
+    fn lookup(
+        &mut self,
+        _req: &fuser::Request<'_>,
+        ino: u64,
+        name: &std::ffi::OsStr,
+        reply: fuser::ReplyEntry,
+    ) {
+        let name = name.to_str().unwrap();
+        info!("FUSE::lookup() ino={} name={}", ino, name);
+        if ino >= 1000 {
+            reply.error(libc::ENOTDIR);
+            return;
+        }
+        if !name.starts_with("file") {
+            reply.error(libc::ENOENT);
+            return;
+        }
+        let i = name[4..].parse::<u64>().unwrap();
+        let kind = if i < 1000 {
+            fuser::FileType::Directory
+        } else {
+            fuser::FileType::RegularFile
+        };
+        let attr = self.make_attr(i, kind, 10);
+        let ttl = Duration::from_secs(60);
+        reply.entry(&ttl, &attr, 0);
+    }
+
+    fn readdir(
+        &mut self,
+        _req: &fuser::Request<'_>,
+        ino: u64,
+        fh: u64,
+        offset: i64,
+        mut reply: fuser::ReplyDirectory,
+    ) {
+        info!("FUSE::readdir() ino={} fh={} offset={}", ino, fh, offset);
+        if ino >= 1000 {
+            reply.error(libc::ENOTDIR);
+            return;
+        }
+        for i in 1000..1003 as u64 {
+            if i >= offset as u64 {
+                reply.add(
+                    i,
+                    i as i64,
+                    fuser::FileType::RegularFile,
+                    &format!("file{}", i),
+                );
+            }
+        }
+        reply.ok();
+    }
+
+    fn readdirplus(
+        &mut self,
+        _req: &fuser::Request<'_>,
+        ino: u64,
+        fh: u64,
+        offset: i64,
+        mut reply: fuser::ReplyDirectoryPlus,
+    ) {
+        info!(
+            "FUSE::readdirplus() ino={} fh={} offset={}",
+            ino, fh, offset
+        );
+        if ino >= 1000 {
+            reply.error(libc::ENOTDIR);
+            return;
+        }
+        let ttl = Duration::from_secs(60);
+        for i in 1000..1003 as u64 {
+            if i >= offset as u64 {
+                let attr = self.make_attr(i as u64, fuser::FileType::RegularFile, 10);
+                reply.add(i, i as i64, &format!("file{}", i), &ttl, &attr, 0);
+            }
+        }
+        reply.ok();
+    }
+
+    fn getattr(&mut self, _req: &fuser::Request<'_>, ino: u64, reply: fuser::ReplyAttr) {
+        info!("FUSE::getattr() ino={}", ino);
+        let ttl = Duration::from_secs(60);
+        if ino < 1000 {
+            let attr = self.make_attr(ino, fuser::FileType::Directory, 0);
+            reply.attr(&ttl, &attr);
+        } else {
+            let attr = self.make_attr(ino, fuser::FileType::RegularFile, 10);
+            reply.attr(&ttl, &attr);
+        }
+    }
+
+    fn read(
+        &mut self,
+        _req: &fuser::Request<'_>,
+        ino: u64,
+        fh: u64,
+        offset: i64,
+        size: u32,
+        flags: i32,
+        lock_owner: Option<u64>,
+        reply: fuser::ReplyData,
+    ) {
+        info!(
+            "FUSE::read() ino={} fh={} offset={} size={} flags={} lock_owner={:?}",
+            ino, fh, offset, size, flags, lock_owner
+        );
+        if ino < 1000 {
+            reply.error(libc::EISDIR);
+        } else {
+            reply.data("0123456789\n".to_string().as_bytes());
+        }
     }
 }
