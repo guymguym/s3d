@@ -128,7 +128,7 @@ pub async fn list_objects(
     s3c: &aws_sdk_s3::Client,
     i: ListObjectsInput,
 ) -> Result<ListObjectsOutput, S3Error> {
-    let op = i.make_operation(s3c.conf()).unwrap();
+    let op = i.make_operation(s3c.conf()).await.unwrap();
     let (req, parts) = op.into_request_response();
     // let pp = ParseHttpResponse::(req, parts);
     // pp.parse_unloaded();
