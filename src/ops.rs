@@ -1,13 +1,17 @@
-use crate::{err::*, util::*};
-use aws_sdk_s3::{ByteStream, input::*, output::*};
-use aws_smithy_http::response::ParseHttpResponse;
+use crate::{
+    daemon::{AC, S3C},
+    err::*,
+    util::*,
+};
+use aws_sdk_s3::{input::*, output::*, ByteStream};
 use hyper::{Body, HeaderMap, Method};
-use std::collections::HashMap;
+use std::{collections::HashMap, net::SocketAddr};
 use url::Url;
 
 #[derive(Debug)]
 pub struct S3Request {
     // http request info
+    pub remote_addr: SocketAddr,
     pub url: Url,
     pub body: Body,
     pub method: Method,
@@ -115,59 +119,71 @@ impl From<&str> for S3ObjectSubResource {
 }
 
 pub async fn list_buckets(
-    s3c: &aws_sdk_s3::Client,
-    _: ListBucketsInput,
+    s3c: &S3C,
+    ac: &AC,
+    i: ListBucketsInput,
 ) -> Result<ListBucketsOutput, S3Error> {
-    Ok(s3c.list_buckets().send().await.or_else(|err| {
-        error!("{:?}", err);
-        Err(S3Error::new(S3Errors::InternalError))
-    })?)
+    ac.call(i.make_operation(s3c.conf()).await.unwrap())
+        .await
+        .or_else(|err| {
+            error!("{:?}", err);
+            Err(S3Error::new(S3Errors::InternalError))
+        })
+    // Ok(s3c.list_buckets().send().await.or_else(|err| {
+    //     error!("{:?}", err);
+    //     Err(S3Error::new(S3Errors::InternalError))
+    // })?)
 }
 
 pub async fn list_objects(
-    s3c: &aws_sdk_s3::Client,
+    s3c: &S3C,
+    ac: &AC,
     i: ListObjectsInput,
 ) -> Result<ListObjectsOutput, S3Error> {
-    let op = i.make_operation(s3c.conf()).await.unwrap();
-    let (req, parts) = op.into_request_response();
-    // let pp = ParseHttpResponse::(req, parts);
-    // pp.parse_unloaded();
-    // op.
-    Ok(s3c
-        .list_objects()
-        .set_bucket(i.bucket)
-        .set_delimiter(i.delimiter)
-        .set_encoding_type(i.encoding_type)
-        .set_expected_bucket_owner(i.expected_bucket_owner)
-        .set_marker(i.marker)
-        .set_max_keys(Some(i.max_keys))
-        .set_prefix(i.prefix)
-        .set_request_payer(i.request_payer)
-        .send()
+    ac.call(i.make_operation(s3c.conf()).await.unwrap())
         .await
         .or_else(|err| {
             error!("{:?}", err);
             Err(S3Error::new(S3Errors::InternalError))
-        })?)
+        })
+    // Ok(s3c
+    //     .list_objects()
+    //     .set_bucket(i.bucket)
+    //     .set_delimiter(i.delimiter)
+    //     .set_encoding_type(i.encoding_type)
+    //     .set_expected_bucket_owner(i.expected_bucket_owner)
+    //     .set_marker(i.marker)
+    //     .set_max_keys(Some(i.max_keys))
+    //     .set_prefix(i.prefix)
+    //     .set_request_payer(i.request_payer)
+    //     .send()
+    //     .await
+    //     .or_else(|err| {
+    //         error!("{:?}", err);
+    //         Err(S3Error::new(S3Errors::InternalError))
+    //     })?)
 }
 
-pub async fn get_object(
-    s3c: &aws_sdk_s3::Client,
-    i: GetObjectInput,
-) -> Result<GetObjectOutput, S3Error> {
-    Ok(s3c
-        .get_object()
-        .set_bucket(i.bucket)
-        .set_key(i.key)
-        .set_part_number(Some(i.part_number))
-        .set_range(i.range)
-        .set_version_id(i.version_id)
-        .send()
+pub async fn get_object(s3c: &S3C, ac: &AC, i: GetObjectInput) -> Result<GetObjectOutput, S3Error> {
+    ac.call(i.make_operation(s3c.conf()).await.unwrap())
         .await
         .or_else(|err| {
             error!("{:?}", err);
             Err(S3Error::new(S3Errors::InternalError))
-        })?)
+        })
+    // Ok(s3c
+    //     .get_object()
+    //     .set_bucket(i.bucket)
+    //     .set_key(i.key)
+    //     .set_part_number(Some(i.part_number))
+    //     .set_range(i.range)
+    //     .set_version_id(i.version_id)
+    //     .send()
+    //     .await
+    //     .or_else(|err| {
+    //         error!("{:?}", err);
+    //         Err(S3Error::new(S3Errors::InternalError))
+    //     })?)
 }
 
 pub async fn head_bucket(_req: &S3Request) -> S3Result {
@@ -305,7 +321,7 @@ pub async fn diff_flow(_req: &S3Request) -> S3Result {
 
 // pub async fn list_buckets() -> S3Result {
 //     let s3_config = aws_config::from_env().load().await;
-//     let client = aws_sdk_s3::Client::new(&s3_config);
+//     let client = S3C::new(&s3_config);
 //     // let client = S3Client::new(Region::Custom {
 //     //     name: "local".to_string(),
 //     //     endpoint: "http://localhost:4572".to_string(),

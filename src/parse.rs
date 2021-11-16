@@ -1,6 +1,26 @@
 use crate::{err::*, ops::S3Request, util::*};
-use aws_sdk_s3::{ByteStream, input::*, output::*};
+use aws_sdk_s3::{input::*, output::*};
+use aws_smithy_xml::encode::{ScopeWriter, XmlWriter};
 use hyper::Body;
+
+const S3_XMLNS: &'static str = "http://s3.amazonaws.com/doc/2006-03-01/";
+
+fn xml_root<'a, 'b>(x: &'a mut XmlWriter<'_>, root: &'b str) -> ScopeWriter<'a, 'b> {
+    x.start_el(root).write_ns(S3_XMLNS, None).finish()
+}
+fn xml_elem<'a, 'b>(w: &'a mut ScopeWriter<'_, '_>, name: &'b str) -> ScopeWriter<'a, 'b> {
+    w.start_el(name).write_ns(S3_XMLNS, None).finish()
+}
+fn xml_text(w: &mut ScopeWriter, tag: &str, data: String) {
+    let mut el = xml_elem(w, tag);
+    el.data(&data);
+    el.finish();
+}
+fn xml_text_opt<'a, 'b>(w: &mut ScopeWriter, tag: &str, opt_text: Option<String>) {
+    if let Some(text) = opt_text {
+        xml_text(w, tag, text)
+    }
+}
 
 pub fn list_buckets_input(_req: &S3Request) -> Result<ListBucketsInput, S3Error> {
     ListBucketsInput::builder()
@@ -9,26 +29,32 @@ pub fn list_buckets_input(_req: &S3Request) -> Result<ListBucketsInput, S3Error>
 }
 
 pub fn list_buckets_output(o: ListBucketsOutput) -> S3Result {
-    let mut w = XmlWriter::new();
-    w.start_tag("ListAllMyBucketsResult");
-    w.start_tag("Buckets");
-    for b in o.buckets.unwrap_or_default() {
-        w.start_tag("Bucket");
-        w.text_tag_opt("Name", b.name);
-        w.text_tag_opt(
-            "CreationDate",
-            b.creation_date.map(|t| t.to_chrono().to_rfc3339()),
-        );
-        w.end_tag("Bucket");
+    let mut out = String::new();
+    let mut x = XmlWriter::new(&mut out);
+    let mut r = xml_root(&mut x, "ListAllMyBucketsResult");
+    {
+        let mut s = xml_elem(&mut r, "Buckets");
+        for b in o.buckets.unwrap_or_default() {
+            let mut s = xml_elem(&mut s, "Bucket");
+            xml_text_opt(&mut s, "Name", b.name);
+            xml_text_opt(
+                &mut s,
+                "CreationDate",
+                b.creation_date.map(|t| t.to_chrono().to_rfc3339()),
+            );
+            s.finish();
+        }
+        s.finish();
     }
-    w.end_tag("Buckets");
-    let owner = o.owner.unwrap();
-    w.start_tag("Owner");
-    w.text_tag_opt("ID", owner.id);
-    w.text_tag_opt("DisplayName", owner.display_name);
-    w.end_tag("Owner");
-    w.end_tag("ListAllMyBucketsResult");
-    Ok(http_response().body(w.body()).unwrap())
+    {
+        let mut s = xml_elem(&mut r, "Owner");
+        let owner = o.owner.unwrap();
+        xml_text_opt(&mut s, "ID", owner.id);
+        xml_text_opt(&mut s, "DisplayName", owner.display_name);
+        s.finish();
+    }
+    r.finish();
+    Ok(http_response().body(Body::from(out)).unwrap())
 }
 
 pub fn list_objects_input(req: &S3Request) -> Result<ListObjectsInput, S3Error> {
@@ -46,7 +72,7 @@ pub fn list_objects_input(req: &S3Request) -> Result<ListObjectsInput, S3Error> 
 }
 
 pub fn list_objects_output(o: ListObjectsOutput) -> S3Result {
-    let mut w = XmlWriter::new();
+    let mut w = XmlWriter2::new();
     w.start_tag("ListBucketResult");
     w.text_tag_opt("Name", o.name);
     w.text_tag_opt("Prefix", o.prefix);
@@ -105,6 +131,7 @@ fn get_param_i32(req: &S3Request, name: &str) -> Option<i32> {
     req.params.get(name).map(|x| x.parse().unwrap())
 }
 fn get_header(req: &S3Request, name: &str) -> Option<String> {
-    req.headers.get(name).map_or(None, |x| x.to_str().map_or(None, |s| Some(s.to_string())))
+    req.headers
+        .get(name)
+        .map_or(None, |x| x.to_str().map_or(None, |s| Some(s.to_string())))
 }
-

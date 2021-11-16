@@ -3,14 +3,14 @@
 [package]
 name = "s3d"
 version = "0.0.1-alpha4"
+authors = ["guymguym"]
 edition = "2021"
-license = "Apache-2.0"
 description = "s3d is an S3 daemon for the Edge written in Rust. The goal of s3d is to provide a daemon for edge platforms (e.g. factory servers  🏭  planes  🛩  ships  🚢  cars  🏎  laptops  💻  mobile devices  📱  wearables  ⌚  ...) that connect to a central object storage (aka Hub). Since edge applications operate in subideal environments (high latency network, disconnections, hardware failures, eavesdropping, ...), s3d aims to make the applications run smoothly while it handles the flows of data, security, networking, local capacity, metadata caching, write queueing, etc."
-homepage = "https://github.com/s3d-rs/s3d"
+homepage = "https://s3d.rs"
 repository = "https://github.com/s3d-rs/s3d"
+license = "Apache-2.0"
 keywords = ["s3", "edge", "object", "storage", "bucket"]
 categories = ["database-implementations", "filesystem", "web-programming::http-server"]
-authors = ["guymguym"]
 
 [badges]
 maintenance = { status = "experimental" }
@@ -19,9 +19,9 @@ maintenance = { status = "experimental" }
 panic = 'abort'
 
 [dependencies]
-
-tokio = { version = "1.13.0", features = ["full"] }
+tokio = { version = "1.14.0", features = ["full"] }
 hyper = { version = "0.14.14", features = ["full"] }
+tower = { version = "0.4.10", features = ["full"] }
 uuid = { version = "0.8.2", features = ["v4"] }
 url = "2.2.2"
 log = "0.4.14"
@@ -29,17 +29,18 @@ env_logger = "0.9.0"
 async-trait = "0.1.51"
 clap = "3.0.0-beta.5"
 anyhow = "1.0.45"
-
 fuser = "0.9.1"
 libc = "0.2.107"
-
 serde = { version = "1.0.130", features = ["derive"] }
 serde_yaml = "0.8.21"
-serde_json = "1.0.69"
+serde_json = "1.0.70"
 quick-xml = "0.22.0"
-
-aws-types = "0.0.23-alpha"
-aws-config = "0.0.23-alpha"
-aws-sdk-s3 = "0.0.23-alpha"
-aws-sdk-signer = "0.0.23-alpha"
-aws-smithy-http = "0.27.0-alpha.1"
+aws-types = "0.0.25-alpha"
+aws-hyper = "0.0.25-alpha"
+aws-config = "0.0.25-alpha"
+aws-sdk-s3 = "0.0.25-alpha"
+aws-sdk-signer = "0.0.25-alpha"
+aws-smithy-client = "0.28.0-alpha"
+aws-smithy-xml = "0.28.0-alpha"
+aws-smithy-http = "0.28.0-alpha"
+aws-smithy-http-tower = "0.28.0-alpha"

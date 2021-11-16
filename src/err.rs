@@ -4,11 +4,12 @@ pub type S3Result = HttpResultOrErr<S3Error>;
 
 #[derive(Debug, Clone)]
 pub enum S3Errors {
-    InternalError,
     BadRequest,
+    Forbidden,
     _BucketAlreadyExists,
     _NoSuchBucket,
     _NoSuchKey,
+    InternalError,
 }
 
 #[derive(Debug, Clone)]
@@ -50,6 +51,13 @@ impl S3Error {
                 resource: "".to_owned(),
                 request_id: "".to_owned(),
             },
+            S3Errors::Forbidden => S3Error {
+                status_code: hyper::StatusCode::FORBIDDEN,
+                code: "Forbidden".to_owned(),
+                msg: "Forbidden".to_owned(),
+                resource: "".to_owned(),
+                request_id: "".to_owned(),
+            },
             S3Errors::_BucketAlreadyExists => S3Error {
                 status_code: hyper::StatusCode::CONFLICT,
                 code: "BucketAlreadyExists".to_owned(),
@@ -88,10 +96,11 @@ mod tests {
 
     #[test]
     fn it_works() {
-        assert_eq!(S3Errors::InternalError._name(), "InternalError");
         assert_eq!(S3Errors::BadRequest._name(), "BadRequest");
+        assert_eq!(S3Errors::Forbidden._name(), "Forbidden");
         assert_eq!(S3Errors::_BucketAlreadyExists._name(), "_BucketAlreadyExists");
         assert_eq!(S3Errors::_NoSuchBucket._name(), "_NoSuchBucket");
         assert_eq!(S3Errors::_NoSuchKey._name(), "_NoSuchKey");
+        assert_eq!(S3Errors::InternalError._name(), "InternalError");
     }
 }

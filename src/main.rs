@@ -6,6 +6,7 @@ mod cli;
 mod conf;
 mod daemon;
 mod err;
+mod fuse;
 mod ops;
 mod parse;
 

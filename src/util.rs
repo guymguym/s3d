@@ -10,12 +10,12 @@ pub fn http_response() -> hyper::http::response::Builder {
     hyper::http::response::Builder::new()
 }
 
-pub struct XmlWriter {
+pub struct XmlWriter2 {
     buf: Vec<u8>,
     // writer: quick_xml::Writer
 }
 
-impl XmlWriter {
+impl XmlWriter2 {
     pub fn new() -> Self {
         let mut w = Self { buf: Vec::new() };
         // BodyWriter { writer: Writer::new(Cursor::new(Vec::new())); }
