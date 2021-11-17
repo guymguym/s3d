@@ -3,14 +3,19 @@ use fuser::{FileAttr, FileType, Filesystem, Request};
 use std::time::Duration;
 
 impl Daemon {
-    pub fn start_fuse_mount(&'static self) -> anyhow::Result<()> {
+    pub async fn start_fuse_mount(&'static self) -> anyhow::Result<()> {
         let mountpoint = self.conf.local.fuse_mount_point.to_owned();
-        if !mountpoint.is_empty() {
-            // TODO fuse is disabled for now
-            // fuser::mount2(self, mountpoint, &[fuser::MountOption::AutoUnmount])?;
-            // fuser::spawn_mount(self, mountpoint, &[fuser::MountOption::AutoUnmount])?;
+        if mountpoint.is_empty() {
+            return Ok(());
         }
-        Ok(())
+        let mut session = fuser::Session::new(
+            self,
+            mountpoint.as_ref(),
+            &[fuser::MountOption::AutoUnmount],
+        )?;
+        // run the fuse event loop in a separate thread
+        let res = tokio::task::spawn_blocking(move || session.run()).await;
+        Ok(res??)
     }
 
     fn make_fuse_attr(&self, ino: u64, kind: FileType, size: u64) -> FileAttr {

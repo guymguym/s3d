@@ -26,20 +26,24 @@ pub struct Daemon {
     pub ac: AC,
 }
 
-// keep the server alive statically
-// because we need it for the lifetime of the program
+/// Daemon singleton static instance
+/// Initialized once and lives throughout the program
+/// because we need it to serve requests asynchronously
 static DAEMON: OnceCell<Daemon> = OnceCell::const_new();
 
-/// Starts http server with s3 service.
-/// This should be called only once at the start of the program.
+/// Run the daemon.
+/// Should be called once at the start of the program.
 pub async fn run(conf: Conf) -> anyhow::Result<()> {
     DAEMON.set(Daemon::new(conf).await).unwrap();
-    DAEMON.get().unwrap().start_fuse_mount()?;
-    DAEMON.get().unwrap().start_http_server().await?;
+    tokio::try_join!(
+        DAEMON.get().unwrap().start_fuse_mount(),
+        DAEMON.get().unwrap().start_http_server(),
+    )?;
     Ok(())
 }
 
 impl Daemon {
+    /// Initialize the daemon with the given configuration.
     pub async fn new(conf: Conf) -> Self {
         let s3_config = aws_config::from_env().load().await;
         let s3c = aws_sdk_s3::Client::new(&s3_config);
@@ -48,6 +52,7 @@ impl Daemon {
         Daemon { conf, s3c, ac }
     }
 
+    /// Starts http server with s3 service.
     pub async fn start_http_server(&'static self) -> anyhow::Result<()> {
         let addr = SocketAddr::from(([127, 0, 0, 1], self.conf.local.port));
         // using `move` to pass ownership from closure to the async service function (for remote_addr)
@@ -73,6 +78,7 @@ impl Daemon {
             .handle_request(&mut req)
             .await
             .unwrap_or_else(|err| self.handle_error(&req, err));
+
         info!(
             "<== HTTP {} {} {} [{}]",
             res.status(),
@@ -80,6 +86,7 @@ impl Daemon {
             req.url.path(),
             req.reqid,
         );
+
         Ok(res)
     }
 
