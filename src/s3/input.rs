@@ -1,22 +1,20 @@
 /// TODO generate this file automatically with https://github.com/awslabs/smithy-rs
-use crate::types::HttpRequest;
-use paste::paste;
 
 /// This macro defines a trait with functions for each of the S3 API methods.
 macro_rules! s3_input {
     ($name:ident) => {
-        paste! {
-            fn [<$name:snake>](&self, _req: HttpRequest)
-                -> Result<aws_sdk_s3::input::[<$name Input>], InputError> {
-                Err(InputError::NotImplemented)
+        paste::paste! {
+            fn [<$name:snake>](
+                &self,
+                _req: crate::s3::types::S3Request
+            ) -> Result<
+                aws_sdk_s3::input::[<$name Input>],
+                crate::s3::types::InputError
+            > {
+                Err(crate::s3::types::InputError::NotImplemented)
             }
         }
     };
-}
-
-pub enum InputError {
-    Unhandled(anyhow::Error),
-    NotImplemented,
 }
 
 pub trait S3Input: Sync + Send {

@@ -1,4 +1,4 @@
-use crate::types::*;
+use crate::s3::types::*;
 use aws_sdk_s3::{error::*, input::*, output::*};
 use aws_smithy_http::result::SdkError;
 use hyper::Body;
@@ -29,7 +29,11 @@ pub async fn list_objects(
         })
 }
 
-pub async fn get_object(s3c: &S3C, ac: &AC, i: GetObjectInput) -> Result<GetObjectOutput, S3Errors> {
+pub async fn get_object(
+    s3c: &S3C,
+    ac: &AC,
+    i: GetObjectInput,
+) -> Result<GetObjectOutput, S3Errors> {
     Ok(ac.call(i.make_operation(s3c.conf()).await.unwrap()).await?)
 }
 

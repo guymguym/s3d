@@ -10,9 +10,6 @@ mod ops;
 mod s3;
 
 #[macro_use]
-mod types;
-
-#[macro_use]
 extern crate log;
 
 #[macro_use]

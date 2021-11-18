@@ -1,3 +1,4 @@
+use crate::s3::kind::*;
 use hyper::Body;
 use hyper::{HeaderMap, Method};
 use std::{collections::HashMap, net::SocketAddr};
@@ -16,6 +17,14 @@ pub type AC = aws_smithy_client::Client<aws_hyper::DynConnector, aws_hyper::AwsM
 
 pub fn responder() -> hyper::http::response::Builder {
     hyper::http::response::Builder::new()
+}
+
+#[async_trait::async_trait]
+pub trait S3Op {
+    const KIND: S3OpKind;
+    type Input;
+    type Output;
+    type Error;
 }
 
 #[derive(Debug)]
@@ -157,5 +166,34 @@ impl From<&str> for S3ObjectSubResource {
             "versions" => Self::Versions,
             _ => Self::None,
         }
+    }
+}
+
+pub enum InputError {
+    Unhandled(anyhow::Error),
+    NotImplemented,
+}
+pub enum OutputError {
+    Unknown,
+    NotImplemented,
+}
+pub enum ServeError {
+    InputError(InputError),
+    S3Error(S3Error),
+    OutputError(OutputError),
+}
+impl From<InputError> for ServeError {
+    fn from(e: InputError) -> Self {
+        ServeError::InputError(e)
+    }
+}
+impl From<S3Error> for ServeError {
+    fn from(e: S3Error) -> Self {
+        ServeError::S3Error(e)
+    }
+}
+impl From<OutputError> for ServeError {
+    fn from(e: OutputError) -> Self {
+        ServeError::OutputError(e)
     }
 }

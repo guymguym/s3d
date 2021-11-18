@@ -1,22 +1,20 @@
 /// TODO generate this file automatically with https://github.com/awslabs/smithy-rs
-use crate::types::HttpResponse;
-use paste::paste;
 
 /// This macro defines a trait with functions for each of the S3 API methods.
 macro_rules! s3_output {
     ($name:ident) => {
-        paste! {
-            fn [<$name:snake>](&self, _output: aws_sdk_s3::output::[<$name Output>])
-                -> Result<HttpResponse, OutputError> {
-                Err(OutputError::NotImplemented)
+        paste::paste! {
+            fn [<$name:snake>](
+                &self,
+                _output: aws_sdk_s3::output::[<$name Output>]
+            ) -> Result<
+                crate::s3::types::HttpResponse,
+                crate::s3::types::OutputError
+            > {
+                Err(crate::s3::types::OutputError::NotImplemented)
             }
         }
     };
-}
-
-pub enum OutputError {
-    Unknown,
-    NotImplemented,
 }
 
 pub trait S3Output: Sync + Send {

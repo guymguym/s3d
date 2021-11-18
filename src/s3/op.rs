@@ -1,31 +1,20 @@
 /// TODO generate this file automatically with https://github.com/awslabs/smithy-rs
-use crate::s3::kind::*;
-use async_trait::async_trait;
-use paste::paste;
 
 /// This macro defines a struct for each operation with the input/output/error types
 /// and functions that read/write those from http request/response and call its api method.
 macro_rules! s3_op {
     ($name:ident) => {
-        paste! {
+        paste::paste! {
             pub struct [<$name Op>] {}
-            #[async_trait]
-            impl S3Op for [<$name Op>] {
-                const KIND: S3OpKind = S3OpKind::$name;
+            #[async_trait::async_trait]
+            impl crate::s3::types::S3Op for [<$name Op>] {
+                const KIND: crate::s3::kind::S3OpKind = crate::s3::kind::S3OpKind::$name;
                 type Input = aws_sdk_s3::input::[<$name Input>];
                 type Output = aws_sdk_s3::output::[<$name Output>];
                 type Error = aws_sdk_s3::error::[<$name Error>];
             }
         }
     };
-}
-
-#[async_trait]
-pub trait S3Op {
-    const KIND: S3OpKind;
-    type Input;
-    type Output;
-    type Error;
 }
 
 s3_op!(AbortMultipartUpload);

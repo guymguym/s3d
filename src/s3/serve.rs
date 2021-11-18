@@ -1,14 +1,9 @@
 /// TODO generate this file automatically with https://github.com/awslabs/smithy-rs
-use crate::{
-    s3::{api::*, input::*, kind::*, output::*},
-    types::*,
-};
-use paste::paste;
 
 /// This macro generates the serve code for each operation kind.
 macro_rules! s3_serve {
     ($name:ident, $req:ident, $inp:ident, $api:ident, $out:ident) => {
-        paste! {
+        paste::paste! {
             {
                 let input = $inp.[<$name:snake>]($req)?;
                 let output = $api.[<$name:snake>](input).await.map_err(|err| err.meta().clone())?;
@@ -19,34 +14,20 @@ macro_rules! s3_serve {
     };
 }
 
-pub enum ServeError {
-    InputError(InputError),
-    S3Error(S3Error),
-    OutputError(OutputError),
-}
-impl From<InputError> for ServeError {
-    fn from(e: InputError) -> Self {
-        ServeError::InputError(e)
-    }
-}
-impl From<S3Error> for ServeError {
-    fn from(e: S3Error) -> Self {
-        ServeError::S3Error(e)
-    }
-}
-impl From<OutputError> for ServeError {
-    fn from(e: OutputError) -> Self {
-        ServeError::OutputError(e)
-    }
-}
-
-pub async fn serve_http<I: S3Input, A: S3Api, O: S3Output>(
-    req: HttpRequest,
-    op: S3OpKind,
+/// serve_http parses the input, dispatches the request to the appropriate handler,
+/// and writes the response.
+pub async fn serve_http<
+    I: crate::s3::input::S3Input,
+    A: crate::s3::api::S3Api,
+    O: crate::s3::output::S3Output,
+>(
+    req: crate::s3::types::S3Request,
+    op: crate::s3::kind::S3OpKind,
     inp: &I,
     api: &A,
     out: &O,
-) -> Result<HttpResponse, ServeError> {
+) -> Result<crate::s3::types::HttpResponse, crate::s3::types::ServeError> {
+    use crate::s3::kind::S3OpKind;
     #[cfg_attr(rustfmt, rustfmt_skip)]
     match op {
         S3OpKind::AbortMultipartUpload => s3_serve!(AbortMultipartUpload, req, inp, api, out),
@@ -141,6 +122,10 @@ pub async fn serve_http<I: S3Input, A: S3Api, O: S3Output>(
         S3OpKind::UploadPart => s3_serve!(UploadPart, req, inp, api, out),
         S3OpKind::UploadPartCopy => s3_serve!(UploadPartCopy, req, inp, api, out),
         S3OpKind::WriteGetObjectResponse => s3_serve!(WriteGetObjectResponse, req, inp, api, out),
-        _ => Err(ServeError::InputError(InputError::Unhandled(anyhow!("Unhandled operation")))),
+        _ => Err(crate::s3::types::ServeError::InputError(
+            crate::s3::types::InputError::Unhandled(
+                anyhow!("Unhandled operation")
+            )
+        )),
     }
 }

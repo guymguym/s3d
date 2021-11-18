@@ -4,7 +4,7 @@ use std::future::Future;
 use std::pin::Pin;
 
 /// This macro defines the trait function for each of the API methods.
-/// We cannot use async fn so we manually define the returned type
+/// We cannot use async_trait inside the macro so we manually define the returned type
 /// see https://smallcultfollowing.com/babysteps/blog/2019/10/26/async-fn-in-traits-are-hard/
 macro_rules! s3_api {
     ($name:ident) => {
