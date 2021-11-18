@@ -1,8 +1,7 @@
 // TODO generate this file automatically with https://github.com/awslabs/smithy-rs
 
-#[cfg_attr(rustfmt, rustfmt_skip)]
-#[derive(Debug, PartialEq, Clone, Copy)]
-pub enum S3Ops {
+#[derive(Debug, PartialEq, Eq, Clone, Copy)]
+pub enum S3OpKind {
     AbortMultipartUpload,
     CompleteMultipartUpload,
     CopyObject,
@@ -98,7 +97,7 @@ pub enum S3Ops {
 }
 
 #[cfg_attr(rustfmt, rustfmt_skip)]
-impl From<&str> for S3Ops {
+impl From<&str> for S3OpKind {
     fn from(s: &str) -> Self {
         match s {
             "AbortMultipartUpload" => Self::AbortMultipartUpload,

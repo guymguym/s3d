@@ -1,3 +1,4 @@
 pub mod api;
-pub mod ops;
+pub mod kind;
+pub mod op;
 pub mod serve;

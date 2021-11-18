@@ -1047,6 +1047,12 @@ dependencies = [
 ]
 
 [[package]]
+name = "paste"
+version = "1.0.6"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "0744126afe1a6dd7f394cb50a716dbe086cb06e255e53d8d0185d82828358fb5"
+
+[[package]]
 name = "percent-encoding"
 version = "2.1.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -1304,6 +1310,7 @@ dependencies = [
  "hyper",
  "libc",
  "log",
+ "paste",
  "quick-xml",
  "serde",
  "serde_json",
