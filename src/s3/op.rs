@@ -1,7 +1,5 @@
-use crate::{
-    s3::{api::*, kind::*},
-    types::*,
-};
+/// TODO generate this file automatically with https://github.com/awslabs/smithy-rs
+use crate::s3::kind::*;
 use async_trait::async_trait;
 use paste::paste;
 
@@ -17,9 +15,6 @@ macro_rules! s3_op {
                 type Input = aws_sdk_s3::input::[<$name Input>];
                 type Output = aws_sdk_s3::output::[<$name Output>];
                 type Error = aws_sdk_s3::error::[<$name Error>];
-                async fn call(api: &dyn S3Api, input: Self::Input) -> Result<Self::Output, Self::Error> {
-                    api.[<$name:snake>](input).await
-                }
             }
         }
     };
@@ -31,23 +26,6 @@ pub trait S3Op {
     type Input;
     type Output;
     type Error;
-
-    async fn call(api: &dyn S3Api, input: Self::Input) -> Result<Self::Output, Self::Error>;
-
-    fn input(_req: HttpRequest) -> Result<Self::Input, InputError> {
-        Err(InputError::Unknown)
-    }
-
-    fn output(_output: Self::Output) -> Result<HttpResponse, OutputError> {
-        Err(OutputError::Unknown)
-    }
-}
-
-pub enum InputError {
-    Unknown,
-}
-pub enum OutputError {
-    Unknown,
 }
 
 s3_op!(AbortMultipartUpload);

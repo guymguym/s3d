@@ -1,5 +1,4 @@
-// TODO generate this file automatically with https://github.com/awslabs/smithy-rs
-
+/// TODO generate this file automatically with https://github.com/awslabs/smithy-rs
 use paste::paste;
 use std::future::Future;
 use std::pin::Pin;

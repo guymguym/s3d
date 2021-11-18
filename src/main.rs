@@ -7,7 +7,6 @@ mod conf;
 mod daemon;
 mod fuse;
 mod ops;
-mod parse;
 mod s3;
 
 #[macro_use]
