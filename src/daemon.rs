@@ -1,23 +1,14 @@
-use crate::{
-    conf::Conf,
-    err::*,
-    ops::{self, S3BucketSubResource, S3ObjectSubResource, S3Request},
-    parse,
-    util::*,
-};
+use crate::{conf::Conf, ops, parse, types::*};
 use hyper::{
     header,
     server::conn::AddrStream,
     service::{make_service_fn, service_fn},
     Body, HeaderMap, Server,
 };
-use std::{collections::HashMap, convert::Infallible, net::SocketAddr};
+use std::{any::Any, convert::Infallible, net::SocketAddr};
 use tokio::sync::OnceCell;
 use url::Url;
 use uuid::Uuid;
-
-pub type S3C = aws_sdk_s3::Client;
-pub type AC = aws_smithy_client::Client<aws_hyper::DynConnector, aws_hyper::AwsMiddleware>;
 
 #[derive(Debug)]
 pub struct Daemon {
@@ -73,7 +64,9 @@ impl Daemon {
         // self.handle_op(op).await?
 
         let mut req = self.new_request(http_req, remote_addr);
+
         info!("==> HTTP {} {} [{}]", req.method, req.url.path(), req.reqid);
+
         let res = self
             .handle_request(&mut req)
             .await
@@ -95,21 +88,15 @@ impl Daemon {
         let host = parts.headers.get(header::HOST).unwrap().to_str().unwrap();
         let base_url = Url::parse(&format!("http://{}", host)).unwrap();
         let url = base_url.join(&parts.uri.to_string()).unwrap();
-        let reqid = Uuid::new_v4().to_string();
+        let reqid = Uuid::new_v4().to_string(); // unique id for each request
         S3Request {
             remote_addr,
             url,
             body,
             method: parts.method,
             headers: parts.headers,
-            // generate a unique id for each request
             reqid,
-            // initialize empty fields and prepare_request() will fill later
-            params: HashMap::<String, String>::new(),
-            bucket: "".to_owned(),
-            key: "".to_owned(),
-            bucket_subresource: S3BucketSubResource::None,
-            object_subresource: S3ObjectSubResource::None,
+            ..Default::default() // default fields initial values
         }
     }
 
@@ -129,7 +116,10 @@ impl Daemon {
             "PRUNE" => self.handle_prune(req).await,
             "STATUS" => self.handle_status(req).await,
             "DIFF" => self.handle_diff(req).await,
-            _ => Err(S3Error::new(S3Errors::BadRequest)),
+            _ => Err(S3ErrorMeta::builder()
+                .code("MethodNotAllowed")
+                .build()
+                .into()),
         };
         if let Ok(ref mut res) = res {
             self.set_headers_reqid(res.headers_mut(), &req.reqid);
@@ -137,7 +127,7 @@ impl Daemon {
         res
     }
 
-    pub async fn prepare_request(&self, req: &mut S3Request) -> Result<(), S3Error> {
+    pub async fn prepare_request(&self, req: &mut S3Request) -> S3ResultNull {
         // parse path-style addressing for bucket names
         // TODO: add support for host-style addressing
         assert!(req.url.path().starts_with("/"));
@@ -153,18 +143,23 @@ impl Daemon {
                 req.bucket = path_items[0].to_owned();
                 for (key, val) in req.url.query_pairs() {
                     let sub = S3BucketSubResource::from(key.as_ref());
-                    if sub != S3BucketSubResource::None
+                    req.params.insert(String::from(key), String::from(val));
+                    if sub == S3BucketSubResource::None {
+                        continue;
+                    }
+                    if sub != req.bucket_subresource
                         && req.bucket_subresource != S3BucketSubResource::None
-                        && sub != req.bucket_subresource
                     {
-                        error!(
-                            "Multiple bucket subresources specified: {:?} and {:?}",
-                            req.bucket_subresource, sub
-                        );
-                        return Err(S3Error::new(S3Errors::BadRequest));
+                        return Err(S3Error::builder()
+                            .code("BadRequest")
+                            .message(format!(
+                                "Multiple bucket subresources specified: {:?} and {:?}",
+                                req.bucket_subresource, sub
+                            ))
+                            .build()
+                            .into());
                     }
                     req.bucket_subresource = sub;
-                    req.params.insert(String::from(key), String::from(val));
                 }
             }
             2 => {
@@ -172,18 +167,23 @@ impl Daemon {
                 req.key = path_items[1].to_owned();
                 for (key, val) in req.url.query_pairs() {
                     let sub = S3ObjectSubResource::from(key.as_ref());
-                    if sub != S3ObjectSubResource::None
+                    req.params.insert(String::from(key), String::from(val));
+                    if sub == S3ObjectSubResource::None {
+                        continue;
+                    }
+                    if sub != req.object_subresource
                         && req.object_subresource != S3ObjectSubResource::None
-                        && sub != req.object_subresource
                     {
-                        error!(
-                            "Multiple object subresources specified: {:?} and {:?}",
-                            req.object_subresource, sub
-                        );
-                        return Err(S3Error::new(S3Errors::BadRequest));
+                        return Err(S3Error::builder()
+                            .code("BadRequest")
+                            .message(format!(
+                                "Multiple object subresources specified: {:?} and {:?}",
+                                req.object_subresource, sub
+                            ))
+                            .build()
+                            .into());
                     }
                     req.object_subresource = sub;
-                    req.params.insert(String::from(key), String::from(val));
                 }
             }
             _ => panic!("unexpected path items split {:?}", req),
@@ -201,14 +201,17 @@ impl Daemon {
     }
 
     /// Authenticate and authorize the request.
-    pub async fn handle_auth(&self, req: &S3Request) -> Result<(), S3Error> {
+    pub async fn handle_auth(&self, req: &S3Request) -> S3ResultNull {
         // TODO implement authenticate
         if !req.remote_addr.ip().is_loopback() {
-            warn!(
-                "Received request from non-local address {}",
-                req.remote_addr
-            );
-            return Err(S3Error::new(S3Errors::Forbidden));
+            return Err(S3Error::builder()
+                .code("Forbidden")
+                .message(format!(
+                    "Received request from non-local address {}",
+                    req.remote_addr
+                ))
+                .build()
+                .into());
         }
 
         // std::process::Command::new("lsof")
@@ -221,23 +224,63 @@ impl Daemon {
     }
 
     pub fn handle_error(&self, req: &S3Request, err: S3Error) -> HttpResponse {
-        let mut res = http_response()
-            .status(err.status_code)
-            .header(header::CONTENT_TYPE, "application/xml")
-            .body(Body::from(format!(
-                "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n\
-                <Error>\
-                    <Code>{}</Code>\
-                    <Message>{}</Message>\
-                    <Resource>{}</HostId>\
-                    <RequestId>{}</RequestId>\
-                </Error>",
-                err.code,
-                err.msg,
-                req.url.path(),
-                req.reqid,
-            )))
-            .unwrap();
+        let mut res = if let Ok(err) = err.clone().try_into() {
+            parse::s3_error_meta_output(err)
+        } else {
+            error!("{:?}", err);
+            parse::s3_error_meta_output(
+                S3ErrorMeta::builder()
+                    .code("InternalError")
+                    .message("Internal error")
+                    .build(),
+            )
+        };
+        let mut res = res.unwrap();
+        // .unwrap_or(S3Error::Unhandled(err.into()))
+        // if let Some(err) = err.downcast_ref::<S3Error>() {
+        //     err.clone()
+        // } else if let Some(err) = err.downcast_ref::<S3ErrorMeta>() {
+        //     S3Error::Unhandled(err.into)
+        // } else {
+        //     S3Error::Unhandled(err.into)
+        //     responder()
+        //         .status(hyper::StatusCode::from(err))
+        //         .body(Body::from(err.message()))
+        //         .unwrap()
+
+        //     S3Error::Unhandled(
+        //         S3ErrorMeta::builder()
+        //             .code("InternalError")
+        //             .message("An internal error occurred")
+        //             .request_id(self.reqid)
+        //             .build()
+        //             .into(),
+        //     )
+        // }
+        // let mut res = if let Some(err) = err.downcast_ref::<aws_smithy_types::Error>() {
+        //     responder()
+        //         .status(hyper::StatusCode::from(err))
+        //         .body(Body::from(err.message()))
+        //         .unwrap()
+        // } else {
+        //     responder()
+        //         .status(hyper::StatusCode::INTERNAL_SERVER_ERROR)
+        //         .header(header::CONTENT_TYPE, "application/xml")
+        //         .body(Body::from(format!(
+        //             "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n\
+        //         <Error>\
+        //             <Code>{}</Code>\
+        //             <Message>{}</Message>\
+        //             <Resource>{}</HostId>\
+        //             <RequestId>{}</RequestId>\
+        //         </Error>",
+        //             err.code,
+        //             err.msg,
+        //             req.url.path(),
+        //             req.reqid,
+        //         )))
+        //         .unwrap()
+        // };
         self.set_headers_reqid(res.headers_mut(), &req.reqid);
         res
     }
@@ -245,20 +288,26 @@ impl Daemon {
     pub async fn handle_get(&self, req: &S3Request) -> S3Result {
         if req.bucket.is_empty() {
             return parse::list_buckets_output(
-                ops::list_buckets(&self.s3c, &self.ac, parse::list_buckets_input(req)?).await?,
+                ops::list_buckets(&self.s3c, &self.ac, parse::list_buckets_input(req).unwrap())
+                    .await
+                    .unwrap(),
             );
         }
         if req.key.is_empty() {
             return match req.bucket_subresource {
                 S3BucketSubResource::None => parse::list_objects_output(
-                    ops::list_objects(&self.s3c, &self.ac, parse::list_objects_input(req)?).await?,
+                    ops::list_objects(&self.s3c, &self.ac, parse::list_objects_input(req).unwrap())
+                        .await
+                        .unwrap(),
                 ),
                 _ => ops::get_bucket_subresource(req).await,
             };
         }
         match req.object_subresource {
             S3ObjectSubResource::None => parse::get_object_output(
-                ops::get_object(&self.s3c, &self.ac, parse::get_object_input(req)?).await?,
+                ops::get_object(&self.s3c, &self.ac, parse::get_object_input(req).unwrap())
+                    .await
+                    .unwrap(),
             ),
             _ => ops::get_object_subresource(req).await,
         }
@@ -266,7 +315,7 @@ impl Daemon {
 
     pub async fn handle_head(&self, req: &S3Request) -> S3Result {
         if req.bucket.is_empty() {
-            return Err(S3Error::new(S3Errors::BadRequest));
+            return Err(S3Error::builder().code("BadRequest").build());
         }
         if req.key.is_empty() {
             return ops::head_bucket(req).await;
@@ -276,7 +325,7 @@ impl Daemon {
 
     pub async fn handle_put(&self, req: &S3Request) -> S3Result {
         if req.bucket.is_empty() {
-            return Err(S3Error::new(S3Errors::BadRequest));
+            return Err(S3Error::builder().code("BadRequest").build());
         }
         if req.key.is_empty() {
             return match req.bucket_subresource {
@@ -292,7 +341,7 @@ impl Daemon {
 
     pub async fn handle_delete(&self, req: &S3Request) -> S3Result {
         if req.bucket.is_empty() {
-            return Err(S3Error::new(S3Errors::BadRequest));
+            return Err(S3Error::builder().code("BadRequest").build());
         }
         if req.key.is_empty() {
             return match req.bucket_subresource {
@@ -308,7 +357,7 @@ impl Daemon {
 
     pub async fn handle_post(&self, req: &S3Request) -> S3Result {
         if req.bucket.is_empty() {
-            return Err(S3Error::new(S3Errors::BadRequest));
+            return Err(S3Error::builder().code("BadRequest").build());
         }
         if req.key.is_empty() {
             return match req.bucket_subresource {
@@ -319,7 +368,7 @@ impl Daemon {
         match req.object_subresource {
             S3ObjectSubResource::Uploads => ops::create_multipart_upload(req).await,
             S3ObjectSubResource::UploadId => ops::complete_multipart_upload(req).await,
-            _ => Err(S3Error::new(S3Errors::BadRequest)),
+            _ => Err(S3Error::builder().code("BadRequest").build()),
         }
     }
 

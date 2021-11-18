@@ -1,221 +1,68 @@
-use crate::{
-    daemon::{AC, S3C},
-    err::*,
-    util::*,
-};
-use aws_sdk_s3::{input::*, output::*, ByteStream};
-use hyper::{Body, HeaderMap, Method};
-use std::{collections::HashMap, net::SocketAddr};
-use url::Url;
-
-#[derive(Debug)]
-pub struct S3Request {
-    // http request info
-    pub remote_addr: SocketAddr,
-    pub url: Url,
-    pub body: Body,
-    pub method: Method,
-    pub headers: HeaderMap,
-
-    /// reqid is a generated unique id for each request
-    pub reqid: String,
-
-    // parsed fields
-    pub params: HashMap<String, String>,
-    pub bucket: String,
-    pub key: String,
-    pub bucket_subresource: S3BucketSubResource,
-    pub object_subresource: S3ObjectSubResource,
-}
-
-#[derive(Debug, PartialEq)]
-pub enum S3BucketSubResource {
-    None,
-    Accelerate,
-    Acl,
-    Analytics,
-    Cors,
-    Encryption,
-    IntelligentTiering,
-    Inventory,
-    Lifecycle,
-    Location,
-    Logging,
-    Metrics,
-    Notification,
-    OwnershipControls,
-    Policy,
-    PolicyStatus,
-    PublicAccessBlock,
-    Replication,
-    RequestPayment,
-    Tagging,
-    Versioning,
-    Website,
-}
-
-#[derive(Debug, PartialEq)]
-pub enum S3ObjectSubResource {
-    None,
-    Acl,
-    LegalHold,
-    ObjectLock,
-    Restore,
-    Retention,
-    SelectObjectContent,
-    Tagging,
-    Torrent,
-    Uploads,
-    UploadId,
-    Versions,
-}
-
-impl From<&str> for S3BucketSubResource {
-    fn from(s: &str) -> Self {
-        match s {
-            "accelerate" => Self::Accelerate,
-            "acl" => Self::Acl,
-            "analytics" => Self::Analytics,
-            "cors" => Self::Cors,
-            "encryption" => Self::Encryption,
-            "intelligent-tiering" => Self::IntelligentTiering,
-            "inventory" => Self::Inventory,
-            "lifecycle" => Self::Lifecycle,
-            "location" => Self::Location,
-            "logging" => Self::Logging,
-            "metrics" => Self::Metrics,
-            "notification" => Self::Notification,
-            "ownershipControls" => Self::OwnershipControls,
-            "policy" => Self::Policy,
-            "policyStatus" => Self::PolicyStatus,
-            "publicAccessBlock" => Self::PublicAccessBlock,
-            "replication" => Self::Replication,
-            "requestPayment" => Self::RequestPayment,
-            "tagging" => Self::Tagging,
-            "versioning" => Self::Versioning,
-            "website" => Self::Website,
-            _ => Self::None,
-        }
-    }
-}
-
-impl From<&str> for S3ObjectSubResource {
-    fn from(s: &str) -> Self {
-        match s {
-            "acl" => Self::Acl,
-            "legal-hold" => Self::LegalHold,
-            "object-lock" => Self::ObjectLock,
-            "restore" => Self::Restore,
-            "retention" => Self::Retention,
-            "select" => Self::SelectObjectContent,
-            "tagging" => Self::Tagging,
-            "torrent" => Self::Torrent,
-            "uploads" => Self::Uploads,
-            "uploadId" => Self::UploadId,
-            "versions" => Self::Versions,
-            _ => Self::None,
-        }
-    }
-}
+use crate::types::*;
+use aws_sdk_s3::{error::*, input::*, output::*};
+use aws_smithy_http::result::SdkError;
+use hyper::Body;
 
 pub async fn list_buckets(
     s3c: &S3C,
     ac: &AC,
     i: ListBucketsInput,
-) -> Result<ListBucketsOutput, S3Error> {
+) -> Result<ListBucketsOutput, ListBucketsError> {
     ac.call(i.make_operation(s3c.conf()).await.unwrap())
         .await
-        .or_else(|err| {
-            error!("{:?}", err);
-            Err(S3Error::new(S3Errors::InternalError))
+        .map_err(|err| match err {
+            SdkError::ServiceError { err, .. } => err,
+            _ => ListBucketsError::unhandled(err),
         })
-    // Ok(s3c.list_buckets().send().await.or_else(|err| {
-    //     error!("{:?}", err);
-    //     Err(S3Error::new(S3Errors::InternalError))
-    // })?)
 }
 
 pub async fn list_objects(
     s3c: &S3C,
     ac: &AC,
     i: ListObjectsInput,
-) -> Result<ListObjectsOutput, S3Error> {
+) -> Result<ListObjectsOutput, ListObjectsError> {
     ac.call(i.make_operation(s3c.conf()).await.unwrap())
         .await
-        .or_else(|err| {
-            error!("{:?}", err);
-            Err(S3Error::new(S3Errors::InternalError))
+        .map_err(|err| match err {
+            SdkError::ServiceError { err, .. } => err,
+            _ => ListObjectsError::unhandled(err),
         })
-    // Ok(s3c
-    //     .list_objects()
-    //     .set_bucket(i.bucket)
-    //     .set_delimiter(i.delimiter)
-    //     .set_encoding_type(i.encoding_type)
-    //     .set_expected_bucket_owner(i.expected_bucket_owner)
-    //     .set_marker(i.marker)
-    //     .set_max_keys(Some(i.max_keys))
-    //     .set_prefix(i.prefix)
-    //     .set_request_payer(i.request_payer)
-    //     .send()
-    //     .await
-    //     .or_else(|err| {
-    //         error!("{:?}", err);
-    //         Err(S3Error::new(S3Errors::InternalError))
-    //     })?)
 }
 
-pub async fn get_object(s3c: &S3C, ac: &AC, i: GetObjectInput) -> Result<GetObjectOutput, S3Error> {
-    ac.call(i.make_operation(s3c.conf()).await.unwrap())
-        .await
-        .or_else(|err| {
-            error!("{:?}", err);
-            Err(S3Error::new(S3Errors::InternalError))
-        })
-    // Ok(s3c
-    //     .get_object()
-    //     .set_bucket(i.bucket)
-    //     .set_key(i.key)
-    //     .set_part_number(Some(i.part_number))
-    //     .set_range(i.range)
-    //     .set_version_id(i.version_id)
-    //     .send()
-    //     .await
-    //     .or_else(|err| {
-    //         error!("{:?}", err);
-    //         Err(S3Error::new(S3Errors::InternalError))
-    //     })?)
+pub async fn get_object(s3c: &S3C, ac: &AC, i: GetObjectInput) -> Result<GetObjectOutput, S3Errors> {
+    Ok(ac.call(i.make_operation(s3c.conf()).await.unwrap()).await?)
 }
 
 pub async fn head_bucket(_req: &S3Request) -> S3Result {
-    Ok(http_response().body(Body::from("head_bucket\n")).unwrap())
+    Ok(responder().body(Body::from("head_bucket\n")).unwrap())
 }
 
 pub async fn head_object(_req: &S3Request) -> S3Result {
-    Ok(http_response().body(Body::from("head_object\n")).unwrap())
+    Ok(responder().body(Body::from("head_object\n")).unwrap())
 }
 
 pub async fn put_bucket(_req: &S3Request) -> S3Result {
-    Ok(http_response().body(Body::from("put_bucket\n")).unwrap())
+    Ok(responder().body(Body::from("put_bucket\n")).unwrap())
 }
 
 pub async fn put_object(_req: &S3Request) -> S3Result {
-    Ok(http_response().body(Body::from("put_object\n")).unwrap())
+    Ok(responder().body(Body::from("put_object\n")).unwrap())
 }
 
 pub async fn delete_bucket(_req: &S3Request) -> S3Result {
-    Ok(http_response().body(Body::from("delete_bucket\n")).unwrap())
+    Ok(responder().body(Body::from("delete_bucket\n")).unwrap())
 }
 
 pub async fn delete_object(_req: &S3Request) -> S3Result {
-    Ok(http_response().body(Body::from("delete_object\n")).unwrap())
+    Ok(responder().body(Body::from("delete_object\n")).unwrap())
 }
 
 pub async fn post_object(_req: &S3Request) -> S3Result {
-    Ok(http_response().body(Body::from("post_object\n")).unwrap())
+    Ok(responder().body(Body::from("post_object\n")).unwrap())
 }
 
 pub async fn get_bucket_subresource(req: &S3Request) -> S3Result {
-    Ok(http_response()
+    Ok(responder()
         .body(Body::from(format!(
             "get_bucket_subresource {:?}\n",
             req.bucket_subresource
@@ -224,7 +71,7 @@ pub async fn get_bucket_subresource(req: &S3Request) -> S3Result {
 }
 
 pub async fn get_object_subresource(req: &S3Request) -> S3Result {
-    Ok(http_response()
+    Ok(responder()
         .body(Body::from(format!(
             "get_object_subresource {:?}\n",
             req.object_subresource
@@ -233,7 +80,7 @@ pub async fn get_object_subresource(req: &S3Request) -> S3Result {
 }
 
 pub async fn put_bucket_subresource(req: &S3Request) -> S3Result {
-    Ok(http_response()
+    Ok(responder()
         .body(Body::from(format!(
             "put_bucket_subresource {:?}\n",
             req.bucket_subresource
@@ -242,7 +89,7 @@ pub async fn put_bucket_subresource(req: &S3Request) -> S3Result {
 }
 
 pub async fn put_object_subresource(req: &S3Request) -> S3Result {
-    Ok(http_response()
+    Ok(responder()
         .body(Body::from(format!(
             "put_object_subresource {:?}\n",
             req.object_subresource
@@ -251,7 +98,7 @@ pub async fn put_object_subresource(req: &S3Request) -> S3Result {
 }
 
 pub async fn delete_bucket_subresource(req: &S3Request) -> S3Result {
-    Ok(http_response()
+    Ok(responder()
         .body(Body::from(format!(
             "delete_bucket_subresource {:?}\n",
             req.bucket_subresource
@@ -260,7 +107,7 @@ pub async fn delete_bucket_subresource(req: &S3Request) -> S3Result {
 }
 
 pub async fn delete_object_subresource(req: &S3Request) -> S3Result {
-    Ok(http_response()
+    Ok(responder()
         .body(Body::from(format!(
             "delete_object_subresource {:?}\n",
             req.object_subresource
@@ -269,7 +116,7 @@ pub async fn delete_object_subresource(req: &S3Request) -> S3Result {
 }
 
 pub async fn post_bucket_subresource(req: &S3Request) -> S3Result {
-    Ok(http_response()
+    Ok(responder()
         .body(Body::from(format!(
             "post_bucket_subresource {:?}\n",
             req.bucket_subresource
@@ -278,7 +125,7 @@ pub async fn post_bucket_subresource(req: &S3Request) -> S3Result {
 }
 
 pub async fn create_multipart_upload(req: &S3Request) -> S3Result {
-    Ok(http_response()
+    Ok(responder()
         .body(Body::from(format!(
             "create_multipart_upload {:?}\n",
             req.object_subresource
@@ -287,7 +134,7 @@ pub async fn create_multipart_upload(req: &S3Request) -> S3Result {
 }
 
 pub async fn complete_multipart_upload(req: &S3Request) -> S3Result {
-    Ok(http_response()
+    Ok(responder()
         .body(Body::from(format!(
             "complete_multipart_upload {:?}\n",
             req.object_subresource
@@ -296,27 +143,27 @@ pub async fn complete_multipart_upload(req: &S3Request) -> S3Result {
 }
 
 pub async fn fetch_flow(_req: &S3Request) -> S3Result {
-    Ok(http_response().body(Body::from("fetch_flow\n")).unwrap())
+    Ok(responder().body(Body::from("fetch_flow\n")).unwrap())
 }
 
 pub async fn pull_flow(_req: &S3Request) -> S3Result {
-    Ok(http_response().body(Body::from("pull_flow\n")).unwrap())
+    Ok(responder().body(Body::from("pull_flow\n")).unwrap())
 }
 
 pub async fn push_flow(_req: &S3Request) -> S3Result {
-    Ok(http_response().body(Body::from("push_flow\n")).unwrap())
+    Ok(responder().body(Body::from("push_flow\n")).unwrap())
 }
 
 pub async fn prune_flow(_req: &S3Request) -> S3Result {
-    Ok(http_response().body(Body::from("prune_flow\n")).unwrap())
+    Ok(responder().body(Body::from("prune_flow\n")).unwrap())
 }
 
 pub async fn status_flow(_req: &S3Request) -> S3Result {
-    Ok(http_response().body(Body::from("status_flow\n")).unwrap())
+    Ok(responder().body(Body::from("status_flow\n")).unwrap())
 }
 
 pub async fn diff_flow(_req: &S3Request) -> S3Result {
-    Ok(http_response().body(Body::from("diff_flow\n")).unwrap())
+    Ok(responder().body(Body::from("diff_flow\n")).unwrap())
 }
 
 // pub async fn list_buckets() -> S3Result {

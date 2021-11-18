@@ -5,13 +5,13 @@
 mod cli;
 mod conf;
 mod daemon;
-mod err;
 mod fuse;
 mod ops;
 mod parse;
+mod s3;
 
 #[macro_use]
-mod util;
+mod types;
 
 #[macro_use]
 extern crate log;
