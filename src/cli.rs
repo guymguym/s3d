@@ -110,7 +110,7 @@ impl CLI {
             // Cmd::Get(cmd) => cmd.run(conf).await,
             // Cmd::Put(cmd) => cmd.run(conf).await,
             // Cmd::List(cmd) => cmd.run(conf).await,
-            cmd => bail!("Unsupported command: {:?}", cmd),
+            cmd => bail!("CLI command not yet implemented: {:?}", cmd),
         }
     }
 

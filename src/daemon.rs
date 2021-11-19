@@ -6,8 +6,6 @@ use hyper::{
 };
 use std::{convert::Infallible, net::SocketAddr};
 use tokio::sync::OnceCell;
-use url::Url;
-use uuid::Uuid;
 
 #[derive(Debug)]
 pub struct Daemon {
@@ -64,7 +62,7 @@ impl Daemon {
         http_req: HttpRequest,
         remote_addr: SocketAddr,
     ) -> Result<HttpResponse, Infallible> {
-        let mut req = self.new_request(http_req, remote_addr);
+        let mut req = S3Request::new(http_req, remote_addr);
 
         info!("==> HTTP {} {} [{}]", req.method, req.url.path(), req.reqid);
 
@@ -82,23 +80,6 @@ impl Daemon {
         );
 
         Ok(res)
-    }
-
-    pub fn new_request(&self, http_req: HttpRequest, remote_addr: SocketAddr) -> S3Request {
-        let (parts, body) = http_req.into_parts();
-        let host = parts.headers.get(header::HOST).unwrap().to_str().unwrap();
-        let base_url = Url::parse(&format!("http://{}", host)).unwrap();
-        let url = base_url.join(&parts.uri.to_string()).unwrap();
-        let reqid = Uuid::new_v4().to_string(); // unique id for each request
-        S3Request {
-            remote_addr,
-            url,
-            body,
-            method: parts.method,
-            headers: parts.headers,
-            reqid,
-            ..Default::default() // default fields initial values
-        }
     }
 
     pub async fn handle_request(&self, req: &mut S3Request) -> S3Result {
@@ -123,7 +104,7 @@ impl Daemon {
         //         .build()
         //         .into()),
         // };
-        self.set_common_response_headers(req, &mut res);
+        self.set_headers_ids(req, &mut res);
         Ok(res)
     }
 
@@ -134,16 +115,11 @@ impl Daemon {
         let path_items: Vec<_> = req.url.path()[1..].splitn(2, "/").collect();
 
         match path_items.len() {
-            0 => {
-                for (key, val) in req.url.query_pairs() {
-                    req.params.insert(String::from(key), String::from(val));
-                }
-            }
+            0 => {}
             1 => {
                 req.bucket = path_items[0].to_owned();
-                for (key, val) in req.url.query_pairs() {
+                for (key, _val) in req.url.query_pairs() {
                     let sub = S3BucketSubResource::from(key.as_ref());
-                    req.params.insert(String::from(key), String::from(val));
                     if sub == S3BucketSubResource::None {
                         continue;
                     }
@@ -165,9 +141,8 @@ impl Daemon {
             2 => {
                 req.bucket = path_items[0].to_owned();
                 req.key = path_items[1].to_owned();
-                for (key, val) in req.url.query_pairs() {
+                for (key, _val) in req.url.query_pairs() {
                     let sub = S3ObjectSubResource::from(key.as_ref());
-                    req.params.insert(String::from(key), String::from(val));
                     if sub == S3ObjectSubResource::None {
                         continue;
                     }
@@ -281,7 +256,7 @@ impl Daemon {
         //         )))
         //         .unwrap()
         // };
-        self.set_common_response_headers(req, &mut res);
+        self.set_headers_ids(req, &mut res);
         res
     }
 
@@ -378,7 +353,7 @@ impl Daemon {
     //     Ok(res)
     // }
 
-    pub fn set_common_response_headers(&self, req: &S3Request, res: &mut HttpResponse) {
+    pub fn set_headers_ids(&self, req: &S3Request, res: &mut HttpResponse) {
         let x_amz_request_id = header::HeaderName::from_static("x-amz-request-id");
         let x_amz_id_2 = header::HeaderName::from_static("x-amz-id-2");
         let reqid_val = header::HeaderValue::from_str(&req.reqid).unwrap();
