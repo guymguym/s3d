@@ -1,4 +1,4 @@
-/// TODO generate this file automatically with https://github.com/awslabs/smithy-rs
+//! TODO This module should be generated from https://github.com/awslabs/smithy-rs
 
 #[derive(Debug, PartialEq, Eq, Clone, Copy)]
 pub enum S3OpKind {

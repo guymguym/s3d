@@ -1,17 +1,31 @@
-/// TODO generate this file automatically with https://github.com/awslabs/smithy-rs
+//! TODO This module should be generated from https://github.com/awslabs/smithy-rs
 
-/// This macro defines a struct for each operation with the input/output/error types
+use crate::{s3::*, types::*};
+
+pub trait S3Op {
+    const KIND: S3OpKind;
+    type Input;
+    type Output;
+    type Error;
+    const input_parser: fn(&S3Request) -> Result<Self::Input, InputError>;
+    const output_parser: fn(Self::Output) -> Result<HttpResponse, OutputError>;
+}
+
+/// This macro generates a struct for each operation with the input/output/error types
 /// and functions that read/write those from http request/response and call its api method.
 macro_rules! s3_op {
     ($name:ident) => {
         paste::paste! {
             pub struct [<$name Op>] {}
-            #[async_trait::async_trait]
-            impl crate::s3::types::S3Op for [<$name Op>] {
-                const KIND: crate::s3::kind::S3OpKind = crate::s3::kind::S3OpKind::$name;
+            impl S3Op for [<$name Op>] {
+                const KIND: S3OpKind = S3OpKind::$name;
                 type Input = aws_sdk_s3::input::[<$name Input>];
                 type Output = aws_sdk_s3::output::[<$name Output>];
                 type Error = aws_sdk_s3::error::[<$name Error>];
+                const input_parser: fn(&S3Request) -> Result<Self::Input, InputError> =
+                    crate::s3::input::parsers::[<$name:snake>];
+                const output_parser: fn(Self::Output) -> Result<HttpResponse, OutputError> =
+                    crate::s3::output::parsers::[<$name:snake>];
             }
         }
     };

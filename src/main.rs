@@ -2,12 +2,12 @@
 //! - https://s3d.rs
 //! - https://github.com/s3d-rs/s3d
 
-mod cli;
-mod conf;
-mod daemon;
-mod fuse;
-mod ops;
-mod s3;
+pub mod cli;
+pub mod conf;
+pub mod daemon;
+pub mod fuse;
+pub mod s3;
+pub mod types;
 
 #[macro_use]
 extern crate log;

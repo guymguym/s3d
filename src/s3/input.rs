@@ -1,113 +1,183 @@
-/// TODO generate this file automatically with https://github.com/awslabs/smithy-rs
+//! TODO This module should be generated from https://github.com/awslabs/smithy-rs
 
-/// This macro defines a trait with functions for each of the S3 API methods.
-macro_rules! s3_input {
-    ($name:ident) => {
-        paste::paste! {
-            fn [<$name:snake>](
-                &self,
-                _req: crate::s3::types::S3Request
-            ) -> Result<
-                aws_sdk_s3::input::[<$name Input>],
-                crate::s3::types::InputError
-            > {
-                Err(crate::s3::types::InputError::NotImplemented)
-            }
-        }
-    };
+use crate::types::S3Request;
+use aws_sdk_s3::input::*;
+use aws_smithy_http::operation::BuildError;
+
+/// InputError are errors that can occur when parsing the input from the HTTP request
+#[derive(Debug)]
+pub enum InputError {
+    NotImplemented(&'static str),
+    BadRequest(BuildError),
+    Unhandled(anyhow::Error),
 }
 
-pub trait S3Input: Sync + Send {
-    s3_input!(AbortMultipartUpload);
-    s3_input!(CompleteMultipartUpload);
-    s3_input!(CopyObject);
-    s3_input!(CreateBucket);
-    s3_input!(CreateMultipartUpload);
-    s3_input!(DeleteBucket);
-    s3_input!(DeleteBucketAnalyticsConfiguration);
-    s3_input!(DeleteBucketCors);
-    s3_input!(DeleteBucketEncryption);
-    s3_input!(DeleteBucketIntelligentTieringConfiguration);
-    s3_input!(DeleteBucketInventoryConfiguration);
-    s3_input!(DeleteBucketLifecycle);
-    s3_input!(DeleteBucketMetricsConfiguration);
-    s3_input!(DeleteBucketOwnershipControls);
-    s3_input!(DeleteBucketPolicy);
-    s3_input!(DeleteBucketReplication);
-    s3_input!(DeleteBucketTagging);
-    s3_input!(DeleteBucketWebsite);
-    s3_input!(DeleteObject);
-    s3_input!(DeleteObjects);
-    s3_input!(DeleteObjectTagging);
-    s3_input!(DeletePublicAccessBlock);
-    s3_input!(GetBucketAccelerateConfiguration);
-    s3_input!(GetBucketAcl);
-    s3_input!(GetBucketAnalyticsConfiguration);
-    s3_input!(GetBucketCors);
-    s3_input!(GetBucketEncryption);
-    s3_input!(GetBucketIntelligentTieringConfiguration);
-    s3_input!(GetBucketInventoryConfiguration);
-    s3_input!(GetBucketLifecycleConfiguration);
-    s3_input!(GetBucketLocation);
-    s3_input!(GetBucketLogging);
-    s3_input!(GetBucketMetricsConfiguration);
-    s3_input!(GetBucketNotificationConfiguration);
-    s3_input!(GetBucketOwnershipControls);
-    s3_input!(GetBucketPolicy);
-    s3_input!(GetBucketPolicyStatus);
-    s3_input!(GetBucketReplication);
-    s3_input!(GetBucketRequestPayment);
-    s3_input!(GetBucketTagging);
-    s3_input!(GetBucketVersioning);
-    s3_input!(GetBucketWebsite);
-    s3_input!(GetObject);
-    s3_input!(GetObjectAcl);
-    s3_input!(GetObjectLegalHold);
-    s3_input!(GetObjectLockConfiguration);
-    s3_input!(GetObjectRetention);
-    s3_input!(GetObjectTagging);
-    s3_input!(GetObjectTorrent);
-    s3_input!(GetPublicAccessBlock);
-    s3_input!(HeadBucket);
-    s3_input!(HeadObject);
-    s3_input!(ListBucketAnalyticsConfigurations);
-    s3_input!(ListBucketIntelligentTieringConfigurations);
-    s3_input!(ListBucketInventoryConfigurations);
-    s3_input!(ListBucketMetricsConfigurations);
-    s3_input!(ListBuckets);
-    s3_input!(ListMultipartUploads);
-    s3_input!(ListObjects);
-    s3_input!(ListObjectsV2);
-    s3_input!(ListObjectVersions);
-    s3_input!(ListParts);
-    s3_input!(PutBucketAccelerateConfiguration);
-    s3_input!(PutBucketAcl);
-    s3_input!(PutBucketAnalyticsConfiguration);
-    s3_input!(PutBucketCors);
-    s3_input!(PutBucketEncryption);
-    s3_input!(PutBucketIntelligentTieringConfiguration);
-    s3_input!(PutBucketInventoryConfiguration);
-    s3_input!(PutBucketLifecycleConfiguration);
-    s3_input!(PutBucketLogging);
-    s3_input!(PutBucketMetricsConfiguration);
-    s3_input!(PutBucketNotificationConfiguration);
-    s3_input!(PutBucketOwnershipControls);
-    s3_input!(PutBucketPolicy);
-    s3_input!(PutBucketReplication);
-    s3_input!(PutBucketRequestPayment);
-    s3_input!(PutBucketTagging);
-    s3_input!(PutBucketVersioning);
-    s3_input!(PutBucketWebsite);
-    s3_input!(PutObject);
-    s3_input!(PutObjectAcl);
-    s3_input!(PutObjectLegalHold);
-    s3_input!(PutObjectLockConfiguration);
-    s3_input!(PutObjectRetention);
-    s3_input!(PutObjectTagging);
-    s3_input!(PutPublicAccessBlock);
-    s3_input!(RestoreObject);
-    s3_input!(SelectObjectContent);
-    s3_input!(UploadPart);
-    s3_input!(UploadPartCopy);
-    s3_input!(WriteGetObjectResponse);
+impl std::error::Error for InputError {}
+
+impl From<BuildError> for InputError {
+    fn from(err: BuildError) -> Self {
+        InputError::BadRequest(err)
+    }
+}
+
+impl From<anyhow::Error> for InputError {
+    fn from(err: anyhow::Error) -> Self {
+        InputError::Unhandled(err)
+    }
+}
+
+impl std::fmt::Display for InputError {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        match self {
+            InputError::NotImplemented(msg) => write!(f, "NotImplemented({})", msg),
+            InputError::BadRequest(err) => write!(f, "BadRequest({})", err),
+            InputError::Unhandled(err) => write!(f, "Unhandled({})", err),
+        }
+    }
+}
+
+/// Implement a function per S3 operation to parse the input from the HTTP request.
+/// To be exact - the methods take S3Request which is a wrapper around the HTTP request.
+/// Should be generated from smithy-rs.
+pub mod parsers {
+    pub use super::not_implemented::*;
+    use super::*;
+
+    pub fn list_buckets(req: &S3Request) -> Result<ListBucketsInput, InputError> {
+        ListBucketsInput::builder().build().map_err(|e| e.into())
+    }
+
+    pub fn list_objects(req: &S3Request) -> Result<ListObjectsInput, InputError> {
+        ListObjectsInput::builder()
+            .set_bucket(Some(req.bucket.clone()))
+            .set_delimiter(req.get_param("delimiter"))
+            .set_marker(req.get_param("marker"))
+            .set_prefix(req.get_param("prefix"))
+            .set_max_keys(req.get_param_i32("max-keys"))
+            // .set_encoding_type(i.expected_bucket_owner)
+            // .set_expected_bucket_owner(i.expected_bucket_owner)
+            // .set_request_payer(i.request_payer)
+            .build()
+            .map_err(|e| e.into())
+    }
+
+    pub fn get_object(req: &S3Request) -> Result<GetObjectInput, InputError> {
+        GetObjectInput::builder()
+            .set_bucket(Some(req.bucket.clone()))
+            .set_key(Some(req.key.clone()))
+            .set_part_number(req.get_param_i32("partNumber"))
+            .set_range(req.get_header("range"))
+            .set_version_id(req.get_param("versionId"))
+            .build()
+            .map_err(|e| e.into())
+    }
+}
+
+mod not_implemented {
+    use super::*;
+    use crate::types::S3Request;
+
+    /// This macro generates a default parser function per op.
+    macro_rules! s3_inp {
+        ($name:ident) => {
+            paste::paste! {
+                pub fn [<$name:snake>](req: &S3Request) -> Result<[<$name Input>], InputError> {
+                    Err(InputError::NotImplemented(stringify!(s3::input::parsers::[<$name:snake>])))
+                }
+            }
+        };
+    }
+
+    s3_inp!(AbortMultipartUpload);
+    s3_inp!(CompleteMultipartUpload);
+    s3_inp!(CopyObject);
+    s3_inp!(CreateBucket);
+    s3_inp!(CreateMultipartUpload);
+    s3_inp!(DeleteBucket);
+    s3_inp!(DeleteBucketAnalyticsConfiguration);
+    s3_inp!(DeleteBucketCors);
+    s3_inp!(DeleteBucketEncryption);
+    s3_inp!(DeleteBucketIntelligentTieringConfiguration);
+    s3_inp!(DeleteBucketInventoryConfiguration);
+    s3_inp!(DeleteBucketLifecycle);
+    s3_inp!(DeleteBucketMetricsConfiguration);
+    s3_inp!(DeleteBucketOwnershipControls);
+    s3_inp!(DeleteBucketPolicy);
+    s3_inp!(DeleteBucketReplication);
+    s3_inp!(DeleteBucketTagging);
+    s3_inp!(DeleteBucketWebsite);
+    s3_inp!(DeleteObject);
+    s3_inp!(DeleteObjects);
+    s3_inp!(DeleteObjectTagging);
+    s3_inp!(DeletePublicAccessBlock);
+    s3_inp!(GetBucketAccelerateConfiguration);
+    s3_inp!(GetBucketAcl);
+    s3_inp!(GetBucketAnalyticsConfiguration);
+    s3_inp!(GetBucketCors);
+    s3_inp!(GetBucketEncryption);
+    s3_inp!(GetBucketIntelligentTieringConfiguration);
+    s3_inp!(GetBucketInventoryConfiguration);
+    s3_inp!(GetBucketLifecycleConfiguration);
+    s3_inp!(GetBucketLocation);
+    s3_inp!(GetBucketLogging);
+    s3_inp!(GetBucketMetricsConfiguration);
+    s3_inp!(GetBucketNotificationConfiguration);
+    s3_inp!(GetBucketOwnershipControls);
+    s3_inp!(GetBucketPolicy);
+    s3_inp!(GetBucketPolicyStatus);
+    s3_inp!(GetBucketReplication);
+    s3_inp!(GetBucketRequestPayment);
+    s3_inp!(GetBucketTagging);
+    s3_inp!(GetBucketVersioning);
+    s3_inp!(GetBucketWebsite);
+    s3_inp!(GetObject);
+    s3_inp!(GetObjectAcl);
+    s3_inp!(GetObjectLegalHold);
+    s3_inp!(GetObjectLockConfiguration);
+    s3_inp!(GetObjectRetention);
+    s3_inp!(GetObjectTagging);
+    s3_inp!(GetObjectTorrent);
+    s3_inp!(GetPublicAccessBlock);
+    s3_inp!(HeadBucket);
+    s3_inp!(HeadObject);
+    s3_inp!(ListBucketAnalyticsConfigurations);
+    s3_inp!(ListBucketIntelligentTieringConfigurations);
+    s3_inp!(ListBucketInventoryConfigurations);
+    s3_inp!(ListBucketMetricsConfigurations);
+    s3_inp!(ListBuckets);
+    s3_inp!(ListMultipartUploads);
+    s3_inp!(ListObjects);
+    s3_inp!(ListObjectsV2);
+    s3_inp!(ListObjectVersions);
+    s3_inp!(ListParts);
+    s3_inp!(PutBucketAccelerateConfiguration);
+    s3_inp!(PutBucketAcl);
+    s3_inp!(PutBucketAnalyticsConfiguration);
+    s3_inp!(PutBucketCors);
+    s3_inp!(PutBucketEncryption);
+    s3_inp!(PutBucketIntelligentTieringConfiguration);
+    s3_inp!(PutBucketInventoryConfiguration);
+    s3_inp!(PutBucketLifecycleConfiguration);
+    s3_inp!(PutBucketLogging);
+    s3_inp!(PutBucketMetricsConfiguration);
+    s3_inp!(PutBucketNotificationConfiguration);
+    s3_inp!(PutBucketOwnershipControls);
+    s3_inp!(PutBucketPolicy);
+    s3_inp!(PutBucketReplication);
+    s3_inp!(PutBucketRequestPayment);
+    s3_inp!(PutBucketTagging);
+    s3_inp!(PutBucketVersioning);
+    s3_inp!(PutBucketWebsite);
+    s3_inp!(PutObject);
+    s3_inp!(PutObjectAcl);
+    s3_inp!(PutObjectLegalHold);
+    s3_inp!(PutObjectLockConfiguration);
+    s3_inp!(PutObjectRetention);
+    s3_inp!(PutObjectTagging);
+    s3_inp!(PutPublicAccessBlock);
+    s3_inp!(RestoreObject);
+    s3_inp!(SelectObjectContent);
+    s3_inp!(UploadPart);
+    s3_inp!(UploadPartCopy);
+    s3_inp!(WriteGetObjectResponse);
 }

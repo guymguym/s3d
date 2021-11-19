@@ -1,30 +1,33 @@
-//! TODO This module should be generated from https://github.com/awslabs/smithy-rs
-
-use crate::types::TraitFuture;
+use crate::{s3::*, types::*};
 use aws_sdk_s3::{error::*, input::*, output::*};
+use aws_smithy_http::result::SdkError;
+
+#[derive(Debug)]
+pub struct S3ApiToClient {
+    pub s3c: S3C,
+    pub ac: AC,
+}
 
 /// This macro generates a default function for each op.
-/// We can't use async_trait macro inside our macro so we use the same thing it does
-/// which is this pin-box-dyn-future - see long explanation here:
-/// https://smallcultfollowing.com/babysteps/blog/2019/10/26/async-fn-in-traits-are-hard/
 macro_rules! s3_api {
     ($name:ident) => {
         paste::paste! {
             fn [<$name:snake>](&self, i: [<$name Input>]) -> TraitFuture<[<$name Output>], [<$name Error>]> {
-                Box::pin(async { Err([<$name Error>]::generic(self.not_implemented())) })
+                Box::pin(async {
+                    self.ac
+                    .call(i.make_operation(self.s3c.conf()).await.unwrap())
+                    .await
+                    .map_err(|err| match err {
+                        SdkError::ServiceError { err, .. } => err,
+                        _ => [<$name Error>]::unhandled(err),
+                    })
+                })
             }
         }
     };
 }
 
-pub trait S3Api: Sync + Send {
-    fn not_implemented(&self) -> aws_smithy_types::Error {
-        aws_smithy_types::Error::builder()
-            .code("NotImplemented")
-            .message("The requested action is not implemented.")
-            .build()
-    }
-
+impl S3Api for S3ApiToClient {
     s3_api!(AbortMultipartUpload);
     s3_api!(CompleteMultipartUpload);
     s3_api!(CopyObject);

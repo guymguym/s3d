@@ -1,11 +1,11 @@
-use crate::{conf::Conf, ops, parse, types::*};
+use crate::{conf::Conf, s3::*, types::*};
 use hyper::{
     header,
     server::conn::AddrStream,
     service::{make_service_fn, service_fn},
     Body, HeaderMap, Server,
 };
-use std::{any::Any, convert::Infallible, net::SocketAddr};
+use std::{convert::Infallible, net::SocketAddr};
 use tokio::sync::OnceCell;
 use url::Url;
 use uuid::Uuid;
@@ -13,8 +13,7 @@ use uuid::Uuid;
 #[derive(Debug)]
 pub struct Daemon {
     pub conf: Conf,
-    pub s3c: S3C,
-    pub ac: AC,
+    pub s3_api: S3ApiToClient,
 }
 
 /// Daemon singleton static instance
@@ -40,7 +39,10 @@ impl Daemon {
         let s3c = aws_sdk_s3::Client::new(&s3_config);
         let retry_config = s3_config.retry_config().unwrap();
         let ac = aws_hyper::Client::https().with_retry_config(retry_config.clone().into());
-        Daemon { conf, s3c, ac }
+        Daemon {
+            conf,
+            s3_api: S3ApiToClient { s3c, ac },
+        }
     }
 
     /// Starts http server with s3 service.
@@ -58,8 +60,12 @@ impl Daemon {
         Ok(())
     }
 
-    pub async fn handle_http(&self, http_req: HttpRequest, remote_addr: SocketAddr) -> HttpResult {
-        // self.handle_auth(&http_req).await?;
+    pub async fn handle_http(
+        &self,
+        http_req: HttpRequest,
+        remote_addr: SocketAddr,
+    ) -> Result<HttpResponse, Infallible> {
+        // self.check_auth(&http_req).await?;
         // let op = self.parse_http(http_req);
         // self.handle_op(op).await?
 
@@ -101,33 +107,34 @@ impl Daemon {
     }
 
     pub async fn handle_request(&self, req: &mut S3Request) -> S3Result {
-        self.prepare_request(req).await?;
-        self.handle_auth(req).await?;
-        let mut res = match req.method.as_str() {
-            "GET" => self.handle_get(req).await,
-            "HEAD" => self.handle_head(req).await,
-            "PUT" => self.handle_put(req).await,
-            "POST" => self.handle_post(req).await,
-            "DELETE" => self.handle_delete(req).await,
-            "OPTIONS" => self.handle_options(req).await,
-            "FETCH" => self.handle_fetch(req).await,
-            "PULL" => self.handle_pull(req).await,
-            "PUSH" => self.handle_push(req).await,
-            "PRUNE" => self.handle_prune(req).await,
-            "STATUS" => self.handle_status(req).await,
-            "DIFF" => self.handle_diff(req).await,
-            _ => Err(S3ErrorMeta::builder()
-                .code("MethodNotAllowed")
-                .build()
-                .into()),
-        };
+        self.parse_request(req).await?;
+        self.check_auth(req).await?;
+        let mut res = crate::s3::handle_request(req, &self.s3_api).await?;
+        // let mut res = match req.method.as_str() {
+        //     "GET" => self.handle_get(req).await,
+        //     "HEAD" => self.handle_head(req).await,
+        //     "PUT" => self.handle_put(req).await,
+        //     "POST" => self.handle_post(req).await,
+        //     "DELETE" => self.handle_delete(req).await,
+        //     "OPTIONS" => self.handle_options(req).await,
+        //     "FETCH" => self.handle_fetch(req).await,
+        //     "PULL" => self.handle_pull(req).await,
+        //     "PUSH" => self.handle_push(req).await,
+        //     "PRUNE" => self.handle_prune(req).await,
+        //     "STATUS" => self.handle_status(req).await,
+        //     "DIFF" => self.handle_diff(req).await,
+        //     _ => Err(S3ErrorMeta::builder()
+        //         .code("MethodNotAllowed")
+        //         .build()
+        //         .into()),
+        // };
         if let Ok(ref mut res) = res {
             self.set_headers_reqid(res.headers_mut(), &req.reqid);
         }
-        res
+        Ok(res)
     }
 
-    pub async fn prepare_request(&self, req: &mut S3Request) -> S3ResultNull {
+    pub async fn parse_request(&self, req: &mut S3Request) -> S3ResultNull {
         // parse path-style addressing for bucket names
         // TODO: add support for host-style addressing
         assert!(req.url.path().starts_with("/"));
@@ -201,7 +208,7 @@ impl Daemon {
     }
 
     /// Authenticate and authorize the request.
-    pub async fn handle_auth(&self, req: &S3Request) -> S3ResultNull {
+    pub async fn check_auth(&self, req: &S3Request) -> S3ResultNull {
         // TODO implement authenticate
         if !req.remote_addr.ip().is_loopback() {
             return Err(S3Error::builder()
@@ -225,10 +232,10 @@ impl Daemon {
 
     pub fn handle_error(&self, req: &S3Request, err: S3Error) -> HttpResponse {
         let mut res = if let Ok(err) = err.clone().try_into() {
-            parse::s3_error_meta_output(err)
+            s3_error_meta_output(err)
         } else {
             error!("{:?}", err);
-            parse::s3_error_meta_output(
+            s3_error_meta_output(
                 S3ErrorMeta::builder()
                     .code("InternalError")
                     .message("Internal error")
@@ -285,122 +292,122 @@ impl Daemon {
         res
     }
 
-    pub async fn handle_get(&self, req: &S3Request) -> S3Result {
-        if req.bucket.is_empty() {
-            return parse::list_buckets_output(
-                ops::list_buckets(&self.s3c, &self.ac, parse::list_buckets_input(req).unwrap())
-                    .await
-                    .unwrap(),
-            );
-        }
-        if req.key.is_empty() {
-            return match req.bucket_subresource {
-                S3BucketSubResource::None => parse::list_objects_output(
-                    ops::list_objects(&self.s3c, &self.ac, parse::list_objects_input(req).unwrap())
-                        .await
-                        .unwrap(),
-                ),
-                _ => ops::get_bucket_subresource(req).await,
-            };
-        }
-        match req.object_subresource {
-            S3ObjectSubResource::None => parse::get_object_output(
-                ops::get_object(&self.s3c, &self.ac, parse::get_object_input(req).unwrap())
-                    .await
-                    .unwrap(),
-            ),
-            _ => ops::get_object_subresource(req).await,
-        }
-    }
+    // pub async fn handle_get(&self, req: &S3Request) -> S3Result {
+    //     if req.bucket.is_empty() {
+    //         return parse::list_buckets_output(
+    //             ops::list_buckets(&self.s3c, &self.ac, parse::list_buckets_input(req).unwrap())
+    //                 .await
+    //                 .unwrap(),
+    //         );
+    //     }
+    //     if req.key.is_empty() {
+    //         return match req.bucket_subresource {
+    //             S3BucketSubResource::None => parse::list_objects_output(
+    //                 ops::list_objects(&self.s3c, &self.ac, parse::list_objects_input(req).unwrap())
+    //                     .await
+    //                     .unwrap(),
+    //             ),
+    //             _ => ops::get_bucket_subresource(req).await,
+    //         };
+    //     }
+    //     match req.object_subresource {
+    //         S3ObjectSubResource::None => parse::get_object_output(
+    //             ops::get_object(&self.s3c, &self.ac, parse::get_object_input(req).unwrap())
+    //                 .await
+    //                 .unwrap(),
+    //         ),
+    //         _ => ops::get_object_subresource(req).await,
+    //     }
+    // }
 
-    pub async fn handle_head(&self, req: &S3Request) -> S3Result {
-        if req.bucket.is_empty() {
-            return Err(S3Error::builder().code("BadRequest").build());
-        }
-        if req.key.is_empty() {
-            return ops::head_bucket(req).await;
-        }
-        ops::head_object(req).await
-    }
+    // pub async fn handle_head(&self, req: &S3Request) -> S3Result {
+    //     if req.bucket.is_empty() {
+    //         return Err(S3Error::builder().code("BadRequest").build());
+    //     }
+    //     if req.key.is_empty() {
+    //         return ops::head_bucket(req).await;
+    //     }
+    //     ops::head_object(req).await
+    // }
 
-    pub async fn handle_put(&self, req: &S3Request) -> S3Result {
-        if req.bucket.is_empty() {
-            return Err(S3Error::builder().code("BadRequest").build());
-        }
-        if req.key.is_empty() {
-            return match req.bucket_subresource {
-                S3BucketSubResource::None => ops::put_bucket(req).await,
-                _ => ops::put_bucket_subresource(req).await,
-            };
-        }
-        match req.object_subresource {
-            S3ObjectSubResource::None => ops::put_object(req).await,
-            _ => ops::put_object_subresource(req).await,
-        }
-    }
+    // pub async fn handle_put(&self, req: &S3Request) -> S3Result {
+    //     if req.bucket.is_empty() {
+    //         return Err(S3Error::builder().code("BadRequest").build());
+    //     }
+    //     if req.key.is_empty() {
+    //         return match req.bucket_subresource {
+    //             S3BucketSubResource::None => ops::put_bucket(req).await,
+    //             _ => ops::put_bucket_subresource(req).await,
+    //         };
+    //     }
+    //     match req.object_subresource {
+    //         S3ObjectSubResource::None => ops::put_object(req).await,
+    //         _ => ops::put_object_subresource(req).await,
+    //     }
+    // }
 
-    pub async fn handle_delete(&self, req: &S3Request) -> S3Result {
-        if req.bucket.is_empty() {
-            return Err(S3Error::builder().code("BadRequest").build());
-        }
-        if req.key.is_empty() {
-            return match req.bucket_subresource {
-                S3BucketSubResource::None => ops::delete_bucket(req).await,
-                _ => ops::delete_bucket_subresource(req).await,
-            };
-        }
-        match req.object_subresource {
-            S3ObjectSubResource::None => ops::delete_object(req).await,
-            _ => ops::delete_object_subresource(req).await,
-        }
-    }
+    // pub async fn handle_delete(&self, req: &S3Request) -> S3Result {
+    //     if req.bucket.is_empty() {
+    //         return Err(S3Error::builder().code("BadRequest").build());
+    //     }
+    //     if req.key.is_empty() {
+    //         return match req.bucket_subresource {
+    //             S3BucketSubResource::None => ops::delete_bucket(req).await,
+    //             _ => ops::delete_bucket_subresource(req).await,
+    //         };
+    //     }
+    //     match req.object_subresource {
+    //         S3ObjectSubResource::None => ops::delete_object(req).await,
+    //         _ => ops::delete_object_subresource(req).await,
+    //     }
+    // }
 
-    pub async fn handle_post(&self, req: &S3Request) -> S3Result {
-        if req.bucket.is_empty() {
-            return Err(S3Error::builder().code("BadRequest").build());
-        }
-        if req.key.is_empty() {
-            return match req.bucket_subresource {
-                S3BucketSubResource::None => ops::post_object(req).await,
-                _ => ops::post_bucket_subresource(req).await,
-            };
-        }
-        match req.object_subresource {
-            S3ObjectSubResource::Uploads => ops::create_multipart_upload(req).await,
-            S3ObjectSubResource::UploadId => ops::complete_multipart_upload(req).await,
-            _ => Err(S3Error::builder().code("BadRequest").build()),
-        }
-    }
+    // pub async fn handle_post(&self, req: &S3Request) -> S3Result {
+    //     if req.bucket.is_empty() {
+    //         return Err(S3Error::builder().code("BadRequest").build());
+    //     }
+    //     if req.key.is_empty() {
+    //         return match req.bucket_subresource {
+    //             S3BucketSubResource::None => ops::post_object(req).await,
+    //             _ => ops::post_bucket_subresource(req).await,
+    //         };
+    //     }
+    //     match req.object_subresource {
+    //         S3ObjectSubResource::Uploads => ops::create_multipart_upload(req).await,
+    //         S3ObjectSubResource::UploadId => ops::complete_multipart_upload(req).await,
+    //         _ => Err(S3Error::builder().code("BadRequest").build()),
+    //     }
+    // }
 
-    pub async fn handle_options(&self, req: &S3Request) -> S3Result {
-        let mut res = HttpResponse::new(Body::empty());
-        self.set_headers_cors(&req, &mut res);
-        Ok(res)
-    }
+    // pub async fn handle_options(&self, req: &S3Request) -> S3Result {
+    //     let mut res = HttpResponse::new(Body::empty());
+    //     self.set_headers_cors(&req, &mut res);
+    //     Ok(res)
+    // }
 
-    pub async fn handle_fetch(&self, req: &S3Request) -> S3Result {
-        ops::fetch_flow(req).await
-    }
+    // pub async fn handle_fetch(&self, req: &S3Request) -> S3Result {
+    //     ops::fetch_flow(req).await
+    // }
 
-    pub async fn handle_pull(&self, req: &S3Request) -> S3Result {
-        ops::pull_flow(req).await
-    }
+    // pub async fn handle_pull(&self, req: &S3Request) -> S3Result {
+    //     ops::pull_flow(req).await
+    // }
 
-    pub async fn handle_push(&self, req: &S3Request) -> S3Result {
-        ops::push_flow(req).await
-    }
+    // pub async fn handle_push(&self, req: &S3Request) -> S3Result {
+    //     ops::push_flow(req).await
+    // }
 
-    pub async fn handle_prune(&self, req: &S3Request) -> S3Result {
-        ops::prune_flow(req).await
-    }
+    // pub async fn handle_prune(&self, req: &S3Request) -> S3Result {
+    //     ops::prune_flow(req).await
+    // }
 
-    pub async fn handle_status(&self, req: &S3Request) -> S3Result {
-        ops::status_flow(req).await
-    }
+    // pub async fn handle_status(&self, req: &S3Request) -> S3Result {
+    //     ops::status_flow(req).await
+    // }
 
-    pub async fn handle_diff(&self, req: &S3Request) -> S3Result {
-        ops::diff_flow(req).await
-    }
+    // pub async fn handle_diff(&self, req: &S3Request) -> S3Result {
+    //     ops::diff_flow(req).await
+    // }
 
     pub fn set_headers_reqid(&self, h: &mut HeaderMap, reqid: &str) {
         let x_amz_request_id = header::HeaderName::from_static("x-amz-request-id");
