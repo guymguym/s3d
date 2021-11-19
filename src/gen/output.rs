@@ -14,21 +14,7 @@ pub enum OutputError {
     BadResponse(hyper::http::Error),
     Unhandled(anyhow::Error),
 }
-
 impl std::error::Error for OutputError {}
-
-impl From<hyper::http::Error> for OutputError {
-    fn from(err: hyper::http::Error) -> Self {
-        OutputError::BadResponse(err)
-    }
-}
-
-impl From<anyhow::Error> for OutputError {
-    fn from(err: anyhow::Error) -> Self {
-        OutputError::Unhandled(err)
-    }
-}
-
 impl std::fmt::Display for OutputError {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         match self {
@@ -36,6 +22,16 @@ impl std::fmt::Display for OutputError {
             OutputError::BadResponse(err) => write!(f, "BadResponse({})", err),
             OutputError::Unhandled(err) => write!(f, "Unhandled({})", err),
         }
+    }
+}
+impl From<hyper::http::Error> for OutputError {
+    fn from(err: hyper::http::Error) -> Self {
+        OutputError::BadResponse(err)
+    }
+}
+impl From<anyhow::Error> for OutputError {
+    fn from(err: anyhow::Error) -> Self {
+        OutputError::Unhandled(err)
     }
 }
 
@@ -56,7 +52,7 @@ fn xml_text_opt<'a, 'b, T: AsRef<str>>(w: &mut ScopeWriter, tag: &str, opt_text:
     }
 }
 
-pub fn s3_error_meta_output(e: S3ErrorMeta) -> S3Result {
+pub fn s3_error_output(e: S3Error) -> S3Result {
     let mut out = String::new();
     let mut x = XmlWriter::new(&mut out);
     let mut w = xml_root(&mut x, "Error");
@@ -69,8 +65,11 @@ pub fn s3_error_meta_output(e: S3ErrorMeta) -> S3Result {
 }
 
 pub mod parsers {
-    pub use super::not_implemented::*;
     use super::*;
+
+    // we re-publish all the not_implemented methods as default and then override them
+    // in this module to make it easier to implement it in stages.
+    pub use super::not_implemented::*;
 
     pub fn list_buckets(o: ListBucketsOutput) -> Result<HttpResponse, OutputError> {
         let mut out = String::new();
@@ -143,7 +142,7 @@ pub mod parsers {
         Ok(responder().body(Body::from(out)).unwrap())
     }
 
-    pub fn get_object(o: GetObjectOutput) -> Result<HttpResponse, OutputError> {
+    pub fn get_object(_o: GetObjectOutput) -> Result<HttpResponse, OutputError> {
         // let body = Body::from(o.body.collect().await);
         Ok(responder().body(Body::from("get_object")).unwrap())
     }
@@ -156,7 +155,8 @@ mod not_implemented {
     macro_rules! s3_out {
         ($name:ident) => {
             paste::paste! {
-                pub fn [<$name:snake>](o: [<$name Output>]) -> Result<HttpResponse, OutputError> {
+                #[allow(dead_code)]
+                pub fn [<$name:snake>](_: [<$name Output>]) -> Result<HttpResponse, OutputError> {
                     Err(OutputError::NotImplemented(stringify!(s3::output::parsers::[<$name:snake>])))
                 }
             }

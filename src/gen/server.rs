@@ -1,13 +1,47 @@
 //! TODO This module should be generated from https://github.com/awslabs/smithy-rs
 
-use crate::{s3::*, types::*};
+use crate::{gen::*, types::*};
+use std::fmt;
+
+/// ServerError are errors that can occur when parsing the input from the HTTP request
+#[derive(Debug)]
+pub enum ServerError {
+    InputError(InputError),
+    ApiError(S3Error),
+    OutputError(OutputError),
+}
+impl std::error::Error for ServerError {}
+impl fmt::Display for ServerError {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        match self {
+            ServerError::InputError(err) => write!(f, "InputError({})", err),
+            ServerError::ApiError(err) => write!(f, "ApiError({})", err),
+            ServerError::OutputError(err) => write!(f, "OutputError({})", err),
+        }
+    }
+}
+impl From<InputError> for ServerError {
+    fn from(e: InputError) -> Self {
+        ServerError::InputError(e)
+    }
+}
+impl From<S3Error> for ServerError {
+    fn from(e: S3Error) -> Self {
+        ServerError::ApiError(e)
+    }
+}
+impl From<OutputError> for ServerError {
+    fn from(e: OutputError) -> Self {
+        ServerError::OutputError(e)
+    }
+}
 
 /// handle_request parses the input, dispatches the request to the appropriate handler,
 /// and writes the response.
 pub async fn handle_request<API: S3Api>(
     req: &S3Request,
     api: &API,
-) -> Result<HttpResponse, ServeError> {
+) -> Result<HttpResponse, ServerError> {
     if req.op_kind.is_none() {
         return Err(InputError::Unhandled(anyhow!("missing op_kind")).into());
     }
@@ -18,9 +52,9 @@ pub async fn handle_request<API: S3Api>(
         ($name:ident, $req:ident, $api:ident) => {
             paste::paste! {
                 {
-                    let input = crate::s3::input::parsers::[<$name:snake>]($req)?;
+                    let input = crate::gen::input::parsers::[<$name:snake>]($req)?;
                     let output = $api.[<$name:snake>](input).await.map_err(|err| err.meta().clone())?;
-                    let response = crate::s3::output::parsers::[<$name:snake>](output)?;
+                    let response = crate::gen::output::parsers::[<$name:snake>](output)?;
                     Ok(response)
                 }
             }
@@ -121,26 +155,5 @@ pub async fn handle_request<API: S3Api>(
         S3OpKind::UploadPart => gen!(UploadPart, req, api),
         S3OpKind::UploadPartCopy => gen!(UploadPartCopy, req, api),
         S3OpKind::WriteGetObjectResponse => gen!(WriteGetObjectResponse, req, api),
-    }
-}
-
-pub enum ServeError {
-    InputError(InputError),
-    S3Error(S3Error),
-    OutputError(OutputError),
-}
-impl From<InputError> for ServeError {
-    fn from(e: InputError) -> Self {
-        ServeError::InputError(e)
-    }
-}
-impl From<S3Error> for ServeError {
-    fn from(e: S3Error) -> Self {
-        ServeError::S3Error(e)
-    }
-}
-impl From<OutputError> for ServeError {
-    fn from(e: OutputError) -> Self {
-        ServeError::OutputError(e)
     }
 }

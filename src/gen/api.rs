@@ -10,21 +10,21 @@ use aws_sdk_s3::{error::*, input::*, output::*};
 macro_rules! s3_api {
     ($name:ident) => {
         paste::paste! {
-            fn [<$name:snake>](&self, i: [<$name Input>]) -> TraitFuture<[<$name Output>], [<$name Error>]> {
-                Box::pin(async { Err([<$name Error>]::generic(self.not_implemented())) })
+            fn [<$name:snake>](&self, _: [<$name Input>]) -> TraitFuture<[<$name Output>], [<$name Error>]> {
+                Box::pin(async move { Err([<$name Error>]::generic(not_implemented())) })
             }
         }
     };
 }
 
-pub trait S3Api: Sync + Send {
-    fn not_implemented(&self) -> aws_smithy_types::Error {
-        aws_smithy_types::Error::builder()
-            .code("NotImplemented")
-            .message("The requested action is not implemented.")
-            .build()
-    }
+fn not_implemented() -> aws_smithy_types::Error {
+    aws_smithy_types::Error::builder()
+        .code("NotImplemented")
+        .message("The requested action is not implemented.")
+        .build()
+}
 
+pub trait S3Api: Sync + Send {
     s3_api!(AbortMultipartUpload);
     s3_api!(CompleteMultipartUpload);
     s3_api!(CopyObject);

@@ -3,6 +3,7 @@
 use crate::types::S3Request;
 use aws_sdk_s3::input::*;
 use aws_smithy_http::operation::BuildError;
+use std::fmt;
 
 /// InputError are errors that can occur when parsing the input from the HTTP request
 #[derive(Debug)]
@@ -11,23 +12,9 @@ pub enum InputError {
     BadRequest(BuildError),
     Unhandled(anyhow::Error),
 }
-
 impl std::error::Error for InputError {}
-
-impl From<BuildError> for InputError {
-    fn from(err: BuildError) -> Self {
-        InputError::BadRequest(err)
-    }
-}
-
-impl From<anyhow::Error> for InputError {
-    fn from(err: anyhow::Error) -> Self {
-        InputError::Unhandled(err)
-    }
-}
-
-impl std::fmt::Display for InputError {
-    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+impl fmt::Display for InputError {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         match self {
             InputError::NotImplemented(msg) => write!(f, "NotImplemented({})", msg),
             InputError::BadRequest(err) => write!(f, "BadRequest({})", err),
@@ -35,15 +22,28 @@ impl std::fmt::Display for InputError {
         }
     }
 }
+impl From<BuildError> for InputError {
+    fn from(err: BuildError) -> Self {
+        InputError::BadRequest(err)
+    }
+}
+impl From<anyhow::Error> for InputError {
+    fn from(err: anyhow::Error) -> Self {
+        InputError::Unhandled(err)
+    }
+}
 
 /// Implement a function per S3 operation to parse the input from the HTTP request.
 /// To be exact - the methods take S3Request which is a wrapper around the HTTP request.
-/// Should be generated from smithy-rs.
+/// No reason to write it by hand - should be generated from smithy-rs.
 pub mod parsers {
-    pub use super::not_implemented::*;
     use super::*;
 
-    pub fn list_buckets(req: &S3Request) -> Result<ListBucketsInput, InputError> {
+    // we re-publish all the not_implemented methods as default and then override them
+    // in this module to make it easier to implement it in stages.
+    pub use super::not_implemented::*;
+
+    pub fn list_buckets(_: &S3Request) -> Result<ListBucketsInput, InputError> {
         ListBucketsInput::builder().build().map_err(|e| e.into())
     }
 
@@ -75,13 +75,13 @@ pub mod parsers {
 
 mod not_implemented {
     use super::*;
-    use crate::types::S3Request;
 
     /// This macro generates a default parser function per op.
     macro_rules! s3_inp {
         ($name:ident) => {
             paste::paste! {
-                pub fn [<$name:snake>](req: &S3Request) -> Result<[<$name Input>], InputError> {
+                #[allow(dead_code)]
+                pub fn [<$name:snake>](_: &S3Request) -> Result<[<$name Input>], InputError> {
                     Err(InputError::NotImplemented(stringify!(s3::input::parsers::[<$name:snake>])))
                 }
             }

@@ -1,9 +1,8 @@
-use crate::{conf::Conf, s3::*, types::*};
+use crate::{conf::Conf, gen::*, types::*};
 use hyper::{
     header,
     server::conn::AddrStream,
     service::{make_service_fn, service_fn},
-    Body, HeaderMap, Server,
 };
 use std::{convert::Infallible, net::SocketAddr};
 use tokio::sync::OnceCell;
@@ -36,12 +35,12 @@ impl Daemon {
     /// Initialize the daemon with the given configuration.
     pub async fn new(conf: Conf) -> Self {
         let s3_config = aws_config::from_env().load().await;
-        let s3c = aws_sdk_s3::Client::new(&s3_config);
         let retry_config = s3_config.retry_config().unwrap();
-        let ac = aws_hyper::Client::https().with_retry_config(retry_config.clone().into());
+        let s3c = aws_sdk_s3::Client::new(&s3_config);
+        let smc = aws_hyper::Client::https().with_retry_config(retry_config.clone().into());
         Daemon {
             conf,
-            s3_api: S3ApiToClient { s3c, ac },
+            s3_api: S3ApiToClient { s3c, smc },
         }
     }
 
@@ -54,7 +53,7 @@ impl Daemon {
             let srv = service_fn(move |req| self.handle_http(req, remote_addr));
             async move { Ok::<_, Infallible>(srv) }
         });
-        let server = Server::bind(&addr).serve(mksrv);
+        let server = hyper::Server::bind(&addr).serve(mksrv);
         info!("Listening on http://{}", addr);
         server.await?;
         Ok(())
@@ -65,10 +64,6 @@ impl Daemon {
         http_req: HttpRequest,
         remote_addr: SocketAddr,
     ) -> Result<HttpResponse, Infallible> {
-        // self.check_auth(&http_req).await?;
-        // let op = self.parse_http(http_req);
-        // self.handle_op(op).await?
-
         let mut req = self.new_request(http_req, remote_addr);
 
         info!("==> HTTP {} {} [{}]", req.method, req.url.path(), req.reqid);
@@ -109,7 +104,7 @@ impl Daemon {
     pub async fn handle_request(&self, req: &mut S3Request) -> S3Result {
         self.parse_request(req).await?;
         self.check_auth(req).await?;
-        let mut res = crate::s3::handle_request(req, &self.s3_api).await?;
+        let mut res = crate::gen::handle_request(req, &self.s3_api).await?;
         // let mut res = match req.method.as_str() {
         //     "GET" => self.handle_get(req).await,
         //     "HEAD" => self.handle_head(req).await,
@@ -123,14 +118,12 @@ impl Daemon {
         //     "PRUNE" => self.handle_prune(req).await,
         //     "STATUS" => self.handle_status(req).await,
         //     "DIFF" => self.handle_diff(req).await,
-        //     _ => Err(S3ErrorMeta::builder()
+        //     _ => Err(S3Error::builder()
         //         .code("MethodNotAllowed")
         //         .build()
         //         .into()),
         // };
-        if let Ok(ref mut res) = res {
-            self.set_headers_reqid(res.headers_mut(), &req.reqid);
-        }
+        self.set_common_response_headers(req, &mut res);
         Ok(res)
     }
 
@@ -231,12 +224,12 @@ impl Daemon {
     }
 
     pub fn handle_error(&self, req: &S3Request, err: S3Error) -> HttpResponse {
-        let mut res = if let Ok(err) = err.clone().try_into() {
-            s3_error_meta_output(err)
+        let res = if let Ok(err) = err.clone().try_into() {
+            crate::gen::output::s3_error_output(err)
         } else {
             error!("{:?}", err);
-            s3_error_meta_output(
-                S3ErrorMeta::builder()
+            crate::gen::output::s3_error_output(
+                S3Error::builder()
                     .code("InternalError")
                     .message("Internal error")
                     .build(),
@@ -246,7 +239,7 @@ impl Daemon {
         // .unwrap_or(S3Error::Unhandled(err.into()))
         // if let Some(err) = err.downcast_ref::<S3Error>() {
         //     err.clone()
-        // } else if let Some(err) = err.downcast_ref::<S3ErrorMeta>() {
+        // } else if let Some(err) = err.downcast_ref::<S3Error>() {
         //     S3Error::Unhandled(err.into)
         // } else {
         //     S3Error::Unhandled(err.into)
@@ -256,7 +249,7 @@ impl Daemon {
         //         .unwrap()
 
         //     S3Error::Unhandled(
-        //         S3ErrorMeta::builder()
+        //         S3Error::builder()
         //             .code("InternalError")
         //             .message("An internal error occurred")
         //             .request_id(self.reqid)
@@ -288,7 +281,7 @@ impl Daemon {
         //         )))
         //         .unwrap()
         // };
-        self.set_headers_reqid(res.headers_mut(), &req.reqid);
+        self.set_common_response_headers(req, &mut res);
         res
     }
 
@@ -385,36 +378,14 @@ impl Daemon {
     //     Ok(res)
     // }
 
-    // pub async fn handle_fetch(&self, req: &S3Request) -> S3Result {
-    //     ops::fetch_flow(req).await
-    // }
-
-    // pub async fn handle_pull(&self, req: &S3Request) -> S3Result {
-    //     ops::pull_flow(req).await
-    // }
-
-    // pub async fn handle_push(&self, req: &S3Request) -> S3Result {
-    //     ops::push_flow(req).await
-    // }
-
-    // pub async fn handle_prune(&self, req: &S3Request) -> S3Result {
-    //     ops::prune_flow(req).await
-    // }
-
-    // pub async fn handle_status(&self, req: &S3Request) -> S3Result {
-    //     ops::status_flow(req).await
-    // }
-
-    // pub async fn handle_diff(&self, req: &S3Request) -> S3Result {
-    //     ops::diff_flow(req).await
-    // }
-
-    pub fn set_headers_reqid(&self, h: &mut HeaderMap, reqid: &str) {
+    pub fn set_common_response_headers(&self, req: &S3Request, res: &mut HttpResponse) {
         let x_amz_request_id = header::HeaderName::from_static("x-amz-request-id");
         let x_amz_id_2 = header::HeaderName::from_static("x-amz-id-2");
-        let reqid_val = header::HeaderValue::from_str(reqid).unwrap();
+        let reqid_val = header::HeaderValue::from_str(&req.reqid).unwrap();
+        let hostid_val = header::HeaderValue::from_str(&req.hostid).unwrap();
+        let h = res.headers_mut();
         h.insert(x_amz_request_id, reqid_val.clone());
-        h.insert(x_amz_id_2, reqid_val.clone());
+        h.insert(x_amz_id_2, hostid_val.clone());
     }
 
     pub fn set_headers_cors(&self, _req: &S3Request, res: &mut HttpResponse) {
@@ -427,7 +398,9 @@ impl Daemon {
         );
         h.insert(
             header::ACCESS_CONTROL_ALLOW_METHODS,
-            "GET,POST,PUT,DELETE,OPTIONS".parse().unwrap(),
+            "GET,HEAD,PUT,POST,DELETE,OPTIONS,FETCH,PULL,PUSH,PRUNE,STATUS,DIFF"
+                .parse()
+                .unwrap(),
         );
         h.insert(header::ACCESS_CONTROL_ALLOW_HEADERS,
             "Content-Type,Content-MD5,Authorization,X-Amz-User-Agent,X-Amz-Date,ETag,X-Amz-Content-Sha256".parse().unwrap());
@@ -435,5 +408,41 @@ impl Daemon {
             header::ACCESS_CONTROL_EXPOSE_HEADERS,
             "ETag,X-Amz-Version-Id".parse().unwrap(),
         );
+    }
+}
+
+impl From<ServerError> for S3Error {
+    fn from(err: ServerError) -> Self {
+        match err {
+            ServerError::InputError(err) => match err {
+                InputError::BadRequest(err) => S3Error::builder()
+                    .code("BadRequest")
+                    .message(err.to_string())
+                    .build(),
+                InputError::NotImplemented(msg) => S3Error::builder()
+                    .code("NotImplemented")
+                    .message(msg)
+                    .build(),
+                InputError::Unhandled(err) => S3Error::builder()
+                    .code("InternalError")
+                    .message(err.to_string())
+                    .build(),
+            },
+            ServerError::ApiError(err) => err.into(),
+            ServerError::OutputError(err) => match err {
+                OutputError::BadResponse(err) => S3Error::builder()
+                    .code("InternalError")
+                    .message(err.to_string())
+                    .build(),
+                OutputError::NotImplemented(msg) => S3Error::builder()
+                    .code("NotImplemented")
+                    .message(msg)
+                    .build(),
+                OutputError::Unhandled(err) => S3Error::builder()
+                    .code("NotImplemented")
+                    .message(err.to_string())
+                    .build(),
+            },
+        }
     }
 }

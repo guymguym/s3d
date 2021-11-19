@@ -1,11 +1,13 @@
-use crate::{s3::*, types::*};
+use crate::{gen::*, types::*};
 use aws_sdk_s3::{error::*, input::*, output::*};
 use aws_smithy_http::result::SdkError;
 
+/// S3ApiToClient is the default implementation of S3Api that uses the client SDK to call for each function.
+/// This can be connected to any remote S3 service directly.
 #[derive(Debug)]
 pub struct S3ApiToClient {
     pub s3c: S3C,
-    pub ac: AC,
+    pub smc: SMC,
 }
 
 /// This macro generates a default function for each op.
@@ -13,14 +15,14 @@ macro_rules! s3_api {
     ($name:ident) => {
         paste::paste! {
             fn [<$name:snake>](&self, i: [<$name Input>]) -> TraitFuture<[<$name Output>], [<$name Error>]> {
-                Box::pin(async {
-                    self.ac
-                    .call(i.make_operation(self.s3c.conf()).await.unwrap())
-                    .await
-                    .map_err(|err| match err {
-                        SdkError::ServiceError { err, .. } => err,
-                        _ => [<$name Error>]::unhandled(err),
-                    })
+                Box::pin(async move {
+                    self.smc
+                        .call(i.make_operation(self.s3c.conf()).await.unwrap())
+                        .await
+                        .map_err(|err| match err {
+                            SdkError::ServiceError { err, .. } => err,
+                            _ => [<$name Error>]::unhandled(err),
+                        })
                 })
             }
         }

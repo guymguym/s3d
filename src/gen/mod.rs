@@ -12,5 +12,5 @@ pub use self::api_to_client::S3ApiToClient;
 pub use self::input::InputError;
 pub use self::kind::S3OpKind;
 pub use self::output::OutputError;
-pub use self::server::{handle_request, ServeError};
+pub use self::server::{handle_request, ServerError};
 pub use self::sub_resources::{S3BucketSubResource, S3ObjectSubResource};

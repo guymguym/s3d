@@ -1,14 +1,21 @@
 //! TODO This module should be generated from https://github.com/awslabs/smithy-rs
 
-use crate::{s3::*, types::*};
+use crate::{gen::*, types::*};
 
 pub trait S3Op {
-    const KIND: S3OpKind;
     type Input;
     type Output;
     type Error;
-    const input_parser: fn(&S3Request) -> Result<Self::Input, InputError>;
-    const output_parser: fn(Self::Output) -> Result<HttpResponse, OutputError>;
+
+    const KIND: S3OpKind;
+    const INPUT_PARSER: fn(&S3Request) -> Result<Self::Input, InputError>;
+    const OUTPUT_PARSER: fn(Self::Output) -> Result<HttpResponse, OutputError>;
+
+    // fn api_call<API: S3Api>(
+    //     &self,
+    //     i: Self::Input,
+    //     api: &API,
+    // ) -> TraitFuture<Self::Output, Self::Error>;
 }
 
 /// This macro generates a struct for each operation with the input/output/error types
@@ -18,14 +25,19 @@ macro_rules! s3_op {
         paste::paste! {
             pub struct [<$name Op>] {}
             impl S3Op for [<$name Op>] {
-                const KIND: S3OpKind = S3OpKind::$name;
                 type Input = aws_sdk_s3::input::[<$name Input>];
                 type Output = aws_sdk_s3::output::[<$name Output>];
                 type Error = aws_sdk_s3::error::[<$name Error>];
-                const input_parser: fn(&S3Request) -> Result<Self::Input, InputError> =
-                    crate::s3::input::parsers::[<$name:snake>];
-                const output_parser: fn(Self::Output) -> Result<HttpResponse, OutputError> =
-                    crate::s3::output::parsers::[<$name:snake>];
+
+                const KIND: S3OpKind = S3OpKind::$name;
+                const INPUT_PARSER: fn(&S3Request) -> Result<Self::Input, InputError> =
+                    crate::gen::input::parsers::[<$name:snake>];
+                const OUTPUT_PARSER: fn(Self::Output) -> Result<HttpResponse, OutputError> =
+                    crate::gen::output::parsers::[<$name:snake>];
+
+                // fn api_call<API: S3Api>(&self, i: Self::Input, api: &API) -> TraitFuture<Self::Output, Self::Error> {
+                //     Box::pin(async { api.[<$name:snake>](i).await })
+                // }
             }
         }
     };

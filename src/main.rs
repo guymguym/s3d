@@ -6,7 +6,7 @@ pub mod cli;
 pub mod conf;
 pub mod daemon;
 pub mod fuse;
-pub mod s3;
+pub mod gen;
 pub mod types;
 
 #[macro_use]

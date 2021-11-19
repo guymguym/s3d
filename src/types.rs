@@ -1,4 +1,4 @@
-use crate::s3::*;
+use crate::gen::*;
 use hyper::Body;
 use hyper::{HeaderMap, Method};
 use std::future::Future;
@@ -13,15 +13,14 @@ pub type TraitFuture<'a, O, E> = Pin<Box<dyn Future<Output = Result<O, E>> + Sen
 pub type HttpRequest = hyper::Request<hyper::Body>;
 pub type HttpResponse = hyper::Response<hyper::Body>;
 
-pub type S3Errors = aws_sdk_s3::Error;
+pub type S3ClientError = aws_sdk_s3::Error;
 pub type S3Error = aws_smithy_types::Error;
-pub type S3ErrorMeta = aws_smithy_types::Error;
 
 pub type S3Result = Result<HttpResponse, S3Error>;
 pub type S3ResultNull = Result<(), S3Error>;
 
 pub type S3C = aws_sdk_s3::Client;
-pub type AC = aws_smithy_client::Client<aws_hyper::DynConnector, aws_hyper::AwsMiddleware>;
+pub type SMC = aws_smithy_client::Client<aws_hyper::DynConnector, aws_hyper::AwsMiddleware>;
 
 pub fn responder() -> hyper::http::response::Builder {
     hyper::Response::builder()
@@ -38,6 +37,8 @@ pub struct S3Request {
 
     /// reqid is a generated unique id for each request
     pub reqid: String,
+    /// hostid is a an opaque id that can be used to find the host in the server that handled this request
+    pub hostid: String,
 
     // parsed fields
     pub params: HashMap<String, String>,
@@ -57,6 +58,7 @@ impl Default for S3Request {
             method: Method::GET,
             headers: HeaderMap::new(),
             reqid: "".to_string(),
+            hostid: "".to_string(),
             params: HashMap::new(),
             bucket: "".to_string(),
             key: "".to_string(),
