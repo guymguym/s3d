@@ -1,16 +1,18 @@
 pub mod api;
 pub mod api_to_client;
 pub mod input;
-pub mod kind;
-pub mod op;
+pub mod kinds;
+pub mod match_op;
+pub mod ops;
 pub mod output;
+pub mod resource;
 pub mod server;
-pub mod sub_resources;
 
 pub use self::api::S3Api;
 pub use self::api_to_client::S3ApiToClient;
 pub use self::input::InputError;
-pub use self::kind::S3OpKind;
+pub use self::kinds::S3OpKind;
 pub use self::output::OutputError;
-pub use self::server::{handle_request, ServerError};
-pub use self::sub_resources::{S3BucketSubResource, S3ObjectSubResource};
+pub use self::resource::*;
+pub use self::match_op::match_op;
+pub use self::server::{handle_s3_request, ServerError};

@@ -42,10 +42,7 @@ pub struct S3Request {
     pub hostid: String,
 
     // parsed fields
-    pub bucket: String,
-    pub key: String,
-    pub bucket_subresource: S3BucketSubResource,
-    pub object_subresource: S3ObjectSubResource,
+    pub resource: S3Resource,
     pub op_kind: Option<S3OpKind>,
 }
 
@@ -61,9 +58,47 @@ impl S3Request {
             .to_owned();
         let host_url = Url::parse(&format!("http://{}", host_hdr)).unwrap();
         let url = host_url.join(&parts.uri.to_string()).unwrap();
-        let params = url.query_pairs().into_owned().collect();
-        let reqid = Uuid::new_v4().to_string(); // unique id for each request
-        S3Request {
+        let mut params = HashMap::<String, String>::new();
+        // unique id for each request
+        let reqid = Uuid::new_v4().to_string();
+        // parse path-style addressing for bucket names
+        // TODO: add support for host-style addressing
+        assert!(url.path().starts_with("/"));
+        let path_items: Vec<&str> = url.path()[1..].splitn(2, "/").collect();
+        let bucket = String::from(*path_items.get(0).unwrap_or(&""));
+        let key = String::from(*path_items.get(1).unwrap_or(&""));
+        let mut resource = S3Resource::Service;
+        if bucket.is_empty() && key.is_empty() {
+            for (key, val) in url.query_pairs() {
+                params.insert(String::from(key), String::from(val));
+            }
+        } else if !bucket.is_empty() && key.is_empty() {
+            let mut sub = S3BucketSubResource::None;
+            for (key, val) in url.query_pairs() {
+                if sub == S3BucketSubResource::None {
+                    sub = S3BucketSubResource::from(key.as_ref());
+                }
+                params.insert(String::from(key), String::from(val));
+            }
+            resource = S3Resource::Bucket(S3BucketResource {
+                bucket,
+                sub_resource: sub,
+            });
+        } else {
+            let mut sub = S3ObjectSubResource::None;
+            for (key, val) in url.query_pairs() {
+                if sub == S3ObjectSubResource::None {
+                    sub = S3ObjectSubResource::from(key.as_ref());
+                }
+                params.insert(String::from(key), String::from(val));
+            }
+            resource = S3Resource::Object(S3ObjectResource {
+                bucket,
+                key,
+                sub_resource: sub,
+            });
+        }
+        let mut req = S3Request {
             url,
             body,
             method: parts.method,
@@ -72,13 +107,15 @@ impl S3Request {
             remote_addr,
             reqid,
             hostid: host_hdr,
-            // init parsed fields to empty values for now
-            bucket: "".to_string(),
-            key: "".to_string(),
-            bucket_subresource: S3BucketSubResource::None,
-            object_subresource: S3ObjectSubResource::None,
-            op_kind: None,
-        }
+            // bucket,
+            // key,
+            // bucket_subresource,
+            // object_subresource,
+            resource,
+            op_kind: None::<S3OpKind>,
+        };
+        req.op_kind = match_op(&req);
+        req
     }
 
     pub fn get_param(&self, name: &str) -> Option<String> {

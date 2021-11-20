@@ -38,7 +38,7 @@ impl From<OutputError> for ServerError {
 
 /// handle_request parses the input, dispatches the request to the appropriate handler,
 /// and writes the response.
-pub async fn handle_request<API: S3Api>(
+pub async fn handle_s3_request<API: S3Api>(
     req: &S3Request,
     api: &API,
 ) -> Result<HttpResponse, ServerError> {

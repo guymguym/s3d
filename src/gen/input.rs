@@ -49,7 +49,7 @@ pub mod parsers {
 
     pub fn list_objects(req: &S3Request) -> Result<ListObjectsInput, InputError> {
         ListObjectsInput::builder()
-            .set_bucket(Some(req.bucket.clone()))
+            .set_bucket(Some(req.resource.get_bucket().to_owned()))
             .set_delimiter(req.get_param("delimiter"))
             .set_marker(req.get_param("marker"))
             .set_prefix(req.get_param("prefix"))
@@ -63,8 +63,8 @@ pub mod parsers {
 
     pub fn get_object(req: &S3Request) -> Result<GetObjectInput, InputError> {
         GetObjectInput::builder()
-            .set_bucket(Some(req.bucket.clone()))
-            .set_key(Some(req.key.clone()))
+            .set_bucket(Some(req.resource.get_bucket().to_owned()))
+            .set_key(Some(req.resource.get_key().to_owned()))
             .set_part_number(req.get_param_i32("partNumber"))
             .set_range(req.get_header("range"))
             .set_version_id(req.get_param("versionId"))

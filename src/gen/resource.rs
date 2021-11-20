@@ -1,5 +1,41 @@
 //! TODO This module should be generated from https://github.com/awslabs/smithy-rs
 
+#[derive(Debug)]
+pub enum S3Resource {
+    Service,
+    Bucket(S3BucketResource),
+    Object(S3ObjectResource),
+}
+
+impl S3Resource {
+    pub fn get_bucket(&self) -> &str {
+        match self {
+            S3Resource::Bucket(b) => b.bucket.as_str(),
+            S3Resource::Object(o) => o.bucket.as_str(),
+            _ => panic!("Expected bucket resource type: {:?}", self),
+        }
+    }
+    pub fn get_key(&self) -> &str {
+        match self {
+            S3Resource::Object(o) => o.key.as_str(),
+            _ => panic!("Expected object resource type: {:?}", self),
+        }
+    }
+}
+
+#[derive(Debug)]
+pub struct S3BucketResource {
+    pub bucket: String,
+    pub sub_resource: S3BucketSubResource,
+}
+
+#[derive(Debug)]
+pub struct S3ObjectResource {
+    pub bucket: String,
+    pub key: String,
+    pub sub_resource: S3ObjectSubResource,
+}
+
 #[derive(Debug, PartialEq, Eq, Clone, Copy)]
 pub enum S3BucketSubResource {
     None,
@@ -89,4 +125,3 @@ impl From<&str> for S3ObjectSubResource {
         }
     }
 }
-

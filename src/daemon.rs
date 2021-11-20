@@ -3,6 +3,7 @@ use hyper::{
     header,
     server::conn::AddrStream,
     service::{make_service_fn, service_fn},
+    Body,
 };
 use std::{convert::Infallible, net::SocketAddr};
 use tokio::sync::OnceCell;
@@ -66,6 +67,15 @@ impl Daemon {
 
         info!("==> HTTP {} {} [{}]", req.method, req.url.path(), req.reqid);
 
+        // on debug we print also the full headers
+        debug!(
+            "==> HTTP {} {} headers {:#?} [{}]",
+            req.method,
+            req.url.path(),
+            &req.headers,
+            req.reqid
+        );
+
         let res = self
             .handle_request(&mut req)
             .await
@@ -83,96 +93,13 @@ impl Daemon {
     }
 
     pub async fn handle_request(&self, req: &mut S3Request) -> S3Result {
-        self.parse_request(req).await?;
         self.check_auth(req).await?;
-        let mut res = crate::gen::handle_request(req, &self.s3_api).await?;
-        // let mut res = match req.method.as_str() {
-        //     "GET" => self.handle_get(req).await,
-        //     "HEAD" => self.handle_head(req).await,
-        //     "PUT" => self.handle_put(req).await,
-        //     "POST" => self.handle_post(req).await,
-        //     "DELETE" => self.handle_delete(req).await,
-        //     "OPTIONS" => self.handle_options(req).await,
-        //     "FETCH" => self.handle_fetch(req).await,
-        //     "PULL" => self.handle_pull(req).await,
-        //     "PUSH" => self.handle_push(req).await,
-        //     "PRUNE" => self.handle_prune(req).await,
-        //     "STATUS" => self.handle_status(req).await,
-        //     "DIFF" => self.handle_diff(req).await,
-        //     _ => Err(S3Error::builder()
-        //         .code("MethodNotAllowed")
-        //         .build()
-        //         .into()),
-        // };
+        if req.method == hyper::Method::OPTIONS {
+            return self.handle_options(req);
+        }
+        let mut res = crate::gen::handle_s3_request(req, &self.s3_api).await?;
         self.set_headers_ids(req, &mut res);
         Ok(res)
-    }
-
-    pub async fn parse_request(&self, req: &mut S3Request) -> S3ResultNull {
-        // parse path-style addressing for bucket names
-        // TODO: add support for host-style addressing
-        assert!(req.url.path().starts_with("/"));
-        let path_items: Vec<_> = req.url.path()[1..].splitn(2, "/").collect();
-
-        match path_items.len() {
-            0 => {}
-            1 => {
-                req.bucket = path_items[0].to_owned();
-                for (key, _val) in req.url.query_pairs() {
-                    let sub = S3BucketSubResource::from(key.as_ref());
-                    if sub == S3BucketSubResource::None {
-                        continue;
-                    }
-                    if sub != req.bucket_subresource
-                        && req.bucket_subresource != S3BucketSubResource::None
-                    {
-                        return Err(S3Error::builder()
-                            .code("BadRequest")
-                            .message(format!(
-                                "Multiple bucket subresources specified: {:?} and {:?}",
-                                req.bucket_subresource, sub
-                            ))
-                            .build()
-                            .into());
-                    }
-                    req.bucket_subresource = sub;
-                }
-            }
-            2 => {
-                req.bucket = path_items[0].to_owned();
-                req.key = path_items[1].to_owned();
-                for (key, _val) in req.url.query_pairs() {
-                    let sub = S3ObjectSubResource::from(key.as_ref());
-                    if sub == S3ObjectSubResource::None {
-                        continue;
-                    }
-                    if sub != req.object_subresource
-                        && req.object_subresource != S3ObjectSubResource::None
-                    {
-                        return Err(S3Error::builder()
-                            .code("BadRequest")
-                            .message(format!(
-                                "Multiple object subresources specified: {:?} and {:?}",
-                                req.object_subresource, sub
-                            ))
-                            .build()
-                            .into());
-                    }
-                    req.object_subresource = sub;
-                }
-            }
-            _ => panic!("unexpected path items split {:?}", req),
-        };
-
-        debug!(
-            "==> HTTP {} {} headers {:#?} [{}]",
-            req.method,
-            req.url.path(),
-            &req.headers,
-            req.reqid
-        );
-
-        Ok(())
     }
 
     /// Authenticate and authorize the request.
@@ -196,6 +123,31 @@ impl Daemon {
         //     .arg(format!("-iTCP@localhost:{}", req.remote_addr.port())).output()
 
         Ok(())
+    }
+
+    pub fn handle_options(&self, _req: &S3Request) -> S3Result {
+        Ok(responder()
+            .status(hyper::StatusCode::OK)
+            .header(header::ACCESS_CONTROL_ALLOW_ORIGIN, "*")
+            .header(header::ACCESS_CONTROL_ALLOW_CREDENTIALS, "true")
+            .header(header::ACCESS_CONTROL_ALLOW_METHODS, 
+                    "GET,HEAD,PUT,POST,DELETE,OPTIONS,FETCH,PULL,PUSH,PRUNE,STATUS,DIFF")
+            .header(header::ACCESS_CONTROL_ALLOW_HEADERS, 
+                "Content-Type,Content-MD5,Authorization,X-Amz-User-Agent,X-Amz-Date,ETag,X-Amz-Content-Sha256")
+            .header(header::ACCESS_CONTROL_EXPOSE_HEADERS, "ETag,X-Amz-Version-Id")
+            .body(Body::empty())
+            .unwrap()
+        )
+    }
+
+    pub fn set_headers_ids(&self, req: &S3Request, res: &mut HttpResponse) {
+        let x_amz_request_id = header::HeaderName::from_static("x-amz-request-id");
+        let x_amz_id_2 = header::HeaderName::from_static("x-amz-id-2");
+        let reqid_val = header::HeaderValue::from_str(&req.reqid).unwrap();
+        let hostid_val = header::HeaderValue::from_str(&req.hostid).unwrap();
+        let h = res.headers_mut();
+        h.insert(x_amz_request_id, reqid_val.clone());
+        h.insert(x_amz_id_2, hostid_val.clone());
     }
 
     pub fn handle_error(&self, req: &S3Request, err: S3Error) -> HttpResponse {
@@ -260,6 +212,27 @@ impl Daemon {
         res
     }
 
+    // pub async fn handle_all(&self, req: &S3Request) -> S3Result {
+    //     let mut res = match req.method.as_str() {
+    //         "GET" => self.handle_get(req).await,
+    //         "HEAD" => self.handle_head(req).await,
+    //         "PUT" => self.handle_put(req).await,
+    //         "POST" => self.handle_post(req).await,
+    //         "DELETE" => self.handle_delete(req).await,
+    //         "OPTIONS" => self.handle_options(req).await,
+    //         "FETCH" => self.handle_fetch(req).await,
+    //         "PULL" => self.handle_pull(req).await,
+    //         "PUSH" => self.handle_push(req).await,
+    //         "PRUNE" => self.handle_prune(req).await,
+    //         "STATUS" => self.handle_status(req).await,
+    //         "DIFF" => self.handle_diff(req).await,
+    //         _ => Err(S3Error::builder()
+    //             .code("MethodNotAllowed")
+    //             .build()
+    //             .into()),
+    //     };
+    // }
+    // 
     // pub async fn handle_get(&self, req: &S3Request) -> S3Result {
     //     if req.bucket.is_empty() {
     //         return parse::list_buckets_output(
@@ -346,44 +319,6 @@ impl Daemon {
     //         _ => Err(S3Error::builder().code("BadRequest").build()),
     //     }
     // }
-
-    // pub async fn handle_options(&self, req: &S3Request) -> S3Result {
-    //     let mut res = HttpResponse::new(Body::empty());
-    //     self.set_headers_cors(&req, &mut res);
-    //     Ok(res)
-    // }
-
-    pub fn set_headers_ids(&self, req: &S3Request, res: &mut HttpResponse) {
-        let x_amz_request_id = header::HeaderName::from_static("x-amz-request-id");
-        let x_amz_id_2 = header::HeaderName::from_static("x-amz-id-2");
-        let reqid_val = header::HeaderValue::from_str(&req.reqid).unwrap();
-        let hostid_val = header::HeaderValue::from_str(&req.hostid).unwrap();
-        let h = res.headers_mut();
-        h.insert(x_amz_request_id, reqid_val.clone());
-        h.insert(x_amz_id_2, hostid_val.clone());
-    }
-
-    pub fn set_headers_cors(&self, _req: &S3Request, res: &mut HttpResponse) {
-        // note that browsers do not really allow origin=* with allow credentials
-        let h = res.headers_mut();
-        h.insert(header::ACCESS_CONTROL_ALLOW_ORIGIN, "*".parse().unwrap());
-        h.insert(
-            header::ACCESS_CONTROL_ALLOW_CREDENTIALS,
-            "true".parse().unwrap(),
-        );
-        h.insert(
-            header::ACCESS_CONTROL_ALLOW_METHODS,
-            "GET,HEAD,PUT,POST,DELETE,OPTIONS,FETCH,PULL,PUSH,PRUNE,STATUS,DIFF"
-                .parse()
-                .unwrap(),
-        );
-        h.insert(header::ACCESS_CONTROL_ALLOW_HEADERS,
-            "Content-Type,Content-MD5,Authorization,X-Amz-User-Agent,X-Amz-Date,ETag,X-Amz-Content-Sha256".parse().unwrap());
-        h.insert(
-            header::ACCESS_CONTROL_EXPOSE_HEADERS,
-            "ETag,X-Amz-Version-Id".parse().unwrap(),
-        );
-    }
 }
 
 impl From<ServerError> for S3Error {
