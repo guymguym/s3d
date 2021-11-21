@@ -1,15 +1,20 @@
-pub const P_DELIMITER: &str = "delimiter";
-pub const P_MARKER: &str = "marker";
-pub const P_MAX_KEYS: &str = "max-keys";
 pub const P_PREFIX: &str = "prefix";
-pub const P_VERSION_ID: &str = "versionId";
-pub const P_PART_NUMBER: &str = "partNumber";
-pub const P_ENCODING_TYPE: &str = "encoding-type";
-pub const P_CONTINUATION_TOKEN: &str = "continuation-token";
+pub const P_DELIMITER: &str = "delimiter";
+pub const P_MAX_KEYS: &str = "max-keys";
+pub const P_MAX_UPLOADS: &str = "max-uploads";
+pub const P_MAX_PARTS: &str = "max-parts";
 pub const P_FETCH_OWNER: &str = "fetch-owner";
 pub const P_START_AFTER: &str = "start-after";
+pub const P_ENCODING_TYPE: &str = "encoding-type";
+pub const P_CONTINUATION_TOKEN: &str = "continuation-token";
+pub const P_MARKER: &str = "marker";
 pub const P_KEY_MARKER: &str = "key-marker";
+pub const P_VERSION_ID: &str = "versionId";
 pub const P_VERSION_ID_MARKER: &str = "version-id-marker";
+pub const P_UPLOAD_ID: &str = "uploadId";
+pub const P_UPLOAD_ID_MARKER: &str = "upload-id-marker";
+pub const P_PART_NUMBER: &str = "partNumber";
+pub const P_PART_NUMBER_MARKER: &str = "part-number-marker";
 
 pub const P_RESPONSE_CACHE_CONTROL: &str = "response-cache-control";
 pub const P_RESPONSE_CONTENT_DISPOSITION: &str = "response-content-disposition";
@@ -47,6 +52,7 @@ pub const X_AMZ_OBJECT_LOCK_MODE: &str = "x-amz-object-lock-mode";
 pub const X_AMZ_OBJECT_LOCK_LEGAL_HOLD: &str = "x-amz-object-lock-legal-hold";
 pub const X_AMZ_OBJECT_LOCK_RETAIN_UNTIL_DATE: &str = "x-amz-object-lock-retain-until-date";
 pub const X_AMZ_BUCKET_OBJECT_LOCK_ENABLED: &str = "x-amz-bucket-object-lock-enabled";
+pub const X_AMZ_BUCKET_OBJECT_LOCK_TOKEN: &str = "x-amz-bucket-object-lock-token";
 pub const X_AMZ_BYPASS_GOVERNANCE_RETENTION: &str = "x-amz-bypass-governance-retention";
 
 pub const X_AMZ_GRANT_FULL_CONTROL: &str = "x-amz-grant-full-control";
@@ -64,6 +70,7 @@ pub const X_AMZ_SSE_CONTEXT: &str = "x-amz-server-side-encryption-context";
 pub const X_AMZ_SSE_BUCKET_KEY_ENABLED: &str = "x-amz-server-side-encryption-bucket-key-enabled";
 
 pub const X_AMZ_COPY_SOURCE: &str = "x-amz-copy-source";
+pub const X_AMZ_COPY_SOURCE_RANGE: &str = "x-amz-copy-source-range";
 pub const X_AMZ_COPY_SOURCE_IF_MATCH: &str = "x-amz-copy-source-if-match";
 pub const X_AMZ_COPY_SOURCE_IF_MODIFIED_SINCE: &str = "x-amz-copy-source-if-modified-since";
 pub const X_AMZ_COPY_SOURCE_IF_NONE_MATCH: &str = "x-amz-copy-source-if-none-match";

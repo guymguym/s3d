@@ -20,6 +20,7 @@ pub fn match_op(req: &S3Request) -> Option<S3OpKind> {
             S3BucketSubResource::Logging => match_bucket_logging(req),
             S3BucketSubResource::Metrics => match_bucket_metrics(req),
             S3BucketSubResource::Notification => match_bucket_notification(req),
+            S3BucketSubResource::ObjectLock => match_bucket_object_lock(req),
             S3BucketSubResource::OwnershipControls => match_bucket_ownership_controls(req),
             S3BucketSubResource::Policy => match_bucket_policy(req),
             S3BucketSubResource::PolicyStatus => match_bucket_policy_status(req),
@@ -34,7 +35,6 @@ pub fn match_op(req: &S3Request) -> Option<S3OpKind> {
             S3ObjectSubResource::None => match_object(req),
             S3ObjectSubResource::Acl => match_object_acl(req),
             S3ObjectSubResource::LegalHold => match_object_legal_hold(req),
-            S3ObjectSubResource::ObjectLock => match_object_object_lock(req),
             S3ObjectSubResource::Restore => match_object_restore(req),
             S3ObjectSubResource::Retention => match_object_retention(req),
             S3ObjectSubResource::SelectObjectContent => match_object_select_object_content(req),
@@ -187,6 +187,13 @@ pub fn match_bucket_notification(req: &S3Request) -> Option<S3OpKind> {
         _ => None,
     }
 }
+pub fn match_bucket_object_lock(req: &S3Request) -> Option<S3OpKind> {
+    match req.method {
+        Method::GET => Some(S3OpKind::GetObjectLockConfiguration),
+        Method::PUT => Some(S3OpKind::PutObjectLockConfiguration),
+        _ => None,
+    }
+}
 pub fn match_bucket_ownership_controls(req: &S3Request) -> Option<S3OpKind> {
     match req.method {
         Method::GET => Some(S3OpKind::GetBucketOwnershipControls),
@@ -286,13 +293,6 @@ pub fn match_object_legal_hold(req: &S3Request) -> Option<S3OpKind> {
     match req.method {
         Method::GET => Some(S3OpKind::GetObjectLegalHold),
         Method::PUT => Some(S3OpKind::PutObjectLegalHold),
-        _ => None,
-    }
-}
-pub fn match_object_object_lock(req: &S3Request) -> Option<S3OpKind> {
-    match req.method {
-        Method::GET => Some(S3OpKind::GetObjectLockConfiguration),
-        Method::PUT => Some(S3OpKind::PutObjectLockConfiguration),
         _ => None,
     }
 }
