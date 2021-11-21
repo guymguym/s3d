@@ -5,6 +5,11 @@ pub const P_PREFIX: &str = "prefix";
 pub const P_VERSION_ID: &str = "versionId";
 pub const P_PART_NUMBER: &str = "partNumber";
 pub const P_ENCODING_TYPE: &str = "encoding-type";
+pub const P_CONTINUATION_TOKEN: &str = "continuation-token";
+pub const P_FETCH_OWNER: &str = "fetch-owner";
+pub const P_START_AFTER: &str = "start-after";
+pub const P_KEY_MARKER: &str = "key-marker";
+pub const P_VERSION_ID_MARKER: &str = "version-id-marker";
 
 pub const P_RESPONSE_CACHE_CONTROL: &str = "response-cache-control";
 pub const P_RESPONSE_CONTENT_DISPOSITION: &str = "response-content-disposition";
@@ -14,6 +19,7 @@ pub const P_RESPONSE_CONTENT_TYPE: &str = "response-content-type";
 pub const P_RESPONSE_EXPIRES: &str = "response-expires";
 
 pub const H_RANGE: &str = "Range";
+pub const H_CONTENT_MD5: &str = "Content-MD5";
 pub const H_IF_MATCH: &str = "If-Match";
 pub const H_IF_NONE_MATCH: &str = "If-None-Match";
 pub const H_IF_MODIFIED_SINCE: &str = "If-Modified-Since";

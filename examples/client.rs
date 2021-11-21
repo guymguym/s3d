@@ -1,7 +1,7 @@
 use aws_sdk_s3::{Credentials, Endpoint, Region};
 use hyper::Uri;
 
-const S3D_ENDPOINT: &'static str = "http://localhost:5353";
+const S3D_ENDPOINT: &'static str = "http://localhost:5333";
 
 #[tokio::main]
 pub async fn main() -> anyhow::Result<()> {
