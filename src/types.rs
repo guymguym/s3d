@@ -176,4 +176,18 @@ impl S3Request {
             .and_then(|x| x.to_str().ok())
             .and_then(|x| Instant::from_str(&x, Format::HttpDate).ok())
     }
+
+    pub fn get_header_map(&self, prefix: &str) -> Option<HashMap<String, String>> {
+        let mut map = HashMap::<String, String>::new();
+        for (key, val) in self.headers.iter() {
+            let mut key = key.to_string();
+            if key.starts_with(prefix) {
+                map.insert(
+                    key.split_off(prefix.len()),
+                    val.to_str().unwrap_or("").to_string(),
+                );
+            }
+        }
+        Some(map)
+    }
 }

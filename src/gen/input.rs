@@ -194,8 +194,8 @@ pub mod parsers {
             .set_response_content_type(req.get_param(P_RESPONSE_CONTENT_TYPE))
             .set_response_expires(req.get_param_date(P_RESPONSE_EXPIRES))
             .set_sse_customer_algorithm(req.get_header(X_AMZ_SSE_CUSTOMER_ALG))
+            .set_sse_customer_key(req.get_header(X_AMZ_SSE_CUSTOMER_KEY))
             .set_sse_customer_key_md5(req.get_header(X_AMZ_SSE_CUSTOMER_KEY_MD5))
-            .set_sse_customer_key(req.get_header(X_AMZ_SSE_AWS_KMS_KEY_ID))
             .set_version_id(req.get_param(P_VERSION_ID))
             .build()
             .map_err(|e| e.into())
@@ -214,8 +214,8 @@ pub mod parsers {
             .set_range(req.get_header(H_RANGE))
             .set_request_payer(req.get_header_parse(X_AMZ_REQUEST_PAYER))
             .set_sse_customer_algorithm(req.get_header(X_AMZ_SSE_CUSTOMER_ALG))
+            .set_sse_customer_key(req.get_header(X_AMZ_SSE_CUSTOMER_KEY))
             .set_sse_customer_key_md5(req.get_header(X_AMZ_SSE_CUSTOMER_KEY_MD5))
-            .set_sse_customer_key(req.get_header(X_AMZ_SSE_AWS_KMS_KEY_ID))
             .set_version_id(req.get_param(P_VERSION_ID))
             .build()
             .map_err(|e| e.into())
@@ -225,11 +225,41 @@ pub mod parsers {
         PutObjectInput::builder()
             .bucket(req.get_bucket())
             .key(req.get_key())
+            .set_acl(req.get_header_parse(X_AMZ_ACL))
+            // TODO move body to body_stream
+            // .set_body(Some(aws_sdk_s3::ByteStream::from(
+            //     aws_smithy_http::body::SdkBody::from(req.body),
+            // )))
+            .set_bucket_key_enabled(req.get_header_parse(X_AMZ_SSE_BUCKET_KEY_ENABLED))
+            .set_cache_control(req.get_header(H_CACHE_CONTROL))
+            .set_content_disposition(req.get_header(H_CONTENT_DISPOSITION))
+            .set_content_encoding(req.get_header(H_CONTENT_ENCODING))
+            .set_content_language(req.get_header(H_CONTENT_LANGUAGE))
+            .set_content_length(req.get_header_parse(H_CONTENT_LENGTH))
+            .set_content_md5(req.get_header(H_CONTENT_MD5))
+            .set_content_type(req.get_header(H_CONTENT_TYPE))
             .set_expected_bucket_owner(req.get_header(X_AMZ_EXPECTED_BUCKET_OWNER))
+            .set_expires(req.get_header_date(H_EXPIRES))
+            .set_grant_full_control(req.get_header(X_AMZ_GRANT_FULL_CONTROL))
+            .set_grant_read(req.get_header(X_AMZ_GRANT_READ))
+            .set_grant_read_acp(req.get_header(X_AMZ_GRANT_READ_ACP))
+            .set_grant_write_acp(req.get_header(X_AMZ_GRANT_WRITE_ACP))
+            .set_metadata(req.get_header_map(X_AMZ_META_PREFIX))
+            .set_object_lock_legal_hold_status(req.get_header_parse(X_AMZ_OBJECT_LOCK_LEGAL_HOLD))
+            .set_object_lock_mode(req.get_header_parse(X_AMZ_OBJECT_LOCK_MODE))
+            .set_object_lock_retain_until_date(
+                req.get_header_date(X_AMZ_OBJECT_LOCK_RETAIN_UNTIL_DATE),
+            )
             .set_request_payer(req.get_header_parse(X_AMZ_REQUEST_PAYER))
+            .set_server_side_encryption(req.get_header_parse(X_AMZ_SSE))
             .set_sse_customer_algorithm(req.get_header(X_AMZ_SSE_CUSTOMER_ALG))
+            .set_sse_customer_key(req.get_header(X_AMZ_SSE_CUSTOMER_KEY))
             .set_sse_customer_key_md5(req.get_header(X_AMZ_SSE_CUSTOMER_KEY_MD5))
-            .set_sse_customer_key(req.get_header(X_AMZ_SSE_AWS_KMS_KEY_ID))
+            .set_ssekms_encryption_context(req.get_header(X_AMZ_SSE_CONTEXT))
+            .set_ssekms_key_id(req.get_header(X_AMZ_SSE_AWS_KMS_KEY_ID))
+            .set_storage_class(req.get_header_parse(X_AMZ_STORAGE_CLASS))
+            .set_tagging(req.get_header(X_AMZ_TAGGING))
+            .set_website_redirect_location(req.get_header(X_AMZ_WEBSITE_REDIRECT_LOCATION))
             .build()
             .map_err(|e| e.into())
     }
@@ -238,11 +268,54 @@ pub mod parsers {
         CopyObjectInput::builder()
             .bucket(req.get_bucket())
             .key(req.get_key())
+            .set_acl(req.get_header_parse(X_AMZ_ACL))
+            .set_bucket_key_enabled(req.get_header_parse(X_AMZ_SSE_BUCKET_KEY_ENABLED))
+            .set_cache_control(req.get_header(H_CACHE_CONTROL))
+            .set_content_disposition(req.get_header(H_CONTENT_DISPOSITION))
+            .set_content_encoding(req.get_header(H_CONTENT_ENCODING))
+            .set_content_language(req.get_header(H_CONTENT_LANGUAGE))
+            .set_content_type(req.get_header(H_CONTENT_TYPE))
+            .set_copy_source(req.get_header(X_AMZ_COPY_SOURCE))
+            .set_copy_source_if_match(req.get_header(X_AMZ_COPY_SOURCE_IF_MATCH))
+            .set_copy_source_if_modified_since(
+                req.get_header_date(X_AMZ_COPY_SOURCE_IF_MODIFIED_SINCE),
+            )
+            .set_copy_source_if_none_match(req.get_header(X_AMZ_COPY_SOURCE_IF_NONE_MATCH))
+            .set_copy_source_if_unmodified_since(
+                req.get_header_date(X_AMZ_COPY_SOURCE_IF_UNMODIFIED_SINCE),
+            )
+            .set_copy_source_sse_customer_algorithm(
+                req.get_header(X_AMZ_COPY_SOURCE_SSE_CUSTOMER_ALG),
+            )
+            .set_copy_source_sse_customer_key(req.get_header(X_AMZ_COPY_SOURCE_SSE_CUSTOMER_KEY))
+            .set_copy_source_sse_customer_key_md5(
+                req.get_header(X_AMZ_COPY_SOURCE_SSE_CUSTOMER_KEY_MD5),
+            )
             .set_expected_bucket_owner(req.get_header(X_AMZ_EXPECTED_BUCKET_OWNER))
+            .set_expected_source_bucket_owner(req.get_header(X_AMZ_EXPECTED_BUCKET_OWNER))
+            .set_expires(req.get_header_date(H_EXPIRES))
+            .set_grant_full_control(req.get_header(X_AMZ_GRANT_FULL_CONTROL))
+            .set_grant_read(req.get_header(X_AMZ_GRANT_READ))
+            .set_grant_read_acp(req.get_header(X_AMZ_GRANT_READ_ACP))
+            .set_grant_write_acp(req.get_header(X_AMZ_GRANT_WRITE_ACP))
+            .set_metadata(req.get_header_map(X_AMZ_META_PREFIX))
+            .set_metadata_directive(req.get_header_parse(X_AMZ_METADATA_DIRECTIVE))
+            .set_object_lock_legal_hold_status(req.get_header_parse(X_AMZ_OBJECT_LOCK_LEGAL_HOLD))
+            .set_object_lock_mode(req.get_header_parse(X_AMZ_OBJECT_LOCK_MODE))
+            .set_object_lock_retain_until_date(
+                req.get_header_date(X_AMZ_OBJECT_LOCK_RETAIN_UNTIL_DATE),
+            )
             .set_request_payer(req.get_header_parse(X_AMZ_REQUEST_PAYER))
+            .set_server_side_encryption(req.get_header_parse(X_AMZ_SSE))
             .set_sse_customer_algorithm(req.get_header(X_AMZ_SSE_CUSTOMER_ALG))
+            .set_sse_customer_key(req.get_header(X_AMZ_SSE_CUSTOMER_KEY))
             .set_sse_customer_key_md5(req.get_header(X_AMZ_SSE_CUSTOMER_KEY_MD5))
-            .set_sse_customer_key(req.get_header(X_AMZ_SSE_AWS_KMS_KEY_ID))
+            .set_ssekms_encryption_context(req.get_header(X_AMZ_SSE_CONTEXT))
+            .set_ssekms_key_id(req.get_header(X_AMZ_SSE_AWS_KMS_KEY_ID))
+            .set_storage_class(req.get_header_parse(X_AMZ_STORAGE_CLASS))
+            .set_tagging(req.get_header(X_AMZ_TAGGING))
+            .set_tagging_directive(req.get_header_parse(X_AMZ_TAGGING_DIRECTIVE))
+            .set_website_redirect_location(req.get_header(X_AMZ_WEBSITE_REDIRECT_LOCATION))
             .build()
             .map_err(|e| e.into())
     }
@@ -251,8 +324,13 @@ pub mod parsers {
         DeleteObjectInput::builder()
             .bucket(req.get_bucket())
             .key(req.get_key())
+            .set_bypass_governance_retention(
+                req.get_header_parse(X_AMZ_BYPASS_GOVERNANCE_RETENTION),
+            )
             .set_expected_bucket_owner(req.get_header(X_AMZ_EXPECTED_BUCKET_OWNER))
+            .set_mfa(req.get_header(X_AMZ_MFA))
             .set_request_payer(req.get_header_parse(X_AMZ_REQUEST_PAYER))
+            .set_version_id(req.get_param(P_VERSION_ID))
             .build()
             .map_err(|e| e.into())
     }
@@ -260,7 +338,12 @@ pub mod parsers {
     pub fn delete_objects(req: &S3Request) -> Result<DeleteObjectsInput, InputError> {
         DeleteObjectsInput::builder()
             .bucket(req.get_bucket())
+            // .set_delete(req.get_body_parse(B_DELETE)) // TODO parse body xml
+            .set_bypass_governance_retention(
+                req.get_header_parse(X_AMZ_BYPASS_GOVERNANCE_RETENTION),
+            )
             .set_expected_bucket_owner(req.get_header(X_AMZ_EXPECTED_BUCKET_OWNER))
+            .set_mfa(req.get_header(X_AMZ_MFA))
             .set_request_payer(req.get_header_parse(X_AMZ_REQUEST_PAYER))
             .build()
             .map_err(|e| e.into())
@@ -319,7 +402,7 @@ pub mod parsers {
         PutObjectAclInput::builder()
             .bucket(req.get_bucket())
             .key(req.get_key())
-            // .set_access_control_policy(req.get_body_parse("AccessControlPolicy")) // TODO parse xml body
+            // .set_access_control_policy(req.get_body_parse("AccessControlPolicy")) // TODO parse body xml
             .set_acl(req.get_header_parse(X_AMZ_ACL))
             .set_content_md5(req.get_header(H_CONTENT_MD5))
             .set_expected_bucket_owner(req.get_header(X_AMZ_EXPECTED_BUCKET_OWNER))
