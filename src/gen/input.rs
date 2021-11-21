@@ -1,6 +1,6 @@
 //! TODO This module should be generated from https://github.com/awslabs/smithy-rs
 
-use crate::types::S3Request;
+use crate::{gen::constants::*, types::S3Request};
 use aws_sdk_s3::input::*;
 use aws_smithy_http::operation::BuildError;
 use std::fmt;
@@ -45,59 +45,88 @@ pub mod parsers {
 
     pub fn head_bucket(req: &S3Request) -> Result<HeadBucketInput, InputError> {
         HeadBucketInput::builder()
-            .set_bucket(Some(req.resource.get_bucket().to_owned()))
-            .set_expected_bucket_owner(req.get_header("x-amz-expected-bucket-owner"))
+            .bucket(req.get_bucket())
+            .set_expected_bucket_owner(req.get_header(X_AMZ_EXPECTED_BUCKET_OWNER))
+            .build()
+            .map_err(|e| e.into())
+    }
+
+    pub fn create_bucket(req: &S3Request) -> Result<CreateBucketInput, InputError> {
+        CreateBucketInput::builder()
+            .bucket(req.get_bucket())
+            .set_acl(req.get_header_parse(X_AMZ_ACL))
+            // .set_create_bucket_configuration(req.get_body_parse(CreateBucketConfiguration))
+            .set_grant_full_control(req.get_header(X_AMZ_GRANT_FULL_CONTROL))
+            .set_grant_read(req.get_header(X_AMZ_GRANT_READ))
+            .set_grant_read_acp(req.get_header(X_AMZ_GRANT_READ_ACP))
+            .set_grant_write(req.get_header(X_AMZ_GRANT_WRITE))
+            .set_grant_write_acp(req.get_header(X_AMZ_GRANT_WRITE_ACP))
+            .set_object_lock_enabled_for_bucket(
+                req.get_header_parse(X_AMZ_BUCKET_OBJECT_LOCK_ENABLED),
+            )
+            .build()
+            .map_err(|e| e.into())
+    }
+
+    pub fn delete_bucket(req: &S3Request) -> Result<DeleteBucketInput, InputError> {
+        DeleteBucketInput::builder()
+            .bucket(req.get_bucket())
+            .set_expected_bucket_owner(req.get_header(X_AMZ_EXPECTED_BUCKET_OWNER))
+            .build()
+            .map_err(|e| e.into())
+    }
+
+    pub fn get_bucket_location(req: &S3Request) -> Result<GetBucketLocationInput, InputError> {
+        GetBucketLocationInput::builder()
+            .bucket(req.get_bucket())
+            .set_expected_bucket_owner(req.get_header(X_AMZ_EXPECTED_BUCKET_OWNER))
             .build()
             .map_err(|e| e.into())
     }
 
     pub fn list_objects(req: &S3Request) -> Result<ListObjectsInput, InputError> {
         ListObjectsInput::builder()
-            .set_bucket(Some(req.resource.get_bucket().to_owned()))
-            .set_delimiter(req.get_param("delimiter"))
-            .set_encoding_type(req.get_param_parse("encoding-type"))
-            .set_expected_bucket_owner(req.get_header("x-amz-expected-bucket-owner"))
-            .set_marker(req.get_param("marker"))
-            .set_max_keys(req.get_param_parse("max-keys"))
-            .set_prefix(req.get_param("prefix"))
-            .set_request_payer(req.get_header_parse("x-amz-request-payer"))
+            .bucket(req.get_bucket())
+            .set_delimiter(req.get_param(P_DELIMITER))
+            .set_encoding_type(req.get_param_parse(P_ENCODING_TYPE))
+            .set_expected_bucket_owner(req.get_header(X_AMZ_EXPECTED_BUCKET_OWNER))
+            .set_marker(req.get_param(P_MARKER))
+            .set_max_keys(req.get_param_parse(P_MAX_KEYS))
+            .set_prefix(req.get_param(P_PREFIX))
+            .set_request_payer(req.get_header_parse(X_AMZ_REQUEST_PAYER))
             .build()
             .map_err(|e| e.into())
     }
 
     pub fn get_object(req: &S3Request) -> Result<GetObjectInput, InputError> {
         GetObjectInput::builder()
-            .set_bucket(Some(req.resource.get_bucket().to_owned()))
-            .set_expected_bucket_owner(req.get_header("x-amz-expected-bucket-owner"))
-            .set_if_match(req.get_header("If-Match"))
-            .set_if_none_match(req.get_header("If-None-Match"))
-            .set_if_modified_since(req.get_header_date("If-Modified-Since"))
-            .set_if_unmodified_since(req.get_header_date("If-Unmodified-Since"))
-            .set_key(Some(req.resource.get_key().to_owned()))
-            .set_part_number(req.get_param_parse("partNumber"))
-            .set_range(req.get_header("range"))
-            .set_request_payer(req.get_header_parse("x-amz-request-payer"))
-            .set_response_cache_control(req.get_param("response-cache-control"))
-            .set_response_content_disposition(req.get_param("response-content-disposition"))
-            .set_response_content_encoding(req.get_param("response-content-encoding"))
-            .set_response_content_language(req.get_param("response-content-language"))
-            .set_response_content_type(req.get_param("response-content-type"))
-            .set_response_expires(req.get_param_date("response-expires"))
-            .set_sse_customer_algorithm(
-                req.get_header("x-amz-server-side-encryption-customer-algorithm"),
-            )
-            .set_sse_customer_key_md5(
-                req.get_header("x-amz-server-side-encryption-customer-key-MD5"),
-            )
-            .set_sse_customer_key(req.get_header("x-amz-server-side-encryption-aws-kms-key-id"))
-            .set_version_id(req.get_param("versionId"))
+            .bucket(req.get_bucket())
+            .key(req.get_key())
+            .set_expected_bucket_owner(req.get_header(X_AMZ_EXPECTED_BUCKET_OWNER))
+            .set_if_match(req.get_header(H_IF_MATCH))
+            .set_if_none_match(req.get_header(H_IF_NONE_MATCH))
+            .set_if_modified_since(req.get_header_date(H_IF_MODIFIED_SINCE))
+            .set_if_unmodified_since(req.get_header_date(H_IF_UNMODIFIED_SINCE))
+            .set_part_number(req.get_param_parse(P_PART_NUMBER))
+            .set_range(req.get_header(H_RANGE))
+            .set_request_payer(req.get_header_parse(X_AMZ_REQUEST_PAYER))
+            .set_response_cache_control(req.get_param(P_RESPONSE_CACHE_CONTROL))
+            .set_response_content_disposition(req.get_param(P_RESPONSE_CONTENT_DISPOSITION))
+            .set_response_content_encoding(req.get_param(P_RESPONSE_CONTENT_ENCODING))
+            .set_response_content_language(req.get_param(P_RESPONSE_CONTENT_LANGUAGE))
+            .set_response_content_type(req.get_param(P_RESPONSE_CONTENT_TYPE))
+            .set_response_expires(req.get_param_date(P_RESPONSE_EXPIRES))
+            .set_sse_customer_algorithm(req.get_header(X_AMZ_SSE_CUSTOMER_ALG))
+            .set_sse_customer_key_md5(req.get_header(X_AMZ_SSE_CUSTOMER_KEY_MD5))
+            .set_sse_customer_key(req.get_header(X_AMZ_SSE_AWS_KMS_KEY_ID))
+            .set_version_id(req.get_param(P_VERSION_ID))
             .build()
             .map_err(|e| e.into())
     }
 
     /// This macro generates a default parser function per op.
     /// to make it possible to implement it in stages.
-    macro_rules! s3_inp {
+    macro_rules! gen {
         ($name:ident) => {
             paste::paste! {
                 pub fn [<$name:snake>](_: &S3Request) -> Result<[<$name Input>], InputError> {
@@ -107,106 +136,110 @@ pub mod parsers {
         };
     }
 
-    // s3_inp!(ListBuckets);
-    // s3_inp!(HeadBucket);
-    s3_inp!(CreateBucket);
-    s3_inp!(DeleteBucket);
-    s3_inp!(GetBucketLocation);
-    s3_inp!(GetBucketAcl);
-    s3_inp!(PutBucketAcl);
+    // basic bucket ops
+    // gen!(ListBuckets);
+    // gen!(HeadBucket);
+    // gen!(CreateBucket);
+    // gen!(DeleteBucket);
+    // gen!(GetBucketLocation);
+    gen!(GetBucketAcl);
+    gen!(PutBucketAcl);
+    gen!(GetBucketTagging);
+    gen!(PutBucketTagging);
+    gen!(DeleteBucketTagging);
 
-    // s3_inp!(ListObjects);
-    s3_inp!(ListObjectsV2);
-    s3_inp!(ListObjectVersions);
-    // s3_inp!(GetObject);
-    s3_inp!(HeadObject);
-    s3_inp!(PutObject);
-    s3_inp!(CopyObject);
-    s3_inp!(DeleteObject);
-    s3_inp!(DeleteObjects);
-    s3_inp!(GetObjectAcl);
-    s3_inp!(PutObjectAcl);
+    // basic list ops
+    // gen!(ListObjects);
+    gen!(ListObjectsV2);
+    gen!(ListObjectVersions);
 
-    s3_inp!(ListMultipartUploads);
-    s3_inp!(CreateMultipartUpload);
-    s3_inp!(AbortMultipartUpload);
-    s3_inp!(CompleteMultipartUpload);
-    s3_inp!(ListParts);
-    s3_inp!(UploadPart);
-    s3_inp!(UploadPartCopy);
+    // basic object ops
+    // gen!(GetObject);
+    gen!(HeadObject);
+    gen!(PutObject);
+    gen!(CopyObject);
+    gen!(DeleteObject);
+    gen!(DeleteObjects);
+    gen!(GetObjectAcl);
+    gen!(PutObjectAcl);
+    gen!(GetObjectTagging);
+    gen!(PutObjectTagging);
+    gen!(DeleteObjectTagging);
 
-    s3_inp!(GetObjectLegalHold);
-    s3_inp!(GetObjectLockConfiguration);
-    s3_inp!(GetObjectRetention);
-    s3_inp!(GetObjectTagging);
-    s3_inp!(GetObjectTorrent);
+    // multipart upload
+    gen!(ListMultipartUploads);
+    gen!(CreateMultipartUpload);
+    gen!(AbortMultipartUpload);
+    gen!(CompleteMultipartUpload);
+    gen!(ListParts);
+    gen!(UploadPart);
+    gen!(UploadPartCopy);
 
-    s3_inp!(PutObjectLegalHold);
-    s3_inp!(PutObjectLockConfiguration);
-    s3_inp!(PutObjectRetention);
-    s3_inp!(PutObjectTagging);
+    // advanced object ops
+    gen!(GetObjectLegalHold);
+    gen!(GetObjectLockConfiguration);
+    gen!(GetObjectRetention);
+    gen!(GetObjectTorrent);
+    gen!(PutObjectLegalHold);
+    gen!(PutObjectLockConfiguration);
+    gen!(PutObjectRetention);
+    gen!(RestoreObject);
+    gen!(SelectObjectContent);
+    gen!(WriteGetObjectResponse);
 
-    s3_inp!(DeleteObjectTagging);
-    s3_inp!(RestoreObject);
-    s3_inp!(SelectObjectContent);
+    // advanced bucket ops
+    gen!(GetBucketAccelerateConfiguration);
+    gen!(GetBucketAnalyticsConfiguration);
+    gen!(GetBucketCors);
+    gen!(GetBucketEncryption);
+    gen!(GetBucketIntelligentTieringConfiguration);
+    gen!(GetBucketInventoryConfiguration);
+    gen!(GetBucketLifecycleConfiguration);
+    gen!(GetBucketLogging);
+    gen!(GetBucketMetricsConfiguration);
+    gen!(GetBucketNotificationConfiguration);
+    gen!(GetBucketOwnershipControls);
+    gen!(GetBucketPolicy);
+    gen!(GetBucketPolicyStatus);
+    gen!(GetBucketReplication);
+    gen!(GetBucketRequestPayment);
+    gen!(GetBucketVersioning);
+    gen!(GetBucketWebsite);
+    gen!(GetPublicAccessBlock);
 
-    s3_inp!(GetBucketAccelerateConfiguration);
-    s3_inp!(GetBucketAnalyticsConfiguration);
-    s3_inp!(GetBucketCors);
-    s3_inp!(GetBucketEncryption);
-    s3_inp!(GetBucketIntelligentTieringConfiguration);
-    s3_inp!(GetBucketInventoryConfiguration);
-    s3_inp!(GetBucketLifecycleConfiguration);
-    s3_inp!(GetBucketLogging);
-    s3_inp!(GetBucketMetricsConfiguration);
-    s3_inp!(GetBucketNotificationConfiguration);
-    s3_inp!(GetBucketOwnershipControls);
-    s3_inp!(GetBucketPolicy);
-    s3_inp!(GetBucketPolicyStatus);
-    s3_inp!(GetBucketReplication);
-    s3_inp!(GetBucketRequestPayment);
-    s3_inp!(GetBucketTagging);
-    s3_inp!(GetBucketVersioning);
-    s3_inp!(GetBucketWebsite);
-    s3_inp!(GetPublicAccessBlock);
+    gen!(PutBucketAccelerateConfiguration);
+    gen!(PutBucketAnalyticsConfiguration);
+    gen!(PutBucketCors);
+    gen!(PutBucketEncryption);
+    gen!(PutBucketIntelligentTieringConfiguration);
+    gen!(PutBucketInventoryConfiguration);
+    gen!(PutBucketLifecycleConfiguration);
+    gen!(PutBucketLogging);
+    gen!(PutBucketMetricsConfiguration);
+    gen!(PutBucketNotificationConfiguration);
+    gen!(PutBucketOwnershipControls);
+    gen!(PutBucketPolicy);
+    gen!(PutBucketReplication);
+    gen!(PutBucketRequestPayment);
+    gen!(PutBucketVersioning);
+    gen!(PutBucketWebsite);
+    gen!(PutPublicAccessBlock);
 
-    s3_inp!(PutBucketAccelerateConfiguration);
-    s3_inp!(PutBucketAnalyticsConfiguration);
-    s3_inp!(PutBucketCors);
-    s3_inp!(PutBucketEncryption);
-    s3_inp!(PutBucketIntelligentTieringConfiguration);
-    s3_inp!(PutBucketInventoryConfiguration);
-    s3_inp!(PutBucketLifecycleConfiguration);
-    s3_inp!(PutBucketLogging);
-    s3_inp!(PutBucketMetricsConfiguration);
-    s3_inp!(PutBucketNotificationConfiguration);
-    s3_inp!(PutBucketOwnershipControls);
-    s3_inp!(PutBucketPolicy);
-    s3_inp!(PutBucketReplication);
-    s3_inp!(PutBucketRequestPayment);
-    s3_inp!(PutBucketTagging);
-    s3_inp!(PutBucketVersioning);
-    s3_inp!(PutBucketWebsite);
-    s3_inp!(PutPublicAccessBlock);
+    gen!(DeleteBucketAnalyticsConfiguration);
+    gen!(DeleteBucketCors);
+    gen!(DeleteBucketEncryption);
+    gen!(DeleteBucketIntelligentTieringConfiguration);
+    gen!(DeleteBucketInventoryConfiguration);
+    gen!(DeleteBucketLifecycle);
+    gen!(DeleteBucketMetricsConfiguration);
+    gen!(DeleteBucketOwnershipControls);
+    gen!(DeleteBucketPolicy);
+    gen!(DeleteBucketReplication);
+    gen!(DeleteBucketWebsite);
+    gen!(DeletePublicAccessBlock);
 
-    s3_inp!(DeleteBucketAnalyticsConfiguration);
-    s3_inp!(DeleteBucketCors);
-    s3_inp!(DeleteBucketEncryption);
-    s3_inp!(DeleteBucketIntelligentTieringConfiguration);
-    s3_inp!(DeleteBucketInventoryConfiguration);
-    s3_inp!(DeleteBucketLifecycle);
-    s3_inp!(DeleteBucketMetricsConfiguration);
-    s3_inp!(DeleteBucketOwnershipControls);
-    s3_inp!(DeleteBucketPolicy);
-    s3_inp!(DeleteBucketReplication);
-    s3_inp!(DeleteBucketTagging);
-    s3_inp!(DeleteBucketWebsite);
-    s3_inp!(DeletePublicAccessBlock);
-
-    s3_inp!(ListBucketAnalyticsConfigurations);
-    s3_inp!(ListBucketIntelligentTieringConfigurations);
-    s3_inp!(ListBucketInventoryConfigurations);
-    s3_inp!(ListBucketMetricsConfigurations);
-
-    s3_inp!(WriteGetObjectResponse);
+    gen!(ListBucketAnalyticsConfigurations);
+    gen!(ListBucketIntelligentTieringConfigurations);
+    gen!(ListBucketInventoryConfigurations);
+    gen!(ListBucketMetricsConfigurations);
 }

@@ -1,7 +1,7 @@
 #!/bin/bash
 set -e -o pipefail
 
-export S3D_ENDPOINT='http://localhost:3000'
+export S3D_ENDPOINT='http://localhost:5353'
 
 function NL() {
     echo ""

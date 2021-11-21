@@ -4,7 +4,7 @@ use crate::types::*;
 use aws_sdk_s3::output::*;
 use aws_smithy_types::instant::Format;
 use aws_smithy_xml::encode::{ScopeWriter, XmlWriter};
-use hyper::Body;
+use hyper::{Body, StatusCode};
 
 pub const S3_XMLNS: &'static str = "http://s3.amazonaws.com/doc/2006-03-01/";
 
@@ -53,7 +53,7 @@ fn xml_text_opt<'a, 'b, T: AsRef<str>>(w: &mut ScopeWriter, tag: &str, opt_text:
     }
 }
 
-pub fn s3_error_output(e: S3Error) -> S3Result {
+pub fn s3_error_output(e: S3Error) -> HttpResponse {
     let mut out = String::new();
     let mut x = XmlWriter::new(&mut out);
     let mut w = xml_root(&mut x, "Error");
@@ -62,7 +62,10 @@ pub fn s3_error_output(e: S3Error) -> S3Result {
     xml_text_opt(&mut w, "RequestId", e.request_id());
     xml_text_opt(&mut w, "Resource", e.extra("resource"));
     w.finish();
-    Ok(responder().body(Body::from(out)).unwrap())
+    responder()
+        .status(StatusCode::BAD_REQUEST)
+        .body(Body::from(out))
+        .unwrap()
 }
 
 pub mod parsers {
@@ -147,7 +150,7 @@ pub mod parsers {
 
     /// This macro generates a default parser function per op
     /// to make it possible to implement it in stages.
-    macro_rules! s3_out {
+    macro_rules! gen {
         ($name:ident) => {
             paste::paste! {
                 pub fn [<$name:snake>](_: [<$name Output>]) -> Result<HttpResponse, OutputError> {
@@ -157,96 +160,96 @@ pub mod parsers {
         };
     }
 
-    s3_out!(AbortMultipartUpload);
-    s3_out!(CompleteMultipartUpload);
-    s3_out!(CopyObject);
-    s3_out!(CreateBucket);
-    s3_out!(CreateMultipartUpload);
-    s3_out!(DeleteBucket);
-    s3_out!(DeleteBucketAnalyticsConfiguration);
-    s3_out!(DeleteBucketCors);
-    s3_out!(DeleteBucketEncryption);
-    s3_out!(DeleteBucketIntelligentTieringConfiguration);
-    s3_out!(DeleteBucketInventoryConfiguration);
-    s3_out!(DeleteBucketLifecycle);
-    s3_out!(DeleteBucketMetricsConfiguration);
-    s3_out!(DeleteBucketOwnershipControls);
-    s3_out!(DeleteBucketPolicy);
-    s3_out!(DeleteBucketReplication);
-    s3_out!(DeleteBucketTagging);
-    s3_out!(DeleteBucketWebsite);
-    s3_out!(DeleteObject);
-    s3_out!(DeleteObjects);
-    s3_out!(DeleteObjectTagging);
-    s3_out!(DeletePublicAccessBlock);
-    s3_out!(GetBucketAccelerateConfiguration);
-    s3_out!(GetBucketAcl);
-    s3_out!(GetBucketAnalyticsConfiguration);
-    s3_out!(GetBucketCors);
-    s3_out!(GetBucketEncryption);
-    s3_out!(GetBucketIntelligentTieringConfiguration);
-    s3_out!(GetBucketInventoryConfiguration);
-    s3_out!(GetBucketLifecycleConfiguration);
-    s3_out!(GetBucketLocation);
-    s3_out!(GetBucketLogging);
-    s3_out!(GetBucketMetricsConfiguration);
-    s3_out!(GetBucketNotificationConfiguration);
-    s3_out!(GetBucketOwnershipControls);
-    s3_out!(GetBucketPolicy);
-    s3_out!(GetBucketPolicyStatus);
-    s3_out!(GetBucketReplication);
-    s3_out!(GetBucketRequestPayment);
-    s3_out!(GetBucketTagging);
-    s3_out!(GetBucketVersioning);
-    s3_out!(GetBucketWebsite);
-    // s3_out!(GetObject);
-    s3_out!(GetObjectAcl);
-    s3_out!(GetObjectLegalHold);
-    s3_out!(GetObjectLockConfiguration);
-    s3_out!(GetObjectRetention);
-    s3_out!(GetObjectTagging);
-    s3_out!(GetObjectTorrent);
-    s3_out!(GetPublicAccessBlock);
-    s3_out!(HeadBucket);
-    s3_out!(HeadObject);
-    s3_out!(ListBucketAnalyticsConfigurations);
-    s3_out!(ListBucketIntelligentTieringConfigurations);
-    s3_out!(ListBucketInventoryConfigurations);
-    s3_out!(ListBucketMetricsConfigurations);
-    // s3_out!(ListBuckets);
-    s3_out!(ListMultipartUploads);
-    // s3_out!(ListObjects);
-    s3_out!(ListObjectsV2);
-    s3_out!(ListObjectVersions);
-    s3_out!(ListParts);
-    s3_out!(PutBucketAccelerateConfiguration);
-    s3_out!(PutBucketAcl);
-    s3_out!(PutBucketAnalyticsConfiguration);
-    s3_out!(PutBucketCors);
-    s3_out!(PutBucketEncryption);
-    s3_out!(PutBucketIntelligentTieringConfiguration);
-    s3_out!(PutBucketInventoryConfiguration);
-    s3_out!(PutBucketLifecycleConfiguration);
-    s3_out!(PutBucketLogging);
-    s3_out!(PutBucketMetricsConfiguration);
-    s3_out!(PutBucketNotificationConfiguration);
-    s3_out!(PutBucketOwnershipControls);
-    s3_out!(PutBucketPolicy);
-    s3_out!(PutBucketReplication);
-    s3_out!(PutBucketRequestPayment);
-    s3_out!(PutBucketTagging);
-    s3_out!(PutBucketVersioning);
-    s3_out!(PutBucketWebsite);
-    s3_out!(PutObject);
-    s3_out!(PutObjectAcl);
-    s3_out!(PutObjectLegalHold);
-    s3_out!(PutObjectLockConfiguration);
-    s3_out!(PutObjectRetention);
-    s3_out!(PutObjectTagging);
-    s3_out!(PutPublicAccessBlock);
-    s3_out!(RestoreObject);
-    s3_out!(SelectObjectContent);
-    s3_out!(UploadPart);
-    s3_out!(UploadPartCopy);
-    s3_out!(WriteGetObjectResponse);
+    gen!(AbortMultipartUpload);
+    gen!(CompleteMultipartUpload);
+    gen!(CopyObject);
+    gen!(CreateBucket);
+    gen!(CreateMultipartUpload);
+    gen!(DeleteBucket);
+    gen!(DeleteBucketAnalyticsConfiguration);
+    gen!(DeleteBucketCors);
+    gen!(DeleteBucketEncryption);
+    gen!(DeleteBucketIntelligentTieringConfiguration);
+    gen!(DeleteBucketInventoryConfiguration);
+    gen!(DeleteBucketLifecycle);
+    gen!(DeleteBucketMetricsConfiguration);
+    gen!(DeleteBucketOwnershipControls);
+    gen!(DeleteBucketPolicy);
+    gen!(DeleteBucketReplication);
+    gen!(DeleteBucketTagging);
+    gen!(DeleteBucketWebsite);
+    gen!(DeleteObject);
+    gen!(DeleteObjects);
+    gen!(DeleteObjectTagging);
+    gen!(DeletePublicAccessBlock);
+    gen!(GetBucketAccelerateConfiguration);
+    gen!(GetBucketAcl);
+    gen!(GetBucketAnalyticsConfiguration);
+    gen!(GetBucketCors);
+    gen!(GetBucketEncryption);
+    gen!(GetBucketIntelligentTieringConfiguration);
+    gen!(GetBucketInventoryConfiguration);
+    gen!(GetBucketLifecycleConfiguration);
+    gen!(GetBucketLocation);
+    gen!(GetBucketLogging);
+    gen!(GetBucketMetricsConfiguration);
+    gen!(GetBucketNotificationConfiguration);
+    gen!(GetBucketOwnershipControls);
+    gen!(GetBucketPolicy);
+    gen!(GetBucketPolicyStatus);
+    gen!(GetBucketReplication);
+    gen!(GetBucketRequestPayment);
+    gen!(GetBucketTagging);
+    gen!(GetBucketVersioning);
+    gen!(GetBucketWebsite);
+    // gen!(GetObject);
+    gen!(GetObjectAcl);
+    gen!(GetObjectLegalHold);
+    gen!(GetObjectLockConfiguration);
+    gen!(GetObjectRetention);
+    gen!(GetObjectTagging);
+    gen!(GetObjectTorrent);
+    gen!(GetPublicAccessBlock);
+    gen!(HeadBucket);
+    gen!(HeadObject);
+    gen!(ListBucketAnalyticsConfigurations);
+    gen!(ListBucketIntelligentTieringConfigurations);
+    gen!(ListBucketInventoryConfigurations);
+    gen!(ListBucketMetricsConfigurations);
+    // gen!(ListBuckets);
+    gen!(ListMultipartUploads);
+    // gen!(ListObjects);
+    gen!(ListObjectsV2);
+    gen!(ListObjectVersions);
+    gen!(ListParts);
+    gen!(PutBucketAccelerateConfiguration);
+    gen!(PutBucketAcl);
+    gen!(PutBucketAnalyticsConfiguration);
+    gen!(PutBucketCors);
+    gen!(PutBucketEncryption);
+    gen!(PutBucketIntelligentTieringConfiguration);
+    gen!(PutBucketInventoryConfiguration);
+    gen!(PutBucketLifecycleConfiguration);
+    gen!(PutBucketLogging);
+    gen!(PutBucketMetricsConfiguration);
+    gen!(PutBucketNotificationConfiguration);
+    gen!(PutBucketOwnershipControls);
+    gen!(PutBucketPolicy);
+    gen!(PutBucketReplication);
+    gen!(PutBucketRequestPayment);
+    gen!(PutBucketTagging);
+    gen!(PutBucketVersioning);
+    gen!(PutBucketWebsite);
+    gen!(PutObject);
+    gen!(PutObjectAcl);
+    gen!(PutObjectLegalHold);
+    gen!(PutObjectLockConfiguration);
+    gen!(PutObjectRetention);
+    gen!(PutObjectTagging);
+    gen!(PutPublicAccessBlock);
+    gen!(RestoreObject);
+    gen!(SelectObjectContent);
+    gen!(UploadPart);
+    gen!(UploadPartCopy);
+    gen!(WriteGetObjectResponse);
 }

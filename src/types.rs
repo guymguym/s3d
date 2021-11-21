@@ -116,6 +116,14 @@ impl S3Request {
         req
     }
 
+    pub fn get_bucket(&self) -> &str {
+        self.resource.get_bucket()
+    }
+
+    pub fn get_key(&self) -> &str {
+        self.resource.get_key()
+    }
+
     pub fn has_param(&self, name: &str) -> bool {
         self.params.contains_key(name)
     }

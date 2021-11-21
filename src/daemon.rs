@@ -97,6 +97,15 @@ impl Daemon {
         Ok(res)
     }
 
+    pub fn handle_error(&self, req: &S3Request, err: S3Error) -> HttpResponse {
+        error!("=== HTTP ERROR {:?}", err);
+        let mut res = crate::gen::output::s3_error_output(err);
+        // let mut res = crate::gen::output::s3_error_output(
+        //     S3Error::builder().code("InternalError").message("Internal error").build());
+        self.set_headers_ids(req, &mut res);
+        res
+    }
+
     /// Authenticate and authorize the request.
     pub async fn check_auth(&self, req: &S3Request) -> S3ResultNull {
         // TODO implement authenticate
@@ -142,68 +151,6 @@ impl Daemon {
         let h = res.headers_mut();
         h.insert(x_amz_request_id, reqid_val.clone());
         h.insert(x_amz_id_2, hostid_val.clone());
-    }
-
-    pub fn handle_error(&self, req: &S3Request, err: S3Error) -> HttpResponse {
-        let res = if let Ok(err) = err.clone().try_into() {
-            crate::gen::output::s3_error_output(err)
-        } else {
-            error!("{:?}", err);
-            crate::gen::output::s3_error_output(
-                S3Error::builder()
-                    .code("InternalError")
-                    .message("Internal error")
-                    .build(),
-            )
-        };
-        let mut res = res.unwrap();
-        // .unwrap_or(S3Error::Unhandled(err.into()))
-        // if let Some(err) = err.downcast_ref::<S3Error>() {
-        //     err.clone()
-        // } else if let Some(err) = err.downcast_ref::<S3Error>() {
-        //     S3Error::Unhandled(err.into)
-        // } else {
-        //     S3Error::Unhandled(err.into)
-        //     responder()
-        //         .status(hyper::StatusCode::from(err))
-        //         .body(Body::from(err.message()))
-        //         .unwrap()
-
-        //     S3Error::Unhandled(
-        //         S3Error::builder()
-        //             .code("InternalError")
-        //             .message("An internal error occurred")
-        //             .request_id(self.reqid)
-        //             .build()
-        //             .into(),
-        //     )
-        // }
-        // let mut res = if let Some(err) = err.downcast_ref::<aws_smithy_types::Error>() {
-        //     responder()
-        //         .status(hyper::StatusCode::from(err))
-        //         .body(Body::from(err.message()))
-        //         .unwrap()
-        // } else {
-        //     responder()
-        //         .status(hyper::StatusCode::INTERNAL_SERVER_ERROR)
-        //         .header(header::CONTENT_TYPE, "application/xml")
-        //         .body(Body::from(format!(
-        //             "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n\
-        //         <Error>\
-        //             <Code>{}</Code>\
-        //             <Message>{}</Message>\
-        //             <Resource>{}</HostId>\
-        //             <RequestId>{}</RequestId>\
-        //         </Error>",
-        //             err.code,
-        //             err.msg,
-        //             req.url.path(),
-        //             req.reqid,
-        //         )))
-        //         .unwrap()
-        // };
-        self.set_headers_ids(req, &mut res);
-        res
     }
 
 }

@@ -53,8 +53,11 @@ pub async fn handle_s3_request<API: S3Api>(
             paste::paste! {
                 {
                     let input = crate::gen::input::parsers::[<$name:snake>]($req)?;
+                    debug!("input {:?}", input);
                     let output = $api.[<$name:snake>](input).await.map_err(|err| err.meta().clone())?;
+                    debug!("output {:?}", output);
                     let response = crate::gen::output::parsers::[<$name:snake>](output)?;
+                    debug!("response {:?}", response);
                     Ok(response)
                 }
             }
