@@ -72,6 +72,68 @@ pub mod parsers {
 
     use super::*;
 
+    /// This macro generates a default parser function per op
+    /// to make it possible to implement it in stages.
+    macro_rules! gen {
+        ($name:ident) => {
+            paste::paste! {
+                pub fn [<$name:snake>](_: [<$name Output>]) -> Result<HttpResponse, OutputError> {
+                    Err(OutputError::NotImplemented(stringify!(s3::output::parsers::[<$name:snake>])))
+                }
+            }
+        };
+    }
+
+    //---------------------------------------------------//
+    // basic bucket ops                                  //
+    //---------------------------------------------------//
+    //-------------------------------//
+    gen!(HeadBucket);
+    gen!(CreateBucket);
+    gen!(DeleteBucket);
+    gen!(GetBucketLocation);
+    //-------------------------------//
+
+    //---------------------------------------------------//
+    // basic object ops                                  //
+    //---------------------------------------------------//
+    //-------------------------------//
+    gen!(GetObject);
+    gen!(HeadObject);
+    gen!(PutObject);
+    gen!(CopyObject);
+    gen!(DeleteObject);
+    gen!(DeleteObjects);
+    //-------------------------------//
+
+    // pub fn get_object(_o: GetObjectOutput) -> Result<HttpResponse, OutputError> {
+    //     // let body = Body::from(o.body.collect().await);
+    //     Ok(responder().body(Body::from("get_object")).unwrap())
+    // }
+
+    //---------------------------------------------------//
+    // multipart upload ops                              //
+    //---------------------------------------------------//
+    //-------------------------------//
+    gen!(CreateMultipartUpload);
+    gen!(CompleteMultipartUpload);
+    gen!(AbortMultipartUpload);
+    gen!(UploadPart);
+    gen!(UploadPartCopy);
+    //-------------------------------//
+
+    //---------------------------------------------------//
+    // list ops                                          //
+    //---------------------------------------------------//
+    //-------------------------------//
+    // gen!(ListBuckets);
+    // gen!(ListObjects);
+    gen!(ListObjectsV2);
+    gen!(ListObjectVersions);
+    gen!(ListMultipartUploads);
+    gen!(ListParts);
+    //-------------------------------//
+
     pub fn list_buckets(o: ListBucketsOutput) -> Result<HttpResponse, OutputError> {
         let mut out = String::new();
         let mut xml = XmlWriter::new(&mut out);
@@ -143,113 +205,110 @@ pub mod parsers {
         Ok(responder().body(Body::from(out)).unwrap())
     }
 
-    pub fn get_object(_o: GetObjectOutput) -> Result<HttpResponse, OutputError> {
-        // let body = Body::from(o.body.collect().await);
-        Ok(responder().body(Body::from("get_object")).unwrap())
-    }
-
-    /// This macro generates a default parser function per op
-    /// to make it possible to implement it in stages.
-    macro_rules! gen {
-        ($name:ident) => {
-            paste::paste! {
-                pub fn [<$name:snake>](_: [<$name Output>]) -> Result<HttpResponse, OutputError> {
-                    Err(OutputError::NotImplemented(stringify!(s3::output::parsers::[<$name:snake>])))
-                }
-            }
-        };
-    }
-
-    gen!(AbortMultipartUpload);
-    gen!(CompleteMultipartUpload);
-    gen!(CopyObject);
-    gen!(CreateBucket);
-    gen!(CreateMultipartUpload);
-    gen!(DeleteBucket);
-    gen!(DeleteBucketAnalyticsConfiguration);
-    gen!(DeleteBucketCors);
-    gen!(DeleteBucketEncryption);
-    gen!(DeleteBucketIntelligentTieringConfiguration);
-    gen!(DeleteBucketInventoryConfiguration);
-    gen!(DeleteBucketLifecycle);
-    gen!(DeleteBucketMetricsConfiguration);
-    gen!(DeleteBucketOwnershipControls);
-    gen!(DeleteBucketPolicy);
-    gen!(DeleteBucketReplication);
-    gen!(DeleteBucketTagging);
-    gen!(DeleteBucketWebsite);
-    gen!(DeleteObject);
-    gen!(DeleteObjects);
-    gen!(DeleteObjectTagging);
-    gen!(DeletePublicAccessBlock);
-    gen!(GetBucketAccelerateConfiguration);
-    gen!(GetBucketAcl);
-    gen!(GetBucketAnalyticsConfiguration);
-    gen!(GetBucketCors);
-    gen!(GetBucketEncryption);
-    gen!(GetBucketIntelligentTieringConfiguration);
-    gen!(GetBucketInventoryConfiguration);
-    gen!(GetBucketLifecycleConfiguration);
-    gen!(GetBucketLocation);
-    gen!(GetBucketLogging);
-    gen!(GetBucketMetricsConfiguration);
-    gen!(GetBucketNotificationConfiguration);
-    gen!(GetBucketOwnershipControls);
-    gen!(GetBucketPolicy);
-    gen!(GetBucketPolicyStatus);
-    gen!(GetBucketReplication);
-    gen!(GetBucketRequestPayment);
-    gen!(GetBucketTagging);
-    gen!(GetBucketVersioning);
-    gen!(GetBucketWebsite);
-    // gen!(GetObject);
+    //---------------------------------------------------//
+    // advanced object ops                               //
+    //---------------------------------------------------//
+    //-------------------------------//
     gen!(GetObjectAcl);
-    gen!(GetObjectLegalHold);
-    gen!(GetObjectLockConfiguration);
-    gen!(GetObjectRetention);
-    gen!(GetObjectTagging);
-    gen!(GetObjectTorrent);
-    gen!(GetPublicAccessBlock);
-    gen!(HeadBucket);
-    gen!(HeadObject);
-    gen!(ListBucketAnalyticsConfigurations);
-    gen!(ListBucketIntelligentTieringConfigurations);
-    gen!(ListBucketInventoryConfigurations);
-    gen!(ListBucketMetricsConfigurations);
-    // gen!(ListBuckets);
-    gen!(ListMultipartUploads);
-    // gen!(ListObjects);
-    gen!(ListObjectsV2);
-    gen!(ListObjectVersions);
-    gen!(ListParts);
-    gen!(PutBucketAccelerateConfiguration);
-    gen!(PutBucketAcl);
-    gen!(PutBucketAnalyticsConfiguration);
-    gen!(PutBucketCors);
-    gen!(PutBucketEncryption);
-    gen!(PutBucketIntelligentTieringConfiguration);
-    gen!(PutBucketInventoryConfiguration);
-    gen!(PutBucketLifecycleConfiguration);
-    gen!(PutBucketLogging);
-    gen!(PutBucketMetricsConfiguration);
-    gen!(PutBucketNotificationConfiguration);
-    gen!(PutBucketOwnershipControls);
-    gen!(PutBucketPolicy);
-    gen!(PutBucketReplication);
-    gen!(PutBucketRequestPayment);
-    gen!(PutBucketTagging);
-    gen!(PutBucketVersioning);
-    gen!(PutBucketWebsite);
-    gen!(PutObject);
     gen!(PutObjectAcl);
-    gen!(PutObjectLegalHold);
-    gen!(PutObjectLockConfiguration);
-    gen!(PutObjectRetention);
+    //-------------------------------//
+    gen!(GetObjectTagging);
     gen!(PutObjectTagging);
-    gen!(PutPublicAccessBlock);
+    gen!(DeleteObjectTagging);
+    //-------------------------------//
+    gen!(GetObjectRetention);
+    gen!(PutObjectRetention);
+    //-------------------------------//
+    gen!(GetObjectLegalHold);
+    gen!(PutObjectLegalHold);
+    //-------------------------------//
     gen!(RestoreObject);
+    gen!(GetObjectTorrent);
     gen!(SelectObjectContent);
-    gen!(UploadPart);
-    gen!(UploadPartCopy);
+    //-------------------------------//
+
+    //---------------------------------------------------//
+    // advanced bucket ops                               //
+    //---------------------------------------------------//
+    //-------------------------------//
+    gen!(GetBucketAcl);
+    gen!(PutBucketAcl);
+    //-------------------------------//
+    gen!(GetBucketTagging);
+    gen!(PutBucketTagging);
+    gen!(DeleteBucketTagging);
+    //-------------------------------//
+    gen!(GetObjectLockConfiguration);
+    gen!(PutObjectLockConfiguration);
+    //-------------------------------//
+    gen!(GetBucketCors);
+    gen!(PutBucketCors);
+    gen!(DeleteBucketCors);
+    //-------------------------------//
+    gen!(GetBucketPolicy);
+    gen!(PutBucketPolicy);
+    gen!(DeleteBucketPolicy);
+    gen!(GetBucketPolicyStatus);
+    //-------------------------------//
+    gen!(GetBucketReplication);
+    gen!(PutBucketReplication);
+    gen!(DeleteBucketReplication);
+    //-------------------------------//
+    gen!(GetBucketEncryption);
+    gen!(PutBucketEncryption);
+    gen!(DeleteBucketEncryption);
+    //-------------------------------//
+    gen!(GetBucketWebsite);
+    gen!(PutBucketWebsite);
+    gen!(DeleteBucketWebsite);
+    //-------------------------------//
+    gen!(GetBucketLifecycleConfiguration);
+    gen!(PutBucketLifecycleConfiguration);
+    gen!(DeleteBucketLifecycle);
+    //-------------------------------//
+    gen!(GetBucketLogging);
+    gen!(PutBucketLogging);
+    //-------------------------------//
+    gen!(GetBucketVersioning);
+    gen!(PutBucketVersioning);
+    //-------------------------------//
+    gen!(GetBucketRequestPayment);
+    gen!(PutBucketRequestPayment);
+    //-------------------------------//
+    gen!(GetBucketAccelerateConfiguration);
+    gen!(PutBucketAccelerateConfiguration);
+    //-------------------------------//
+    gen!(GetBucketNotificationConfiguration);
+    gen!(PutBucketNotificationConfiguration);
+    //-------------------------------//
+    gen!(GetBucketAnalyticsConfiguration);
+    gen!(PutBucketAnalyticsConfiguration);
+    gen!(DeleteBucketAnalyticsConfiguration);
+    gen!(ListBucketAnalyticsConfigurations);
+    //-------------------------------//
+    gen!(GetBucketIntelligentTieringConfiguration);
+    gen!(PutBucketIntelligentTieringConfiguration);
+    gen!(DeleteBucketIntelligentTieringConfiguration);
+    gen!(ListBucketIntelligentTieringConfigurations);
+    //-------------------------------//
+    gen!(GetBucketInventoryConfiguration);
+    gen!(PutBucketInventoryConfiguration);
+    gen!(DeleteBucketInventoryConfiguration);
+    gen!(ListBucketInventoryConfigurations);
+    //-------------------------------//
+    gen!(GetBucketMetricsConfiguration);
+    gen!(PutBucketMetricsConfiguration);
+    gen!(DeleteBucketMetricsConfiguration);
+    gen!(ListBucketMetricsConfigurations);
+    //-------------------------------//
+    gen!(GetBucketOwnershipControls);
+    gen!(PutBucketOwnershipControls);
+    gen!(DeleteBucketOwnershipControls);
+    //-------------------------------//
+    gen!(GetPublicAccessBlock);
+    gen!(PutPublicAccessBlock);
+    gen!(DeletePublicAccessBlock);
+    //-------------------------------//
     gen!(WriteGetObjectResponse);
+    //-------------------------------//
 }

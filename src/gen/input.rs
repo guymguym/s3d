@@ -277,13 +277,14 @@ pub mod parsers {
     pub fn delete_objects(req: &S3Request) -> Result<DeleteObjectsInput, InputError> {
         DeleteObjectsInput::builder()
             .bucket(req.get_bucket())
-            // .set_delete(req.get_body_parse(B_DELETE)) // TODO parse body xml
             .set_bypass_governance_retention(
                 req.get_header_parse(X_AMZ_BYPASS_GOVERNANCE_RETENTION),
             )
             .set_expected_bucket_owner(req.get_header(X_AMZ_EXPECTED_BUCKET_OWNER))
             .set_mfa(req.get_header(X_AMZ_MFA))
             .set_request_payer(req.get_header_parse(X_AMZ_REQUEST_PAYER))
+            // TODO parse body xml for delete_objects
+            // .set_delete(req.get_body_parse(B_DELETE))
             .build()
             .map_err(|e| e.into())
     }
@@ -345,9 +346,10 @@ pub mod parsers {
             .bucket(req.get_bucket())
             .key(req.get_key())
             .set_expected_bucket_owner(req.get_header(X_AMZ_EXPECTED_BUCKET_OWNER))
-            // .set_multipart_upload(req.get_body_parse(B_CompleteMultipartUpload)) // TODO parse body xml
             .set_request_payer(req.get_header_parse(X_AMZ_REQUEST_PAYER))
             .set_upload_id(req.get_param(P_UPLOAD_ID))
+            // TODO parse body xml for complete_multipart_upload
+            // .set_multipart_upload(req.get_body_parse(B_CompleteMultipartUpload)) 
             .build()
             .map_err(|e| e.into())
     }
@@ -525,10 +527,9 @@ pub mod parsers {
     // gen!(GetObjectLegalHold);
     // gen!(PutObjectLegalHold);
     //-------------------------------//
-    gen!(RestoreObject);
-    gen!(GetObjectTorrent);
-    gen!(SelectObjectContent);
-    gen!(WriteGetObjectResponse);
+    // gen!(RestoreObject);
+    // gen!(GetObjectTorrent);
+    // gen!(SelectObjectContent);
     //-------------------------------//
 
     pub fn get_object_acl(req: &S3Request) -> Result<GetObjectAclInput, InputError> {
@@ -556,7 +557,7 @@ pub mod parsers {
             .set_grant_write_acp(req.get_header(X_AMZ_GRANT_WRITE_ACP))
             .set_request_payer(req.get_header_parse(X_AMZ_REQUEST_PAYER))
             .set_version_id(req.get_param(P_VERSION_ID))
-            // TODO parse body xml
+            // TODO parse body xml for put_object_acl
             // .set_access_control_policy(req.get_body_parse("AccessControlPolicy"))
             .build()
             .map_err(|e| e.into())
@@ -581,7 +582,7 @@ pub mod parsers {
             .set_expected_bucket_owner(req.get_header(X_AMZ_EXPECTED_BUCKET_OWNER))
             .set_request_payer(req.get_header_parse(X_AMZ_REQUEST_PAYER))
             .set_version_id(req.get_param(P_VERSION_ID))
-            // TODO parse xml body
+            // TODO parse xml body for put_object_tagging
             // .set_tagging(req.get_body_parse("Tagging"))
             .build()
             .map_err(|e| e.into())
@@ -619,7 +620,7 @@ pub mod parsers {
             .set_expected_bucket_owner(req.get_header(X_AMZ_EXPECTED_BUCKET_OWNER))
             .set_request_payer(req.get_header_parse(X_AMZ_REQUEST_PAYER))
             .set_version_id(req.get_param(P_VERSION_ID))
-            // TODO parse xml body
+            // TODO parse xml body for put_object_retention
             // .set_retention(req.get_body_parse("Retention"))
             .build()
             .map_err(|e| e.into())
@@ -644,8 +645,48 @@ pub mod parsers {
             .set_expected_bucket_owner(req.get_header(X_AMZ_EXPECTED_BUCKET_OWNER))
             .set_request_payer(req.get_header_parse(X_AMZ_REQUEST_PAYER))
             .set_version_id(req.get_param(P_VERSION_ID))
-            // TODO parse xml body
+            // TODO parse xml body for put_object_legal_hold
             // .set_legal_hold(req.get_body_parse("LegalHold"))
+            .build()
+            .map_err(|e| e.into())
+    }
+
+    pub fn restore_object(req: &S3Request) -> Result<RestoreObjectInput, InputError> {
+        RestoreObjectInput::builder()
+            .bucket(req.get_bucket())
+            .key(req.get_key())
+            .set_expected_bucket_owner(req.get_header(X_AMZ_EXPECTED_BUCKET_OWNER))
+            .set_request_payer(req.get_header_parse(X_AMZ_REQUEST_PAYER))
+            .set_version_id(req.get_param(P_VERSION_ID))
+            // TODO parse xml body for restore_object
+            // .set_restore_request(input)
+            .build()
+            .map_err(|e| e.into())
+    }
+    pub fn get_object_torrent(req: &S3Request) -> Result<GetObjectTorrentInput, InputError> {
+        GetObjectTorrentInput::builder()
+            .bucket(req.get_bucket())
+            .key(req.get_key())
+            .set_expected_bucket_owner(req.get_header(X_AMZ_EXPECTED_BUCKET_OWNER))
+            .set_request_payer(req.get_header_parse(X_AMZ_REQUEST_PAYER))
+            .build()
+            .map_err(|e| e.into())
+    }
+    pub fn select_object_content(req: &S3Request) -> Result<SelectObjectContentInput, InputError> {
+        SelectObjectContentInput::builder()
+            .bucket(req.get_bucket())
+            .key(req.get_key())
+            .set_expected_bucket_owner(req.get_header(X_AMZ_EXPECTED_BUCKET_OWNER))
+            .set_sse_customer_algorithm(req.get_header(X_AMZ_SSE_CUSTOMER_ALG))
+            .set_sse_customer_key(req.get_header(X_AMZ_SSE_CUSTOMER_KEY))
+            .set_sse_customer_key_md5(req.get_header(X_AMZ_SSE_CUSTOMER_KEY_MD5))
+            // TODO parse xml body for select_object_content
+            // .set_expression(input)
+            // .set_expression_type(input)
+            // .set_input_serialization(input)
+            // .set_output_serialization(input)
+            // .set_request_progress(input)
+            // .set_scan_range(input)
             .build()
             .map_err(|e| e.into())
     }
@@ -732,6 +773,8 @@ pub mod parsers {
     gen!(PutPublicAccessBlock);
     gen!(DeletePublicAccessBlock);
     //-------------------------------//
+    gen!(WriteGetObjectResponse);
+    //-------------------------------//
 
     pub fn get_bucket_acl(req: &S3Request) -> Result<GetBucketAclInput, InputError> {
         GetBucketAclInput::builder()
@@ -744,7 +787,6 @@ pub mod parsers {
     pub fn put_bucket_acl(req: &S3Request) -> Result<PutBucketAclInput, InputError> {
         PutBucketAclInput::builder()
             .bucket(req.get_bucket())
-            // .set_access_control_policy(req.get_body_parse("AccessControlPolicy")) // TODO parse xml body
             .set_acl(req.get_header_parse(X_AMZ_ACL))
             .set_content_md5(req.get_header(H_CONTENT_MD5))
             .set_expected_bucket_owner(req.get_header(X_AMZ_EXPECTED_BUCKET_OWNER))
@@ -753,6 +795,8 @@ pub mod parsers {
             .set_grant_read_acp(req.get_header(X_AMZ_GRANT_READ_ACP))
             .set_grant_write(req.get_header(X_AMZ_GRANT_WRITE))
             .set_grant_write_acp(req.get_header(X_AMZ_GRANT_WRITE_ACP))
+            // TODO parse xml body for put_bucket_acl
+            // .set_access_control_policy(req.get_body_parse("AccessControlPolicy"))
             .build()
             .map_err(|e| e.into())
     }
@@ -770,7 +814,8 @@ pub mod parsers {
             .bucket(req.get_bucket())
             .set_expected_bucket_owner(req.get_header(X_AMZ_EXPECTED_BUCKET_OWNER))
             .set_content_md5(req.get_header(H_CONTENT_MD5))
-            // .set_tagging(req.get_body_parse("Tagging")) // TODO parse xml body
+            // TODO parse xml body for put_bucket_tagging
+            // .set_tagging(req.get_body_parse("Tagging"))
             .build()
             .map_err(|e| e.into())
     }
@@ -802,7 +847,7 @@ pub mod parsers {
             .set_expected_bucket_owner(req.get_header(X_AMZ_EXPECTED_BUCKET_OWNER))
             .set_request_payer(req.get_header_parse(X_AMZ_REQUEST_PAYER))
             .set_token(req.get_header(X_AMZ_BUCKET_OBJECT_LOCK_TOKEN))
-            // TODO parse xml body
+            // TODO parse xml body for put_object_lock_configuration
             // .set_object_lock_configuration(req.get_body_parse("ObjectLockConfiguration"))
             .build()
             .map_err(|e| e.into())
