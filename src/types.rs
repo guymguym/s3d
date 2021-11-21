@@ -1,8 +1,10 @@
 use crate::gen::*;
+use aws_smithy_types::instant::{Format, Instant};
 use hyper::Body;
 use hyper::{header, HeaderMap, Method};
 use std::future::Future;
 use std::pin::Pin;
+use std::str::FromStr;
 use std::{collections::HashMap, net::SocketAddr};
 use url::Url;
 use uuid::Uuid;
@@ -107,10 +109,6 @@ impl S3Request {
             remote_addr,
             reqid,
             hostid: host_hdr,
-            // bucket,
-            // key,
-            // bucket_subresource,
-            // object_subresource,
             resource,
             op_kind: None::<S3OpKind>,
         };
@@ -118,17 +116,56 @@ impl S3Request {
         req
     }
 
+    pub fn has_param(&self, name: &str) -> bool {
+        self.params.contains_key(name)
+    }
+
     pub fn get_param(&self, name: &str) -> Option<String> {
         self.params.get(name).map(|x| x.clone())
     }
 
-    pub fn get_param_i32(&self, name: &str) -> Option<i32> {
-        self.params.get(name).map(|x| x.parse().unwrap())
+    pub fn get_param_str(&self, name: &str) -> &str {
+        self.params.get(name).map_or("", |x| x.as_str())
+    }
+
+    pub fn get_param_parse<T: FromStr>(&self, name: &str) -> Option<T> {
+        self.params.get(name).and_then(|x| x.parse().ok())
+    }
+
+    pub fn get_param_date(&self, name: &str) -> Option<Instant> {
+        self.params
+            .get(name)
+            .and_then(|x| Instant::from_str(&x, Format::HttpDate).ok())
+    }
+
+    pub fn has_header(&self, name: &str) -> bool {
+        self.headers.contains_key(name)
     }
 
     pub fn get_header(&self, name: &str) -> Option<String> {
         self.headers
             .get(name)
-            .map_or(None, |x| x.to_str().map_or(None, |s| Some(s.to_string())))
+            .and_then(|x| x.to_str().ok())
+            .map(|x| x.to_owned())
+    }
+
+    pub fn get_header_str(&self, name: &str) -> &str {
+        self.headers
+            .get(name)
+            .map_or("", |x| x.to_str().unwrap_or(""))
+    }
+
+    pub fn get_header_parse<T: FromStr>(&self, name: &str) -> Option<T> {
+        self.headers
+            .get(name)
+            .and_then(|x| x.to_str().ok())
+            .and_then(|x| x.parse().ok())
+    }
+
+    pub fn get_header_date(&self, name: &str) -> Option<Instant> {
+        self.headers
+            .get(name)
+            .and_then(|x| x.to_str().ok())
+            .and_then(|x| Instant::from_str(&x, Format::HttpDate).ok())
     }
 }

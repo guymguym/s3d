@@ -2,6 +2,7 @@
 
 use crate::types::*;
 use aws_sdk_s3::output::*;
+use aws_smithy_types::instant::Format;
 use aws_smithy_xml::encode::{ScopeWriter, XmlWriter};
 use hyper::Body;
 
@@ -65,11 +66,8 @@ pub fn s3_error_output(e: S3Error) -> S3Result {
 }
 
 pub mod parsers {
-    use super::*;
 
-    // we re-publish all the not_implemented methods as default and then override them
-    // in this module to make it easier to implement it in stages.
-    pub use super::not_implemented::*;
+    use super::*;
 
     pub fn list_buckets(o: ListBucketsOutput) -> Result<HttpResponse, OutputError> {
         let mut out = String::new();
@@ -83,7 +81,7 @@ pub mod parsers {
                 xml_text_opt(
                     &mut w,
                     "CreationDate",
-                    b.creation_date.map(|t| t.to_chrono().to_rfc3339()),
+                    b.creation_date.map(|t| t.fmt(Format::DateTime)),
                 );
                 w.finish();
             }
@@ -119,7 +117,7 @@ pub mod parsers {
             xml_text_opt(
                 &mut w,
                 "LastModified",
-                obj.last_modified.map(|t| t.to_chrono().to_rfc3339()),
+                obj.last_modified.map(|t| t.fmt(Format::DateTime)),
             );
             xml_text_opt(&mut w, "ETag", obj.e_tag);
             xml_text(&mut w, "Size", obj.size.to_string());
@@ -146,16 +144,12 @@ pub mod parsers {
         // let body = Body::from(o.body.collect().await);
         Ok(responder().body(Body::from("get_object")).unwrap())
     }
-}
 
-mod not_implemented {
-    use super::*;
-
-    /// This macro generates a default parser function per op.
+    /// This macro generates a default parser function per op
+    /// to make it possible to implement it in stages.
     macro_rules! s3_out {
         ($name:ident) => {
             paste::paste! {
-                #[allow(dead_code)]
                 pub fn [<$name:snake>](_: [<$name Output>]) -> Result<HttpResponse, OutputError> {
                     Err(OutputError::NotImplemented(stringify!(s3::output::parsers::[<$name:snake>])))
                 }
@@ -205,7 +199,7 @@ mod not_implemented {
     s3_out!(GetBucketTagging);
     s3_out!(GetBucketVersioning);
     s3_out!(GetBucketWebsite);
-    s3_out!(GetObject);
+    // s3_out!(GetObject);
     s3_out!(GetObjectAcl);
     s3_out!(GetObjectLegalHold);
     s3_out!(GetObjectLockConfiguration);
@@ -219,9 +213,9 @@ mod not_implemented {
     s3_out!(ListBucketIntelligentTieringConfigurations);
     s3_out!(ListBucketInventoryConfigurations);
     s3_out!(ListBucketMetricsConfigurations);
-    s3_out!(ListBuckets);
+    // s3_out!(ListBuckets);
     s3_out!(ListMultipartUploads);
-    s3_out!(ListObjects);
+    // s3_out!(ListObjects);
     s3_out!(ListObjectsV2);
     s3_out!(ListObjectVersions);
     s3_out!(ListParts);

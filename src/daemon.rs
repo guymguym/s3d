@@ -1,10 +1,5 @@
 use crate::{conf::Conf, gen::*, types::*};
-use hyper::{
-    header,
-    server::conn::AddrStream,
-    service::{make_service_fn, service_fn},
-    Body,
-};
+use hyper::{Body, Method, header, server::conn::AddrStream, service::{make_service_fn, service_fn}};
 use std::{convert::Infallible, net::SocketAddr};
 use tokio::sync::OnceCell;
 
@@ -33,9 +28,9 @@ pub async fn run(conf: Conf) -> anyhow::Result<()> {
 impl Daemon {
     /// Initialize the daemon with the given configuration.
     pub async fn new(conf: Conf) -> Self {
-        let s3_config = aws_config::from_env().load().await;
-        let retry_config = s3_config.retry_config().unwrap();
-        let s3c = aws_sdk_s3::Client::new(&s3_config);
+        let aws_config = aws_config::from_env().load().await;
+        let retry_config = aws_config.retry_config().unwrap();
+        let s3c = aws_sdk_s3::Client::new(&aws_config);
         let smc = aws_hyper::Client::https().with_retry_config(retry_config.clone().into());
         Daemon {
             conf,
@@ -94,7 +89,7 @@ impl Daemon {
 
     pub async fn handle_request(&self, req: &mut S3Request) -> S3Result {
         self.check_auth(req).await?;
-        if req.method == hyper::Method::OPTIONS {
+        if req.method == Method::OPTIONS {
             return self.handle_options(req);
         }
         let mut res = crate::gen::handle_s3_request(req, &self.s3_api).await?;
@@ -130,8 +125,7 @@ impl Daemon {
             .status(hyper::StatusCode::OK)
             .header(header::ACCESS_CONTROL_ALLOW_ORIGIN, "*")
             .header(header::ACCESS_CONTROL_ALLOW_CREDENTIALS, "true")
-            .header(header::ACCESS_CONTROL_ALLOW_METHODS, 
-                    "GET,HEAD,PUT,POST,DELETE,OPTIONS,FETCH,PULL,PUSH,PRUNE,STATUS,DIFF")
+            .header(header::ACCESS_CONTROL_ALLOW_METHODS, "GET,HEAD,PUT,POST,DELETE,OPTIONS")
             .header(header::ACCESS_CONTROL_ALLOW_HEADERS, 
                 "Content-Type,Content-MD5,Authorization,X-Amz-User-Agent,X-Amz-Date,ETag,X-Amz-Content-Sha256")
             .header(header::ACCESS_CONTROL_EXPOSE_HEADERS, "ETag,X-Amz-Version-Id")
@@ -144,7 +138,7 @@ impl Daemon {
         let x_amz_request_id = header::HeaderName::from_static("x-amz-request-id");
         let x_amz_id_2 = header::HeaderName::from_static("x-amz-id-2");
         let reqid_val = header::HeaderValue::from_str(&req.reqid).unwrap();
-        let hostid_val = header::HeaderValue::from_str(&req.hostid).unwrap();
+        let hostid_val = header::HeaderValue::from_str(&base64::encode(req.hostid.as_bytes())).unwrap();
         let h = res.headers_mut();
         h.insert(x_amz_request_id, reqid_val.clone());
         h.insert(x_amz_id_2, hostid_val.clone());
@@ -212,113 +206,6 @@ impl Daemon {
         res
     }
 
-    // pub async fn handle_all(&self, req: &S3Request) -> S3Result {
-    //     let mut res = match req.method.as_str() {
-    //         "GET" => self.handle_get(req).await,
-    //         "HEAD" => self.handle_head(req).await,
-    //         "PUT" => self.handle_put(req).await,
-    //         "POST" => self.handle_post(req).await,
-    //         "DELETE" => self.handle_delete(req).await,
-    //         "OPTIONS" => self.handle_options(req).await,
-    //         "FETCH" => self.handle_fetch(req).await,
-    //         "PULL" => self.handle_pull(req).await,
-    //         "PUSH" => self.handle_push(req).await,
-    //         "PRUNE" => self.handle_prune(req).await,
-    //         "STATUS" => self.handle_status(req).await,
-    //         "DIFF" => self.handle_diff(req).await,
-    //         _ => Err(S3Error::builder()
-    //             .code("MethodNotAllowed")
-    //             .build()
-    //             .into()),
-    //     };
-    // }
-    // 
-    // pub async fn handle_get(&self, req: &S3Request) -> S3Result {
-    //     if req.bucket.is_empty() {
-    //         return parse::list_buckets_output(
-    //             ops::list_buckets(&self.s3c, &self.ac, parse::list_buckets_input(req).unwrap())
-    //                 .await
-    //                 .unwrap(),
-    //         );
-    //     }
-    //     if req.key.is_empty() {
-    //         return match req.bucket_subresource {
-    //             S3BucketSubResource::None => parse::list_objects_output(
-    //                 ops::list_objects(&self.s3c, &self.ac, parse::list_objects_input(req).unwrap())
-    //                     .await
-    //                     .unwrap(),
-    //             ),
-    //             _ => ops::get_bucket_subresource(req).await,
-    //         };
-    //     }
-    //     match req.object_subresource {
-    //         S3ObjectSubResource::None => parse::get_object_output(
-    //             ops::get_object(&self.s3c, &self.ac, parse::get_object_input(req).unwrap())
-    //                 .await
-    //                 .unwrap(),
-    //         ),
-    //         _ => ops::get_object_subresource(req).await,
-    //     }
-    // }
-
-    // pub async fn handle_head(&self, req: &S3Request) -> S3Result {
-    //     if req.bucket.is_empty() {
-    //         return Err(S3Error::builder().code("BadRequest").build());
-    //     }
-    //     if req.key.is_empty() {
-    //         return ops::head_bucket(req).await;
-    //     }
-    //     ops::head_object(req).await
-    // }
-
-    // pub async fn handle_put(&self, req: &S3Request) -> S3Result {
-    //     if req.bucket.is_empty() {
-    //         return Err(S3Error::builder().code("BadRequest").build());
-    //     }
-    //     if req.key.is_empty() {
-    //         return match req.bucket_subresource {
-    //             S3BucketSubResource::None => ops::put_bucket(req).await,
-    //             _ => ops::put_bucket_subresource(req).await,
-    //         };
-    //     }
-    //     match req.object_subresource {
-    //         S3ObjectSubResource::None => ops::put_object(req).await,
-    //         _ => ops::put_object_subresource(req).await,
-    //     }
-    // }
-
-    // pub async fn handle_delete(&self, req: &S3Request) -> S3Result {
-    //     if req.bucket.is_empty() {
-    //         return Err(S3Error::builder().code("BadRequest").build());
-    //     }
-    //     if req.key.is_empty() {
-    //         return match req.bucket_subresource {
-    //             S3BucketSubResource::None => ops::delete_bucket(req).await,
-    //             _ => ops::delete_bucket_subresource(req).await,
-    //         };
-    //     }
-    //     match req.object_subresource {
-    //         S3ObjectSubResource::None => ops::delete_object(req).await,
-    //         _ => ops::delete_object_subresource(req).await,
-    //     }
-    // }
-
-    // pub async fn handle_post(&self, req: &S3Request) -> S3Result {
-    //     if req.bucket.is_empty() {
-    //         return Err(S3Error::builder().code("BadRequest").build());
-    //     }
-    //     if req.key.is_empty() {
-    //         return match req.bucket_subresource {
-    //             S3BucketSubResource::None => ops::post_object(req).await,
-    //             _ => ops::post_bucket_subresource(req).await,
-    //         };
-    //     }
-    //     match req.object_subresource {
-    //         S3ObjectSubResource::Uploads => ops::create_multipart_upload(req).await,
-    //         S3ObjectSubResource::UploadId => ops::complete_multipart_upload(req).await,
-    //         _ => Err(S3Error::builder().code("BadRequest").build()),
-    //     }
-    // }
 }
 
 impl From<ServerError> for S3Error {

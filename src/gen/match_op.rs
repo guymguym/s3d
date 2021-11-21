@@ -61,8 +61,7 @@ pub fn match_service(req: &S3Request) -> Option<S3OpKind> {
 pub fn match_bucket(req: &S3Request) -> Option<S3OpKind> {
     match req.method {
         Method::GET => {
-            let list_type = req.params.get("list-type").map_or("", |t| t.as_str());
-            if list_type.eq("2") {
+            if req.get_param_str("list-type") == "2" {
                 Some(S3OpKind::ListObjectsV2)
             } else {
                 Some(S3OpKind::ListObjects)
@@ -91,7 +90,7 @@ pub fn match_bucket_acl(req: &S3Request) -> Option<S3OpKind> {
 pub fn match_bucket_analytics(req: &S3Request) -> Option<S3OpKind> {
     match req.method {
         Method::GET => {
-            if req.params.contains_key("id") {
+            if req.has_param("id") {
                 Some(S3OpKind::GetBucketAnalyticsConfiguration)
             } else {
                 Some(S3OpKind::ListBucketAnalyticsConfigurations)
@@ -121,7 +120,7 @@ pub fn match_bucket_encryption(req: &S3Request) -> Option<S3OpKind> {
 pub fn match_bucket_intelligent_tiering(req: &S3Request) -> Option<S3OpKind> {
     match req.method {
         Method::GET => {
-            if req.params.contains_key("id") {
+            if req.has_param("id") {
                 Some(S3OpKind::GetBucketIntelligentTieringConfiguration)
             } else {
                 Some(S3OpKind::ListBucketIntelligentTieringConfigurations)
@@ -135,7 +134,7 @@ pub fn match_bucket_intelligent_tiering(req: &S3Request) -> Option<S3OpKind> {
 pub fn match_bucket_inventory(req: &S3Request) -> Option<S3OpKind> {
     match req.method {
         Method::GET => {
-            if req.params.contains_key("id") {
+            if req.has_param("id") {
                 Some(S3OpKind::GetBucketInventoryConfiguration)
             } else {
                 Some(S3OpKind::ListBucketInventoryConfigurations)
@@ -170,7 +169,7 @@ pub fn match_bucket_logging(req: &S3Request) -> Option<S3OpKind> {
 pub fn match_bucket_metrics(req: &S3Request) -> Option<S3OpKind> {
     match req.method {
         Method::GET => {
-            if req.params.contains_key("id") {
+            if req.has_param("id") {
                 Some(S3OpKind::GetBucketMetricsConfiguration)
             } else {
                 Some(S3OpKind::ListBucketMetricsConfigurations)
@@ -266,7 +265,7 @@ pub fn match_object(req: &S3Request) -> Option<S3OpKind> {
         Method::GET => Some(S3OpKind::GetObject),
         Method::HEAD => Some(S3OpKind::HeadObject),
         Method::PUT => {
-            if req.headers.contains_key("x-amz-copy-source") {
+            if req.has_header("x-amz-copy-source") {
                 Some(S3OpKind::CopyObject)
             } else {
                 Some(S3OpKind::PutObject)
@@ -341,7 +340,7 @@ pub fn match_object_upload_id(req: &S3Request) -> Option<S3OpKind> {
     match req.method {
         Method::GET => Some(S3OpKind::ListParts),
         Method::PUT => {
-            if req.headers.contains_key("x-amz-copy-source") {
+            if req.has_header("x-amz-copy-source") {
                 Some(S3OpKind::UploadPartCopy)
             } else {
                 Some(S3OpKind::UploadPart)

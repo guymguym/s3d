@@ -1,77 +1,25 @@
-use std::process::Command;
+use aws_sdk_s3::Endpoint;
+use hyper::Uri;
 
 const S3D_ENDPOINT: &'static str = "http://localhost:3000";
 
-fn main() {
-    s3("ls", vec![]);
-    s3api("head-bucket", vec!["--bucket", "lala"]);
+#[tokio::main]
+pub async fn main() -> anyhow::Result<()> {
+    let s3_config = aws_sdk_s3::Config::builder()
+        .endpoint_resolver(Endpoint::immutable(Uri::from_static(S3D_ENDPOINT)))
+        .build();
+    let s3c = aws_sdk_s3::Client::from_conf(s3_config);
 
-    // s3("mb", vec!["s3://lala"]);
-    // s3("ls", vec![]);
-    // s3("ls", vec!["s3://lala"]);
+    let r = s3c.list_buckets().send().await?;
+    println!("list_buckets: {:?}", r);
 
-    curl("GET", "/", vec![]);
-    curl("HEAD", "/", vec![]);
-    // curl("PUT", "/lala", vec![]);
-    // curl("GET", "/lala", vec![]);
-    // curl("HEAD", "/lala", vec![]);
+    let bucket_name = r.buckets.unwrap()[0].name.as_ref().unwrap().clone();
 
-    // # test
-    // s3("ls", vec!["s3://lala"]);
-    // s3("cp", vec!["README.md", "s3://lala/README.md"]);
-    // s3("cp", vec!["s3://lala/README.md", "-"]);
+    let r = s3c.head_bucket().bucket(&bucket_name).send().await?;
+    println!("head_bucket: {:?}", r);
 
-    // # cleanup
-    // s3("rb", vec!["s3://lala"]);
-    // s3("ls", vec![]);
-    // curl("DELETE", "/lala", vec![]);
-    // curl("GET", "/", vec![]);
-}
+    let r = s3c.list_objects().bucket(&bucket_name).send().await?;
+    println!("head_bucket: {:?}", r);
 
-fn curl(method: &str, path: &str, args: Vec<&str>) {
-    println!();
-    println!("*** curl {} {} {:?}", method, path, args);
-    println!();
-    let mut cmd = Command::new("curl");
-    cmd.arg("-s").arg("-i");
-    if method == "HEAD" {
-        cmd.arg("-I");
-    } else {
-        cmd.arg("-X").arg(method);
-    }
-    cmd.arg(format!("{}{}", S3D_ENDPOINT, path))
-        .args(args)
-        .status()
-        .expect("Command 'curl' failed");
-    println!();
-}
-
-fn s3(cmd: &str, args: Vec<&str>) {
-    println!();
-    println!("*** aws s3 {} {:?}", cmd, args);
-    println!();
-    Command::new("aws")
-        .arg("--endpoint")
-        .arg(S3D_ENDPOINT)
-        .arg("s3")
-        .arg(cmd)
-        .args(args)
-        .status()
-        .expect("Command 'aws s3' failed");
-    println!();
-}
-
-fn s3api(cmd: &str, args: Vec<&str>) {
-    println!();
-    println!("*** aws s3api {} {:?}", cmd, args);
-    println!();
-    Command::new("aws")
-        .arg("--endpoint")
-        .arg(S3D_ENDPOINT)
-        .arg("s3api")
-        .arg(cmd)
-        .args(args)
-        .status()
-        .expect("Command 'aws s3api' failed");
-    println!();
+    Ok(())
 }
