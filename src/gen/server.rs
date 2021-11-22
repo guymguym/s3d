@@ -9,7 +9,7 @@ use crate::{
 /// serve_s3_request parses the input, dispatches the request to the appropriate handler,
 /// and writes the response.
 pub async fn serve_s3_request<API: S3Api>(
-    req: &S3Request,
+    req: &mut S3Request,
     api: &API,
 ) -> Result<HttpResponse, ServerError> {
     if req.op_kind.is_none() {

@@ -67,7 +67,7 @@ impl Daemon {
         http_req: HttpRequest,
         remote_addr: SocketAddr,
     ) -> Result<HttpResponse, Infallible> {
-        let req = S3Request::new(http_req, remote_addr);
+        let mut req = S3Request::new(http_req, remote_addr);
 
         info!("==> HTTP {} {} [{}]", req.method, req.url.path(), req.reqid);
 
@@ -81,7 +81,7 @@ impl Daemon {
         );
 
         let res = self
-            .handle_request(&req)
+            .handle_request(&mut req)
             .await
             .unwrap_or_else(|err| self.handle_error(&req, err));
 
@@ -96,7 +96,7 @@ impl Daemon {
         Ok(res)
     }
 
-    pub async fn handle_request(&self, req: &S3Request) -> S3Result {
+    pub async fn handle_request(&self, req: &mut S3Request) -> S3Result {
         self.check_auth(req).await?;
         if req.method == Method::OPTIONS {
             return self.handle_options(req);

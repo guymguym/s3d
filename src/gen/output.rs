@@ -28,10 +28,8 @@ macro_rules! gen {
 //-------------------------------//
 
 pub fn head_bucket(_o: HeadBucketOutput) -> Result<HttpResponse, OutputError> {
-    Ok(responder()
-        .status(StatusCode::OK)
-        .body(Body::empty())
-        .unwrap())
+    let mut r = responder().status(StatusCode::OK);
+    Ok(r.body(Body::empty()).unwrap())
 }
 
 pub fn create_bucket(o: CreateBucketOutput) -> Result<HttpResponse, OutputError> {
@@ -42,22 +40,18 @@ pub fn create_bucket(o: CreateBucketOutput) -> Result<HttpResponse, OutputError>
 }
 
 pub fn delete_bucket(_o: DeleteBucketOutput) -> Result<HttpResponse, OutputError> {
-    Ok(responder()
-        .status(StatusCode::NO_CONTENT)
-        .body(Body::empty())
-        .unwrap())
+    let mut r = responder().status(StatusCode::NO_CONTENT);
+    Ok(r.body(Body::empty()).unwrap())
 }
 
 pub fn get_bucket_location(o: GetBucketLocationOutput) -> Result<HttpResponse, OutputError> {
-    let mut out = String::new();
-    let mut xml = XmlWriter::new(&mut out);
+    let mut xstr = String::new();
+    let mut xml = XmlWriter::new(&mut xstr);
     let mut w = xml_root(&mut xml, "LocationConstraint");
     xml_text_opt(&mut w, "LocationConstraint", o.location_constraint);
     w.finish();
-    Ok(responder()
-        .status(StatusCode::OK)
-        .body(Body::from(out))
-        .unwrap())
+    let mut r = responder().status(StatusCode::OK);
+    Ok(r.body(Body::from(xstr)).unwrap())
 }
 
 //---------------------------------------------------//
@@ -66,7 +60,7 @@ pub fn get_bucket_location(o: GetBucketLocationOutput) -> Result<HttpResponse, O
 //-------------------------------//
 // gen!(GetObject);
 // gen!(HeadObject);
-gen!(PutObject);
+// gen!(PutObject);
 gen!(CopyObject);
 gen!(DeleteObject);
 gen!(DeleteObjects);
@@ -175,6 +169,28 @@ pub fn head_object(o: HeadObjectOutput) -> Result<HttpResponse, OutputError> {
     Ok(r.body(Body::empty()).unwrap())
 }
 
+pub fn put_object(o: PutObjectOutput) -> Result<HttpResponse, OutputError> {
+    let mut r = responder().status(StatusCode::OK);
+    let h = r.headers_mut().unwrap();
+    // http headers
+    o.e_tag().set_header(h, H_ETAG);
+    // x-amz headers
+    o.bucket_key_enabled()
+        .set_header(h, X_AMZ_SSE_BUCKET_KEY_ENABLED);
+    o.expiration().set_header(h, X_AMZ_EXPIRATION);
+    o.request_charged().set_header(h, X_AMZ_REQUEST_CHARGED);
+    o.server_side_encryption().set_header(h, X_AMZ_SSE);
+    o.sse_customer_algorithm()
+        .set_header(h, X_AMZ_SSE_CUSTOMER_ALG);
+    o.sse_customer_key_md5()
+        .set_header(h, X_AMZ_SSE_CUSTOMER_KEY_MD5);
+    o.ssekms_encryption_context()
+        .set_header(h, X_AMZ_SSE_CONTEXT);
+    o.ssekms_key_id().set_header(h, X_AMZ_SSE_AWS_KMS_KEY_ID);
+    o.version_id().set_header(h, X_AMZ_VERSION_ID);
+    Ok(r.body(Body::empty()).unwrap())
+}
+
 //---------------------------------------------------//
 // multipart upload ops                              //
 //---------------------------------------------------//
@@ -199,8 +215,8 @@ gen!(ListParts);
 //-------------------------------//
 
 pub fn list_buckets(o: ListBucketsOutput) -> Result<HttpResponse, OutputError> {
-    let mut out = String::new();
-    let mut xml = XmlWriter::new(&mut out);
+    let mut xstr = String::new();
+    let mut xml = XmlWriter::new(&mut xstr);
     let mut w = xml_root(&mut xml, "ListAllMyBucketsResult");
     {
         let mut w = xml_elem(&mut w, "Buckets");
@@ -224,12 +240,12 @@ pub fn list_buckets(o: ListBucketsOutput) -> Result<HttpResponse, OutputError> {
         w.finish();
     }
     w.finish();
-    Ok(responder().body(Body::from(out)).unwrap())
+    Ok(responder().body(Body::from(xstr)).unwrap())
 }
 
 pub fn list_objects(o: ListObjectsOutput) -> Result<HttpResponse, OutputError> {
-    let mut out = String::new();
-    let mut xml = XmlWriter::new(&mut out);
+    let mut xstr = String::new();
+    let mut xml = XmlWriter::new(&mut xstr);
     let mut w = xml_root(&mut xml, "ListBucketResult");
     xml_text_opt(&mut w, "Name", o.name);
     xml_text_opt(&mut w, "Prefix", o.prefix);
@@ -266,7 +282,7 @@ pub fn list_objects(o: ListObjectsOutput) -> Result<HttpResponse, OutputError> {
         w.finish();
     }
     w.finish();
-    Ok(responder().body(Body::from(out)).unwrap())
+    Ok(responder().body(Body::from(xstr)).unwrap())
 }
 
 //---------------------------------------------------//

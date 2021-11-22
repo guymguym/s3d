@@ -22,9 +22,11 @@ pub fn responder() -> hyper::http::response::Builder {
 
 #[derive(Debug)]
 pub struct S3Request {
+    // use take_body() to consume the body
+    body: Body,
+
     // http request info
     pub url: Url,
-    pub body: Body,
     pub method: Method,
     pub headers: HeaderMap,
     pub params: HashMap<String, String>,
@@ -106,6 +108,10 @@ impl S3Request {
         };
         req.op_kind = resolve_op_kind(&req);
         req
+    }
+
+    pub fn take_body(&mut self) -> Body {
+        std::mem::take(&mut self.body)
     }
 
     pub fn get_bucket(&self) -> &str {

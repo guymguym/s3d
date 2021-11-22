@@ -4,14 +4,14 @@
 //! No reason to write it by hand - should be generated from smithy-rs.
 
 use crate::{err::InputError, gen::constants::*, http::S3Request};
-use aws_sdk_s3::input::*;
+use aws_sdk_s3::{input::*, ByteStream};
 
 /// This macro generates a default parser function per op.
 /// to make it possible to implement it in stages.
 macro_rules! gen {
     ($name:ident) => {
         paste::paste! {
-            pub fn [<$name:snake>](_: &S3Request) -> Result<[<$name Input>], InputError> {
+            pub fn [<$name:snake>](_: &mut S3Request) -> Result<[<$name Input>], InputError> {
                 Err(InputError::NotImplemented(stringify!(s3::input::parsers::[<$name:snake>])))
             }
         }
@@ -28,7 +28,7 @@ macro_rules! gen {
 // gen!(GetBucketLocation);
 //-------------------------------//
 
-pub fn head_bucket(req: &S3Request) -> Result<HeadBucketInput, InputError> {
+pub fn head_bucket(req: &mut S3Request) -> Result<HeadBucketInput, InputError> {
     HeadBucketInput::builder()
         .bucket(req.get_bucket())
         .set_expected_bucket_owner(req.get_header(X_AMZ_EXPECTED_BUCKET_OWNER))
@@ -36,7 +36,7 @@ pub fn head_bucket(req: &S3Request) -> Result<HeadBucketInput, InputError> {
         .map_err(|e| e.into())
 }
 
-pub fn create_bucket(req: &S3Request) -> Result<CreateBucketInput, InputError> {
+pub fn create_bucket(req: &mut S3Request) -> Result<CreateBucketInput, InputError> {
     CreateBucketInput::builder()
         .bucket(req.get_bucket())
         .set_acl(req.get_header_parse(X_AMZ_ACL))
@@ -51,7 +51,7 @@ pub fn create_bucket(req: &S3Request) -> Result<CreateBucketInput, InputError> {
         .map_err(|e| e.into())
 }
 
-pub fn delete_bucket(req: &S3Request) -> Result<DeleteBucketInput, InputError> {
+pub fn delete_bucket(req: &mut S3Request) -> Result<DeleteBucketInput, InputError> {
     DeleteBucketInput::builder()
         .bucket(req.get_bucket())
         .set_expected_bucket_owner(req.get_header(X_AMZ_EXPECTED_BUCKET_OWNER))
@@ -59,7 +59,7 @@ pub fn delete_bucket(req: &S3Request) -> Result<DeleteBucketInput, InputError> {
         .map_err(|e| e.into())
 }
 
-pub fn get_bucket_location(req: &S3Request) -> Result<GetBucketLocationInput, InputError> {
+pub fn get_bucket_location(req: &mut S3Request) -> Result<GetBucketLocationInput, InputError> {
     GetBucketLocationInput::builder()
         .bucket(req.get_bucket())
         .set_expected_bucket_owner(req.get_header(X_AMZ_EXPECTED_BUCKET_OWNER))
@@ -79,7 +79,7 @@ pub fn get_bucket_location(req: &S3Request) -> Result<GetBucketLocationInput, In
 // gen!(DeleteObjects);
 //-------------------------------//
 
-pub fn get_object(req: &S3Request) -> Result<GetObjectInput, InputError> {
+pub fn get_object(req: &mut S3Request) -> Result<GetObjectInput, InputError> {
     GetObjectInput::builder()
         .bucket(req.get_bucket())
         .key(req.get_key())
@@ -105,7 +105,7 @@ pub fn get_object(req: &S3Request) -> Result<GetObjectInput, InputError> {
         .map_err(|e| e.into())
 }
 
-pub fn head_object(req: &S3Request) -> Result<HeadObjectInput, InputError> {
+pub fn head_object(req: &mut S3Request) -> Result<HeadObjectInput, InputError> {
     HeadObjectInput::builder()
         .bucket(req.get_bucket())
         .key(req.get_key())
@@ -125,7 +125,7 @@ pub fn head_object(req: &S3Request) -> Result<HeadObjectInput, InputError> {
         .map_err(|e| e.into())
 }
 
-pub fn put_object(req: &S3Request) -> Result<PutObjectInput, InputError> {
+pub fn put_object(req: &mut S3Request) -> Result<PutObjectInput, InputError> {
     PutObjectInput::builder()
         .bucket(req.get_bucket())
         .key(req.get_key())
@@ -158,13 +158,12 @@ pub fn put_object(req: &S3Request) -> Result<PutObjectInput, InputError> {
         .set_storage_class(req.get_header_parse(X_AMZ_STORAGE_CLASS))
         .set_tagging(req.get_header(X_AMZ_TAGGING))
         .set_website_redirect_location(req.get_header(X_AMZ_WEBSITE_REDIRECT_LOCATION))
-        // TODO get body as stream
-        // .set_body(Some(req.body))
+        .set_body(Some(ByteStream::new(req.take_body().into())))
         .build()
         .map_err(|e| e.into())
 }
 
-pub fn copy_object(req: &S3Request) -> Result<CopyObjectInput, InputError> {
+pub fn copy_object(req: &mut S3Request) -> Result<CopyObjectInput, InputError> {
     CopyObjectInput::builder()
         .bucket(req.get_bucket())
         .key(req.get_key())
@@ -214,7 +213,7 @@ pub fn copy_object(req: &S3Request) -> Result<CopyObjectInput, InputError> {
         .map_err(|e| e.into())
 }
 
-pub fn delete_object(req: &S3Request) -> Result<DeleteObjectInput, InputError> {
+pub fn delete_object(req: &mut S3Request) -> Result<DeleteObjectInput, InputError> {
     DeleteObjectInput::builder()
         .bucket(req.get_bucket())
         .key(req.get_key())
@@ -227,7 +226,7 @@ pub fn delete_object(req: &S3Request) -> Result<DeleteObjectInput, InputError> {
         .map_err(|e| e.into())
 }
 
-pub fn delete_objects(req: &S3Request) -> Result<DeleteObjectsInput, InputError> {
+pub fn delete_objects(req: &mut S3Request) -> Result<DeleteObjectsInput, InputError> {
     DeleteObjectsInput::builder()
         .bucket(req.get_bucket())
         .set_bypass_governance_retention(req.get_header_parse(X_AMZ_BYPASS_GOVERNANCE_RETENTION))
@@ -251,7 +250,7 @@ pub fn delete_objects(req: &S3Request) -> Result<DeleteObjectsInput, InputError>
 // gen!(UploadPartCopy);
 //-------------------------------//
 
-pub fn create_multipart_upload(req: &S3Request) -> Result<CreateMultipartUploadInput, InputError> {
+pub fn create_multipart_upload(req: &mut S3Request) -> Result<CreateMultipartUploadInput, InputError> {
     CreateMultipartUploadInput::builder()
         .bucket(req.get_bucket())
         .key(req.get_key())
@@ -287,7 +286,7 @@ pub fn create_multipart_upload(req: &S3Request) -> Result<CreateMultipartUploadI
 }
 
 pub fn complete_multipart_upload(
-    req: &S3Request,
+    req: &mut S3Request,
 ) -> Result<CompleteMultipartUploadInput, InputError> {
     CompleteMultipartUploadInput::builder()
         .bucket(req.get_bucket())
@@ -301,7 +300,7 @@ pub fn complete_multipart_upload(
         .map_err(|e| e.into())
 }
 
-pub fn abort_multipart_upload(req: &S3Request) -> Result<AbortMultipartUploadInput, InputError> {
+pub fn abort_multipart_upload(req: &mut S3Request) -> Result<AbortMultipartUploadInput, InputError> {
     AbortMultipartUploadInput::builder()
         .bucket(req.get_bucket())
         .key(req.get_key())
@@ -312,14 +311,10 @@ pub fn abort_multipart_upload(req: &S3Request) -> Result<AbortMultipartUploadInp
         .map_err(|e| e.into())
 }
 
-pub fn upload_part(req: &S3Request) -> Result<UploadPartInput, InputError> {
+pub fn upload_part(req: &mut S3Request) -> Result<UploadPartInput, InputError> {
     UploadPartInput::builder()
         .bucket(req.get_bucket())
         .key(req.get_key())
-        // TODO move body to body_stream
-        // .set_body(Some(aws_sdk_s3::ByteStream::from(
-        //     aws_smithy_http::body::SdkBody::from(req.body),
-        // )))
         .set_content_length(req.get_header_parse(H_CONTENT_LENGTH))
         .set_content_md5(req.get_header(H_CONTENT_MD5))
         .set_expected_bucket_owner(req.get_header(X_AMZ_EXPECTED_BUCKET_OWNER))
@@ -329,11 +324,12 @@ pub fn upload_part(req: &S3Request) -> Result<UploadPartInput, InputError> {
         .set_sse_customer_key(req.get_header(X_AMZ_SSE_CUSTOMER_KEY))
         .set_sse_customer_key_md5(req.get_header(X_AMZ_SSE_CUSTOMER_KEY_MD5))
         .set_upload_id(req.get_param(P_UPLOAD_ID))
+        .set_body(Some(ByteStream::new(req.take_body().into())))
         .build()
         .map_err(|e| e.into())
 }
 
-pub fn upload_part_copy(req: &S3Request) -> Result<UploadPartCopyInput, InputError> {
+pub fn upload_part_copy(req: &mut S3Request) -> Result<UploadPartCopyInput, InputError> {
     UploadPartCopyInput::builder()
         .bucket(req.get_bucket())
         .key(req.get_key())
@@ -374,11 +370,11 @@ pub fn upload_part_copy(req: &S3Request) -> Result<UploadPartCopyInput, InputErr
 // gen!(ListParts);
 //-------------------------------//
 
-pub fn list_buckets(_: &S3Request) -> Result<ListBucketsInput, InputError> {
+pub fn list_buckets(_req: &mut S3Request) -> Result<ListBucketsInput, InputError> {
     ListBucketsInput::builder().build().map_err(|e| e.into())
 }
 
-pub fn list_objects(req: &S3Request) -> Result<ListObjectsInput, InputError> {
+pub fn list_objects(req: &mut S3Request) -> Result<ListObjectsInput, InputError> {
     ListObjectsInput::builder()
         .bucket(req.get_bucket())
         .set_delimiter(req.get_param(P_DELIMITER))
@@ -392,7 +388,7 @@ pub fn list_objects(req: &S3Request) -> Result<ListObjectsInput, InputError> {
         .map_err(|e| e.into())
 }
 
-pub fn list_objects_v2(req: &S3Request) -> Result<ListObjectsV2Input, InputError> {
+pub fn list_objects_v2(req: &mut S3Request) -> Result<ListObjectsV2Input, InputError> {
     ListObjectsV2Input::builder()
         .bucket(req.get_bucket())
         .set_continuation_token(req.get_param(P_CONTINUATION_TOKEN))
@@ -408,7 +404,7 @@ pub fn list_objects_v2(req: &S3Request) -> Result<ListObjectsV2Input, InputError
         .map_err(|e| e.into())
 }
 
-pub fn list_object_versions(req: &S3Request) -> Result<ListObjectVersionsInput, InputError> {
+pub fn list_object_versions(req: &mut S3Request) -> Result<ListObjectVersionsInput, InputError> {
     ListObjectVersionsInput::builder()
         .bucket(req.get_bucket())
         .set_delimiter(req.get_param(P_DELIMITER))
@@ -422,7 +418,7 @@ pub fn list_object_versions(req: &S3Request) -> Result<ListObjectVersionsInput, 
         .map_err(|e| e.into())
 }
 
-pub fn list_multipart_uploads(req: &S3Request) -> Result<ListMultipartUploadsInput, InputError> {
+pub fn list_multipart_uploads(req: &mut S3Request) -> Result<ListMultipartUploadsInput, InputError> {
     ListMultipartUploadsInput::builder()
         .bucket(req.get_bucket())
         .set_delimiter(req.get_param(P_DELIMITER))
@@ -436,7 +432,7 @@ pub fn list_multipart_uploads(req: &S3Request) -> Result<ListMultipartUploadsInp
         .map_err(|e| e.into())
 }
 
-pub fn list_parts(req: &S3Request) -> Result<ListPartsInput, InputError> {
+pub fn list_parts(req: &mut S3Request) -> Result<ListPartsInput, InputError> {
     ListPartsInput::builder()
         .bucket(req.get_bucket())
         .key(req.get_key())
@@ -471,7 +467,7 @@ pub fn list_parts(req: &S3Request) -> Result<ListPartsInput, InputError> {
 // gen!(SelectObjectContent);
 //-------------------------------//
 
-pub fn get_object_acl(req: &S3Request) -> Result<GetObjectAclInput, InputError> {
+pub fn get_object_acl(req: &mut S3Request) -> Result<GetObjectAclInput, InputError> {
     GetObjectAclInput::builder()
         .bucket(req.get_bucket())
         .key(req.get_key())
@@ -482,7 +478,7 @@ pub fn get_object_acl(req: &S3Request) -> Result<GetObjectAclInput, InputError> 
         .map_err(|e| e.into())
 }
 
-pub fn put_object_acl(req: &S3Request) -> Result<PutObjectAclInput, InputError> {
+pub fn put_object_acl(req: &mut S3Request) -> Result<PutObjectAclInput, InputError> {
     PutObjectAclInput::builder()
         .bucket(req.get_bucket())
         .key(req.get_key())
@@ -502,7 +498,7 @@ pub fn put_object_acl(req: &S3Request) -> Result<PutObjectAclInput, InputError> 
         .map_err(|e| e.into())
 }
 
-pub fn get_object_tagging(req: &S3Request) -> Result<GetObjectTaggingInput, InputError> {
+pub fn get_object_tagging(req: &mut S3Request) -> Result<GetObjectTaggingInput, InputError> {
     GetObjectTaggingInput::builder()
         .bucket(req.get_bucket())
         .key(req.get_key())
@@ -513,7 +509,7 @@ pub fn get_object_tagging(req: &S3Request) -> Result<GetObjectTaggingInput, Inpu
         .map_err(|e| e.into())
 }
 
-pub fn put_object_tagging(req: &S3Request) -> Result<PutObjectTaggingInput, InputError> {
+pub fn put_object_tagging(req: &mut S3Request) -> Result<PutObjectTaggingInput, InputError> {
     PutObjectTaggingInput::builder()
         .bucket(req.get_bucket())
         .key(req.get_key())
@@ -527,7 +523,7 @@ pub fn put_object_tagging(req: &S3Request) -> Result<PutObjectTaggingInput, Inpu
         .map_err(|e| e.into())
 }
 
-pub fn delete_object_tagging(req: &S3Request) -> Result<DeleteObjectTaggingInput, InputError> {
+pub fn delete_object_tagging(req: &mut S3Request) -> Result<DeleteObjectTaggingInput, InputError> {
     DeleteObjectTaggingInput::builder()
         .bucket(req.get_bucket())
         .key(req.get_key())
@@ -537,7 +533,7 @@ pub fn delete_object_tagging(req: &S3Request) -> Result<DeleteObjectTaggingInput
         .map_err(|e| e.into())
 }
 
-pub fn get_object_retention(req: &S3Request) -> Result<GetObjectRetentionInput, InputError> {
+pub fn get_object_retention(req: &mut S3Request) -> Result<GetObjectRetentionInput, InputError> {
     GetObjectRetentionInput::builder()
         .bucket(req.get_bucket())
         .key(req.get_key())
@@ -548,7 +544,7 @@ pub fn get_object_retention(req: &S3Request) -> Result<GetObjectRetentionInput, 
         .map_err(|e| e.into())
 }
 
-pub fn put_object_retention(req: &S3Request) -> Result<PutObjectRetentionInput, InputError> {
+pub fn put_object_retention(req: &mut S3Request) -> Result<PutObjectRetentionInput, InputError> {
     PutObjectRetentionInput::builder()
         .bucket(req.get_bucket())
         .key(req.get_key())
@@ -563,7 +559,7 @@ pub fn put_object_retention(req: &S3Request) -> Result<PutObjectRetentionInput, 
         .map_err(|e| e.into())
 }
 
-pub fn get_object_legal_hold(req: &S3Request) -> Result<GetObjectLegalHoldInput, InputError> {
+pub fn get_object_legal_hold(req: &mut S3Request) -> Result<GetObjectLegalHoldInput, InputError> {
     GetObjectLegalHoldInput::builder()
         .bucket(req.get_bucket())
         .key(req.get_key())
@@ -574,7 +570,7 @@ pub fn get_object_legal_hold(req: &S3Request) -> Result<GetObjectLegalHoldInput,
         .map_err(|e| e.into())
 }
 
-pub fn put_object_legal_hold(req: &S3Request) -> Result<PutObjectLegalHoldInput, InputError> {
+pub fn put_object_legal_hold(req: &mut S3Request) -> Result<PutObjectLegalHoldInput, InputError> {
     PutObjectLegalHoldInput::builder()
         .bucket(req.get_bucket())
         .key(req.get_key())
@@ -588,7 +584,7 @@ pub fn put_object_legal_hold(req: &S3Request) -> Result<PutObjectLegalHoldInput,
         .map_err(|e| e.into())
 }
 
-pub fn restore_object(req: &S3Request) -> Result<RestoreObjectInput, InputError> {
+pub fn restore_object(req: &mut S3Request) -> Result<RestoreObjectInput, InputError> {
     RestoreObjectInput::builder()
         .bucket(req.get_bucket())
         .key(req.get_key())
@@ -600,7 +596,7 @@ pub fn restore_object(req: &S3Request) -> Result<RestoreObjectInput, InputError>
         .build()
         .map_err(|e| e.into())
 }
-pub fn get_object_torrent(req: &S3Request) -> Result<GetObjectTorrentInput, InputError> {
+pub fn get_object_torrent(req: &mut S3Request) -> Result<GetObjectTorrentInput, InputError> {
     GetObjectTorrentInput::builder()
         .bucket(req.get_bucket())
         .key(req.get_key())
@@ -609,7 +605,7 @@ pub fn get_object_torrent(req: &S3Request) -> Result<GetObjectTorrentInput, Inpu
         .build()
         .map_err(|e| e.into())
 }
-pub fn select_object_content(req: &S3Request) -> Result<SelectObjectContentInput, InputError> {
+pub fn select_object_content(req: &mut S3Request) -> Result<SelectObjectContentInput, InputError> {
     SelectObjectContentInput::builder()
         .bucket(req.get_bucket())
         .key(req.get_key())
@@ -713,7 +709,7 @@ gen!(DeletePublicAccessBlock);
 gen!(WriteGetObjectResponse);
 //-------------------------------//
 
-pub fn get_bucket_acl(req: &S3Request) -> Result<GetBucketAclInput, InputError> {
+pub fn get_bucket_acl(req: &mut S3Request) -> Result<GetBucketAclInput, InputError> {
     GetBucketAclInput::builder()
         .bucket(req.get_bucket())
         .set_expected_bucket_owner(req.get_header(X_AMZ_EXPECTED_BUCKET_OWNER))
@@ -721,7 +717,7 @@ pub fn get_bucket_acl(req: &S3Request) -> Result<GetBucketAclInput, InputError> 
         .map_err(|e| e.into())
 }
 
-pub fn put_bucket_acl(req: &S3Request) -> Result<PutBucketAclInput, InputError> {
+pub fn put_bucket_acl(req: &mut S3Request) -> Result<PutBucketAclInput, InputError> {
     PutBucketAclInput::builder()
         .bucket(req.get_bucket())
         .set_acl(req.get_header_parse(X_AMZ_ACL))
@@ -738,7 +734,7 @@ pub fn put_bucket_acl(req: &S3Request) -> Result<PutBucketAclInput, InputError> 
         .map_err(|e| e.into())
 }
 
-pub fn get_bucket_tagging(req: &S3Request) -> Result<GetBucketTaggingInput, InputError> {
+pub fn get_bucket_tagging(req: &mut S3Request) -> Result<GetBucketTaggingInput, InputError> {
     GetBucketTaggingInput::builder()
         .bucket(req.get_bucket())
         .set_expected_bucket_owner(req.get_header(X_AMZ_EXPECTED_BUCKET_OWNER))
@@ -746,7 +742,7 @@ pub fn get_bucket_tagging(req: &S3Request) -> Result<GetBucketTaggingInput, Inpu
         .map_err(|e| e.into())
 }
 
-pub fn put_bucket_tagging(req: &S3Request) -> Result<PutBucketTaggingInput, InputError> {
+pub fn put_bucket_tagging(req: &mut S3Request) -> Result<PutBucketTaggingInput, InputError> {
     PutBucketTaggingInput::builder()
         .bucket(req.get_bucket())
         .set_expected_bucket_owner(req.get_header(X_AMZ_EXPECTED_BUCKET_OWNER))
@@ -757,7 +753,7 @@ pub fn put_bucket_tagging(req: &S3Request) -> Result<PutBucketTaggingInput, Inpu
         .map_err(|e| e.into())
 }
 
-pub fn delete_bucket_tagging(req: &S3Request) -> Result<DeleteBucketTaggingInput, InputError> {
+pub fn delete_bucket_tagging(req: &mut S3Request) -> Result<DeleteBucketTaggingInput, InputError> {
     DeleteBucketTaggingInput::builder()
         .bucket(req.get_bucket())
         .set_expected_bucket_owner(req.get_header(X_AMZ_EXPECTED_BUCKET_OWNER))
@@ -766,7 +762,7 @@ pub fn delete_bucket_tagging(req: &S3Request) -> Result<DeleteBucketTaggingInput
 }
 
 pub fn get_object_lock_configuration(
-    req: &S3Request,
+    req: &mut S3Request,
 ) -> Result<GetObjectLockConfigurationInput, InputError> {
     GetObjectLockConfigurationInput::builder()
         .bucket(req.get_bucket())
@@ -776,7 +772,7 @@ pub fn get_object_lock_configuration(
 }
 
 pub fn put_object_lock_configuration(
-    req: &S3Request,
+    req: &mut S3Request,
 ) -> Result<PutObjectLockConfigurationInput, InputError> {
     PutObjectLockConfigurationInput::builder()
         .bucket(req.get_bucket())

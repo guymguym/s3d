@@ -9,8 +9,8 @@ pub trait S3Op {
     type Error;
 
     const KIND: S3OpKind;
-    const INPUT_PARSER: fn(&S3Request) -> Result<Self::Input, InputError>;
-    const OUTPUT_PARSER: fn(Self::Output) -> Result<HttpResponse, OutputError>;
+    const INPUT: fn(&mut S3Request) -> Result<Self::Input, InputError>;
+    const OUTPUT: fn(Self::Output) -> Result<HttpResponse, OutputError>;
 }
 
 /// This macro generates a struct for each operation with the input/output/error types
@@ -25,9 +25,9 @@ macro_rules! gen {
                 type Error = aws_sdk_s3::error::[<$name Error>];
 
                 const KIND: S3OpKind = S3OpKind::$name;
-                const INPUT_PARSER: fn(&S3Request) -> Result<Self::Input, InputError> =
+                const INPUT: fn(&mut S3Request) -> Result<Self::Input, InputError> =
                     crate::gen::input::[<$name:snake>];
-                const OUTPUT_PARSER: fn(Self::Output) -> Result<HttpResponse, OutputError> =
+                const OUTPUT: fn(Self::Output) -> Result<HttpResponse, OutputError> =
                     crate::gen::output::[<$name:snake>];
             }
         }
