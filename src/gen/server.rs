@@ -3,7 +3,7 @@
 use crate::{
     err::*,
     gen::{api::S3Api, kinds::S3OpKind},
-    types::*,
+    http::*,
 };
 
 /// serve_s3_request parses the input, dispatches the request to the appropriate handler,

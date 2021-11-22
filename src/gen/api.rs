@@ -1,12 +1,17 @@
 //! TODO This module should be generated from https://github.com/awslabs/smithy-rs
 
-use crate::types::*;
+use crate::http::*;
 use aws_sdk_s3::{error::*, input::*, output::*};
+use std::future::Future;
+use std::pin::Pin;
 
-/// This macro generates a default function for each op.
+/// Why we need this TraitFuture:
 /// We can't use async_trait macro inside our macro so we use the same thing it does
 /// which is this pin-box-dyn-future - see long explanation here:
 /// https://smallcultfollowing.com/babysteps/blog/2019/10/26/async-fn-in-traits-are-hard/
+pub type TraitFuture<'a, O, E> = Pin<Box<dyn Future<Output = Result<O, E>> + Send + 'a>>;
+
+/// This macro generates a default function for each op.
 macro_rules! gen {
     ($name:ident) => {
         paste::paste! {

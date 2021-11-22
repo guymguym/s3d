@@ -1,4 +1,4 @@
-use crate::types::S3Error;
+use crate::http::S3Error;
 pub use aws_smithy_xml::encode::{ScopeWriter, XmlWriter};
 
 pub const S3_XMLNS: &'static str = "http://s3.amazonaws.com/doc/2006-03-01/";

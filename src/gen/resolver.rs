@@ -2,7 +2,7 @@
 
 use crate::{
     gen::{kinds::S3OpKind, resource::*},
-    types::*,
+    http::*,
 };
 use hyper::Method;
 

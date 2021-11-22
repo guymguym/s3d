@@ -1,6 +1,6 @@
 //! TODO This module should be generated from https://github.com/awslabs/smithy-rs
 
-use crate::{err::OutputError, gen::constants::*, hdr::*, types::*, xml::*};
+use crate::{err::OutputError, gen::constants::*, http::*, xml::*};
 use aws_sdk_s3::output::*;
 use aws_smithy_types::instant::Format;
 use hyper::{Body, StatusCode};

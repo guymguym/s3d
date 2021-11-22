@@ -1,6 +1,6 @@
 //! TODO This module should be generated from https://github.com/awslabs/smithy-rs
 
-use crate::{err::*, gen::kinds::S3OpKind, types::*};
+use crate::{err::*, gen::kinds::S3OpKind, http::*};
 
 /// This module is currently unused - perhaps we can delete it if we don't need it.
 pub trait S3Op {

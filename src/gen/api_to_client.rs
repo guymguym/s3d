@@ -1,4 +1,4 @@
-use crate::{gen::api::S3Api, types::*};
+use crate::gen::api::{S3Api, TraitFuture};
 use aws_sdk_s3::{error::*, input::*, output::*};
 use aws_smithy_http::result::SdkError;
 

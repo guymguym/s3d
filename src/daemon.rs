@@ -1,7 +1,7 @@
 use crate::{
     conf::Conf,
     gen::{api_to_client::S3ApiToClient, server::serve_s3_request},
-    types::*,
+    http::*,
     xml::xml_error,
 };
 use hyper::{
