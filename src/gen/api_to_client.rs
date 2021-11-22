@@ -1,12 +1,14 @@
-use crate::{gen::*, types::*};
+use crate::{gen::api::S3Api, types::*};
 use aws_sdk_s3::{error::*, input::*, output::*};
 use aws_smithy_http::result::SdkError;
+
+pub type SMC = aws_smithy_client::Client<aws_hyper::DynConnector, aws_hyper::AwsMiddleware>;
 
 /// S3ApiToClient is the default implementation of S3Api that uses the client SDK to call for each function.
 /// This can be connected to any remote S3 service directly.
 #[derive(Debug)]
 pub struct S3ApiToClient {
-    pub s3c: S3C,
+    pub s3c: aws_sdk_s3::Client,
     pub smc: SMC,
 }
 

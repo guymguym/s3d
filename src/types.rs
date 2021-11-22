@@ -1,7 +1,6 @@
-use crate::gen::*;
+use crate::gen::{kinds::S3OpKind, resolver::resolve_op_kind, resource::*};
 use aws_smithy_types::instant::{Format, Instant};
-use hyper::Body;
-use hyper::{header, HeaderMap, Method};
+use hyper::{header, Body, HeaderMap, Method};
 use std::future::Future;
 use std::pin::Pin;
 use std::str::FromStr;
@@ -9,16 +8,12 @@ use std::{collections::HashMap, net::SocketAddr};
 use url::Url;
 use uuid::Uuid;
 
-pub type HttpRequest = hyper::Request<hyper::Body>;
-pub type HttpResponse = hyper::Response<hyper::Body>;
+pub type HttpRequest = hyper::Request<Body>;
+pub type HttpResponse = hyper::Response<Body>;
 
 pub type S3Error = aws_smithy_types::Error;
 pub type S3ClientError = aws_sdk_s3::Error;
 pub type S3Result = Result<HttpResponse, S3Error>;
-pub type S3ResultNull = Result<(), S3Error>;
-
-pub type S3C = aws_sdk_s3::Client;
-pub type SMC = aws_smithy_client::Client<aws_hyper::DynConnector, aws_hyper::AwsMiddleware>;
 
 /// Why we need this TraitFuture:
 /// https://smallcultfollowing.com/babysteps/blog/2019/10/26/async-fn-in-traits-are-hard/
@@ -112,7 +107,7 @@ impl S3Request {
             resource,
             op_kind: None::<S3OpKind>,
         };
-        req.op_kind = match_op(&req);
+        req.op_kind = resolve_op_kind(&req);
         req
     }
 

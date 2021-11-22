@@ -1,44 +1,14 @@
 //! TODO This module should be generated from https://github.com/awslabs/smithy-rs
 
-use crate::{gen::*, types::*};
-use std::fmt;
+use crate::{
+    err::*,
+    gen::{api::S3Api, kinds::S3OpKind},
+    types::*,
+};
 
-/// ServerError are errors that can occur when parsing the input from the HTTP request
-#[derive(Debug)]
-pub enum ServerError {
-    InputError(InputError),
-    ApiError(S3Error),
-    OutputError(OutputError),
-}
-impl std::error::Error for ServerError {}
-impl fmt::Display for ServerError {
-    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-        match self {
-            ServerError::InputError(err) => write!(f, "InputError({})", err),
-            ServerError::ApiError(err) => write!(f, "ApiError({})", err),
-            ServerError::OutputError(err) => write!(f, "OutputError({})", err),
-        }
-    }
-}
-impl From<InputError> for ServerError {
-    fn from(e: InputError) -> Self {
-        ServerError::InputError(e)
-    }
-}
-impl From<S3Error> for ServerError {
-    fn from(e: S3Error) -> Self {
-        ServerError::ApiError(e)
-    }
-}
-impl From<OutputError> for ServerError {
-    fn from(e: OutputError) -> Self {
-        ServerError::OutputError(e)
-    }
-}
-
-/// handle_request parses the input, dispatches the request to the appropriate handler,
+/// serve_s3_request parses the input, dispatches the request to the appropriate handler,
 /// and writes the response.
-pub async fn handle_s3_request<API: S3Api>(
+pub async fn serve_s3_request<API: S3Api>(
     req: &S3Request,
     api: &API,
 ) -> Result<HttpResponse, ServerError> {
@@ -52,11 +22,11 @@ pub async fn handle_s3_request<API: S3Api>(
         ($name:ident, $req:ident, $api:ident) => {
             paste::paste! {
                 {
-                    let input = crate::gen::input::parsers::[<$name:snake>]($req)?;
+                    let input = crate::gen::input::[<$name:snake>]($req)?;
                     debug!("input {:?}", input);
                     let output = $api.[<$name:snake>](input).await.map_err(|err| err.meta().clone())?;
                     debug!("output {:?}", output);
-                    let response = crate::gen::output::parsers::[<$name:snake>](output)?;
+                    let response = crate::gen::output::[<$name:snake>](output)?;
                     debug!("response {:?}", response);
                     Ok(response)
                 }

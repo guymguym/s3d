@@ -5,9 +5,12 @@
 pub mod cli;
 pub mod conf;
 pub mod daemon;
+pub mod err;
 pub mod fuse;
 pub mod gen;
+pub mod hdr;
 pub mod types;
+pub mod xml;
 
 #[macro_use]
 extern crate log;
