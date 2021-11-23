@@ -38,12 +38,10 @@ impl Daemon {
     /// Initialize the daemon with the given configuration.
     pub async fn new(conf: Conf) -> Self {
         let aws_config = aws_config::from_env().load().await;
-        let retry_config = aws_config.retry_config().unwrap();
-        let s3c = aws_sdk_s3::Client::new(&aws_config);
-        let smc = aws_hyper::Client::https().with_retry_config(retry_config.clone().into());
+        let s3_client = aws_sdk_s3::Client::new(&aws_config);
         Daemon {
             conf,
-            s3_api: S3ApiToClient { s3c, smc },
+            s3_api: S3ApiToClient::new(s3_client),
         }
     }
 

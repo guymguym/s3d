@@ -1,6 +1,6 @@
 //! TODO This module should be generated from https://github.com/awslabs/smithy-rs
 
-use crate::{err::OutputError, gen::constants::*, http::*, xml::*};
+use crate::{err::OutputError, gen::headers::*, http::*, xml::*};
 use aws_sdk_s3::output::*;
 use aws_smithy_types::instant::Format;
 use hyper::{Body, StatusCode};
@@ -28,19 +28,19 @@ macro_rules! gen {
 //-------------------------------//
 
 pub fn head_bucket(_o: HeadBucketOutput) -> Result<HttpResponse, OutputError> {
-    let mut r = responder().status(StatusCode::OK);
+    let r = responder();
     Ok(r.body(Body::empty()).unwrap())
 }
 
 pub fn create_bucket(o: CreateBucketOutput) -> Result<HttpResponse, OutputError> {
-    let mut r = responder().status(StatusCode::OK);
+    let mut r = responder();
     let h = r.headers_mut().unwrap();
     o.location().set_header(h, H_LOCATION);
     Ok(r.body(Body::empty()).unwrap())
 }
 
 pub fn delete_bucket(_o: DeleteBucketOutput) -> Result<HttpResponse, OutputError> {
-    let mut r = responder().status(StatusCode::NO_CONTENT);
+    let r = responder().status(StatusCode::NO_CONTENT);
     Ok(r.body(Body::empty()).unwrap())
 }
 
@@ -50,7 +50,7 @@ pub fn get_bucket_location(o: GetBucketLocationOutput) -> Result<HttpResponse, O
     let mut w = xml_root(&mut xml, "LocationConstraint");
     xml_text_opt(&mut w, "LocationConstraint", o.location_constraint);
     w.finish();
-    let mut r = responder().status(StatusCode::OK);
+    let r = responder();
     Ok(r.body(Body::from(xstr)).unwrap())
 }
 
@@ -61,13 +61,13 @@ pub fn get_bucket_location(o: GetBucketLocationOutput) -> Result<HttpResponse, O
 // gen!(GetObject);
 // gen!(HeadObject);
 // gen!(PutObject);
-gen!(CopyObject);
-gen!(DeleteObject);
-gen!(DeleteObjects);
+// gen!(CopyObject);
+// gen!(DeleteObject);
+// gen!(DeleteObjects);
 //-------------------------------//
 
 pub fn get_object(o: GetObjectOutput) -> Result<HttpResponse, OutputError> {
-    let mut r = responder().status(StatusCode::OK);
+    let mut r = responder();
     let h = r.headers_mut().unwrap();
     // http headers
     o.content_type().set_header(h, H_CONTENT_TYPE);
@@ -119,7 +119,7 @@ pub fn get_object(o: GetObjectOutput) -> Result<HttpResponse, OutputError> {
 }
 
 pub fn head_object(o: HeadObjectOutput) -> Result<HttpResponse, OutputError> {
-    let mut r = responder().status(StatusCode::OK);
+    let mut r = responder();
     let h = r.headers_mut().unwrap();
     // http headers
     o.content_type().set_header(h, H_CONTENT_TYPE);
@@ -170,7 +170,7 @@ pub fn head_object(o: HeadObjectOutput) -> Result<HttpResponse, OutputError> {
 }
 
 pub fn put_object(o: PutObjectOutput) -> Result<HttpResponse, OutputError> {
-    let mut r = responder().status(StatusCode::OK);
+    let mut r = responder();
     let h = r.headers_mut().unwrap();
     // http headers
     o.e_tag().set_header(h, H_ETAG);
@@ -191,6 +191,81 @@ pub fn put_object(o: PutObjectOutput) -> Result<HttpResponse, OutputError> {
     Ok(r.body(Body::empty()).unwrap())
 }
 
+pub fn copy_object(o: CopyObjectOutput) -> Result<HttpResponse, OutputError> {
+    let mut r = responder();
+    let h = r.headers_mut().unwrap();
+    // x-amz headers
+    o.bucket_key_enabled()
+        .set_header(h, X_AMZ_SSE_BUCKET_KEY_ENABLED);
+    o.copy_source_version_id()
+        .set_header(h, X_AMZ_COPY_SOURCE_VERSION_ID);
+    o.expiration().set_header(h, X_AMZ_EXPIRATION);
+    o.request_charged().set_header(h, X_AMZ_REQUEST_CHARGED);
+    o.server_side_encryption().set_header(h, X_AMZ_SSE);
+    o.sse_customer_algorithm()
+        .set_header(h, X_AMZ_SSE_CUSTOMER_ALG);
+    o.sse_customer_key_md5()
+        .set_header(h, X_AMZ_SSE_CUSTOMER_KEY_MD5);
+    o.ssekms_encryption_context()
+        .set_header(h, X_AMZ_SSE_CONTEXT);
+    o.ssekms_key_id().set_header(h, X_AMZ_SSE_AWS_KMS_KEY_ID);
+    o.version_id().set_header(h, X_AMZ_VERSION_ID);
+    let mut xstr = String::new();
+    {
+        let mut xml = XmlWriter::new(&mut xstr);
+        let mut w = xml_root(&mut xml, "CopyObjectResult");
+        if let Some(res) = o.copy_object_result {
+            xml_text_opt(
+                &mut w,
+                "LastModified",
+                res.last_modified.map(|t| t.fmt(Format::DateTime)),
+            );
+            xml_text_opt(&mut w, "ETag", res.e_tag);
+        }
+        w.finish();
+    }
+    Ok(r.body(Body::from(xstr)).unwrap())
+}
+
+pub fn delete_object(o: DeleteObjectOutput) -> Result<HttpResponse, OutputError> {
+    let mut r = responder().status(StatusCode::NO_CONTENT);
+    let h = r.headers_mut().unwrap();
+    o.delete_marker().set_header(h, X_AMZ_DELETE_MARKER);
+    o.request_charged().set_header(h, X_AMZ_REQUEST_CHARGED);
+    o.version_id().set_header(h, X_AMZ_VERSION_ID);
+    Ok(r.body(Body::empty()).unwrap())
+}
+
+pub fn delete_objects(o: DeleteObjectsOutput) -> Result<HttpResponse, OutputError> {
+    let mut r = responder();
+    let h = r.headers_mut().unwrap();
+    o.request_charged().set_header(h, X_AMZ_REQUEST_CHARGED);
+    let mut xstr = String::new();
+    {
+        let mut xml = XmlWriter::new(&mut xstr);
+        let mut w = xml_root(&mut xml, "DeleteResult");
+        for d in o.deleted.unwrap_or_default() {
+            let mut w = xml_elem(&mut w, "Deleted");
+            // TODO handle bool fields in xml
+            // xml_text_opt(&mut w, "DeleteMarker", d.delete_marker());
+            xml_text_opt(&mut w, "DeleteMarkerVersionId", d.delete_marker_version_id);
+            xml_text_opt(&mut w, "Key", d.key);
+            xml_text_opt(&mut w, "VersionId", d.version_id);
+            w.finish();
+        }
+        for e in o.errors.unwrap_or_default() {
+            let mut w = xml_elem(&mut w, "Error");
+            xml_text_opt(&mut w, "Code", e.code);
+            xml_text_opt(&mut w, "Key", e.key);
+            xml_text_opt(&mut w, "Message", e.message);
+            xml_text_opt(&mut w, "VersionId", e.version_id);
+            w.finish();
+        }
+        w.finish();
+    }
+    Ok(r.body(Body::from(xstr)).unwrap())
+}
+
 //---------------------------------------------------//
 // multipart upload ops                              //
 //---------------------------------------------------//
@@ -208,7 +283,7 @@ gen!(UploadPartCopy);
 //-------------------------------//
 // gen!(ListBuckets);
 // gen!(ListObjects);
-gen!(ListObjectsV2);
+// gen!(ListObjectsV2);
 gen!(ListObjectVersions);
 gen!(ListMultipartUploads);
 gen!(ListParts);
@@ -232,8 +307,7 @@ pub fn list_buckets(o: ListBucketsOutput) -> Result<HttpResponse, OutputError> {
         }
         w.finish();
     }
-    {
-        let owner = o.owner.unwrap();
+    if let Some(owner) = o.owner {
         let mut w = xml_elem(&mut w, "Owner");
         xml_text_opt(&mut w, "ID", owner.id);
         xml_text_opt(&mut w, "DisplayName", owner.display_name);
@@ -250,8 +324,8 @@ pub fn list_objects(o: ListObjectsOutput) -> Result<HttpResponse, OutputError> {
     xml_text_opt(&mut w, "Name", o.name);
     xml_text_opt(&mut w, "Prefix", o.prefix);
     xml_text_opt(&mut w, "Delimiter", o.delimiter);
-    xml_text_opt(&mut w, "Marker", o.marker);
     xml_text_opt(&mut w, "EncodingType", o.encoding_type);
+    xml_text_opt(&mut w, "Marker", o.marker);
     xml_text(&mut w, "MaxKeys", o.max_keys.to_string());
     xml_text(&mut w, "IsTruncated", o.is_truncated.to_string());
     xml_text_opt(&mut w, "NextMarker", o.next_marker);
@@ -267,8 +341,50 @@ pub fn list_objects(o: ListObjectsOutput) -> Result<HttpResponse, OutputError> {
         xml_text_opt(&mut w, "ETag", obj.e_tag);
         xml_text(&mut w, "Size", obj.size.to_string());
         xml_text_opt(&mut w, "StorageClass", obj.storage_class);
-        {
-            let owner = obj.owner.unwrap();
+        if let Some(owner) = obj.owner {
+            let mut w = xml_elem(&mut w, "Owner");
+            xml_text_opt(&mut w, "ID", owner.id);
+            xml_text_opt(&mut w, "DisplayName", owner.display_name);
+            w.finish();
+        }
+        w.finish();
+    }
+    for p in o.common_prefixes.unwrap_or_default() {
+        let mut w = xml_elem(&mut w, "CommonPrefixes");
+        xml_text_opt(&mut w, "Prefix", p.prefix);
+        w.finish();
+    }
+    w.finish();
+    Ok(responder().body(Body::from(xstr)).unwrap())
+}
+
+pub fn list_objects_v2(o: ListObjectsV2Output) -> Result<HttpResponse, OutputError> {
+    let mut xstr = String::new();
+    let mut xml = XmlWriter::new(&mut xstr);
+    let mut w = xml_root(&mut xml, "ListBucketResult");
+    xml_text_opt(&mut w, "Name", o.name);
+    xml_text_opt(&mut w, "Prefix", o.prefix);
+    xml_text_opt(&mut w, "Delimiter", o.delimiter);
+    xml_text_opt(&mut w, "EncodingType", o.encoding_type);
+    xml_text_opt(&mut w, "StartAfter", o.start_after);
+    xml_text_opt(&mut w, "ContinuationToken", o.continuation_token);
+    xml_text(&mut w, "MaxKeys", o.max_keys.to_string());
+    xml_text(&mut w, "KeyCount", o.key_count.to_string());
+    xml_text(&mut w, "IsTruncated", o.is_truncated.to_string());
+    xml_text_opt(&mut w, "NextContinuationToken", o.next_continuation_token);
+
+    for obj in o.contents.unwrap_or_default() {
+        let mut w = xml_elem(&mut w, "Contents");
+        xml_text_opt(&mut w, "Key", obj.key);
+        xml_text_opt(
+            &mut w,
+            "LastModified",
+            obj.last_modified.map(|t| t.fmt(Format::DateTime)),
+        );
+        xml_text_opt(&mut w, "ETag", obj.e_tag);
+        xml_text(&mut w, "Size", obj.size.to_string());
+        xml_text_opt(&mut w, "StorageClass", obj.storage_class);
+        if let Some(owner) = obj.owner {
             let mut w = xml_elem(&mut w, "Owner");
             xml_text_opt(&mut w, "ID", owner.id);
             xml_text_opt(&mut w, "DisplayName", owner.display_name);

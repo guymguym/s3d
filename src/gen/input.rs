@@ -3,7 +3,7 @@
 //! To be exact - the methods take S3Request which is a wrapper around the HTTP request.
 //! No reason to write it by hand - should be generated from smithy-rs.
 
-use crate::{err::InputError, gen::constants::*, http::S3Request};
+use crate::{err::InputError, gen::headers::*, http::S3Request};
 use aws_sdk_s3::{input::*, ByteStream};
 
 /// This macro generates a default parser function per op.

@@ -2,14 +2,22 @@ use crate::gen::api::{S3Api, TraitFuture};
 use aws_sdk_s3::{error::*, input::*, output::*};
 use aws_smithy_http::result::SdkError;
 
-pub type SMC = aws_smithy_client::Client<aws_hyper::DynConnector, aws_hyper::AwsMiddleware>;
-
 /// S3ApiToClient is the default implementation of S3Api that uses the client SDK to call for each function.
 /// This can be connected to any remote S3 service directly.
 #[derive(Debug)]
 pub struct S3ApiToClient {
-    pub s3c: aws_sdk_s3::Client,
-    pub smc: SMC,
+    pub s3_client: aws_sdk_s3::Client,
+    pub sm_client: aws_hyper::StandardClient,
+}
+
+impl S3ApiToClient {
+    pub fn new(s3_client: aws_sdk_s3::Client) -> Self {
+        let sm_client = aws_hyper::https();
+        Self {
+            s3_client,
+            sm_client,
+        }
+    }
 }
 
 /// This macro generates a default function for each op.
@@ -18,8 +26,8 @@ macro_rules! gen {
         paste::paste! {
             fn [<$name:snake>](&self, i: [<$name Input>]) -> TraitFuture<[<$name Output>], [<$name Error>]> {
                 Box::pin(async move {
-                    self.smc
-                        .call(i.make_operation(self.s3c.conf()).await.unwrap())
+                    self.sm_client
+                        .call(i.make_operation(&self.s3_client.conf()).await.unwrap())
                         .await
                         .map_err(|err| match err {
                             SdkError::ServiceError { err, .. } => err,

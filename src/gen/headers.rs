@@ -87,6 +87,7 @@ pub const X_AMZ_SSE_BUCKET_KEY_ENABLED: &str = "x-amz-server-side-encryption-buc
 pub const X_AMZ_COPY_SOURCE: &str = "x-amz-copy-source";
 pub const X_AMZ_COPY_SOURCE_RANGE: &str = "x-amz-copy-source-range";
 pub const X_AMZ_COPY_SOURCE_IF_MATCH: &str = "x-amz-copy-source-if-match";
+pub const X_AMZ_COPY_SOURCE_VERSION_ID: &str = "x-amz-copy-source-version-id";
 pub const X_AMZ_COPY_SOURCE_IF_MODIFIED_SINCE: &str = "x-amz-copy-source-if-modified-since";
 pub const X_AMZ_COPY_SOURCE_IF_NONE_MATCH: &str = "x-amz-copy-source-if-none-match";
 pub const X_AMZ_COPY_SOURCE_IF_UNMODIFIED_SINCE: &str = "x-amz-copy-source-if-unmodified-since";

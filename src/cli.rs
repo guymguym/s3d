@@ -85,11 +85,10 @@ struct ListCmd {}
 
 impl CLI {
     pub async fn run() -> anyhow::Result<()> {
-        // log info/warn/error by default if the RUST_LOG env var isn’t set
-        env_logger::Builder::from_env(env_logger::Env::default().default_filter_or("info")).init();
-        // env_logger::init();
+        // init default log levels - override with RUST_LOG env var
+        env_logger::init_from_env(env_logger::Env::default().default_filter_or("warn,s3d=debug"));
 
-        // parse the command line arguments
+        // parse command line arguments
         let cli = CLI::parse();
 
         debug!("{:?}", cli);
