@@ -8,7 +8,7 @@ pub fn xml_root<'a, 'b>(x: &'a mut XmlWriter<'_>, root: &'b str) -> ScopeWriter<
 }
 
 pub fn xml_elem<'a, 'b>(w: &'a mut ScopeWriter<'_, '_>, name: &'b str) -> ScopeWriter<'a, 'b> {
-    w.start_el(name).write_ns(S3_XMLNS, None).finish()
+    w.start_el(name).finish()
 }
 
 pub fn xml_text<T: AsRef<str>>(w: &mut ScopeWriter, tag: &str, data: T) {
