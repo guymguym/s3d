@@ -1,4 +1,5 @@
-use crate::gen::{kinds::S3OpKind, resolver::resolve_op_kind, resource::*};
+use crate::gen::{ops::S3OpKind, resources::*};
+use aws_smithy_http::operation::BuildError;
 use aws_smithy_types::instant::{Format, Instant};
 use hyper::{
     header::{HeaderName, HeaderValue},
@@ -188,6 +189,14 @@ impl S3Request {
         }
         Some(map)
     }
+
+    pub fn from_build_err(&self, err: BuildError) -> S3Error {
+        S3Error::builder()
+            .code("BadRequest")
+            .message(err.to_string())
+            .build()
+    }
+
 }
 
 pub trait ToHeader: Sized {

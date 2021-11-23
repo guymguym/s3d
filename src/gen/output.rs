@@ -1,6 +1,8 @@
-//! TODO This module should be generated from https://github.com/awslabs/smithy-rs
+//! This module implements a function per S3 op to encode the output as HTTP response.
+//! Currently written by hand which is difficult to maintain long term.
+//! TODO This module should be generated from https://github.com/awslabs/smithy-rs.
 
-use crate::{err::OutputError, gen::headers::*, http::*, xml::*};
+use crate::{gen::headers::*, http::*, xml::*};
 use aws_sdk_s3::output::*;
 use aws_smithy_types::instant::Format;
 use hyper::{Body, StatusCode};
@@ -8,10 +10,17 @@ use hyper::{Body, StatusCode};
 /// This macro generates a default parser function per op
 /// to make it possible to implement it in stages.
 macro_rules! gen {
-    ($name:ident) => {
+    ($op:ident) => {
         paste::paste! {
-            pub fn [<$name:snake>](_: [<$name Output>]) -> Result<HttpResponse, OutputError> {
-                Err(OutputError::NotImplemented(stringify!(s3::output::parsers::[<$name:snake>])))
+            pub fn [<$op:snake>](_: [<$op Output>]) -> Result<HttpResponse, S3Error> {
+                Err(S3Error::builder().
+                    code("NotImplemented")
+                    .message(format!(
+                        "Not implemented {}",
+                        stringify!(s3::output::parsers::[<$op:snake>])
+                    ))
+                    .build()
+                    .into())
             }
         }
     };
@@ -27,24 +36,24 @@ macro_rules! gen {
 // gen!(GetBucketLocation);
 //-------------------------------//
 
-pub fn head_bucket(_o: HeadBucketOutput) -> Result<HttpResponse, OutputError> {
+pub fn head_bucket(_o: HeadBucketOutput) -> Result<HttpResponse, S3Error> {
     let r = responder();
     Ok(r.body(Body::empty()).unwrap())
 }
 
-pub fn create_bucket(o: CreateBucketOutput) -> Result<HttpResponse, OutputError> {
+pub fn create_bucket(o: CreateBucketOutput) -> Result<HttpResponse, S3Error> {
     let mut r = responder();
     let h = r.headers_mut().unwrap();
     o.location().set_header(h, H_LOCATION);
     Ok(r.body(Body::empty()).unwrap())
 }
 
-pub fn delete_bucket(_o: DeleteBucketOutput) -> Result<HttpResponse, OutputError> {
+pub fn delete_bucket(_o: DeleteBucketOutput) -> Result<HttpResponse, S3Error> {
     let r = responder().status(StatusCode::NO_CONTENT);
     Ok(r.body(Body::empty()).unwrap())
 }
 
-pub fn get_bucket_location(o: GetBucketLocationOutput) -> Result<HttpResponse, OutputError> {
+pub fn get_bucket_location(o: GetBucketLocationOutput) -> Result<HttpResponse, S3Error> {
     let mut xstr = String::new();
     let mut xml = XmlWriter::new(&mut xstr);
     let mut w = xml_root(&mut xml, "LocationConstraint");
@@ -66,7 +75,7 @@ pub fn get_bucket_location(o: GetBucketLocationOutput) -> Result<HttpResponse, O
 // gen!(DeleteObjects);
 //-------------------------------//
 
-pub fn get_object(o: GetObjectOutput) -> Result<HttpResponse, OutputError> {
+pub fn get_object(o: GetObjectOutput) -> Result<HttpResponse, S3Error> {
     let mut r = responder();
     let h = r.headers_mut().unwrap();
     // http headers
@@ -118,7 +127,7 @@ pub fn get_object(o: GetObjectOutput) -> Result<HttpResponse, OutputError> {
     Ok(r.body(Body::wrap_stream(o.body)).unwrap())
 }
 
-pub fn head_object(o: HeadObjectOutput) -> Result<HttpResponse, OutputError> {
+pub fn head_object(o: HeadObjectOutput) -> Result<HttpResponse, S3Error> {
     let mut r = responder();
     let h = r.headers_mut().unwrap();
     // http headers
@@ -169,7 +178,7 @@ pub fn head_object(o: HeadObjectOutput) -> Result<HttpResponse, OutputError> {
     Ok(r.body(Body::empty()).unwrap())
 }
 
-pub fn put_object(o: PutObjectOutput) -> Result<HttpResponse, OutputError> {
+pub fn put_object(o: PutObjectOutput) -> Result<HttpResponse, S3Error> {
     let mut r = responder();
     let h = r.headers_mut().unwrap();
     // http headers
@@ -191,7 +200,7 @@ pub fn put_object(o: PutObjectOutput) -> Result<HttpResponse, OutputError> {
     Ok(r.body(Body::empty()).unwrap())
 }
 
-pub fn copy_object(o: CopyObjectOutput) -> Result<HttpResponse, OutputError> {
+pub fn copy_object(o: CopyObjectOutput) -> Result<HttpResponse, S3Error> {
     let mut r = responder();
     let h = r.headers_mut().unwrap();
     // x-amz headers
@@ -227,7 +236,7 @@ pub fn copy_object(o: CopyObjectOutput) -> Result<HttpResponse, OutputError> {
     Ok(r.body(Body::from(xstr)).unwrap())
 }
 
-pub fn delete_object(o: DeleteObjectOutput) -> Result<HttpResponse, OutputError> {
+pub fn delete_object(o: DeleteObjectOutput) -> Result<HttpResponse, S3Error> {
     let mut r = responder().status(StatusCode::NO_CONTENT);
     let h = r.headers_mut().unwrap();
     o.delete_marker().set_header(h, X_AMZ_DELETE_MARKER);
@@ -236,7 +245,7 @@ pub fn delete_object(o: DeleteObjectOutput) -> Result<HttpResponse, OutputError>
     Ok(r.body(Body::empty()).unwrap())
 }
 
-pub fn delete_objects(o: DeleteObjectsOutput) -> Result<HttpResponse, OutputError> {
+pub fn delete_objects(o: DeleteObjectsOutput) -> Result<HttpResponse, S3Error> {
     let mut r = responder();
     let h = r.headers_mut().unwrap();
     o.request_charged().set_header(h, X_AMZ_REQUEST_CHARGED);
@@ -289,7 +298,7 @@ gen!(ListMultipartUploads);
 gen!(ListParts);
 //-------------------------------//
 
-pub fn list_buckets(o: ListBucketsOutput) -> Result<HttpResponse, OutputError> {
+pub fn list_buckets(o: ListBucketsOutput) -> Result<HttpResponse, S3Error> {
     let mut xstr = String::new();
     let mut xml = XmlWriter::new(&mut xstr);
     let mut w = xml_root(&mut xml, "ListAllMyBucketsResult");
@@ -317,7 +326,7 @@ pub fn list_buckets(o: ListBucketsOutput) -> Result<HttpResponse, OutputError> {
     Ok(responder().body(Body::from(xstr)).unwrap())
 }
 
-pub fn list_objects(o: ListObjectsOutput) -> Result<HttpResponse, OutputError> {
+pub fn list_objects(o: ListObjectsOutput) -> Result<HttpResponse, S3Error> {
     let mut xstr = String::new();
     let mut xml = XmlWriter::new(&mut xstr);
     let mut w = xml_root(&mut xml, "ListBucketResult");
@@ -358,7 +367,7 @@ pub fn list_objects(o: ListObjectsOutput) -> Result<HttpResponse, OutputError> {
     Ok(responder().body(Body::from(xstr)).unwrap())
 }
 
-pub fn list_objects_v2(o: ListObjectsV2Output) -> Result<HttpResponse, OutputError> {
+pub fn list_objects_v2(o: ListObjectsV2Output) -> Result<HttpResponse, S3Error> {
     let mut xstr = String::new();
     let mut xml = XmlWriter::new(&mut xstr);
     let mut w = xml_root(&mut xml, "ListBucketResult");

@@ -1,6 +1,6 @@
 use crate::{
-    conf::Conf,
-    gen::{api_to_client::S3ApiToClient, server::serve_s3_request},
+    conf::Conf, 
+    gen::{api::*, ops::* },
     http::*,
     xml::xml_error,
 };
@@ -95,11 +95,38 @@ impl Daemon {
     }
 
     pub async fn handle_request(&self, req: &mut S3Request) -> S3Result {
+        if req.op_kind.is_none() {
+            return Err(S3Error::builder()
+                .code("BadRequest")
+                .message("No such operation")
+                .build()
+                .into());
+        }
+        let op_kind = req.op_kind.unwrap();
+
         self.check_auth(req).await?;
+
         if req.method == Method::OPTIONS {
             return self.handle_options(req);
         }
-        let mut res = serve_s3_request(req, &self.s3_api).await?;
+
+        // macro to generate the server code block for each op
+        macro_rules! gen_handler {
+            ($op:ident) => {
+                paste::paste! {
+                    {
+                        let input = crate::gen::input::[<$op:snake>](req)?;
+                        debug!("input {:?}", input);
+                        let output = self.s3_api.[<$op:snake>](input).await.map_err(|err| err.meta().clone())?;
+                        debug!("output {:?}", output);
+                        let response = crate::gen::output::[<$op:snake>](output)?;
+                        debug!("response {:?}", response);
+                        response
+                    }
+                }
+            };
+        }
+        let mut res = generate_match_for_each_s3_op!(gen_handler, op_kind);
         self.set_headers_ids(req, &mut res);
         Ok(res)
     }

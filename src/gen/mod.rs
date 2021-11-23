@@ -1,10 +1,6 @@
 pub mod api;
-pub mod api_to_client;
 pub mod headers;
 pub mod input;
-pub mod kinds;
 pub mod ops;
 pub mod output;
-pub mod resolver;
-pub mod resource;
-pub mod server;
+pub mod resources;

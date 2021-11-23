@@ -45,7 +45,7 @@ struct CLI {
 pub async fn main() -> anyhow::Result<()> {
     // init default log levels - override with RUST_LOG env var
     env_logger::init_from_env(
-        env_logger::Env::default().default_filter_or("warn,s3d=debug,writer=debug"),
+        env_logger::Env::default().default_filter_or("warn,s3d=info,writer=info"),
     );
 
     // parse command line arguments

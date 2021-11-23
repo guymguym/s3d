@@ -5,10 +5,10 @@
 pub mod cli;
 pub mod conf;
 pub mod daemon;
-pub mod err;
 pub mod fuse;
 pub mod gen;
 pub mod http;
+pub mod intercept;
 pub mod xml;
 
 #[macro_use]
