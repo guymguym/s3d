@@ -1,4 +1,5 @@
 use crate::gen::ops::generate_code_for_each_s3_op;
+use crate::store;
 use aws_sdk_s3::{error::*, input::*, output::*, ByteStream};
 use aws_smithy_http::result::SdkError;
 use aws_smithy_types::Instant;
@@ -63,11 +64,12 @@ impl S3Api for S3DApi {
         &self.sm_client
     }
 
+    fn put_object(&self, mut i: PutObjectInput) -> TraitFuture<PutObjectOutput, PutObjectError> {
+        Box::pin(async move { store::put_object(i).await })
+    }
+
     // fn get_object(&self, _i: GetObjectInput) -> TraitFuture<GetObjectOutput, GetObjectError> {
     //     Box::pin(async move {
-    //         warn!("------ OVERRIDE ------");
-    //         warn!("------ OVERRIDE ------");
-    //         warn!("------ OVERRIDE ------");
     //         Ok(GetObjectOutput::builder()
     //             .e_tag("\"aaa-123\"")
     //             .last_modified(Instant::from_epoch_seconds(1576540080))
@@ -75,29 +77,6 @@ impl S3Api for S3DApi {
     //             .content_type("text/plain")
     //             .body(ByteStream::from_static(b"hello"))
     //             .build())
-    //         // self.get_sm_client()
-    //         //     .call(i.make_operation(self.get_s3_conf()).await.unwrap())
-    //         //     .await
-    //         //     .map_err(|err| match err {
-    //         //         SdkError::ServiceError { err, .. } => err,
-    //         //         _ => GetObjectError::unhandled(err),
-    //         //     })
-    //     })
-    // }
-
-    // fn put_object(&self, i: PutObjectInput) -> TraitFuture<PutObjectOutput, PutObjectError> {
-    //     Box::pin(async move {
-    //         warn!("------ OVERRIDE ------");
-    //         warn!("------ OVERRIDE ------");
-    //         warn!("------ OVERRIDE ------");
-    //         Ok(PutObjectOutput::builder().build())
-    //         // self.get_sm_client()
-    //         //     .call(i.make_operation(self.get_s3_conf()).await.unwrap())
-    //         //     .await
-    //         //     .map_err(|err| match err {
-    //         //         SdkError::ServiceError { err, .. } => err,
-    //         //         _ => PutObjectError::unhandled(err),
-    //         //     })
     //     })
     // }
 }
