@@ -1,6 +1,7 @@
 use crate::{
+    api::*,
     conf::Conf, 
-    gen::{api::*, ops::* },
+    gen::ops::*,
     http::*,
     xml::xml_error,
 };
@@ -15,7 +16,7 @@ use tokio::sync::OnceCell;
 #[derive(Debug)]
 pub struct Daemon {
     pub conf: Conf,
-    pub s3_api: S3ApiToClient,
+    pub s3d_api: S3DApi,
 }
 
 /// Daemon singleton static instance
@@ -41,7 +42,7 @@ impl Daemon {
         let s3_client = aws_sdk_s3::Client::new(&aws_config);
         Daemon {
             conf,
-            s3_api: S3ApiToClient::new(s3_client),
+            s3d_api: S3DApi::new(s3_client),
         }
     }
 
@@ -117,7 +118,7 @@ impl Daemon {
                     {
                         let input = crate::gen::input::[<$op:snake>](req)?;
                         debug!("input {:?}", input);
-                        let output = self.s3_api.[<$op:snake>](input).await.map_err(|err| err.meta().clone())?;
+                        let output = self.s3d_api.[<$op:snake>](input).await.map_err(|err| err.meta().clone())?;
                         debug!("output {:?}", output);
                         let response = crate::gen::output::[<$op:snake>](output)?;
                         debug!("response {:?}", response);

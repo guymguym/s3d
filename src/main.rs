@@ -2,13 +2,13 @@
 //! - https://s3d.rs
 //! - https://github.com/s3d-rs/s3d
 
+pub mod api;
 pub mod cli;
 pub mod conf;
 pub mod daemon;
 pub mod fuse;
 pub mod gen;
 pub mod http;
-pub mod intercept;
 pub mod xml;
 
 #[macro_use]
