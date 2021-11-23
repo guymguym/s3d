@@ -43,12 +43,12 @@ impl Daemon {
 
 impl Filesystem for &Daemon {
     fn statfs(&mut self, _req: &Request<'_>, ino: u64, reply: fuser::ReplyStatfs) {
-        info!("FUSE::statfs() ino={}", ino);
+        debug!("FUSE::statfs() ino={}", ino);
         reply.statfs(0, 0, 0, 0, 0, 512, 255, 0);
     }
 
     fn open(&mut self, _req: &Request<'_>, ino: u64, flags: i32, reply: fuser::ReplyOpen) {
-        info!("FUSE::open() ino={} flags={}", ino, flags);
+        debug!("FUSE::open() ino={} flags={}", ino, flags);
         reply.opened(ino, flags as u32);
     }
 
@@ -62,7 +62,7 @@ impl Filesystem for &Daemon {
         flush: bool,
         reply: fuser::ReplyEmpty,
     ) {
-        info!(
+        debug!(
             "FUSE::release() ino={} fh={} flags={} lock_owner={:?} flush={}",
             ino, fh, flags, lock_owner, flush
         );
@@ -70,7 +70,7 @@ impl Filesystem for &Daemon {
     }
 
     fn opendir(&mut self, _req: &Request<'_>, ino: u64, flags: i32, reply: fuser::ReplyOpen) {
-        info!("FUSE::opendir() ino={} flags={}", ino, flags);
+        debug!("FUSE::opendir() ino={} flags={}", ino, flags);
         if ino < 1000 {
             reply.opened(ino, flags as u32);
         } else {
@@ -86,7 +86,7 @@ impl Filesystem for &Daemon {
         flags: i32,
         reply: fuser::ReplyEmpty,
     ) {
-        info!("FUSE::releasedir() ino={} fh={} flags={}", ino, fh, flags);
+        debug!("FUSE::releasedir() ino={} fh={} flags={}", ino, fh, flags);
         if ino < 1000 {
             reply.ok();
         } else {
@@ -102,7 +102,7 @@ impl Filesystem for &Daemon {
         reply: fuser::ReplyEntry,
     ) {
         let name = name.to_str().unwrap();
-        info!("FUSE::lookup() ino={} name={}", ino, name);
+        debug!("FUSE::lookup() ino={} name={}", ino, name);
         if ino >= 1000 {
             reply.error(libc::ENOTDIR);
             return;
@@ -130,13 +130,13 @@ impl Filesystem for &Daemon {
         offset: i64,
         mut reply: fuser::ReplyDirectory,
     ) {
-        info!("FUSE::readdir() ino={} fh={} offset={}", ino, fh, offset);
+        debug!("FUSE::readdir() ino={} fh={} offset={}", ino, fh, offset);
         if ino >= 1000 {
             reply.error(libc::ENOTDIR);
             return;
         }
         for i in 1000..1003 as u64 {
-            if i >= offset as u64 {
+            if i > offset as u64 {
                 if reply.add(i, i as i64, FileType::RegularFile, &format!("file{}", i)) {
                     break;
                 }
@@ -153,7 +153,7 @@ impl Filesystem for &Daemon {
         offset: i64,
         mut reply: fuser::ReplyDirectoryPlus,
     ) {
-        info!(
+        debug!(
             "FUSE::readdirplus() ino={} fh={} offset={}",
             ino, fh, offset
         );
@@ -172,7 +172,7 @@ impl Filesystem for &Daemon {
     }
 
     fn getattr(&mut self, _req: &Request<'_>, ino: u64, reply: fuser::ReplyAttr) {
-        info!("FUSE::getattr() ino={}", ino);
+        debug!("FUSE::getattr() ino={}", ino);
         let ttl = Duration::from_secs(60);
         if ino < 1000 {
             let attr = self.make_fuse_attr(ino, FileType::Directory, 0);
@@ -194,7 +194,7 @@ impl Filesystem for &Daemon {
         lock_owner: Option<u64>,
         reply: fuser::ReplyData,
     ) {
-        info!(
+        debug!(
             "FUSE::read() ino={} fh={} offset={} size={} flags={} lock_owner={:?}",
             ino, fh, offset, size, flags, lock_owner
         );
