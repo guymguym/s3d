@@ -4,7 +4,6 @@
 
 use crate::{gen::headers::*, http::*, xml::*};
 use aws_sdk_s3::output::*;
-use aws_smithy_types::instant::Format;
 use hyper::{Body, StatusCode};
 
 /// This macro generates a default parser function per op
@@ -54,13 +53,10 @@ pub fn delete_bucket(_o: DeleteBucketOutput) -> Result<HttpResponse, S3Error> {
 }
 
 pub fn get_bucket_location(o: GetBucketLocationOutput) -> Result<HttpResponse, S3Error> {
-    let mut xstr = String::new();
-    let mut xml = XmlWriter::new(&mut xstr);
-    let mut w = xml_root(&mut xml, "LocationConstraint");
-    xml_text_opt(&mut w, "LocationConstraint", o.location_constraint);
-    w.finish();
-    let r = responder();
-    Ok(r.body(Body::from(xstr)).unwrap())
+    let xstr = xml_doc!("LocationConstraint", w, {
+        xml_text(&mut w, "LocationConstraint", o.location_constraint);
+    });
+    Ok(responder().body(Body::from(xstr)).unwrap())
 }
 
 //---------------------------------------------------//
@@ -219,20 +215,12 @@ pub fn copy_object(o: CopyObjectOutput) -> Result<HttpResponse, S3Error> {
         .set_header(h, X_AMZ_SSE_CONTEXT);
     o.ssekms_key_id().set_header(h, X_AMZ_SSE_AWS_KMS_KEY_ID);
     o.version_id().set_header(h, X_AMZ_VERSION_ID);
-    let mut xstr = String::new();
-    {
-        let mut xml = XmlWriter::new(&mut xstr);
-        let mut w = xml_root(&mut xml, "CopyObjectResult");
+    let xstr = xml_doc!("CopyObjectResult", w, {
         if let Some(res) = o.copy_object_result {
-            xml_text_opt(
-                &mut w,
-                "LastModified",
-                res.last_modified.map(|t| t.fmt(Format::DateTime)),
-            );
-            xml_text_opt(&mut w, "ETag", res.e_tag);
+            xml_date(&mut w, "LastModified", res.last_modified);
+            xml_text(&mut w, "ETag", res.e_tag);
         }
-        w.finish();
-    }
+    });
     Ok(r.body(Body::from(xstr)).unwrap())
 }
 
@@ -249,29 +237,24 @@ pub fn delete_objects(o: DeleteObjectsOutput) -> Result<HttpResponse, S3Error> {
     let mut r = responder();
     let h = r.headers_mut().unwrap();
     o.request_charged().set_header(h, X_AMZ_REQUEST_CHARGED);
-    let mut xstr = String::new();
-    {
-        let mut xml = XmlWriter::new(&mut xstr);
-        let mut w = xml_root(&mut xml, "DeleteResult");
+    let xstr = xml_doc!("DeleteResult", w, {
         for d in o.deleted.unwrap_or_default() {
-            let mut w = xml_elem(&mut w, "Deleted");
-            // TODO handle bool fields in xml
-            // xml_text_opt(&mut w, "DeleteMarker", d.delete_marker());
-            xml_text_opt(&mut w, "DeleteMarkerVersionId", d.delete_marker_version_id);
-            xml_text_opt(&mut w, "Key", d.key);
-            xml_text_opt(&mut w, "VersionId", d.version_id);
-            w.finish();
+            xml_tag!("Deleted", w, {
+                xml_text(&mut w, "DeleteMarker", Some(d.delete_marker.to_string()));
+                xml_text(&mut w, "DeleteMarkerVersionId", d.delete_marker_version_id);
+                xml_text(&mut w, "Key", d.key);
+                xml_text(&mut w, "VersionId", d.version_id);
+            });
         }
         for e in o.errors.unwrap_or_default() {
-            let mut w = xml_elem(&mut w, "Error");
-            xml_text_opt(&mut w, "Code", e.code);
-            xml_text_opt(&mut w, "Key", e.key);
-            xml_text_opt(&mut w, "Message", e.message);
-            xml_text_opt(&mut w, "VersionId", e.version_id);
-            w.finish();
+            xml_tag!("Error", w, {
+                xml_text(&mut w, "Code", e.code);
+                xml_text(&mut w, "Key", e.key);
+                xml_text(&mut w, "Message", e.message);
+                xml_text(&mut w, "VersionId", e.version_id);
+            });
         }
-        w.finish();
-    }
+    });
     Ok(r.body(Body::from(xstr)).unwrap())
 }
 
@@ -299,114 +282,79 @@ gen!(ListParts);
 //-------------------------------//
 
 pub fn list_buckets(o: ListBucketsOutput) -> Result<HttpResponse, S3Error> {
-    let mut xstr = String::new();
-    let mut xml = XmlWriter::new(&mut xstr);
-    let mut w = xml_root(&mut xml, "ListAllMyBucketsResult");
-    {
-        let mut w = xml_elem(&mut w, "Buckets");
-        for b in o.buckets.unwrap_or_default() {
-            let mut w = xml_elem(&mut w, "Bucket");
-            xml_text_opt(&mut w, "Name", b.name);
-            xml_text_opt(
-                &mut w,
-                "CreationDate",
-                b.creation_date.map(|t| t.fmt(Format::DateTime)),
-            );
-            w.finish();
-        }
-        w.finish();
-    }
-    if let Some(owner) = o.owner {
-        let mut w = xml_elem(&mut w, "Owner");
-        xml_text_opt(&mut w, "ID", owner.id);
-        xml_text_opt(&mut w, "DisplayName", owner.display_name);
-        w.finish();
-    }
-    w.finish();
+    let xstr = xml_doc!("ListAllMyBucketsResult", w, {
+        xml_tag!("Buckets", w, {
+            for b in o.buckets.unwrap_or_default() {
+                xml_tag!("Bucket", w, {
+                    xml_text(&mut w, "Name", b.name);
+                    xml_date(&mut w, "CreationDate", b.creation_date);
+                });
+            }
+        });
+        xml_owner(&mut w, o.owner);
+    });
     Ok(responder().body(Body::from(xstr)).unwrap())
 }
 
 pub fn list_objects(o: ListObjectsOutput) -> Result<HttpResponse, S3Error> {
-    let mut xstr = String::new();
-    let mut xml = XmlWriter::new(&mut xstr);
-    let mut w = xml_root(&mut xml, "ListBucketResult");
-    xml_text_opt(&mut w, "Name", o.name);
-    xml_text_opt(&mut w, "Prefix", o.prefix);
-    xml_text_opt(&mut w, "Delimiter", o.delimiter);
-    xml_text_opt(&mut w, "EncodingType", o.encoding_type);
-    xml_text_opt(&mut w, "Marker", o.marker);
-    xml_text(&mut w, "MaxKeys", o.max_keys.to_string());
-    xml_text(&mut w, "IsTruncated", o.is_truncated.to_string());
-    xml_text_opt(&mut w, "NextMarker", o.next_marker);
+    let xstr = xml_doc!("ListBucketResult", w, {
+        xml_text(&mut w, "Name", o.name);
+        xml_text(&mut w, "Prefix", o.prefix);
+        xml_text(&mut w, "Delimiter", o.delimiter);
+        xml_text(&mut w, "EncodingType", o.encoding_type);
+        xml_text(&mut w, "Marker", o.marker);
+        xml_text(&mut w, "MaxKeys", Some(o.max_keys.to_string()));
+        xml_text(&mut w, "IsTruncated", Some(o.is_truncated.to_string()));
+        xml_text(&mut w, "NextMarker", o.next_marker);
 
-    for obj in o.contents.unwrap_or_default() {
-        let mut w = xml_elem(&mut w, "Contents");
-        xml_text_opt(&mut w, "Key", obj.key);
-        xml_text_opt(
-            &mut w,
-            "LastModified",
-            obj.last_modified.map(|t| t.fmt(Format::DateTime)),
-        );
-        xml_text_opt(&mut w, "ETag", obj.e_tag);
-        xml_text(&mut w, "Size", obj.size.to_string());
-        xml_text_opt(&mut w, "StorageClass", obj.storage_class);
-        if let Some(owner) = obj.owner {
-            let mut w = xml_elem(&mut w, "Owner");
-            xml_text_opt(&mut w, "ID", owner.id);
-            xml_text_opt(&mut w, "DisplayName", owner.display_name);
-            w.finish();
+        for obj in o.contents.unwrap_or_default() {
+            xml_tag!("Contents", w, {
+                xml_text(&mut w, "Key", obj.key);
+                xml_date(&mut w, "LastModified", obj.last_modified);
+                xml_text(&mut w, "ETag", obj.e_tag);
+                xml_text(&mut w, "Size", Some(obj.size.to_string()));
+                xml_text(&mut w, "StorageClass", obj.storage_class);
+                xml_owner(&mut w, obj.owner);
+            });
         }
-        w.finish();
-    }
-    for p in o.common_prefixes.unwrap_or_default() {
-        let mut w = xml_elem(&mut w, "CommonPrefixes");
-        xml_text_opt(&mut w, "Prefix", p.prefix);
-        w.finish();
-    }
-    w.finish();
+        for p in o.common_prefixes.unwrap_or_default() {
+            xml_tag!("CommonPrefixes", w, {
+                xml_text(&mut w, "Prefix", p.prefix);
+            });
+        }
+    });
     Ok(responder().body(Body::from(xstr)).unwrap())
 }
 
 pub fn list_objects_v2(o: ListObjectsV2Output) -> Result<HttpResponse, S3Error> {
-    let mut xstr = String::new();
-    let mut xml = XmlWriter::new(&mut xstr);
-    let mut w = xml_root(&mut xml, "ListBucketResult");
-    xml_text_opt(&mut w, "Name", o.name);
-    xml_text_opt(&mut w, "Prefix", o.prefix);
-    xml_text_opt(&mut w, "Delimiter", o.delimiter);
-    xml_text_opt(&mut w, "EncodingType", o.encoding_type);
-    xml_text_opt(&mut w, "StartAfter", o.start_after);
-    xml_text_opt(&mut w, "ContinuationToken", o.continuation_token);
-    xml_text(&mut w, "MaxKeys", o.max_keys.to_string());
-    xml_text(&mut w, "KeyCount", o.key_count.to_string());
-    xml_text(&mut w, "IsTruncated", o.is_truncated.to_string());
-    xml_text_opt(&mut w, "NextContinuationToken", o.next_continuation_token);
+    let xstr = xml_doc!("ListBucketResult", w, {
+        xml_text(&mut w, "Name", o.name);
+        xml_text(&mut w, "Prefix", o.prefix);
+        xml_text(&mut w, "Delimiter", o.delimiter);
+        xml_text(&mut w, "EncodingType", o.encoding_type);
+        xml_text(&mut w, "StartAfter", o.start_after);
+        xml_text(&mut w, "ContinuationToken", o.continuation_token);
+        xml_text(&mut w, "MaxKeys", Some(o.max_keys.to_string()));
+        xml_text(&mut w, "KeyCount", Some(o.key_count.to_string()));
+        xml_text(&mut w, "IsTruncated", Some(o.is_truncated.to_string()));
+        xml_text(&mut w, "NextContinuationToken", o.next_continuation_token);
 
-    for obj in o.contents.unwrap_or_default() {
-        let mut w = xml_elem(&mut w, "Contents");
-        xml_text_opt(&mut w, "Key", obj.key);
-        xml_text_opt(
-            &mut w,
-            "LastModified",
-            obj.last_modified.map(|t| t.fmt(Format::DateTime)),
-        );
-        xml_text_opt(&mut w, "ETag", obj.e_tag);
-        xml_text(&mut w, "Size", obj.size.to_string());
-        xml_text_opt(&mut w, "StorageClass", obj.storage_class);
-        if let Some(owner) = obj.owner {
-            let mut w = xml_elem(&mut w, "Owner");
-            xml_text_opt(&mut w, "ID", owner.id);
-            xml_text_opt(&mut w, "DisplayName", owner.display_name);
-            w.finish();
+        for obj in o.contents.unwrap_or_default() {
+            xml_tag!("Contents", w, {
+                xml_text(&mut w, "Key", obj.key);
+                xml_date(&mut w, "LastModified", obj.last_modified);
+                xml_text(&mut w, "ETag", obj.e_tag);
+                xml_text(&mut w, "Size", Some(obj.size.to_string()));
+                xml_text(&mut w, "StorageClass", obj.storage_class);
+                xml_owner(&mut w, obj.owner);
+            });
         }
-        w.finish();
-    }
-    for p in o.common_prefixes.unwrap_or_default() {
-        let mut w = xml_elem(&mut w, "CommonPrefixes");
-        xml_text_opt(&mut w, "Prefix", p.prefix);
-        w.finish();
-    }
-    w.finish();
+        for p in o.common_prefixes.unwrap_or_default() {
+            xml_tag!("CommonPrefixes", w, {
+                xml_text(&mut w, "Prefix", p.prefix);
+            });
+        }
+    });
     Ok(responder().body(Body::from(xstr)).unwrap())
 }
 

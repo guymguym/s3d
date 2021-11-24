@@ -14,7 +14,7 @@ extern crate log;
 // #[macro_use]
 // extern crate anyhow;
 
-const S3D_ENDPOINT: &'static str = "http://localhost:5333";
+const S3D_ENDPOINT: &'static str = "http://localhost:3333";
 
 #[derive(Parser, Debug)]
 #[clap(name = "reader-example")]

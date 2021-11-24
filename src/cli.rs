@@ -2,7 +2,6 @@ use crate::{conf::Conf, daemon};
 use anyhow::Context;
 use clap::Parser;
 use std::fmt::Debug;
-use std::path::Path;
 
 #[derive(Parser, Debug, Clone)]
 #[clap(name = clap::crate_name!())]
@@ -114,12 +113,11 @@ impl CLI {
     }
 
     async fn load_conf(&self) -> anyhow::Result<Conf> {
-        let conf_path = Path::new(&self.dir).join("config");
-        let conf = Conf::load(&conf_path)
+        let conf = Conf::load(&self.dir)
             .await
-            .with_context(|| format!("Failed to load config file \"{}\"", conf_path.display()))?;
+            .with_context(|| format!("Failed to load config file from dir \"{}\"", self.dir))?;
 
-        info!("Loaded config file \"{}\"", conf_path.display());
+        info!("Loaded config file from dir \"{}\"", self.dir);
 
         // TODO: apply args/env to conf
         // conf.s3d = String::from("config");

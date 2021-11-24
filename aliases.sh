@@ -1,5 +1,5 @@
 # source me to add aliases to your shell
-export S3D_ENDPOINT='http://localhost:5333'
+export S3D_ENDPOINT='http://localhost:3333'
 alias s3d='cargo -q run --'
 alias s3w='cargo -q run --example writer --'
 alias s3r='cargo -q run --example reader --'

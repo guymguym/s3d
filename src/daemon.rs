@@ -68,15 +68,20 @@ impl Daemon {
     ) -> Result<HttpResponse, Infallible> {
         let mut req = S3Request::new(http_req, remote_addr);
 
-        info!("==> HTTP {} {} [{}]", req.method, req.url.path(), req.reqid);
-
-        // on debug we print also the full headers
-        debug!(
-            "==> HTTP {} {} headers {:#?} [{}]",
+        info!(
+            "==> HTTP {} {} {:?} [{}]",
             req.method,
             req.url.path(),
+            req.op_kind,
+            req.reqid,
+        );
+        // on debug we log also the full url and headers
+        debug!(
+            "==> HTTP {} {} {:#?} [{}]",
+            req.method,
+            req.url,
             &req.headers,
-            req.reqid
+            req.reqid,
         );
 
         let res = self
@@ -85,10 +90,11 @@ impl Daemon {
             .unwrap_or_else(|err| self.handle_error(&req, err));
 
         info!(
-            "<== HTTP {} {} {} [{}]",
+            "<== HTTP {} {} {} {:?} [{}]",
             res.status(),
             req.method,
             req.url.path(),
+            req.op_kind,
             req.reqid,
         );
 

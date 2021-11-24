@@ -6,7 +6,7 @@
 use crate::{gen::headers::*, http::*};
 use aws_sdk_s3::{input::*, ByteStream};
 
-/// This macro generates a default parser function per op.
+/// This macro generates a default parser function per op,
 /// to make it possible to implement it in stages.
 macro_rules! gen {
     ($op:ident) => {
@@ -47,13 +47,13 @@ pub fn create_bucket(req: &mut S3Request) -> Result<CreateBucketInput, S3Error> 
     CreateBucketInput::builder()
         .bucket(req.get_bucket())
         .set_acl(req.get_header_parse(X_AMZ_ACL))
-        // .set_create_bucket_configuration(req.get_body_parse("CreateBucketConfiguration"))
         .set_grant_full_control(req.get_header(X_AMZ_GRANT_FULL_CONTROL))
         .set_grant_read(req.get_header(X_AMZ_GRANT_READ))
         .set_grant_read_acp(req.get_header(X_AMZ_GRANT_READ_ACP))
         .set_grant_write(req.get_header(X_AMZ_GRANT_WRITE))
         .set_grant_write_acp(req.get_header(X_AMZ_GRANT_WRITE_ACP))
         .set_object_lock_enabled_for_bucket(req.get_header_parse(X_AMZ_BUCKET_OBJECT_LOCK_ENABLED))
+        // .set_create_bucket_configuration(req.get_body_parse("CreateBucketConfiguration"))
         .build()
         .map_err(|e| req.from_build_err(e))
 }
