@@ -103,11 +103,7 @@ impl Daemon {
 
     pub async fn handle_request(&self, req: &mut S3Request) -> S3Result {
         if req.op_kind.is_none() {
-            return Err(S3Error::builder()
-                .code("BadRequest")
-                .message("No such operation")
-                .build()
-                .into());
+            return Err(S3Error::bad_request("No such operation"));
         }
         let op_kind = req.op_kind.unwrap();
 
@@ -122,7 +118,7 @@ impl Daemon {
             ($op:ident) => {
                 paste::paste! {
                     {
-                        let input = crate::gen::input::[<$op:snake>](req)?;
+                        let input = crate::gen::input::[<$op:snake>](req).await?;
                         debug!("input {:?}", input);
                         let output = self.s3d_api.[<$op:snake>](input).await.map_err(|err| err.meta().clone())?;
                         debug!("output {:?}", output);

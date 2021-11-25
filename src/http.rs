@@ -1,7 +1,9 @@
 use crate::gen::{ops::S3OpKind, resources::*};
 use aws_smithy_http::operation::BuildError;
 use aws_smithy_types::instant::{Format, Instant};
+use aws_smithy_xml::decode::XmlError;
 use hyper::{
+    body::{to_bytes, Bytes},
     header::{HeaderName, HeaderValue},
     Body, HeaderMap, Method,
 };
@@ -13,12 +15,57 @@ use uuid::Uuid;
 pub type HttpRequest = hyper::Request<Body>;
 pub type HttpResponse = hyper::Response<Body>;
 
-pub type S3Error = aws_smithy_types::Error;
+pub type S3InnerError = aws_smithy_types::Error;
+pub type S3InnerBuilder = aws_smithy_types::error::Builder;
 pub type S3ClientError = aws_sdk_s3::Error;
 pub type S3Result = Result<HttpResponse, S3Error>;
 
 pub fn responder() -> hyper::http::response::Builder {
     hyper::Response::builder()
+}
+
+#[derive(Debug)]
+pub struct S3Error {
+    pub inner: aws_smithy_types::Error,
+}
+impl std::error::Error for S3Error {}
+impl std::fmt::Display for S3Error {
+    fn fmt(&self, f: &mut std::fmt::Formatter) -> std::fmt::Result {
+        write!(f, "{}", self.inner)
+    }
+}
+impl S3Error {
+    pub fn builder() -> S3InnerBuilder {
+        S3InnerError::builder()
+    }
+    pub fn bad_request(message: impl Into<String>) -> S3Error {
+        S3Error {
+            inner: S3InnerError::builder()
+                .code("BadRequest")
+                .message(message)
+                .build(),
+        }
+    }
+}
+impl From<S3InnerError> for S3Error {
+    fn from(inner: S3InnerError) -> Self {
+        S3Error { inner }
+    }
+}
+impl From<hyper::Error> for S3Error {
+    fn from(e: hyper::Error) -> Self {
+        S3Error::bad_request(e.to_string())
+    }
+}
+impl From<BuildError> for S3Error {
+    fn from(e: BuildError) -> Self {
+        S3Error::bad_request(e.to_string())
+    }
+}
+impl From<XmlError> for S3Error {
+    fn from(e: XmlError) -> Self {
+        S3Error::bad_request(e.to_string())
+    }
 }
 
 #[derive(Debug)]
@@ -115,6 +162,10 @@ impl S3Request {
         std::mem::take(&mut self.body)
     }
 
+    pub async fn take_body_bytes(&mut self) -> Result<Bytes, S3Error> {
+        Ok(to_bytes(self.take_body()).await?)
+    }
+
     pub fn get_bucket(&self) -> &str {
         self.resource.get_bucket()
     }
@@ -189,14 +240,6 @@ impl S3Request {
         }
         Some(map)
     }
-
-    pub fn from_build_err(&self, err: BuildError) -> S3Error {
-        S3Error::builder()
-            .code("BadRequest")
-            .message(err.to_string())
-            .build()
-    }
-
 }
 
 pub trait ToHeader: Sized {

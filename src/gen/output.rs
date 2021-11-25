@@ -12,8 +12,8 @@ macro_rules! gen {
     ($op:ident) => {
         paste::paste! {
             pub fn [<$op:snake>](_: [<$op Output>]) -> Result<HttpResponse, S3Error> {
-                Err(S3Error::builder().
-                    code("NotImplemented")
+                Err(S3Error::builder()
+                    .code("NotImplemented")
                     .message(format!(
                         "Not implemented {}",
                         stringify!(s3::output::parsers::[<$op:snake>])

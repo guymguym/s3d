@@ -1,6 +1,8 @@
 use crate::http::S3Error;
 use aws_smithy_types::{instant::Format, Instant};
+use aws_smithy_xml::decode::ScopedDecoder;
 pub use aws_smithy_xml::encode::{ScopeWriter, XmlWriter};
+use std::str::FromStr;
 
 pub const XML_META: &'static str = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n";
 pub const XMLNS_S3: &'static str = "http://s3.amazonaws.com/doc/2006-03-01/";
@@ -24,6 +26,7 @@ macro_rules! xml_tag {
     }}
 }
 
+use hyper::body::Bytes;
 pub(crate) use xml_doc;
 pub(crate) use xml_tag;
 
@@ -50,9 +53,16 @@ pub fn xml_owner(w: &mut ScopeWriter, owner: Option<aws_sdk_s3::model::Owner>) {
 
 pub fn xml_error(e: S3Error) -> String {
     xml_doc!("Error", w, {
-        xml_text(&mut w, "Code", e.code());
-        xml_text(&mut w, "Message", e.message());
-        xml_text(&mut w, "RequestId", e.request_id());
-        xml_text(&mut w, "Resource", e.extra("resource"));
+        xml_text(&mut w, "Code", e.inner.code());
+        xml_text(&mut w, "Message", e.inner.message());
+        xml_text(&mut w, "RequestId", e.inner.request_id());
+        xml_text(&mut w, "Resource", e.inner.extra("resource"));
     })
+}
+
+pub fn xml_to_data<T: FromStr>(d: &mut ScopedDecoder) -> Option<T> {
+    match aws_smithy_xml::decode::try_data(d) {
+        Ok(data) => data.parse::<T>().ok(),
+        Err(_) => None,
+    }
 }
