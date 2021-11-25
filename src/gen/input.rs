@@ -575,8 +575,7 @@ pub async fn put_bucket_acl(req: &mut S3Request) -> Result<PutBucketAclInput, S3
         .set_grant_read_acp(req.get_header(X_AMZ_GRANT_READ_ACP))
         .set_grant_write(req.get_header(X_AMZ_GRANT_WRITE))
         .set_grant_write_acp(req.get_header(X_AMZ_GRANT_WRITE_ACP))
-        // TODO parse xml body for put_bucket_acl
-        // .set_access_control_policy(req.get_body_parse("AccessControlPolicy"))
+        .access_control_policy(parse_access_control_policy(req.take_body_bytes().await?)?)
         .build()?)
 }
 
@@ -654,6 +653,7 @@ macro_rules! gen {
 // gen!(DeleteBucket);
 // gen!(GetBucketLocation);
 //-------------------------------//
+
 //-------------------------------//
 // gen!(GetObject);
 // gen!(HeadObject);
@@ -662,6 +662,7 @@ macro_rules! gen {
 // gen!(DeleteObject);
 // gen!(DeleteObjects);
 //-------------------------------//
+
 //-------------------------------//
 // gen!(CreateMultipartUpload);
 // gen!(CompleteMultipartUpload);
@@ -669,6 +670,7 @@ macro_rules! gen {
 // gen!(UploadPart);
 // gen!(UploadPartCopy);
 //-------------------------------//
+
 //-------------------------------//
 // gen!(ListBuckets);
 // gen!(ListObjects);
@@ -677,6 +679,7 @@ macro_rules! gen {
 // gen!(ListMultipartUploads);
 // gen!(ListParts);
 //-------------------------------//
+
 //-------------------------------//
 // gen!(GetObjectAcl);
 // gen!(PutObjectAcl);
@@ -695,6 +698,7 @@ macro_rules! gen {
 // gen!(GetObjectTorrent);
 // gen!(SelectObjectContent);
 //-------------------------------//
+
 //-------------------------------//
 // gen!(GetBucketAcl);
 // gen!(PutBucketAcl);

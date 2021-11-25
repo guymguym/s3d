@@ -6,34 +6,9 @@ use crate::{gen::headers::*, http::*, xml::*};
 use aws_sdk_s3::output::*;
 use hyper::{Body, StatusCode};
 
-/// This macro generates a default parser function per op
-/// to make it possible to implement it in stages.
-macro_rules! gen {
-    ($op:ident) => {
-        paste::paste! {
-            pub fn [<$op:snake>](_: [<$op Output>]) -> Result<HttpResponse, S3Error> {
-                Err(S3Error::builder()
-                    .code("NotImplemented")
-                    .message(format!(
-                        "Not implemented {}",
-                        stringify!(s3::output::parsers::[<$op:snake>])
-                    ))
-                    .build()
-                    .into())
-            }
-        }
-    };
-}
-
 //---------------------------------------------------//
 // basic bucket ops                                  //
 //---------------------------------------------------//
-//-------------------------------//
-// gen!(HeadBucket);
-// gen!(CreateBucket);
-// gen!(DeleteBucket);
-// gen!(GetBucketLocation);
-//-------------------------------//
 
 pub fn head_bucket(_o: HeadBucketOutput) -> Result<HttpResponse, S3Error> {
     let r = responder();
@@ -62,14 +37,6 @@ pub fn get_bucket_location(o: GetBucketLocationOutput) -> Result<HttpResponse, S
 //---------------------------------------------------//
 // basic object ops                                  //
 //---------------------------------------------------//
-//-------------------------------//
-// gen!(GetObject);
-// gen!(HeadObject);
-// gen!(PutObject);
-// gen!(CopyObject);
-// gen!(DeleteObject);
-// gen!(DeleteObjects);
-//-------------------------------//
 
 pub fn get_object(o: GetObjectOutput) -> Result<HttpResponse, S3Error> {
     let mut r = responder();
@@ -261,25 +228,10 @@ pub fn delete_objects(o: DeleteObjectsOutput) -> Result<HttpResponse, S3Error> {
 //---------------------------------------------------//
 // multipart upload ops                              //
 //---------------------------------------------------//
-//-------------------------------//
-gen!(CreateMultipartUpload);
-gen!(CompleteMultipartUpload);
-gen!(AbortMultipartUpload);
-gen!(UploadPart);
-gen!(UploadPartCopy);
-//-------------------------------//
 
 //---------------------------------------------------//
 // list ops                                          //
 //---------------------------------------------------//
-//-------------------------------//
-// gen!(ListBuckets);
-// gen!(ListObjects);
-// gen!(ListObjectsV2);
-gen!(ListObjectVersions);
-gen!(ListMultipartUploads);
-gen!(ListParts);
-//-------------------------------//
 
 pub fn list_buckets(o: ListBucketsOutput) -> Result<HttpResponse, S3Error> {
     let xstr = xml_doc!("ListAllMyBucketsResult", w, {
@@ -361,6 +313,63 @@ pub fn list_objects_v2(o: ListObjectsV2Output) -> Result<HttpResponse, S3Error> 
 //---------------------------------------------------//
 // advanced object ops                               //
 //---------------------------------------------------//
+
+//---------------------------------------------------//
+// advanced bucket ops                               //
+//---------------------------------------------------//
+
+/// This macro generates a default parser function per op
+/// to make it possible to implement it in stages.
+macro_rules! gen {
+    ($op:ident) => {
+        paste::paste! {
+            pub fn [<$op:snake>](_: [<$op Output>]) -> Result<HttpResponse, S3Error> {
+                Err(S3Error::builder()
+                    .code("NotImplemented")
+                    .message(format!(
+                        "Not implemented {}",
+                        stringify!(s3::output::parsers::[<$op:snake>])
+                    ))
+                    .build()
+                    .into())
+            }
+        }
+    };
+}
+
+//-------------------------------//
+// gen!(HeadBucket);
+// gen!(CreateBucket);
+// gen!(DeleteBucket);
+// gen!(GetBucketLocation);
+//-------------------------------//
+
+//-------------------------------//
+// gen!(GetObject);
+// gen!(HeadObject);
+// gen!(PutObject);
+// gen!(CopyObject);
+// gen!(DeleteObject);
+// gen!(DeleteObjects);
+//-------------------------------//
+
+//-------------------------------//
+gen!(CreateMultipartUpload);
+gen!(CompleteMultipartUpload);
+gen!(AbortMultipartUpload);
+gen!(UploadPart);
+gen!(UploadPartCopy);
+//-------------------------------//
+
+//-------------------------------//
+// gen!(ListBuckets);
+// gen!(ListObjects);
+// gen!(ListObjectsV2);
+gen!(ListObjectVersions);
+gen!(ListMultipartUploads);
+gen!(ListParts);
+//-------------------------------//
+
 //-------------------------------//
 gen!(GetObjectAcl);
 gen!(PutObjectAcl);
@@ -380,9 +389,6 @@ gen!(GetObjectTorrent);
 gen!(SelectObjectContent);
 //-------------------------------//
 
-//---------------------------------------------------//
-// advanced bucket ops                               //
-//---------------------------------------------------//
 //-------------------------------//
 gen!(GetBucketAcl);
 gen!(PutBucketAcl);
