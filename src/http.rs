@@ -1,6 +1,6 @@
 use crate::gen::{ops::S3OpKind, resources::*};
 use aws_smithy_http::operation::BuildError;
-use aws_smithy_types::instant::{Format, Instant};
+use aws_smithy_types::date_time::{Format, DateTime};
 use aws_smithy_xml::decode::XmlError;
 use hyper::{
     body::{to_bytes, Bytes},
@@ -190,10 +190,10 @@ impl S3Request {
         self.params.get(name).and_then(|x| x.parse().ok())
     }
 
-    pub fn get_param_date(&self, name: &str) -> Option<Instant> {
+    pub fn get_param_date(&self, name: &str) -> Option<DateTime> {
         self.params
             .get(name)
-            .and_then(|x| Instant::from_str(&x, Format::HttpDate).ok())
+            .and_then(|x| DateTime::from_str(&x, Format::HttpDate).ok())
     }
 
     pub fn has_header(&self, name: &str) -> bool {
@@ -220,11 +220,11 @@ impl S3Request {
             .and_then(|x| x.parse().ok())
     }
 
-    pub fn get_header_date(&self, name: &str) -> Option<Instant> {
+    pub fn get_header_date(&self, name: &str) -> Option<DateTime> {
         self.headers
             .get(name)
             .and_then(|x| x.to_str().ok())
-            .and_then(|x| Instant::from_str(&x, Format::HttpDate).ok())
+            .and_then(|x| DateTime::from_str(&x, Format::HttpDate).ok())
     }
 
     pub fn get_header_map(&self, prefix: &str) -> Option<HashMap<String, String>> {
@@ -267,9 +267,19 @@ impl ToHeader for &str {
         HeaderValue::from_str(self).ok()
     }
 }
-impl ToHeader for &Instant {
+impl ToHeader for String {
     fn to_header(self) -> Option<HeaderValue> {
-        self.fmt(Format::DateTime).to_header()
+        self.as_str().to_header()
+    }
+}
+impl ToHeader for &String {
+    fn to_header(self) -> Option<HeaderValue> {
+        self.as_str().to_header()
+    }
+}
+impl ToHeader for &DateTime {
+    fn to_header(self) -> Option<HeaderValue> {
+        self.fmt(Format::DateTime).ok().to_header()
     }
 }
 impl<T: ToHeader> ToHeader for Option<T> {

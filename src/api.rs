@@ -1,8 +1,7 @@
 use crate::gen::ops::generate_code_for_each_s3_op;
 use crate::store;
-use aws_sdk_s3::{error::*, input::*, output::*, ByteStream};
+use aws_sdk_s3::{error::*, input::*, output::*};
 use aws_smithy_http::result::SdkError;
-use aws_smithy_types::Instant;
 use std::future::Future;
 use std::pin::Pin;
 
@@ -72,7 +71,7 @@ impl S3Api for S3DApi {
     //     Box::pin(async move {
     //         Ok(GetObjectOutput::builder()
     //             .e_tag("\"aaa-123\"")
-    //             .last_modified(Instant::from_epoch_seconds(1576540080))
+    //             .last_modified(DateTime::from_epoch_seconds(1576540080))
     //             .content_length(5)
     //             .content_type("text/plain")
     //             .body(ByteStream::from_static(b"hello"))

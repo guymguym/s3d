@@ -1,5 +1,5 @@
 use crate::http::S3Error;
-use aws_smithy_types::{instant::Format, Instant};
+use aws_smithy_types::{date_time::Format, DateTime};
 use aws_smithy_xml::decode::ScopedDecoder;
 pub use aws_smithy_xml::encode::{ScopeWriter, XmlWriter};
 use std::str::FromStr;
@@ -26,7 +26,6 @@ macro_rules! xml_tag {
     }}
 }
 
-use hyper::body::Bytes;
 pub(crate) use xml_doc;
 pub(crate) use xml_tag;
 
@@ -38,8 +37,8 @@ pub fn xml_text<T: AsRef<str>>(w: &mut ScopeWriter, tag: &str, text: Option<T>) 
     }
 }
 
-pub fn xml_date(w: &mut ScopeWriter, tag: &str, date: Option<Instant>) {
-    xml_text(w, tag, date.map(|x| x.fmt(Format::DateTime)));
+pub fn xml_date(w: &mut ScopeWriter, tag: &str, date: Option<DateTime>) {
+    xml_text(w, tag, date.and_then(|x| x.fmt(Format::DateTime).ok()));
 }
 
 pub fn xml_owner(w: &mut ScopeWriter, owner: Option<aws_sdk_s3::model::Owner>) {
