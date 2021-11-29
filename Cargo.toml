@@ -18,6 +18,10 @@ maintenance = { status = "experimental" }
 [profile.dev]
 panic = 'abort'
 
+[build-dependencies]
+serde = { version = "1.0.130", features = ["derive"] }
+serde_json = "1.0.72"
+
 [dependencies]
 tokio = { version = "1.14.0", features = ["full"] }
 hyper = { version = "0.14.15", features = ["full"] }
@@ -29,7 +33,7 @@ log = "0.4.14"
 url = "2.2.2"
 urlencoding = "2.1.0"
 clap = "3.0.0-beta.5"
-anyhow = "1.0.47"
+anyhow = "1.0.48"
 base64 = "0.13.0"
 bytes = "1.1.0"
 chrono = "0.4.19"
@@ -38,7 +42,7 @@ fuser = "0.9.1"
 libc = "0.2.108"
 serde = { version = "1.0.130", features = ["derive"] }
 serde_yaml = "0.8.21"
-serde_json = "1.0.71"
+serde_json = "1.0.72"
 quick-xml = "0.22.0"
 
 aws-types = "0.0.26-alpha"

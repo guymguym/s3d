@@ -1,6 +1,6 @@
 use crate::gen::{ops::S3OpKind, resources::*};
 use aws_smithy_http::operation::BuildError;
-use aws_smithy_types::date_time::{Format, DateTime};
+use aws_smithy_types::date_time::{DateTime, Format};
 use aws_smithy_xml::decode::XmlError;
 use hyper::{
     body::{to_bytes, Bytes},
@@ -22,6 +22,14 @@ pub type S3Result = Result<HttpResponse, S3Error>;
 
 pub fn responder() -> hyper::http::response::Builder {
     hyper::Response::builder()
+}
+
+pub trait ServerOperationIO {
+    type Input;
+    type Output;
+    type Error;
+    fn decode_input(req: &mut S3Request) -> Result<Self::Input, S3Error>;
+    fn encode_output(o: Self::Output) -> Result<HttpRequest, S3Error>;
 }
 
 #[derive(Debug)]
