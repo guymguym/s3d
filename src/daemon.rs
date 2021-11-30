@@ -1,7 +1,7 @@
 use crate::{
     api::*,
     conf::Conf, 
-    gen::ops::*,
+    gen::{S3Ops, generate_match_for_each_s3_op},
     http::*,
     xml::xml_error,
 };
@@ -118,11 +118,11 @@ impl Daemon {
             ($op:ident) => {
                 paste::paste! {
                     {
-                        let input = crate::gen::input::[<$op:snake>](req).await?;
+                        let input = crate::gen::[<$op>]::decode_input(req)?;
                         debug!("input {:?}", input);
                         let output = self.s3d_api.[<$op:snake>](input).await.map_err(|err| err.meta().clone())?;
                         debug!("output {:?}", output);
-                        let response = crate::gen::output::[<$op:snake>](output)?;
+                        let response = crate::gen::[<$op>]::encode_output(output)?;
                         debug!("response {:?}", response);
                         response
                     }

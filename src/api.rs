@@ -1,4 +1,4 @@
-use crate::gen::ops::generate_code_for_each_s3_op;
+use crate::gen::generate_code_for_each_s3_op;
 use crate::store;
 use aws_sdk_s3::{error::*, input::*, output::*};
 use aws_smithy_http::result::SdkError;

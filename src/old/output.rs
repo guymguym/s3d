@@ -2,7 +2,7 @@
 //! Currently written by hand which is difficult to maintain long term.
 //! TODO This module should be generated from https://github.com/awslabs/smithy-rs.
 
-use crate::{gen::headers::*, http::*, xml::*};
+use crate::{manual::headers::*, http::*, xml::*};
 use aws_sdk_s3::output::*;
 use hyper::{Body, StatusCode};
 
@@ -24,7 +24,7 @@ pub fn create_bucket(o: CreateBucketOutput) -> Result<HttpResponse, S3Error> {
 
 pub fn delete_bucket(_o: DeleteBucketOutput) -> Result<HttpResponse, S3Error> {
     let r = responder().status(StatusCode::NO_CONTENT);
-    Ok(r.body(Body::empty()).unwrap())
+    Ok(r.body(Body::empty())?)
 }
 
 pub fn get_bucket_location(o: GetBucketLocationOutput) -> Result<HttpResponse, S3Error> {

@@ -2,7 +2,7 @@
 //! Currently written by hand which is difficult to maintain long term.
 //! TODO This module should be generated from https://github.com/awslabs/smithy-rs.
 
-use crate::{gen::ops::S3OpKind, http::*};
+use crate::{gen::S3Ops, http::*};
 use hyper::Method;
 
 #[derive(Debug)]
@@ -131,7 +131,7 @@ impl From<&str> for S3ObjectSubResource {
     }
 }
 
-pub fn resolve_op_kind(req: &S3Request) -> Option<S3OpKind> {
+pub fn resolve_op_kind(req: &S3Request) -> Option<S3Ops> {
     match &req.resource {
         S3Resource::Service => service::resolve(req),
         S3Resource::Bucket(b) => match b.sub_resource {
@@ -178,9 +178,9 @@ pub fn resolve_op_kind(req: &S3Request) -> Option<S3OpKind> {
 pub mod service {
     use super::*;
 
-    pub fn resolve(req: &S3Request) -> Option<S3OpKind> {
+    pub fn resolve(req: &S3Request) -> Option<S3Ops> {
         match req.method {
-            Method::GET => Some(S3OpKind::ListBuckets),
+            Method::GET => Some(S3Ops::ListBuckets),
             _ => None,
         }
     }
@@ -192,207 +192,207 @@ pub mod service {
 pub mod bucket {
     use super::*;
 
-    pub fn resolve(req: &S3Request) -> Option<S3OpKind> {
+    pub fn resolve(req: &S3Request) -> Option<S3Ops> {
         match req.method {
             Method::GET => {
                 if req.get_param_str("list-type") == "2" {
-                    Some(S3OpKind::ListObjectsV2)
+                    Some(S3Ops::ListObjectsV2)
                 } else {
-                    Some(S3OpKind::ListObjects)
+                    Some(S3Ops::ListObjects)
                 }
             }
-            Method::HEAD => Some(S3OpKind::HeadBucket),
-            Method::PUT => Some(S3OpKind::CreateBucket),
-            Method::DELETE => Some(S3OpKind::DeleteBucket),
+            Method::HEAD => Some(S3Ops::HeadBucket),
+            Method::PUT => Some(S3Ops::CreateBucket),
+            Method::DELETE => Some(S3Ops::DeleteBucket),
             _ => None,
         }
     }
-    pub fn resolve_accelerate(req: &S3Request) -> Option<S3OpKind> {
+    pub fn resolve_accelerate(req: &S3Request) -> Option<S3Ops> {
         match req.method {
-            Method::GET => Some(S3OpKind::GetBucketAccelerateConfiguration),
-            Method::PUT => Some(S3OpKind::PutBucketAccelerateConfiguration),
+            Method::GET => Some(S3Ops::GetBucketAccelerateConfiguration),
+            Method::PUT => Some(S3Ops::PutBucketAccelerateConfiguration),
             _ => None,
         }
     }
-    pub fn resolve_acl(req: &S3Request) -> Option<S3OpKind> {
+    pub fn resolve_acl(req: &S3Request) -> Option<S3Ops> {
         match req.method {
-            Method::GET => Some(S3OpKind::GetBucketAcl),
-            Method::PUT => Some(S3OpKind::PutBucketAcl),
+            Method::GET => Some(S3Ops::GetBucketAcl),
+            Method::PUT => Some(S3Ops::PutBucketAcl),
             _ => None,
         }
     }
-    pub fn resolve_analytics(req: &S3Request) -> Option<S3OpKind> {
+    pub fn resolve_analytics(req: &S3Request) -> Option<S3Ops> {
         match req.method {
             Method::GET => {
                 if req.has_param("id") {
-                    Some(S3OpKind::GetBucketAnalyticsConfiguration)
+                    Some(S3Ops::GetBucketAnalyticsConfiguration)
                 } else {
-                    Some(S3OpKind::ListBucketAnalyticsConfigurations)
+                    Some(S3Ops::ListBucketAnalyticsConfigurations)
                 }
             }
-            Method::PUT => Some(S3OpKind::PutBucketAnalyticsConfiguration),
-            Method::DELETE => Some(S3OpKind::DeleteBucketAnalyticsConfiguration),
+            Method::PUT => Some(S3Ops::PutBucketAnalyticsConfiguration),
+            Method::DELETE => Some(S3Ops::DeleteBucketAnalyticsConfiguration),
             _ => None,
         }
     }
-    pub fn resolve_cors(req: &S3Request) -> Option<S3OpKind> {
+    pub fn resolve_cors(req: &S3Request) -> Option<S3Ops> {
         match req.method {
-            Method::GET => Some(S3OpKind::GetBucketCors),
-            Method::PUT => Some(S3OpKind::PutBucketCors),
-            Method::DELETE => Some(S3OpKind::DeleteBucketCors),
+            Method::GET => Some(S3Ops::GetBucketCors),
+            Method::PUT => Some(S3Ops::PutBucketCors),
+            Method::DELETE => Some(S3Ops::DeleteBucketCors),
             _ => None,
         }
     }
-    pub fn resolve_encryption(req: &S3Request) -> Option<S3OpKind> {
+    pub fn resolve_encryption(req: &S3Request) -> Option<S3Ops> {
         match req.method {
-            Method::GET => Some(S3OpKind::GetBucketEncryption),
-            Method::PUT => Some(S3OpKind::PutBucketEncryption),
-            Method::DELETE => Some(S3OpKind::DeleteBucketEncryption),
+            Method::GET => Some(S3Ops::GetBucketEncryption),
+            Method::PUT => Some(S3Ops::PutBucketEncryption),
+            Method::DELETE => Some(S3Ops::DeleteBucketEncryption),
             _ => None,
         }
     }
-    pub fn resolve_intelligent_tiering(req: &S3Request) -> Option<S3OpKind> {
+    pub fn resolve_intelligent_tiering(req: &S3Request) -> Option<S3Ops> {
         match req.method {
             Method::GET => {
                 if req.has_param("id") {
-                    Some(S3OpKind::GetBucketIntelligentTieringConfiguration)
+                    Some(S3Ops::GetBucketIntelligentTieringConfiguration)
                 } else {
-                    Some(S3OpKind::ListBucketIntelligentTieringConfigurations)
+                    Some(S3Ops::ListBucketIntelligentTieringConfigurations)
                 }
             }
-            Method::PUT => Some(S3OpKind::PutBucketIntelligentTieringConfiguration),
-            Method::DELETE => Some(S3OpKind::DeleteBucketIntelligentTieringConfiguration),
+            Method::PUT => Some(S3Ops::PutBucketIntelligentTieringConfiguration),
+            Method::DELETE => Some(S3Ops::DeleteBucketIntelligentTieringConfiguration),
             _ => None,
         }
     }
-    pub fn resolve_inventory(req: &S3Request) -> Option<S3OpKind> {
+    pub fn resolve_inventory(req: &S3Request) -> Option<S3Ops> {
         match req.method {
             Method::GET => {
                 if req.has_param("id") {
-                    Some(S3OpKind::GetBucketInventoryConfiguration)
+                    Some(S3Ops::GetBucketInventoryConfiguration)
                 } else {
-                    Some(S3OpKind::ListBucketInventoryConfigurations)
+                    Some(S3Ops::ListBucketInventoryConfigurations)
                 }
             }
-            Method::PUT => Some(S3OpKind::PutBucketInventoryConfiguration),
-            Method::DELETE => Some(S3OpKind::DeleteBucketInventoryConfiguration),
+            Method::PUT => Some(S3Ops::PutBucketInventoryConfiguration),
+            Method::DELETE => Some(S3Ops::DeleteBucketInventoryConfiguration),
             _ => None,
         }
     }
-    pub fn resolve_lifecycle(req: &S3Request) -> Option<S3OpKind> {
+    pub fn resolve_lifecycle(req: &S3Request) -> Option<S3Ops> {
         match req.method {
-            Method::GET => Some(S3OpKind::GetBucketLifecycleConfiguration),
-            Method::PUT => Some(S3OpKind::PutBucketLifecycleConfiguration),
-            Method::DELETE => Some(S3OpKind::DeleteBucketLifecycle),
+            Method::GET => Some(S3Ops::GetBucketLifecycleConfiguration),
+            Method::PUT => Some(S3Ops::PutBucketLifecycleConfiguration),
+            Method::DELETE => Some(S3Ops::DeleteBucketLifecycle),
             _ => None,
         }
     }
-    pub fn resolve_location(req: &S3Request) -> Option<S3OpKind> {
+    pub fn resolve_location(req: &S3Request) -> Option<S3Ops> {
         match req.method {
-            Method::GET => Some(S3OpKind::GetBucketLocation),
+            Method::GET => Some(S3Ops::GetBucketLocation),
             _ => None,
         }
     }
-    pub fn resolve_logging(req: &S3Request) -> Option<S3OpKind> {
+    pub fn resolve_logging(req: &S3Request) -> Option<S3Ops> {
         match req.method {
-            Method::GET => Some(S3OpKind::GetBucketLogging),
-            Method::PUT => Some(S3OpKind::PutBucketLogging),
+            Method::GET => Some(S3Ops::GetBucketLogging),
+            Method::PUT => Some(S3Ops::PutBucketLogging),
             _ => None,
         }
     }
-    pub fn resolve_metrics(req: &S3Request) -> Option<S3OpKind> {
+    pub fn resolve_metrics(req: &S3Request) -> Option<S3Ops> {
         match req.method {
             Method::GET => {
                 if req.has_param("id") {
-                    Some(S3OpKind::GetBucketMetricsConfiguration)
+                    Some(S3Ops::GetBucketMetricsConfiguration)
                 } else {
-                    Some(S3OpKind::ListBucketMetricsConfigurations)
+                    Some(S3Ops::ListBucketMetricsConfigurations)
                 }
             }
-            Method::PUT => Some(S3OpKind::PutBucketMetricsConfiguration),
-            Method::DELETE => Some(S3OpKind::DeleteBucketMetricsConfiguration),
+            Method::PUT => Some(S3Ops::PutBucketMetricsConfiguration),
+            Method::DELETE => Some(S3Ops::DeleteBucketMetricsConfiguration),
             _ => None,
         }
     }
-    pub fn resolve_notification(req: &S3Request) -> Option<S3OpKind> {
+    pub fn resolve_notification(req: &S3Request) -> Option<S3Ops> {
         match req.method {
-            Method::GET => Some(S3OpKind::GetBucketNotificationConfiguration),
-            Method::PUT => Some(S3OpKind::PutBucketNotificationConfiguration),
+            Method::GET => Some(S3Ops::GetBucketNotificationConfiguration),
+            Method::PUT => Some(S3Ops::PutBucketNotificationConfiguration),
             _ => None,
         }
     }
-    pub fn resolve_object_lock(req: &S3Request) -> Option<S3OpKind> {
+    pub fn resolve_object_lock(req: &S3Request) -> Option<S3Ops> {
         match req.method {
-            Method::GET => Some(S3OpKind::GetObjectLockConfiguration),
-            Method::PUT => Some(S3OpKind::PutObjectLockConfiguration),
+            Method::GET => Some(S3Ops::GetObjectLockConfiguration),
+            Method::PUT => Some(S3Ops::PutObjectLockConfiguration),
             _ => None,
         }
     }
-    pub fn resolve_ownership_controls(req: &S3Request) -> Option<S3OpKind> {
+    pub fn resolve_ownership_controls(req: &S3Request) -> Option<S3Ops> {
         match req.method {
-            Method::GET => Some(S3OpKind::GetBucketOwnershipControls),
-            Method::PUT => Some(S3OpKind::PutBucketOwnershipControls),
-            Method::DELETE => Some(S3OpKind::DeleteBucketOwnershipControls),
+            Method::GET => Some(S3Ops::GetBucketOwnershipControls),
+            Method::PUT => Some(S3Ops::PutBucketOwnershipControls),
+            Method::DELETE => Some(S3Ops::DeleteBucketOwnershipControls),
             _ => None,
         }
     }
-    pub fn resolve_policy(req: &S3Request) -> Option<S3OpKind> {
+    pub fn resolve_policy(req: &S3Request) -> Option<S3Ops> {
         match req.method {
-            Method::GET => Some(S3OpKind::GetBucketPolicy),
-            Method::PUT => Some(S3OpKind::PutBucketPolicy),
-            Method::DELETE => Some(S3OpKind::DeleteBucketPolicy),
+            Method::GET => Some(S3Ops::GetBucketPolicy),
+            Method::PUT => Some(S3Ops::PutBucketPolicy),
+            Method::DELETE => Some(S3Ops::DeleteBucketPolicy),
             _ => None,
         }
     }
-    pub fn resolve_policy_status(req: &S3Request) -> Option<S3OpKind> {
+    pub fn resolve_policy_status(req: &S3Request) -> Option<S3Ops> {
         match req.method {
-            Method::GET => Some(S3OpKind::GetBucketPolicyStatus),
+            Method::GET => Some(S3Ops::GetBucketPolicyStatus),
             _ => None,
         }
     }
-    pub fn resolve_public_access_block(req: &S3Request) -> Option<S3OpKind> {
+    pub fn resolve_public_access_block(req: &S3Request) -> Option<S3Ops> {
         match req.method {
-            Method::GET => Some(S3OpKind::GetPublicAccessBlock),
-            Method::PUT => Some(S3OpKind::PutPublicAccessBlock),
-            Method::DELETE => Some(S3OpKind::DeletePublicAccessBlock),
+            Method::GET => Some(S3Ops::GetPublicAccessBlock),
+            Method::PUT => Some(S3Ops::PutPublicAccessBlock),
+            Method::DELETE => Some(S3Ops::DeletePublicAccessBlock),
             _ => None,
         }
     }
-    pub fn resolve_replication(req: &S3Request) -> Option<S3OpKind> {
+    pub fn resolve_replication(req: &S3Request) -> Option<S3Ops> {
         match req.method {
-            Method::GET => Some(S3OpKind::GetBucketReplication),
-            Method::PUT => Some(S3OpKind::PutBucketReplication),
-            Method::DELETE => Some(S3OpKind::DeleteBucketReplication),
+            Method::GET => Some(S3Ops::GetBucketReplication),
+            Method::PUT => Some(S3Ops::PutBucketReplication),
+            Method::DELETE => Some(S3Ops::DeleteBucketReplication),
             _ => None,
         }
     }
-    pub fn resolve_request_payment(req: &S3Request) -> Option<S3OpKind> {
+    pub fn resolve_request_payment(req: &S3Request) -> Option<S3Ops> {
         match req.method {
-            Method::GET => Some(S3OpKind::GetBucketRequestPayment),
-            Method::PUT => Some(S3OpKind::PutBucketRequestPayment),
+            Method::GET => Some(S3Ops::GetBucketRequestPayment),
+            Method::PUT => Some(S3Ops::PutBucketRequestPayment),
             _ => None,
         }
     }
-    pub fn resolve_tagging(req: &S3Request) -> Option<S3OpKind> {
+    pub fn resolve_tagging(req: &S3Request) -> Option<S3Ops> {
         match req.method {
-            Method::GET => Some(S3OpKind::GetBucketTagging),
-            Method::PUT => Some(S3OpKind::PutBucketTagging),
-            Method::DELETE => Some(S3OpKind::DeleteBucketTagging),
+            Method::GET => Some(S3Ops::GetBucketTagging),
+            Method::PUT => Some(S3Ops::PutBucketTagging),
+            Method::DELETE => Some(S3Ops::DeleteBucketTagging),
             _ => None,
         }
     }
-    pub fn resolve_versioning(req: &S3Request) -> Option<S3OpKind> {
+    pub fn resolve_versioning(req: &S3Request) -> Option<S3Ops> {
         match req.method {
-            Method::GET => Some(S3OpKind::GetBucketVersioning),
-            Method::PUT => Some(S3OpKind::PutBucketVersioning),
+            Method::GET => Some(S3Ops::GetBucketVersioning),
+            Method::PUT => Some(S3Ops::PutBucketVersioning),
             _ => None,
         }
     }
-    pub fn resolve_website(req: &S3Request) -> Option<S3OpKind> {
+    pub fn resolve_website(req: &S3Request) -> Option<S3Ops> {
         match req.method {
-            Method::GET => Some(S3OpKind::GetBucketWebsite),
-            Method::PUT => Some(S3OpKind::PutBucketWebsite),
-            Method::DELETE => Some(S3OpKind::DeleteBucketWebsite),
+            Method::GET => Some(S3Ops::GetBucketWebsite),
+            Method::PUT => Some(S3Ops::PutBucketWebsite),
+            Method::DELETE => Some(S3Ops::DeleteBucketWebsite),
             _ => None,
         }
     }
@@ -402,97 +402,97 @@ pub mod bucket {
 // Object                                                                    //
 ///////////////////////////////////////////////////////////////////////////////
 pub mod object {
-    use crate::gen::headers::X_AMZ_COPY_SOURCE;
+    pub const X_AMZ_COPY_SOURCE: &str = "x-amz-copy-source";
 
     use super::*;
 
-    pub fn match_object(req: &S3Request) -> Option<S3OpKind> {
+    pub fn match_object(req: &S3Request) -> Option<S3Ops> {
         match req.method {
-            Method::GET => Some(S3OpKind::GetObject),
-            Method::HEAD => Some(S3OpKind::HeadObject),
+            Method::GET => Some(S3Ops::GetObject),
+            Method::HEAD => Some(S3Ops::HeadObject),
             Method::PUT => {
                 if req.has_header(X_AMZ_COPY_SOURCE) {
-                    Some(S3OpKind::CopyObject)
+                    Some(S3Ops::CopyObject)
                 } else {
-                    Some(S3OpKind::PutObject)
+                    Some(S3Ops::PutObject)
                 }
             }
-            Method::DELETE => Some(S3OpKind::DeleteObject),
+            Method::DELETE => Some(S3Ops::DeleteObject),
             _ => None,
         }
     }
-    pub fn resolve_acl(req: &S3Request) -> Option<S3OpKind> {
+    pub fn resolve_acl(req: &S3Request) -> Option<S3Ops> {
         match req.method {
-            Method::GET => Some(S3OpKind::GetObjectAcl),
-            Method::PUT => Some(S3OpKind::PutObjectAcl),
+            Method::GET => Some(S3Ops::GetObjectAcl),
+            Method::PUT => Some(S3Ops::PutObjectAcl),
             _ => None,
         }
     }
-    pub fn resolve_legal_hold(req: &S3Request) -> Option<S3OpKind> {
+    pub fn resolve_legal_hold(req: &S3Request) -> Option<S3Ops> {
         match req.method {
-            Method::GET => Some(S3OpKind::GetObjectLegalHold),
-            Method::PUT => Some(S3OpKind::PutObjectLegalHold),
+            Method::GET => Some(S3Ops::GetObjectLegalHold),
+            Method::PUT => Some(S3Ops::PutObjectLegalHold),
             _ => None,
         }
     }
-    pub fn resolve_restore(req: &S3Request) -> Option<S3OpKind> {
+    pub fn resolve_restore(req: &S3Request) -> Option<S3Ops> {
         match req.method {
-            Method::POST => Some(S3OpKind::RestoreObject),
+            Method::POST => Some(S3Ops::RestoreObject),
             _ => None,
         }
     }
-    pub fn resolve_retention(req: &S3Request) -> Option<S3OpKind> {
+    pub fn resolve_retention(req: &S3Request) -> Option<S3Ops> {
         match req.method {
-            Method::GET => Some(S3OpKind::GetObjectRetention),
-            Method::PUT => Some(S3OpKind::PutObjectRetention),
+            Method::GET => Some(S3Ops::GetObjectRetention),
+            Method::PUT => Some(S3Ops::PutObjectRetention),
             _ => None,
         }
     }
-    pub fn resolve_select_object_content(req: &S3Request) -> Option<S3OpKind> {
+    pub fn resolve_select_object_content(req: &S3Request) -> Option<S3Ops> {
         match req.method {
-            Method::POST => Some(S3OpKind::SelectObjectContent),
+            Method::POST => Some(S3Ops::SelectObjectContent),
             _ => None,
         }
     }
-    pub fn resolve_tagging(req: &S3Request) -> Option<S3OpKind> {
+    pub fn resolve_tagging(req: &S3Request) -> Option<S3Ops> {
         match req.method {
-            Method::GET => Some(S3OpKind::GetObjectTagging),
-            Method::PUT => Some(S3OpKind::PutObjectTagging),
-            Method::DELETE => Some(S3OpKind::DeleteObjectTagging),
+            Method::GET => Some(S3Ops::GetObjectTagging),
+            Method::PUT => Some(S3Ops::PutObjectTagging),
+            Method::DELETE => Some(S3Ops::DeleteObjectTagging),
             _ => None,
         }
     }
-    pub fn resolve_torrent(req: &S3Request) -> Option<S3OpKind> {
+    pub fn resolve_torrent(req: &S3Request) -> Option<S3Ops> {
         match req.method {
-            Method::GET => Some(S3OpKind::GetObjectTorrent),
+            Method::GET => Some(S3Ops::GetObjectTorrent),
             _ => None,
         }
     }
-    pub fn resolve_uploads(req: &S3Request) -> Option<S3OpKind> {
+    pub fn resolve_uploads(req: &S3Request) -> Option<S3Ops> {
         match req.method {
-            Method::GET => Some(S3OpKind::ListMultipartUploads),
-            Method::POST => Some(S3OpKind::CreateMultipartUpload),
+            Method::GET => Some(S3Ops::ListMultipartUploads),
+            Method::POST => Some(S3Ops::CreateMultipartUpload),
             _ => None,
         }
     }
-    pub fn resolve_upload_id(req: &S3Request) -> Option<S3OpKind> {
+    pub fn resolve_upload_id(req: &S3Request) -> Option<S3Ops> {
         match req.method {
-            Method::GET => Some(S3OpKind::ListParts),
+            Method::GET => Some(S3Ops::ListParts),
             Method::PUT => {
                 if req.has_header(X_AMZ_COPY_SOURCE) {
-                    Some(S3OpKind::UploadPartCopy)
+                    Some(S3Ops::UploadPartCopy)
                 } else {
-                    Some(S3OpKind::UploadPart)
+                    Some(S3Ops::UploadPart)
                 }
             }
-            Method::POST => Some(S3OpKind::CompleteMultipartUpload),
-            Method::DELETE => Some(S3OpKind::AbortMultipartUpload),
+            Method::POST => Some(S3Ops::CompleteMultipartUpload),
+            Method::DELETE => Some(S3Ops::AbortMultipartUpload),
             _ => None,
         }
     }
-    pub fn resolve_versions(req: &S3Request) -> Option<S3OpKind> {
+    pub fn resolve_versions(req: &S3Request) -> Option<S3Ops> {
         match req.method {
-            Method::GET => Some(S3OpKind::ListObjectVersions),
+            Method::GET => Some(S3Ops::ListObjectVersions),
             _ => None,
         }
     }

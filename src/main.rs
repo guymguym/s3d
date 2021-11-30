@@ -9,6 +9,7 @@ pub mod daemon;
 pub mod fuse;
 pub mod gen;
 pub mod http;
+pub mod resources;
 pub mod store;
 pub mod xml;
 

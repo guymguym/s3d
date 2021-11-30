@@ -1,4 +1,5 @@
-use crate::gen::{ops::S3OpKind, resources::*};
+use crate::gen::S3Ops;
+use crate::resources::*;
 use aws_smithy_http::operation::BuildError;
 use aws_smithy_types::date_time::{DateTime, Format};
 use aws_smithy_xml::decode::XmlError;
@@ -29,7 +30,7 @@ pub trait ServerOperationIO {
     type Output;
     type Error;
     fn decode_input(req: &mut S3Request) -> Result<Self::Input, S3Error>;
-    fn encode_output(o: Self::Output) -> Result<HttpRequest, S3Error>;
+    fn encode_output(o: Self::Output) -> Result<HttpResponse, S3Error>;
 }
 
 #[derive(Debug)]
@@ -75,6 +76,11 @@ impl From<XmlError> for S3Error {
         S3Error::bad_request(e.to_string())
     }
 }
+impl From<hyper::http::Error> for S3Error {
+    fn from(e: hyper::http::Error) -> Self {
+        S3Error::bad_request(e.to_string())
+    }
+}
 
 #[derive(Debug)]
 pub struct S3Request {
@@ -95,7 +101,7 @@ pub struct S3Request {
 
     // parsed fields
     pub resource: S3Resource,
-    pub op_kind: Option<S3OpKind>,
+    pub op_kind: Option<S3Ops>,
 }
 
 impl S3Request {
@@ -160,7 +166,7 @@ impl S3Request {
             reqid,
             hostid: host_hdr,
             resource,
-            op_kind: None::<S3OpKind>,
+            op_kind: None::<S3Ops>,
         };
         req.op_kind = resolve_op_kind(&req);
         req
@@ -305,24 +311,24 @@ macro_rules! to_header_to_string {
     };
 }
 
-macro_rules! to_header_as_str {
-    ($t:ty) => {
-        impl ToHeader for &$t {
-            fn to_header(self) -> Option<HeaderValue> {
-                self.as_str().to_header()
-            }
-        }
-    };
-}
-
 to_header_to_string!(i64);
 to_header_to_string!(i32);
 to_header_to_string!(bool);
 
-to_header_as_str!(aws_sdk_s3::model::StorageClass);
-to_header_as_str!(aws_sdk_s3::model::ArchiveStatus);
-to_header_as_str!(aws_sdk_s3::model::RequestCharged);
-to_header_as_str!(aws_sdk_s3::model::ReplicationStatus);
-to_header_as_str!(aws_sdk_s3::model::ServerSideEncryption);
-to_header_as_str!(aws_sdk_s3::model::ObjectLockMode);
-to_header_as_str!(aws_sdk_s3::model::ObjectLockLegalHoldStatus);
+// macro_rules! to_header_as_str {
+//     ($t:ty) => {
+//         impl ToHeader for &$t {
+//             fn to_header(self) -> Option<HeaderValue> {
+//                 self.as_str().to_header()
+//             }
+//         }
+//     };
+// }
+
+// to_header_as_str!(aws_sdk_s3::model::StorageClass);
+// to_header_as_str!(aws_sdk_s3::model::ArchiveStatus);
+// to_header_as_str!(aws_sdk_s3::model::RequestCharged);
+// to_header_as_str!(aws_sdk_s3::model::ReplicationStatus);
+// to_header_as_str!(aws_sdk_s3::model::ServerSideEncryption);
+// to_header_as_str!(aws_sdk_s3::model::ObjectLockMode);
+// to_header_as_str!(aws_sdk_s3::model::ObjectLockLegalHoldStatus);
