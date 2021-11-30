@@ -9,10 +9,11 @@
 //!
 use serde_json::Value;
 use std::{
+    collections::HashMap,
     env,
     fs::File,
-    io::Write,
-    path::{Path, PathBuf},
+    io::{BufWriter, Write},
+    path::Path,
 };
 
 const MODELS_DIR: &str = "models";
@@ -20,12 +21,12 @@ const S3_PREFIX: &str = "com.amazonaws.s3#";
 
 const _SM_PREFIX: &str = "smithy.api#";
 const _SM_DOC: &str = "smithy.api#documentation";
-const _SM_ENUM: &str = "smithy.api#enum";
+const SM_ENUM: &str = "smithy.api#enum";
 const _SM_ERROR: &str = "smithy.api#error";
 const _SM_REQUIRED: &str = "smithy.api#required";
 const _SM_HTTP: &str = "smithy.api#http";
 const _SM_HTTP_LABEL: &str = "smithy.api#httpLabel";
-const _SM_HTTP_QUERY: &str = "smithy.api#httpQuery";
+const SM_HTTP_QUERY: &str = "smithy.api#httpQuery";
 const SM_HTTP_HEADER: &str = "smithy.api#httpHeader";
 const _SM_HTTP_PAYLOAD: &str = "smithy.api#httpPayload";
 const _SM_HTTP_PREFIX_HEADERS: &str = "smithy.api#httpPrefixHeaders";
@@ -66,223 +67,287 @@ fn main() {
     println!("cargo:rerun-if-changed=build.rs");
     println!("cargo:rerun-if-changed={}", s3_model_path.display());
 
-    gen_smithy_srv(s3_model_path, s3_out_path, "com.amazonaws.s3#AmazonS3");
+    let s3_model: Value = serde_json::from_reader(File::open(s3_model_path).unwrap()).unwrap();
+    let mut s3_out = BufWriter::new(File::create(s3_out_path).unwrap());
+    Smithy::new(s3_model).generate_service_code(&mut s3_out);
+    s3_out.flush().unwrap();
 }
 
-fn gen_smithy_srv(model_path: PathBuf, out_path: PathBuf, srv_full_name: &str) {
-    let model: Value = serde_json::from_reader(File::open(model_path).unwrap()).unwrap();
-    let srv = &model["shapes"][srv_full_name];
-    let mut w = File::create(out_path).unwrap();
-    writeln!(w, "{}", HEADER).unwrap();
-    gen_ops_enum(&mut w, &model, &srv);
-    gen_ops_io(&mut w, &model, &srv);
-    writeln!(w, "\n").unwrap();
-    w.sync_all().unwrap();
+pub struct Smithy {
+    pub model: Value,
+    pub srv: Value,
+    pub operations: HashMap<String, Value>,
+    pub enum_types: HashMap<String, Value>,
 }
-
-fn gen_ops_enum(w: &mut dyn Write, model: &Value, srv: &Value) {
-    writeln!(w, "#[derive(Debug, PartialEq, Eq, Clone, Copy)]").unwrap();
-    writeln!(w, "pub enum Ops {{").unwrap();
-    for op in srv["operations"].as_array().unwrap() {
-        let op_name = op["target"].as_str().unwrap().unprefix().uncaps();
-        writeln!(w, "    {},", op_name).unwrap();
+impl Smithy {
+    pub fn new(model: Value) -> Self {
+        let srv = model["shapes"]
+            .as_object()
+            .unwrap()
+            .iter()
+            .find(|(_k, v)| v["type"].as_str() == Some("service"))
+            .unwrap()
+            .1
+            .clone();
+        let operations = srv["operations"]
+            .as_array()
+            .unwrap()
+            .iter()
+            .map(|it| target_pair(&model, it))
+            .collect();
+        let enum_types = model["shapes"]
+            .as_object()
+            .unwrap()
+            .iter()
+            .filter(|(_k, v)| v["traits"][SM_ENUM].is_array())
+            .map(|(k, v)| (k.unprefix().uncaps(), v.clone()))
+            .collect();
+        Self {
+            model,
+            srv,
+            operations,
+            enum_types,
+        }
     }
-    writeln!(w, "}}\n").unwrap();
-}
 
-fn gen_ops_io(w: &mut dyn Write, model: &Value, srv: &Value) {
-    write!(
-        w,
-        "
-pub mod io {{
-    use super::*;
-"
-    )
-    .unwrap();
+    pub fn generate_service_code(&self, w: &mut dyn Write) {
+        writeln!(w, "{}", HEADER).unwrap();
+        self.gen_ops_enum(w);
+        self.gen_ops_macro(w);
+        self.gen_ops_io(w);
+        self.gen_enum_types(w);
+    }
 
-    for op_item in srv["operations"].as_array().unwrap() {
-        let op_ref = op_item["target"].as_str().unwrap();
-        let op = &model["shapes"][op_ref];
-        let input_target = op["input"]["target"].as_str().unwrap_or("");
-        let output_target = op["output"]["target"].as_str().unwrap_or("");
-        let input = &model["shapes"][input_target];
-        let output = &model["shapes"][output_target];
-        assert_eq!(op["type"].as_str().unwrap_or(""), "operation");
-        if !input.is_null() {
-            assert_eq!(input["type"].as_str().unwrap_or(""), "structure");
+    ///
+    /// Generates a simple enum of operation kinds.
+    ///
+    /// The enum has no attached state to any of the operations.
+    /// It might be interesting to consider a more complex enum if needed by the daemon,
+    /// or perhaps that would instead go to it's own enum, with auto-generated-mapping to this one.
+    ///
+    fn gen_ops_enum(&self, w: &mut dyn Write) {
+        writeln!(w, "#[derive(Debug, PartialEq, Eq, Clone, Copy)]").unwrap();
+        writeln!(w, "pub enum Ops {{").unwrap();
+        for name in self.operations.keys() {
+            writeln!(w, "    {},", name).unwrap();
         }
-        if !output.is_null() {
-            assert_eq!(output["type"].as_str().unwrap_or(""), "structure");
-        }
-        let target_name = op_ref.unprefix();
-        let op_snake = target_name.snake();
-        let op_name = target_name.uncaps();
+        writeln!(w, "}}\n").unwrap();
+    }
 
-        write!(
+    ///
+    /// Generates a macro that expands a second macro per operation
+    ///
+    fn gen_ops_macro(&self, w: &mut dyn Write) {
+        writeln!(
             w,
-            "
-    pub struct {op_name} {{}}
-    impl ServerOperationIO for {} {{
-        type Input = aws_sdk_s3::input::{op_name}Input;
-        type Output = aws_sdk_s3::output::{op_name}Output;
-        type Error = aws_sdk_s3::error::{op_name}Error;
-        //const OP: super::Ops = super::Ops::{op_name};
+            "/// This macro calls a provided $macro for each S3 operation to generate code per op."
+        )
+        .unwrap();
+        writeln!(w, "macro_rules! generate_code_for_each_s3_op {{").unwrap();
+        writeln!(w, "    ($macro:ident) => {{").unwrap();
+        for name in self.operations.keys() {
+            writeln!(w, "        $macro!({});", name).unwrap();
+        }
+        writeln!(w, "    }};").unwrap();
+        writeln!(w, "}}\n").unwrap();
+    }
+
+    ///
+    /// Generates an impl of ServerOperationIO per operation.
+    ///
+    fn gen_ops_io(&self, w: &mut dyn Write) {
+        for (name, op) in self.operations.iter() {
+            let input = target_pair(&self.model, &op["input"]).1;
+            let output = target_pair(&self.model, &op["output"]).1;
+
+            assert_eq!(op["type"].as_str().unwrap_or(""), "operation");
+            if !input.is_null() {
+                assert_eq!(input["type"].as_str().unwrap_or(""), "structure");
+            }
+            if !output.is_null() {
+                assert_eq!(output["type"].as_str().unwrap_or(""), "structure");
+            }
+
+            writeln!(w, "pub struct {} {{}}", name).unwrap();
+            writeln!(w, "impl ServerOperationIO for {} {{", name).unwrap();
+            writeln!(w, "    type Input = aws_sdk_s3::input::{}Input;", name).unwrap();
+            writeln!(w, "    type Output = aws_sdk_s3::output::{}Output;", name).unwrap();
+            writeln!(w, "    type Error = aws_sdk_s3::error::{}Error;", name).unwrap();
+            writeln!(w, "    // const OP: super::Ops = super::Ops::{};", name).unwrap();
+
+            writeln!(w, "    fn decode_input(req: &mut S3Request)").unwrap();
+            writeln!(w, "        -> Result<Self::Input, S3Error> {{").unwrap();
+            writeln!(w, "        let mut b = Self::Input::builder();").unwrap();
+
+            if !input.is_null() {
+                for (member_name, member_item) in input["members"].as_object().unwrap() {
+                    // let member_target = member_item["target"].as_str().unwrap();
+                    // let shape = &model["shapes"][member_target].as_object().unwrap();
+                    let member_snake = member_name.snake();
+                    if !member_item["traits"].is_object() {
+                        continue;
+                    }
+                    let traits = member_item["traits"].as_object().unwrap();
+                    if traits.contains_key(SM_HTTP_HEADER) {
+                        writeln!(
+                            w,
+                            "        b = b.set_{}(req.get_header(\"{}\"));",
+                            member_snake,
+                            traits[SM_HTTP_HEADER].as_str().unwrap()
+                        )
+                        .unwrap();
+                    } else if traits.contains_key(SM_HTTP_QUERY) {
+                        writeln!(
+                            w,
+                            "        b = b.set_{}(req.get_param(\"{}\"));",
+                            member_snake,
+                            traits[SM_HTTP_QUERY].as_str().unwrap()
+                        )
+                        .unwrap();
+                    } else {
+                        writeln!(w, "        // decode_{}();", member_snake).unwrap();
+                    }
+                }
+            }
+
+            writeln!(w, "        Ok(b.build()?)").unwrap();
+            writeln!(w, "    }}").unwrap();
+
+            writeln!(
+                w,
+                "    fn encode_output(_o: Self::Output) -> Result<HttpRequest, S3Error> {{"
+            )
+            .unwrap();
+
+            if !output.is_null() {
+                for (_member_name, member_item) in output["members"].as_object().unwrap() {
+                    let member_target = member_item["target"].as_str().unwrap().unprefix();
+                    writeln!(w, "        // encode_{}();", member_target.snake()).unwrap();
+                }
+            }
+
+            writeln!(w, "        Err(S3Error::bad_request(\"not implemented\"))").unwrap();
+            writeln!(w, "    }}").unwrap();
+            writeln!(w, "}}").unwrap();
+        }
+        writeln!(w, "\n").unwrap();
+    }
+
+    fn gen_enum_types(&self, w: &mut dyn Write) {
+        for name in self.enum_types.keys() {
+            write!(
+                w,
+                "
+impl crate::http::FromHttp for aws_sdk_s3::model::{} {{
+    fn from_http(v: &str) -> Option<Self> {{
+        Some(Self::from(v))
+    }}
+}}
 ",
-            op_name = op_name
-        )
-        .unwrap();
-
-        write!(
-            w,
-            "
-        fn decode_input(req: &mut S3Request) -> Result<Self::Input, S3Error> {{
-            let mut b = Self::Input::builder();
-"
-        )
-        .unwrap();
-
-        if !input.is_null() {
-            for (member_name, member_item) in input["members"].as_object().unwrap() {
-                // let member_target = member_item["target"].as_str().unwrap();
-                // let shape = &model["shapes"][member_target].as_object().unwrap();
-                let member_snake = member_name.snake();
-                if !member_item["traits"].is_object() {
-                    continue;
-                }
-                let traits = member_item["traits"].as_object().unwrap();
-                if traits.contains_key(SM_HTTP_HEADER) {
-                    writeln!(
-                        w,
-                        "            b = b.set_{}(req.get_header_parse(\"{}\"));",
-                        member_snake,
-                        traits[SM_HTTP_HEADER].as_str().unwrap()
-                    )
-                    .unwrap();
-                } else {
-                    writeln!(w, "            // decode_{}();", member_snake).unwrap();
-                }
-            }
-        }
-
-        writeln!(w, "            Ok(b.build()?)").unwrap();
-        writeln!(w, "        }}").unwrap();
-
-        writeln!(
-            w,
-            "        fn encode_output(o: Self::Output) -> Result<HttpRequest, S3Error> {{"
-        )
-        .unwrap();
-
-        if !output.is_null() {
-            for (_member_name, member_item) in output["members"].as_object().unwrap() {
-                let member_target = member_item["target"].as_str().unwrap().unprefix();
-                writeln!(w, "            // encode_{}();", member_target.snake()).unwrap();
-            }
-        }
-
-        writeln!(
-            w,
-            "            Err(S3Error::bad_request(\"not implemented\"))"
-        )
-        .unwrap();
-        writeln!(w, "        }}").unwrap();
-        writeln!(w, "    }}").unwrap();
-    }
-    writeln!(w, "}}").unwrap();
-    writeln!(w, "\n").unwrap();
-
-    /*
-    for (key, shape) in model["shapes"].as_object().unwrap() {
-        let name = key.unprefix();
-        let sname = name.snake();
-        let name = name.uncaps();
-        let type_name = shape["type"].as_str().unwrap();
-        match type_name {
-            "service" => {}
-            "operation" => {}
-            "structure" => {
-                gen_decode_fn_def_struct(w, &sname, &name, &shape);
-            }
-            "union" => {
-                gen_decode_fn_def(w, &sname, "String", None);
-            }
-            "list" | "set" => {
-                gen_decode_fn_def(w, &sname, "Vec<String>", None);
-            }
-            "map" => {
-                gen_decode_fn_def(w, &sname, "HashMap<String,String>", None);
-            }
-            "string" => {
-                gen_decode_fn_def(w, &sname, "String", None);
-            }
-            "boolean" => {
-                gen_decode_fn_def(w, &sname, "bool", None);
-            }
-            "timestamp" => {
-                gen_decode_fn_def(w, &sname, "aws_smithy_types::date_time::DateTime", None);
-            }
-            "document" => {
-                gen_decode_fn_def(w, &sname, "String", None);
-            }
-            "blob" => {
-                gen_decode_fn_def(w, &sname, "Vec<u8>", None);
-            }
-            "integer" => {
-                gen_decode_fn_def(w, &sname, "i32", None);
-            }
-            "byte" => {
-                gen_decode_fn_def(w, &sname, "u8", None);
-            }
-            "short" => {
-                gen_decode_fn_def(w, &sname, "i16", None);
-            }
-            "long" => {
-                gen_decode_fn_def(w, &sname, "i64", None);
-            }
-            "float" => {
-                gen_decode_fn_def(w, &sname, "f32", None);
-            }
-            "double" => {
-                gen_decode_fn_def(w, &sname, "f64", None);
-            }
-            "bigInteger" => {
-                gen_decode_fn_def(w, &sname, "i64", None);
-            }
-            "bigDecimal" => {
-                gen_decode_fn_def(w, &sname, "f64", None);
-            }
-            _ => {
-                panic!("Unsupported type {}", type_name);
-            }
+                name,
+            )
+            .unwrap();
         }
     }
-    */
 }
 
-fn gen_decode_fn_def_struct(w: &mut dyn Write, sname: &str, name: &str, shape: &Value) {
-    let type_ref = if name.ends_with("Request") && name != "RestoreRequest" {
-        format!("{}Input", name.trim_end_matches("Request"))
+// match type_name {
+//     "service" => {}
+//     "operation" => {}
+//     "structure" => {
+//         // gen_decode_fn_def_struct(w, &sname, &name, &shape);
+//         gen_decode_fn_def(w, &sname, &format!("aws_sdk_s3::model::{}", name), None);
+//     }
+//     "union" => {
+//         gen_decode_fn_def(w, &sname, "String", None);
+//     }
+//     "list" | "set" => {
+//         gen_decode_fn_def(w, &sname, "Vec<String>", None);
+//     }
+//     "map" => {
+//         gen_decode_fn_def(w, &sname, "HashMap<String,String>", None);
+//     }
+//     "string" => {
+//         gen_decode_fn_def(w, &sname, "String", None);
+//     }
+//     "boolean" => {
+//         gen_decode_fn_def(w, &sname, "bool", None);
+//     }
+//     "timestamp" => {
+//         gen_decode_fn_def(w, &sname, "aws_smithy_types::date_time::DateTime", None);
+//     }
+//     "document" => {
+//         gen_decode_fn_def(w, &sname, "String", None);
+//     }
+//     "blob" => {
+//         gen_decode_fn_def(w, &sname, "Vec<u8>", None);
+//     }
+//     "integer" => {
+//         gen_decode_fn_def(w, &sname, "i32", None);
+//     }
+//     "byte" => {
+//         gen_decode_fn_def(w, &sname, "u8", None);
+//     }
+//     "short" => {
+//         gen_decode_fn_def(w, &sname, "i16", None);
+//     }
+//     "long" => {
+//         gen_decode_fn_def(w, &sname, "i64", None);
+//     }
+//     "float" => {
+//         gen_decode_fn_def(w, &sname, "f32", None);
+//     }
+//     "double" => {
+//         gen_decode_fn_def(w, &sname, "f64", None);
+//     }
+//     "bigInteger" => {
+//         gen_decode_fn_def(w, &sname, "i64", None);
+//     }
+//     "bigDecimal" => {
+//         gen_decode_fn_def(w, &sname, "f64", None);
+//     }
+//     _ => {
+//         panic!("Unsupported type {}", type_name);
+//     }
+// }
+
+// fn gen_decode_fn_def_struct(w: &mut dyn Write, sname: &str, name: &str, shape: &Value) {
+//     let type_ref = if name.ends_with("Request") && name != "RestoreRequest" {
+//         format!("{}Input", name.trim_end_matches("Request"))
+//     } else {
+//         format!("{}", name)
+//     };
+//     writeln!(w, "pub fn decode_{}() -> Option<{}> {{", sname, type_ref).unwrap();
+//     for (_member_name, member_shape) in shape["members"].as_object().unwrap() {
+//         let member_target = member_shape["target"].as_str().unwrap().unprefix();
+//         writeln!(w, "    decode_{}();", member_target.snake()).unwrap();
+//     }
+//     writeln!(w, "    None").unwrap();
+//     writeln!(w, "}}").unwrap();
+// }
+
+// fn gen_decode_fn_def(w: &mut dyn Write, sname: &str, return_type: &str, body: Option<&str>) {
+//     write!(
+//         w,
+//         "
+// pub fn decode_{}() -> Option<{}> {}
+// ",
+//         sname,
+//         return_type,
+//         body.unwrap_or("{ None }")
+//     )
+//     .unwrap();
+// }
+
+fn target_pair(model: &Value, item: &Value) -> (String, Value) {
+    if item["target"].is_string() {
+        let target = item["target"].as_str().unwrap();
+        let name = target.unprefix().uncaps();
+        let shape = model["shapes"][target].clone();
+        (name, shape)
     } else {
-        format!("{}", name)
-    };
-    writeln!(w, "pub fn decode_{}() -> Option<{}> {{", sname, type_ref).unwrap();
-    for (_member_name, member_shape) in shape["members"].as_object().unwrap() {
-        let member_target = member_shape["target"].as_str().unwrap().unprefix();
-        writeln!(w, "    decode_{}();", member_target.snake()).unwrap();
+        ("".to_string(), Value::Null)
     }
-    writeln!(w, "    None").unwrap();
-    writeln!(w, "}}").unwrap();
-}
-
-fn gen_decode_fn_def(w: &mut dyn Write, sname: &str, return_type: &str, body: Option<&str>) {
-    writeln!(
-        w,
-        "pub fn decode_{}() -> Option<{}> {}",
-        sname,
-        return_type,
-        body.unwrap_or("{ None }")
-    )
-    .unwrap();
 }
 
 trait Unprefix {

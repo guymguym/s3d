@@ -186,53 +186,23 @@ impl S3Request {
         self.params.contains_key(name)
     }
 
-    pub fn get_param(&self, name: &str) -> Option<String> {
-        self.params.get(name).map(|x| x.clone())
-    }
-
     pub fn get_param_str(&self, name: &str) -> &str {
         self.params.get(name).map_or("", |x| x.as_str())
     }
 
-    pub fn get_param_parse<T: FromStr>(&self, name: &str) -> Option<T> {
-        self.params.get(name).and_then(|x| x.parse().ok())
-    }
-
-    pub fn get_param_date(&self, name: &str) -> Option<DateTime> {
-        self.params
-            .get(name)
-            .and_then(|x| DateTime::from_str(&x, Format::HttpDate).ok())
+    pub fn get_param<T: FromHttp>(&self, name: &str) -> Option<T> {
+        self.params.get(name).and_then(|x| T::from_http(x))
     }
 
     pub fn has_header(&self, name: &str) -> bool {
         self.headers.contains_key(name)
     }
 
-    pub fn get_header(&self, name: &str) -> Option<String> {
+    pub fn get_header<T: FromHttp>(&self, name: &str) -> Option<T> {
         self.headers
             .get(name)
             .and_then(|x| x.to_str().ok())
-            .map(|x| x.to_owned())
-    }
-
-    pub fn get_header_str(&self, name: &str) -> &str {
-        self.headers
-            .get(name)
-            .map_or("", |x| x.to_str().unwrap_or(""))
-    }
-
-    pub fn get_header_parse<T: FromStr>(&self, name: &str) -> Option<T> {
-        self.headers
-            .get(name)
-            .and_then(|x| x.to_str().ok())
-            .and_then(|x| x.parse().ok())
-    }
-
-    pub fn get_header_date(&self, name: &str) -> Option<DateTime> {
-        self.headers
-            .get(name)
-            .and_then(|x| x.to_str().ok())
-            .and_then(|x| DateTime::from_str(&x, Format::HttpDate).ok())
+            .and_then(|x| T::from_http(x))
     }
 
     pub fn get_header_map(&self, prefix: &str) -> Option<HashMap<String, String>> {
@@ -247,6 +217,35 @@ impl S3Request {
             }
         }
         Some(map)
+    }
+}
+
+pub trait FromHttp: Sized {
+    fn from_http(v: &str) -> Option<Self>;
+}
+impl FromHttp for String {
+    fn from_http(v: &str) -> Option<Self> {
+        v.parse().ok()
+    }
+}
+impl FromHttp for bool {
+    fn from_http(v: &str) -> Option<Self> {
+        v.parse().ok()
+    }
+}
+impl FromHttp for i32 {
+    fn from_http(v: &str) -> Option<Self> {
+        v.parse().ok()
+    }
+}
+impl FromHttp for i64 {
+    fn from_http(v: &str) -> Option<Self> {
+        v.parse().ok()
+    }
+}
+impl FromHttp for DateTime {
+    fn from_http(v: &str) -> Option<Self> {
+        DateTime::from_str(&v, Format::HttpDate).ok()
     }
 }
 
