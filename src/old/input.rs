@@ -4,7 +4,7 @@
 //! TODO This module should be generated from https://github.com/awslabs/smithy-rs.
 
 use crate::{
-    manual::{headers::*, models::*},
+    old::{headers::*, models::*},
     http::*,
 };
 use aws_sdk_s3::{input::*, ByteStream};

@@ -8,6 +8,8 @@ use hyper::{
     header::{HeaderName, HeaderValue},
     Body, HeaderMap, Method,
 };
+use std::future::Future;
+use std::pin::Pin;
 use std::str::FromStr;
 use std::{collections::HashMap, net::SocketAddr};
 use url::Url;
@@ -25,12 +27,21 @@ pub fn responder() -> hyper::http::response::Builder {
     hyper::Response::builder()
 }
 
-pub trait ServerOperationIO {
+/// Why we need this TraitFuture:
+/// We can't use async_trait macro inside our macro so we use the same thing it does
+/// which is this pin-box-dyn-future - see long explanation here:
+/// https://smallcultfollowing.com/babysteps/blog/2019/10/26/async-fn-in-traits-are-hard/
+pub type TraitFuture<'a, O, E> = Pin<Box<dyn Future<Output = Result<O, E>> + Send + 'a>>;
+
+pub trait ServerOperation {
     type Input;
     type Output;
     type Error;
-    fn decode_input(req: &mut S3Request) -> Result<Self::Input, S3Error>;
-    fn encode_output(o: Self::Output) -> Result<HttpResponse, S3Error>;
+    const OP: S3Ops;
+    const IS_INPUT_BODY_STREAMING: bool;
+    const IS_OUTPUT_BODY_STREAMING: bool;
+    fn decode_input(req: &mut S3Request) -> TraitFuture<Self::Input, S3Error>;
+    fn encode_output(o: Self::Output) -> TraitFuture<'static, HttpResponse, S3Error>;
 }
 
 #[derive(Debug)]

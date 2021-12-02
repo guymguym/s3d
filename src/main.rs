@@ -11,6 +11,7 @@ pub mod gen;
 pub mod http;
 pub mod resources;
 pub mod store;
+pub mod old;
 pub mod xml;
 
 #[macro_use]

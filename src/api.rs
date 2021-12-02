@@ -2,14 +2,7 @@ use crate::gen::generate_code_for_each_s3_op;
 use crate::store;
 use aws_sdk_s3::{error::*, input::*, output::*};
 use aws_smithy_http::result::SdkError;
-use std::future::Future;
-use std::pin::Pin;
-
-/// Why we need this TraitFuture:
-/// We can't use async_trait macro inside our macro so we use the same thing it does
-/// which is this pin-box-dyn-future - see long explanation here:
-/// https://smallcultfollowing.com/babysteps/blog/2019/10/26/async-fn-in-traits-are-hard/
-pub type TraitFuture<'a, O, E> = Pin<Box<dyn Future<Output = Result<O, E>> + Send + 'a>>;
+use crate::http::TraitFuture;
 
 /// This macro generates a default function for each op.
 macro_rules! gen_api_default_fn {

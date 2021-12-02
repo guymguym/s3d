@@ -2,7 +2,7 @@
 //! Currently written by hand which is difficult to maintain long term.
 //! TODO This module should be generated from https://github.com/awslabs/smithy-rs.
 
-use crate::{manual::headers::*, http::*, xml::*};
+use crate::{old::headers::*, http::*, xml::*};
 use aws_sdk_s3::output::*;
 use hyper::{Body, StatusCode};
 

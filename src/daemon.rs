@@ -118,11 +118,14 @@ impl Daemon {
             ($op:ident) => {
                 paste::paste! {
                     {
-                        let input = crate::gen::[<$op>]::decode_input(req)?;
+                        // if !crate::gen::[<$op>]::IS_INPUT_BODY_STREAMING {
+                        //     req.take_body_bytes().await?;
+                        // }
+                        let input = crate::gen::[<$op>]::decode_input(req).await?;
                         debug!("input {:?}", input);
                         let output = self.s3d_api.[<$op:snake>](input).await.map_err(|err| err.meta().clone())?;
                         debug!("output {:?}", output);
-                        let response = crate::gen::[<$op>]::encode_output(output)?;
+                        let response = crate::gen::[<$op>]::encode_output(output).await?;
                         debug!("response {:?}", response);
                         response
                     }
