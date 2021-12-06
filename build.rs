@@ -178,6 +178,12 @@ impl SmithyGen {
             .get_members(&output)
             .map(|(ref field_name, ref field)| self.encode_output_field(model, field_name, field))
             .collect::<Vec<_>>();
+        let body_encoder = model
+            .get_members(&output)
+            .filter_map(|(ref field_name, ref field)| {
+                self.encode_output_body(model, field_name, field)
+            })
+            .collect::<Vec<_>>();
 
         self.write_code(quote! {
 
@@ -196,12 +202,13 @@ impl SmithyGen {
                     })
                 }
 
-                fn encode_output(o: Self::Output) -> TraitFuture<'static, HttpResponse, S3Error> {
+                fn encode_output(mut o: Self::Output) -> TraitFuture<'static, HttpResponse, S3Error> {
                     Box::pin(async move {
                         let mut r = responder();
                         let mut body = Body::empty();
                         let h = r.headers_mut().unwrap();
                         #( #field_encoders )*
+                        #( #body_encoder )*
                         Ok(r.body(body)?)
                     })
                 }
@@ -273,10 +280,10 @@ impl SmithyGen {
         } else if SmithyModel::has_trait(field, SM_HTTP_PAYLOAD) {
             let (_shape_name, shape) = model.get_target_shape(field);
             if SmithyModel::get_shape_type(&shape) == "blob" {
-                quote! { body = Body::wrap_stream(o.body); }
+                quote! {}
             } else {
                 quote! {
-                    // TODO encode_output XML PAYLOAD #field_id
+                    // TODO encode_output XML/JSON ??? #field_id
                 }
             }
         } else if SmithyModel::has_trait(field, SM_XML_NAME) {
@@ -288,6 +295,23 @@ impl SmithyGen {
                 // TODO encode_output XML ??? #field_id
             }
         }
+    }
+
+    fn encode_output_body(
+        &mut self,
+        model: &SmithyModel,
+        field_name: &str,
+        field: &Value,
+    ) -> Option<proc_macro2::TokenStream> {
+        if SmithyModel::has_trait(field, SM_HTTP_PAYLOAD) {
+            let (_shape_name, shape) = model.get_target_shape(field);
+            if SmithyModel::get_shape_type(&shape) == "blob" {
+                let field_snake = field_name.snake();
+                let field_id = format_ident!("{}", field_snake);
+                return Some(quote! { body = Body::wrap_stream(o.#field_id); });
+            }
+        }
+        None
     }
 
     fn gen_xml_model(&mut self, model: &SmithyModel, name: &str, shape: &Value) {
