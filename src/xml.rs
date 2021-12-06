@@ -41,14 +41,14 @@ pub fn xml_date(w: &mut ScopeWriter, tag: &str, date: Option<DateTime>) {
     xml_text(w, tag, date.and_then(|x| x.fmt(Format::DateTime).ok()));
 }
 
-pub fn xml_owner(w: &mut ScopeWriter, owner: Option<aws_sdk_s3::model::Owner>) {
-    if let Some(owner) = owner {
-        xml_tag!("Owner", w, {
-            xml_text(&mut w, "ID", owner.id());
-            xml_text(&mut w, "DisplayName", owner.display_name());
-        });
-    }
-}
+// pub fn xml_owner(w: &mut ScopeWriter, owner: Option<aws_sdk_s3::model::Owner>) {
+//     if let Some(owner) = owner {
+//         xml_tag!("Owner", w, {
+//             xml_text(&mut w, "ID", owner.id());
+//             xml_text(&mut w, "DisplayName", owner.display_name());
+//         });
+//     }
+// }
 
 pub fn xml_error(e: S3Error) -> String {
     xml_doc!("Error", w, {
@@ -62,6 +62,13 @@ pub fn xml_error(e: S3Error) -> String {
 pub fn xml_to_data<T: FromStr>(d: &mut ScopedDecoder) -> Option<T> {
     match aws_smithy_xml::decode::try_data(d) {
         Ok(data) => data.parse::<T>().ok(),
+        Err(_) => None,
+    }
+}
+
+pub fn xml_to_date(d: &mut ScopedDecoder) -> Option<DateTime> {
+    match aws_smithy_xml::decode::try_data(d) {
+        Ok(data) => DateTime::from_str(&data, Format::DateTime).ok(),
         Err(_) => None,
     }
 }

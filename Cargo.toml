@@ -16,34 +16,55 @@ categories = ["database-implementations", "filesystem", "web-programming::http-s
 maintenance = { status = "experimental" }
 
 [profile.dev]
+
+# When running in development we want to abort on panic
+# to make it easier to debug. Use `export RUST_BACKTRACE=1` to print stack traces.
 panic = 'abort'
 
 [build-dependencies]
+quote = "1.0.10"
+proc-macro2 = "1.0.33"
 serde = { version = "1.0.130", features = ["derive"] }
 serde_json = "1.0.72"
 
 [dependencies]
-tokio = { version = "1.14.0", features = ["full"] }
+
+# Runtime crates
+
 hyper = { version = "0.14.15", features = ["full"] }
-uuid = { version = "0.8.2", features = ["v4"] }
+tokio = { version = "1.14.0", features = ["full"] }
 tokio-stream = "0.1.8"
-async-trait = "0.1.51"
-env_logger = "0.9.0"
-log = "0.4.14"
-url = "2.2.2"
-urlencoding = "2.1.0"
-clap = "3.0.0-beta.5"
-anyhow = "1.0.51"
-base64 = "0.13.0"
-bytes = "1.1.0"
-chrono = "0.4.19"
-paste = "1.0.6"
 fuser = "0.9.1"
 libc = "0.2.108"
+log = "0.4.14"
+env_logger = "0.9.0"
+
+# Rust related crates
+
+paste = "1.0.6"
+quote = "1.0.10"
+anyhow = "1.0.51"
+async-trait = "0.1.51"
+proc-macro2 = "1.0.33"
+
+# General purpose crates
+
+bytes = "1.1.0"
+base64 = "0.13.0"
+chrono = "0.4.19"
+clap = "3.0.0-beta.5"
+url = "2.2.2"
+urlencoding = "2.1.0"
+uuid = { version = "0.8.2", features = ["v4"] }
+
+# Encoding/decoding crates
+
 serde = { version = "1.0.130", features = ["derive"] }
 serde_yaml = "0.8.21"
 serde_json = "1.0.72"
-quick-xml = "0.22.0"
+quick-xml = "0.22.0" # seems to be more popular than other serde_xml* crates
+
+# AWS crates
 
 aws-types = "0.2.0"
 aws-hyper = "0.2.0"

@@ -38,8 +38,8 @@ pub trait ServerOperation {
     type Output;
     type Error;
     const OP: S3Ops;
-    const IS_INPUT_BODY_STREAMING: bool;
-    const IS_OUTPUT_BODY_STREAMING: bool;
+    // const IS_INPUT_BODY_STREAMING: bool;
+    // const IS_OUTPUT_BODY_STREAMING: bool;
     fn decode_input(req: &mut S3Request) -> TraitFuture<Self::Input, S3Error>;
     fn encode_output(o: Self::Output) -> TraitFuture<'static, HttpResponse, S3Error>;
 }

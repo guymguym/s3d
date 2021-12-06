@@ -243,7 +243,7 @@ pub fn list_buckets(o: ListBucketsOutput) -> Result<HttpResponse, S3Error> {
                 });
             }
         });
-        xml_owner(&mut w, o.owner);
+        // xml_owner(&mut w, o.owner);
     });
     Ok(responder().body(Body::from(xstr)).unwrap())
 }
@@ -266,7 +266,7 @@ pub fn list_objects(o: ListObjectsOutput) -> Result<HttpResponse, S3Error> {
                 xml_text(&mut w, "ETag", obj.e_tag);
                 xml_text(&mut w, "Size", Some(obj.size.to_string()));
                 xml_text(&mut w, "StorageClass", obj.storage_class);
-                xml_owner(&mut w, obj.owner);
+                // xml_owner(&mut w, obj.owner);
             });
         }
         for p in o.common_prefixes.unwrap_or_default() {
@@ -298,7 +298,7 @@ pub fn list_objects_v2(o: ListObjectsV2Output) -> Result<HttpResponse, S3Error> 
                 xml_text(&mut w, "ETag", obj.e_tag);
                 xml_text(&mut w, "Size", Some(obj.size.to_string()));
                 xml_text(&mut w, "StorageClass", obj.storage_class);
-                xml_owner(&mut w, obj.owner);
+                // xml_owner(&mut w, obj.owner);
             });
         }
         for p in o.common_prefixes.unwrap_or_default() {
