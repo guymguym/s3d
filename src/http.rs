@@ -8,7 +8,7 @@ use hyper::{
     header::{HeaderName, HeaderValue},
     Body, HeaderMap, Method,
 };
-use std::future::Future;
+use std::{future::Future, str::Utf8Error};
 use std::pin::Pin;
 use std::str::FromStr;
 use std::{collections::HashMap, net::SocketAddr};
@@ -38,8 +38,6 @@ pub trait ServerOperation {
     type Output;
     type Error;
     const OP: S3Ops;
-    // const IS_INPUT_BODY_STREAMING: bool;
-    // const IS_OUTPUT_BODY_STREAMING: bool;
     fn decode_input(req: &mut S3Request) -> TraitFuture<Self::Input, S3Error>;
     fn encode_output(o: Self::Output) -> TraitFuture<'static, HttpResponse, S3Error>;
 }
@@ -84,6 +82,11 @@ impl From<BuildError> for S3Error {
 }
 impl From<XmlError> for S3Error {
     fn from(e: XmlError) -> Self {
+        S3Error::bad_request(e.to_string())
+    }
+}
+impl From<Utf8Error> for S3Error {
+    fn from(e: Utf8Error) -> Self {
         S3Error::bad_request(e.to_string())
     }
 }
@@ -189,6 +192,10 @@ impl S3Request {
 
     pub async fn take_body_bytes(&mut self) -> Result<Bytes, S3Error> {
         Ok(to_bytes(self.take_body()).await?)
+    }
+
+    pub async fn take_body_string(&mut self) -> Result<String, S3Error> {
+        Ok(std::str::from_utf8(&to_bytes(self.take_body()).await?)?.to_string())
     }
 
     pub fn get_bucket(&self) -> &str {
@@ -325,21 +332,3 @@ macro_rules! to_header_to_string {
 to_header_to_string!(i64);
 to_header_to_string!(i32);
 to_header_to_string!(bool);
-
-// macro_rules! to_header_as_str {
-//     ($t:ty) => {
-//         impl ToHeader for &$t {
-//             fn to_header(self) -> Option<HeaderValue> {
-//                 self.as_str().to_header()
-//             }
-//         }
-//     };
-// }
-
-// to_header_as_str!(aws_sdk_s3::model::StorageClass);
-// to_header_as_str!(aws_sdk_s3::model::ArchiveStatus);
-// to_header_as_str!(aws_sdk_s3::model::RequestCharged);
-// to_header_as_str!(aws_sdk_s3::model::ReplicationStatus);
-// to_header_as_str!(aws_sdk_s3::model::ServerSideEncryption);
-// to_header_as_str!(aws_sdk_s3::model::ObjectLockMode);
-// to_header_as_str!(aws_sdk_s3::model::ObjectLockLegalHoldStatus);
