@@ -313,6 +313,16 @@ impl ToHeader for &DateTime {
         self.fmt(Format::DateTime).ok().to_header()
     }
 }
+impl ToHeader for &HashMap<String, String> {
+    fn to_header(self) -> Option<HeaderValue> {
+        panic!("not implemented")
+    }
+    fn set_header(self, h: &mut HeaderMap<HeaderValue>, prefix: &'static str) {
+        for (key, val) in self {
+            val.set_header_non_static(h, format!("{}{}", prefix, key).as_str());
+        }
+    }
+}
 impl<T: ToHeader> ToHeader for Option<T> {
     fn to_header(self) -> Option<HeaderValue> {
         self.and_then(|s| s.to_header())
