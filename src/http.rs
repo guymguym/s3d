@@ -34,10 +34,10 @@ pub fn responder() -> hyper::http::response::Builder {
 pub type TraitFuture<'a, O, E> = Pin<Box<dyn Future<Output = Result<O, E>> + Send + 'a>>;
 
 pub trait ServerOperation {
+    const OP: S3Ops;
     type Input;
     type Output;
     type Error;
-    const OP: S3Ops;
     fn decode_input(req: &mut S3Request) -> TraitFuture<Self::Input, S3Error>;
     fn encode_output(o: Self::Output) -> TraitFuture<'static, HttpResponse, S3Error>;
 }
