@@ -1,17 +1,23 @@
-use crate::gen::S3Ops;
-use crate::resources::*;
+use crate::{
+    gen::S3Ops,
+    resources::*,
+    xml::{XMLNS_S3, XML_META},
+};
 use aws_smithy_http::operation::BuildError;
 use aws_smithy_types::date_time::{DateTime, Format};
-use aws_smithy_xml::decode::XmlError;
+use aws_smithy_xml::{
+    decode::{Document, ScopedDecoder, XmlError},
+    encode::{ScopeWriter, XmlWriter},
+};
 use hyper::{
     body::{to_bytes, Bytes},
     header::{HeaderName, HeaderValue},
     Body, HeaderMap, Method,
 };
-use std::{future::Future, str::Utf8Error};
 use std::pin::Pin;
 use std::str::FromStr;
 use std::{collections::HashMap, net::SocketAddr};
+use std::{future::Future, str::Utf8Error};
 use url::Url;
 use uuid::Uuid;
 
@@ -27,6 +33,15 @@ pub fn responder() -> hyper::http::response::Builder {
     hyper::Response::builder()
 }
 
+pub fn xml_response<T: XmlModel>(o: &T, xml_name: &str) -> Result<String, S3Error> {
+    let mut xstr = String::from(XML_META);
+    let mut xml = XmlWriter::new(&mut xstr);
+    let mut w = xml.start_el(xml_name).write_ns(XMLNS_S3, None).finish();
+    o.encode_xml(&mut w)?;
+    w.finish();
+    Ok(xstr)
+}
+
 /// Why we need this TraitFuture:
 /// We can't use async_trait macro inside our macro so we use the same thing it does
 /// which is this pin-box-dyn-future - see long explanation here:
@@ -40,6 +55,11 @@ pub trait ServerOperation {
     type Error;
     fn decode_input(req: &mut S3Request) -> TraitFuture<Self::Input, S3Error>;
     fn encode_output(o: Self::Output) -> TraitFuture<'static, HttpResponse, S3Error>;
+}
+
+pub trait XmlModel: Sized {
+    fn decode_xml(d: &mut ScopedDecoder) -> Result<Self, S3Error>;
+    fn encode_xml(&self, d: &mut ScopeWriter) -> Result<(), S3Error>;
 }
 
 #[derive(Debug)]
@@ -196,6 +216,17 @@ impl S3Request {
 
     pub async fn take_body_string(&mut self) -> Result<String, S3Error> {
         Ok(std::str::from_utf8(&to_bytes(self.take_body()).await?)?.to_string())
+    }
+
+    pub async fn take_body_xml<T: XmlModel>(&mut self, xml_name: &str) -> Result<T, S3Error> {
+        // Ok(std::str::from_utf8(&to_bytes(self.take_body()).await?)?.to_string())
+        let bytes = self.take_body_bytes().await?;
+        let mut doc = Document::try_from(&bytes[..]).unwrap();
+        let mut d = doc.root_element().unwrap();
+        if !d.start_el().matches(xml_name) {
+            Err(S3Error::bad_request(xml_name))?;
+        }
+        T::decode_xml(&mut d)
     }
 
     pub fn get_bucket(&self) -> &str {

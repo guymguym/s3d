@@ -3,10 +3,16 @@
 
 use crate::{http::*, xml::*};
 use aws_smithy_http::byte_stream::ByteStream;
-use aws_smithy_xml::decode::{Document, ScopedDecoder};
+use aws_smithy_xml::{decode::ScopedDecoder, encode::ScopeWriter};
 use hyper::{body::Bytes, header::HeaderValue, Body, StatusCode};
 
-include!(concat!(env!("OUT_DIR"), "/s3.1.rs"));
-include!(concat!(env!("OUT_DIR"), "/s3.2.rs"));
-include!(concat!(env!("OUT_DIR"), "/s3.3.rs"));
-include!(concat!(env!("OUT_DIR"), "/s3.4.rs"));
+include!(concat!(env!("OUT_DIR"), "/s3.base.rs"));
+include!(concat!(env!("OUT_DIR"), "/s3.enums.rs"));
+pub mod server {
+    use super::*;
+    include!(concat!(env!("OUT_DIR"), "/s3.server.rs"));
+}
+pub mod xml {
+    use super::*;
+    include!(concat!(env!("OUT_DIR"), "/s3.xml.rs"));
+}
