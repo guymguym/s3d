@@ -31,11 +31,11 @@ serde_json = "1.0.72"
 
 # Runtime crates
 
-hyper = { version = "0.14.15", features = ["full"] }
+hyper = { version = "0.14.16", features = ["full"] }
 tokio = { version = "1.14.0", features = ["full"] }
 tokio-stream = "0.1.8"
 fuser = "0.9.1"
-libc = "0.2.108"
+libc = "0.2.112"
 log = "0.4.14"
 env_logger = "0.9.0"
 
@@ -44,38 +44,40 @@ env_logger = "0.9.0"
 paste = "1.0.6"
 quote = "1.0.10"
 anyhow = "1.0.51"
-async-trait = "0.1.51"
-proc-macro2 = "1.0.33"
+async-trait = "0.1.52"
+proc-macro2 = "1.0.34"
 
 # General purpose crates
 
 bytes = "1.1.0"
 base64 = "0.13.0"
 chrono = "0.4.19"
-clap = "3.0.0-beta.5"
+clap = "3.0.0-rc.4"
 url = "2.2.2"
 urlencoding = "2.1.0"
 uuid = { version = "0.8.2", features = ["v4"] }
 
 # Encoding/decoding crates
 
-serde = { version = "1.0.130", features = ["derive"] }
-serde_yaml = "0.8.21"
-serde_json = "1.0.72"
+serde = { version = "1.0.131", features = ["derive"] }
+serde_yaml = "0.8.23"
+serde_json = "1.0.73"
 quick-xml = "0.22.0" # seems to be more popular than other serde_xml* crates
 
 # AWS crates
 
-aws-types = "0.2.0"
-aws-hyper = "0.2.0"
-aws-config = "0.2.0"
-aws-endpoint = "0.2.0"
-aws-sdk-s3 = "0.2.0"
-aws-sdk-signer = "0.2.0"
-aws-smithy-xml = "0.32.0"
-aws-smithy-json = "0.32.0"
-aws-smithy-query = "0.32.0"
-aws-smithy-types = "0.32.0"
-aws-smithy-client = "0.32.0"
-aws-smithy-http = "0.32.0"
-aws-smithy-http-tower = "0.32.0"
+aws-types = "0.3.0"
+aws-hyper = "0.3.0"
+aws-config = "0.3.0"
+aws-endpoint = "0.3.0"
+aws-sdk-s3 = "0.3.0"
+aws-sdk-signer = "0.3.0"
+aws-smithy-xml = "0.33.1"
+aws-smithy-json = "0.33.1"
+aws-smithy-query = "0.33.1"
+aws-smithy-types = "0.33.1"
+aws-smithy-client = "0.33.1"
+aws-smithy-http = "0.33.1"
+aws-smithy-http-tower = "0.33.1"
+
+s3 = { path = "./s3-server-codegen/" }

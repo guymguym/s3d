@@ -34,7 +34,9 @@ struct CLI {
 #[tokio::main]
 pub async fn main() -> anyhow::Result<()> {
     // init default log levels - override with RUST_LOG env var
-    env_logger::init_from_env(env_logger::Env::default().default_filter_or("warn,s3d=info,reader=info"));
+    env_logger::init_from_env(
+        env_logger::Env::default().default_filter_or("warn,s3d=info,reader=info"),
+    );
 
     // parse command line arguments
     let cli = CLI::parse();
@@ -72,6 +74,11 @@ pub async fn main() -> anyhow::Result<()> {
     for it in r.common_prefixes().unwrap_or_default() {
         println!("- prefix: {}", it.prefix().unwrap_or_default());
     }
+
+    let key = "s3d/src/main.rs";
+    info!("get_object: bucket={} key={}", bucket, key);
+    let r = s3c.get_object().bucket(bucket).key(key).send().await?;
+    let data = r.body.collect().await?;
 
     Ok(())
 }

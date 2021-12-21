@@ -1,8 +1,4 @@
-use crate::{
-    gen::S3Ops,
-    resources::*,
-    xml::{XMLNS_S3, XML_META},
-};
+use crate::{gen::S3Ops, resources::*};
 use aws_smithy_http::operation::BuildError;
 use aws_smithy_types::date_time::{DateTime, Format};
 use aws_smithy_xml::{
@@ -33,15 +29,6 @@ pub fn responder() -> hyper::http::response::Builder {
     hyper::Response::builder()
 }
 
-pub fn xml_response<T: XmlModel>(o: &T, xml_name: &str) -> Result<String, S3Error> {
-    let mut xstr = String::from(XML_META);
-    let mut xml = XmlWriter::new(&mut xstr);
-    let mut w = xml.start_el(xml_name).write_ns(XMLNS_S3, None).finish();
-    o.encode_xml(&mut w)?;
-    w.finish();
-    Ok(xstr)
-}
-
 /// Why we need this TraitFuture:
 /// We can't use async_trait macro inside our macro so we use the same thing it does
 /// which is this pin-box-dyn-future - see long explanation here:
@@ -57,63 +44,8 @@ pub trait ServerOperation {
     fn encode_output(o: Self::Output) -> TraitFuture<'static, HttpResponse, S3Error>;
 }
 
-pub trait XmlModel: Sized {
-    fn decode_xml(d: &mut ScopedDecoder) -> Result<Self, S3Error>;
-    fn encode_xml(&self, d: &mut ScopeWriter) -> Result<(), S3Error>;
-}
-
-#[derive(Debug)]
-pub struct S3Error {
-    pub inner: aws_smithy_types::Error,
-}
-impl std::error::Error for S3Error {}
-impl std::fmt::Display for S3Error {
-    fn fmt(&self, f: &mut std::fmt::Formatter) -> std::fmt::Result {
-        write!(f, "{}", self.inner)
-    }
-}
-impl S3Error {
-    pub fn builder() -> S3InnerBuilder {
-        S3InnerError::builder()
-    }
-    pub fn bad_request(message: impl Into<String>) -> S3Error {
-        S3Error {
-            inner: S3InnerError::builder()
-                .code("BadRequest")
-                .message(message)
-                .build(),
-        }
-    }
-}
-impl From<S3InnerError> for S3Error {
-    fn from(inner: S3InnerError) -> Self {
-        S3Error { inner }
-    }
-}
-impl From<hyper::Error> for S3Error {
-    fn from(e: hyper::Error) -> Self {
-        S3Error::bad_request(e.to_string())
-    }
-}
-impl From<BuildError> for S3Error {
-    fn from(e: BuildError) -> Self {
-        S3Error::bad_request(e.to_string())
-    }
-}
-impl From<XmlError> for S3Error {
-    fn from(e: XmlError) -> Self {
-        S3Error::bad_request(e.to_string())
-    }
-}
-impl From<Utf8Error> for S3Error {
-    fn from(e: Utf8Error) -> Self {
-        S3Error::bad_request(e.to_string())
-    }
-}
-impl From<hyper::http::Error> for S3Error {
-    fn from(e: hyper::http::Error) -> Self {
-        S3Error::bad_request(e.to_string())
-    }
+pub trait ServerShape {
+    
 }
 
 #[derive(Debug)]
@@ -275,6 +207,60 @@ impl S3Request {
     }
 }
 
+#[derive(Debug)]
+pub struct S3Error {
+    pub inner: aws_smithy_types::Error,
+}
+impl std::error::Error for S3Error {}
+impl std::fmt::Display for S3Error {
+    fn fmt(&self, f: &mut std::fmt::Formatter) -> std::fmt::Result {
+        write!(f, "{}", self.inner)
+    }
+}
+impl S3Error {
+    pub fn builder() -> S3InnerBuilder {
+        S3InnerError::builder()
+    }
+    pub fn bad_request(message: impl Into<String>) -> S3Error {
+        S3Error {
+            inner: S3InnerError::builder()
+                .code("BadRequest")
+                .message(message)
+                .build(),
+        }
+    }
+}
+impl From<S3InnerError> for S3Error {
+    fn from(inner: S3InnerError) -> Self {
+        S3Error { inner }
+    }
+}
+impl From<hyper::Error> for S3Error {
+    fn from(e: hyper::Error) -> Self {
+        S3Error::bad_request(e.to_string())
+    }
+}
+impl From<BuildError> for S3Error {
+    fn from(e: BuildError) -> Self {
+        S3Error::bad_request(e.to_string())
+    }
+}
+impl From<XmlError> for S3Error {
+    fn from(e: XmlError) -> Self {
+        S3Error::bad_request(e.to_string())
+    }
+}
+impl From<Utf8Error> for S3Error {
+    fn from(e: Utf8Error) -> Self {
+        S3Error::bad_request(e.to_string())
+    }
+}
+impl From<hyper::http::Error> for S3Error {
+    fn from(e: hyper::http::Error) -> Self {
+        S3Error::bad_request(e.to_string())
+    }
+}
+
 pub trait FromHttp: Sized {
     fn from_http(v: &str) -> Option<Self>;
 }
@@ -373,3 +359,112 @@ macro_rules! to_header_to_string {
 to_header_to_string!(i64);
 to_header_to_string!(i32);
 to_header_to_string!(bool);
+
+pub const XML_META: &'static str = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n";
+pub const XMLNS_S3: &'static str = "http://s3.amazonaws.com/doc/2006-03-01/";
+
+pub fn xml_response<T: XmlModel>(o: &T, xml_name: &str) -> Result<String, S3Error> {
+    let mut xstr = String::from(XML_META);
+    let mut xml = XmlWriter::new(&mut xstr);
+    let mut w = xml.start_el(xml_name).write_ns(XMLNS_S3, None).finish();
+    o.encode_xml(&mut w)?;
+    w.finish();
+    Ok(xstr)
+}
+
+pub trait XmlModel: Sized {
+    fn decode_xml(d: &mut ScopedDecoder) -> Result<Self, S3Error>;
+    fn encode_xml(&self, w: &mut ScopeWriter) -> Result<(), S3Error>;
+}
+
+pub trait ToXml {
+    fn to_xml(&self) -> String;
+}
+
+macro_rules! to_xml_from_string {
+    ($t:ty) => {
+        impl ToXml for $t {
+            fn to_xml(&self) -> String {
+                self.to_string()
+            }
+        }
+    };
+}
+
+to_xml_from_string!(&str);
+to_xml_from_string!(String);
+to_xml_from_string!(i64);
+to_xml_from_string!(i32);
+to_xml_from_string!(bool);
+
+impl ToXml for DateTime {
+    fn to_xml(&self) -> String {
+        self.fmt(Format::DateTime).unwrap()
+    }
+}
+
+pub fn set_xml<T: ToXml>(w: &mut ScopeWriter, tag: &str, val: Option<T>) {
+    if let Some(v) = val {
+        let mut el = w.start_el(tag).finish();
+        el.data(&v.to_xml());
+        el.finish();
+    }
+}
+
+macro_rules! xml_doc {
+    ($root: literal, $w: ident, $code: block) => {{
+        let mut xstr = String::from(XML_META);
+        let mut xml = XmlWriter::new(&mut xstr);
+        let mut $w = xml.start_el($root).write_ns(XMLNS_S3, None).finish();
+        $code
+        $w.finish();
+        xstr
+    }}
+}
+
+macro_rules! xml_tag {
+    ($tag: literal, $w: ident, $code: block) => {{
+        let mut $w = $w.start_el($tag).finish();
+        $code
+        $w.finish();
+    }}
+}
+
+pub(crate) use xml_doc;
+pub(crate) use xml_tag;
+
+// pub fn xml_date(w: &mut ScopeWriter, tag: &str, date: Option<DateTime>) {
+//     xml_text(w, tag, date.and_then(|x| x.fmt(Format::DateTime).ok()));
+// }
+
+// pub fn xml_owner(w: &mut ScopeWriter, owner: Option<aws_sdk_s3::model::Owner>) {
+//     if let Some(owner) = owner {
+//         xml_tag!("Owner", w, {
+//             xml_text(&mut w, "ID", owner.id());
+//             xml_text(&mut w, "DisplayName", owner.display_name());
+//         });
+//     }
+// }
+
+pub fn xml_error(e: S3Error) -> String {
+    xml_doc!("Error", w, {
+        set_xml(&mut w, "Code", e.inner.code());
+        set_xml(&mut w, "Message", e.inner.message());
+        set_xml(&mut w, "RequestId", e.inner.request_id());
+        set_xml(&mut w, "Resource", e.inner.extra("resource"));
+    })
+}
+
+pub fn xml_to_data<T: FromStr>(d: &mut ScopedDecoder) -> Option<T> {
+    match aws_smithy_xml::decode::try_data(d) {
+        Ok(data) => data.parse::<T>().ok(),
+        Err(_) => None,
+    }
+}
+
+pub fn xml_to_date(d: &mut ScopedDecoder) -> Option<DateTime> {
+    match aws_smithy_xml::decode::try_data(d) {
+        Ok(data) => DateTime::from_str(&data, Format::DateTime).ok(),
+        Err(_) => None,
+    }
+}

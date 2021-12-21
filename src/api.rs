@@ -1,8 +1,8 @@
 use crate::gen::generate_code_for_each_s3_op;
+use crate::proto::TraitFuture;
 use crate::store;
 use aws_sdk_s3::{error::*, input::*, output::*};
 use aws_smithy_http::result::SdkError;
-use crate::http::TraitFuture;
 
 /// This macro generates a default function for each op.
 macro_rules! gen_api_default_fn {

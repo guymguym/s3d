@@ -2,8 +2,7 @@ use crate::{
     api::*,
     conf::Conf, 
     gen::{S3Ops, generate_match_for_each_s3_op},
-    http::*,
-    xml::xml_error,
+    proto::*,
 };
 use hyper::{
     Body, Method, StatusCode, header::{HeaderValue, HeaderName},

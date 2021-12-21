@@ -2,7 +2,7 @@
 //! Currently written by hand which is difficult to maintain long term.
 //! TODO This module should be generated from https://github.com/awslabs/smithy-rs.
 
-use crate::{gen::S3Ops, http::*};
+use crate::{gen::S3Ops, proto::*};
 use hyper::Method;
 
 #[derive(Debug)]

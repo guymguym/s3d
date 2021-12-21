@@ -5,7 +5,7 @@
 
 use crate::{
     old::{headers::*, models::*},
-    http::*,
+    proto::*,
 };
 use aws_sdk_s3::{input::*, ByteStream};
 

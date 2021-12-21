@@ -1,4 +1,4 @@
-use crate::{http::*, xml::xml_to_data};
+use crate::proto::*;
 use aws_sdk_s3::model::*;
 use aws_smithy_xml::decode::{Document, ScopedDecoder};
 use hyper::body::Bytes;
