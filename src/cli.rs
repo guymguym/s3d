@@ -1,12 +1,14 @@
 use crate::{conf::Conf, daemon};
 use anyhow::Context;
+use clap;
 use clap::Parser;
 use std::fmt::Debug;
 
 #[derive(Parser, Debug, Clone)]
-#[clap(name = clap::crate_name!())]
-// #[clap(about = clap::crate_description!())]
+#[clap(name = "s3d")]
 #[clap(about = "s3d is an S3 daemon for the Edge written in Rust (https://s3d.rs)")]
+// #[clap(name = clap::crate_name!())]
+// #[clap(about = clap::crate_description!())]
 #[clap(setting = clap::AppSettings::UseLongFormatForHelpSubcommand)]
 #[clap(setting = clap::AppSettings::DeriveDisplayOrder)]
 pub struct CLI {

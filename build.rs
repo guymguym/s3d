@@ -42,7 +42,616 @@ fn main() {
     println!("cargo:rerun-if-changed={}", model_path.display());
     let model_json: Value = serde_json::from_reader(File::open(model_path).unwrap()).unwrap();
     let model = SmithyModel::from_json(&model_json);
-    Generator::new(&out_path).generate(&model);
+    Generator::new(&model, &out_path).generate();
+}
+
+///
+/// Generator is the main generator class.
+///
+/// It keeps the state of the generation process.
+/// For example the set `xml_models_done` is used to avoid duplicates.
+///
+pub struct Generator<'a> {
+    pub model: &'a SmithyModel,
+    pub writer: Option<CodeWriter>,
+    pub out_path: PathBuf,
+    pub xml_models_queue: Vec<(String, TokenStream)>,
+    pub xml_models_done: HashSet<String>,
+}
+
+impl<'a> Generator<'a> {
+    pub fn new(model: &'a SmithyModel, out_path: &Path) -> Self {
+        Self {
+            model,
+            writer: None,
+            out_path: out_path.to_path_buf(),
+            xml_models_queue: Vec::new(),
+            xml_models_done: HashSet::new(),
+        }
+    }
+
+    pub fn generate(&mut self) {
+        self.set_output_file("s3.base.rs");
+        self.gen_ops_enum();
+        self.set_output_file("s3.enums.rs");
+        for en in self.model.iter_shapes_with_trait(SM_ENUM) {
+            self.gen_enum_type(&en);
+        }
+        self.set_output_file("s3.server.rs");
+        for it in self.model.iter_shapes_by_type(SmithyType::Operation) {
+            self.gen_server_op(&it);
+        }
+        self.set_output_file("s3.smithy.rs");
+        for it in self.model.shapes.values() {
+            self.gen_server_shape(&it);
+        }
+        self.set_output_file("s3.xml.rs");
+        while !self.xml_models_queue.is_empty() {
+            let (key, tok) = self.xml_models_queue.pop().unwrap();
+            if self.xml_models_done.insert(key.clone()) {
+                self.gen_xml_model(&self.model.get_shape_by_key(&key), tok);
+            }
+        }
+        self.close_output_file();
+    }
+
+    fn gen_server_shape(&mut self, s: &SmithyShape) {
+        match s.typ {
+            SmithyType::Structure => self.gen_shape_struct(s),
+            // SmithyType::Operation => self.gen_shape_op(s),
+            // SmithyType::Blob => self.gen_shape_blob(s),
+            _ => (),
+        }
+    }
+    fn gen_shape_struct(&mut self, s: &SmithyShape) {
+        let sdk_ident = s.sdk_ident();
+        self.write_code(quote! {
+            impl ServerShape for #sdk_ident {
+
+            }
+        });
+    }
+
+    ///
+    /// Generate the basic enum of operation kinds + macros to quickly generate code for each operation.
+    ///
+    /// The enum is flat - meaning it defines no attached state to any of the operations.
+    /// It might be interesting to consider a more complex enum if needed by the daemon,
+    /// or perhaps that would instead go to it's own enum, with auto-generated-mapping to this one.
+    ///
+    fn gen_ops_enum(&mut self) {
+        let it1 = self
+            .model
+            .iter_shapes_by_type(SmithyType::Operation)
+            .map(|op| op.ident());
+        let it2 = self
+            .model
+            .iter_shapes_by_type(SmithyType::Operation)
+            .map(|op| op.ident());
+        let it3 = self
+            .model
+            .iter_shapes_by_type(SmithyType::Operation)
+            .map(|op| op.ident());
+        let it4 = self
+            .model
+            .iter_shapes_by_type(SmithyType::Operation)
+            .map(|op| op.ident());
+
+        self.write_code(quote! {
+
+            #[derive(Debug, PartialEq, Eq, Clone, Copy)]
+            pub enum S3Ops {
+                #(#it1),*
+            }
+
+            /// This macro calls a provided $macro for each S3 operation to generate code per op.
+            macro_rules! generate_code_for_each_s3_op {
+                ($macro:ident) => {
+                    #( $macro!(#it2); )*
+                }
+            }
+
+            /// This macro matches a variable of S3Ops type and expands the provided $macro
+            /// for each S3 operation to generate code handler per op.
+            macro_rules! generate_match_for_each_s3_op {
+                ($macro:ident, $op:expr) => {
+                    match ($op) {
+                        #( S3Ops::#it3 => $macro!(#it4), )*
+                    }
+                }
+            }
+
+            pub(crate) use generate_code_for_each_s3_op;
+            pub(crate) use generate_match_for_each_s3_op;
+
+        });
+    }
+
+    ///
+    /// Generates an impl of ServerOperation per operation.
+    ///
+    fn gen_server_op(&mut self, op: &SmithyShape) {
+        let op_ident = op.ident();
+        let sdk_input_ident = op.sdk_input_ident();
+        let sdk_output_ident = op.sdk_output_ident();
+        let sdk_error_ident = op.sdk_error_ident();
+        let input = self.model.get_shape_if(op.members.get("input"));
+        let output = self.model.get_shape_if(op.members.get("output"));
+        assert_eq!(op.get_type(), SM_TYPE_OPERATION);
+
+        let input_decoder = self.gen_input_decoder(op, input);
+        let output_decoder = self.gen_output_decoder(op, output);
+
+        self.write_code(quote! {
+            pub struct #op_ident {}
+            impl ServerOperation for #op_ident {
+                const OP: S3Ops = S3Ops::#op_ident;
+                type Input = #sdk_input_ident;
+                type Output = #sdk_output_ident;
+                type Error = #sdk_error_ident;
+                #input_decoder
+                #output_decoder
+            }
+        });
+    }
+
+    fn gen_input_decoder(&mut self, op: &SmithyShape, input: Option<&SmithyShape>) -> TokenStream {
+        let decoders = match input {
+            Some(input) => {
+                assert_eq!(input.typ, SmithyType::Structure);
+                let (head_members, body_members): (Vec<_>, Vec<_>) =
+                    input.members.values().partition(|m| m.has_http_trait());
+                let head_decoders: Vec<_> = head_members
+                    .iter()
+                    .map(|m| self.gen_op_head_decoder_field(m))
+                    .collect();
+                let body_decoders: Vec<_> = body_members
+                    .iter()
+                    .map(|m| self.gen_op_body_decoder_field(m))
+                    .collect();
+                quote! {
+                    #(#head_decoders)*
+                    #(#body_decoders)*
+                }
+            }
+            None => quote! {},
+        };
+
+        quote! {
+            fn decode_input(req: &mut S3Request) -> TraitFuture<Self::Input, S3Error> {
+                Box::pin(async move {
+                    let mut b = Self::Input::builder();
+                    #decoders
+                    Ok(b.build()?)
+                })
+            }
+        }
+    }
+
+    fn gen_output_decoder(
+        &mut self,
+        op: &SmithyShape,
+        output: Option<&SmithyShape>,
+    ) -> TokenStream {
+        let encoders = match output {
+            Some(output) => {
+                assert_eq!(output.typ, SmithyType::Structure);
+                let (head_members, body_members): (Vec<_>, Vec<_>) =
+                    output.members.values().partition(|m| m.has_http_trait());
+                let head_encoders: Vec<_> = head_members
+                    .iter()
+                    .map(|m| self.gen_op_head_encoder_field(m))
+                    .collect();
+
+                let body_encoder = if output.has_trait(SM_XML_NAME) {
+                    let xml_name = output.get_trait(SM_XML_NAME);
+                    if !self.xml_models_done.contains(&output.key) {
+                        self.xml_models_queue
+                            .push((output.key.clone(), op.sdk_output_ident()));
+                    }
+                    quote! {
+                        let body = Body::from(xml_response(&o, #xml_name)?);
+                        error!("{:#?}", body);
+                    }
+                } else if body_members.len() == 1 {
+                    self.gen_xml_enc(&body_members[0])
+                } else if body_members.is_empty() {
+                    quote! { let body = Body::empty(); }
+                } else {
+                    quote! { let body = Body::empty(); }
+                };
+
+                quote! {
+                    #(#head_encoders)*
+                    #body_encoder
+                }
+            }
+            None => quote! { let body = Body::empty(); },
+        };
+
+        quote! {
+            fn encode_output(mut o: Self::Output) -> TraitFuture<'static, HttpResponse, S3Error> {
+                Box::pin(async move {
+                    let mut r = responder();
+                    let h = r.headers_mut().unwrap();
+                    #encoders
+                    Ok(r.body(body)?)
+                })
+            }
+        }
+    }
+
+    fn gen_op_head_decoder_field(&mut self, m: &SmithyMember) -> TokenStream {
+        let field_id = m.ident();
+        let get_field = m.get_ident();
+        let set_field = m.set_ident();
+        if m.has_trait(SM_HTTP_LABEL) {
+            return quote! { b = b.#field_id(req.#get_field()); };
+        }
+        if m.has_trait(SM_HTTP_QUERY) {
+            let param = m.get_trait(SM_HTTP_QUERY);
+            return quote! { b = b.#set_field(req.get_param(#param)); };
+        }
+        if m.has_trait(SM_HTTP_HEADER) {
+            let header = m.get_trait(SM_HTTP_HEADER);
+            return quote! { b = b.#set_field(req.get_header(#header)); };
+        }
+        if m.has_trait(SM_HTTP_PREFIX_HEADERS) {
+            let header_map = m.get_trait(SM_HTTP_PREFIX_HEADERS);
+            return quote! { b = b.#set_field(req.get_header_map(#header_map)); };
+        }
+        panic!("gen_op_head_decoder: PANIC UNEXPECTED FIELD {:?}", m);
+    }
+
+    fn gen_op_head_encoder_field(&mut self, m: &SmithyMember) -> TokenStream {
+        let field_id = m.ident();
+        if m.has_trait(SM_HTTP_HEADER) {
+            let header = m.get_trait(SM_HTTP_HEADER);
+            return quote! { o.#field_id().set_header(h, #header); };
+        }
+        if m.has_trait(SM_HTTP_PREFIX_HEADERS) {
+            let header_prefix = m.get_trait(SM_HTTP_PREFIX_HEADERS);
+            return quote! { o.#field_id().set_header(h, #header_prefix); };
+        }
+        panic!("gen_op_head_encoder_field: PANIC UNEXPECTED FIELD {:?}", m);
+    }
+
+    fn gen_op_body_decoder_field(&mut self, m: &SmithyMember) -> TokenStream {
+        let s = self.model.get_shape_of(m);
+        let shape_ident = s.ident();
+        let sdk_model_ident = s.sdk_model_ident();
+        let set_field = m.set_ident();
+
+        if m.has_trait(SM_HTTP_PAYLOAD) {
+            if m.has_trait(SM_XML_NAME) {
+                if !self.xml_models_done.contains(&s.key) {
+                    self.xml_models_queue
+                        .push((s.key.clone(), sdk_model_ident.clone()));
+                }
+                let xml_name = m.get_trait(SM_XML_NAME);
+                return quote! {
+                    b = b.#set_field(Some(
+                        req.take_body_xml::<#sdk_model_ident>(#xml_name).await?
+                    ));
+                };
+            }
+            match s.get_type() {
+                SM_TYPE_BLOB => {
+                    return quote! {
+                        b = b.#set_field(Some(ByteStream::new(req.take_body().into())));
+                    };
+                }
+                SM_TYPE_STRING => {
+                    if s.has_trait(SM_ENUM) {
+                        return quote! {
+                            b = b.#set_field(
+                                #sdk_model_ident::from_http(
+                                    req.take_body_string().await?.as_str()
+                                )
+                            );
+                        };
+                    } else {
+                        return quote! {
+                            b = b.#set_field(Some(
+                                req.take_body_string().await?
+                            ));
+                        };
+                    }
+                }
+                _ => {}
+            }
+        }
+
+        // TODO gen_op_body_dec_field - SelectObjectContent only
+        return quote! { b = b.#set_field(None); };
+    }
+
+    fn gen_op_body_encoder_field(&mut self, m: &SmithyMember) -> TokenStream {
+        let s = self.model.get_shape_of(m);
+        let shape_ident = s.ident();
+        let sdk_model_ident = s.sdk_model_ident();
+        let field_id = m.ident();
+
+        if m.has_trait(SM_HTTP_PAYLOAD) {
+            if m.has_trait(SM_XML_NAME) {
+                let xml_name = m.get_trait(SM_XML_NAME);
+                if !self.xml_models_done.contains(&s.key) {
+                    self.xml_models_queue
+                        .push((s.key.clone(), s.sdk_model_ident()));
+                }
+                return quote! {
+                    let body = Body::from(xml_response(o.#field_id, #xml_name)?);
+                };
+                // return quote! {
+                //     let body = Body::from(xml_doc!(#xml_name, w, {
+                //         self::models::#shape_ident::encode_xml(w)
+                //     }));
+                // };
+            }
+            match s.get_type() {
+                SM_TYPE_BLOB => {
+                    return quote! { let body = Body::wrap_stream(o.#field_id); };
+                }
+                SM_TYPE_STRING => {
+                    return quote! { let body = o.#field_id.map_or(Body::empty(), |s| Body::from(s)); };
+                }
+                _ => {}
+            }
+        }
+
+        // TODO gen_op_body_enc_field
+        return quote! { let body = Body::empty(); };
+    }
+
+    fn gen_xml_model(&mut self, s: &SmithyShape, tok: TokenStream) {
+        let ident = s.ident();
+        let err = format!("Bad {}", s.name);
+        let field_decoders = s
+            .members
+            .values()
+            .map(|m| self.gen_xml_dec(m))
+            .collect::<Vec<_>>();
+        let field_encoders = s
+            .members
+            .values()
+            .map(|m| self.gen_xml_enc(m))
+            .collect::<Vec<_>>();
+
+        self.write_code(quote! {
+
+            impl XmlModel for #tok {
+
+                fn decode_xml(d: &mut ScopedDecoder) -> Result<Self, S3Error> {
+                    let mut b = Self::builder();
+                    while let Some(mut d) = d.next_tag() {
+                        match d.start_el() {
+                            #(#field_decoders)*
+                             _ => Err(S3Error::bad_request(#err))?,
+                        }
+                    }
+                    Ok(b.build())
+                }
+
+                fn encode_xml(&self, w: &mut ScopeWriter) -> Result<(), S3Error> {
+                    #(#field_encoders)*
+                    Ok(())
+                }
+
+            }
+
+        });
+    }
+
+    fn gen_xml_dec(&mut self, m: &SmithyMember) -> TokenStream {
+        let s = self.model.get_shape_of(m);
+        let set_field = m.set_ident();
+        let shape_name = &s.name;
+
+        match s.get_type() {
+            SM_TYPE_STRUCTURE => quote! {
+                el if el.matches(#shape_name) => {
+                    b = b.#set_field(None); // TODO decode_xml STRUCTURE
+                },
+            },
+            SM_TYPE_UNION => quote! {
+                el if el.matches(#shape_name) => {
+                    b = b.#set_field(None); // TODO decode_xml UNION
+                },
+            },
+            SM_TYPE_LIST => quote! {
+                el if el.matches(#shape_name) => {
+                    b = b.#set_field(None); // TODO decode_xml LIST
+                    // b = b.#field(None);
+                },
+            },
+            SM_TYPE_TIMESTAMP => quote! {
+                el if el.matches(#shape_name) => {
+                    b = b.#set_field(xml_to_date(&mut d));
+                },
+            },
+            _ => quote! {
+                el if el.matches(#shape_name) => {
+                    b = b.#set_field(xml_to_data(&mut d));
+                },
+            },
+        }
+    }
+
+    fn gen_xml_enc(&mut self, m: &SmithyMember) -> TokenStream {
+        let s = self.model.get_shape_of(m);
+        let field_id = m.ident();
+        let xml_name = if m.has_trait(SM_XML_NAME) {
+            m.get_trait(SM_XML_NAME)
+        } else {
+            m.name.to_string()
+        };
+
+        match s.get_type() {
+            SM_TYPE_STRUCTURE => {
+                if !self.xml_models_done.contains(&s.key) {
+                    self.xml_models_queue
+                        .push((s.key.clone(), s.sdk_model_ident()));
+                }
+                quote! {
+                    {
+                        let mut w = w.start_el(#xml_name).finish();
+                        if let Some(ref #field_id) = self.#field_id {
+                            #field_id.encode_xml(&mut w)?;
+                        }
+                        w.finish();
+                    }
+                }
+            }
+            // SM_TYPE_UNION => quote! {},
+            SM_TYPE_LIST => {
+                let xml_name = s.members["member"].get_trait(SM_XML_NAME);
+                quote! {
+                    let mut w = w.start_el(#xml_name).finish();
+                    for it in self.#field_id.unwrap_or_default() {
+                        set_xml(w, #xml_name, it.clone());
+                    }
+                    w.finish();
+                }
+            }
+            SM_TYPE_TIMESTAMP => quote! {
+                set_xml(w, #xml_name, self.#field_id);
+            },
+            SM_TYPE_INTEGER | SM_TYPE_BOOLEAN => quote! {
+                set_xml(w, #xml_name, Some(self.#field_id));
+            },
+            _ => quote! {
+                set_xml(w, #xml_name, self.#field_id.clone());
+            },
+        }
+    }
+
+    fn gen_enum_type(&mut self, en: &SmithyShape) {
+        let sdk_model_ident = en.sdk_model_ident();
+        self.write_code(quote! {
+
+            impl FromHttp for #sdk_model_ident {
+                fn from_http(v: &str) -> Option<Self> {
+                    Some(Self::from(v))
+                }
+            }
+
+            impl ToHeader for &#sdk_model_ident {
+                fn to_header(self) -> Option<HeaderValue> {
+                    self.as_str().to_header()
+                }
+            }
+
+            impl ToXml for #sdk_model_ident {
+                fn to_xml(&self) -> String {
+                    self.as_str().to_string()
+                }
+            }
+
+        });
+    }
+
+    pub fn close_output_file(&mut self) {
+        let w = self.writer.take();
+        if w.is_some() {
+            w.unwrap().flush().unwrap();
+        }
+    }
+    pub fn set_output_file(&mut self, fname: &str) {
+        self.close_output_file();
+        self.writer = Some(CodeWriter::new(&self.out_path.join(fname)));
+    }
+
+    fn write_code<T: ToString>(&mut self, code: T) {
+        let w = self.writer.as_mut().unwrap();
+        w.write_all(code.to_string().as_bytes()).unwrap();
+        w.write_all(b"\n\n").unwrap();
+    }
+
+    fn _writeln<T: AsRef<[u8]>>(&mut self, s: T) {
+        let w = self.writer.as_mut().unwrap();
+        w.write_all(s.as_ref()).unwrap();
+        w.write_all(b"\n").unwrap();
+    }
+}
+
+///
+/// CodeWriter pipes generated code through rustfmt
+/// and then into an output file.
+///
+pub struct CodeWriter {
+    path: PathBuf,
+    rustfmt: Option<Child>,
+    w: Option<BufWriter<ChildStdin>>,
+}
+impl CodeWriter {
+    fn new(file_path: &Path) -> Self {
+        println!("CodeWriter file {:?}", file_path);
+        let file = File::create(file_path).unwrap();
+        let mut rustfmt = Command::new("rustfmt")
+            .arg("--edition=2021")
+            .stdin(Stdio::piped())
+            .stdout(file)
+            .spawn()
+            .unwrap();
+        println!("CodeWriter rustfmt {:?}", rustfmt);
+        let w = BufWriter::new(rustfmt.stdin.take().unwrap());
+        CodeWriter {
+            path: file_path.to_path_buf(),
+            rustfmt: Some(rustfmt),
+            w: Some(w),
+        }
+    }
+}
+impl Write for CodeWriter {
+    fn write(&mut self, buf: &[u8]) -> std::io::Result<usize> {
+        self.w.as_mut().unwrap().write(buf)
+    }
+    fn flush(&mut self) -> std::io::Result<()> {
+        println!("CodeWriter flush buffers {}", self.path.display());
+        self.w.take().unwrap().flush()?;
+        println!("CodeWriter wait rustfmt {}", self.path.display());
+        self.rustfmt.take().unwrap().wait()?;
+        println!("CodeWriter done {}", self.path.display());
+        Ok(())
+    }
+}
+
+///
+/// SmithyModel is a wrapper around the smithy JSON AST model
+/// which provides a convenient interface to read the model
+///
+#[derive(Debug, Clone)]
+pub struct SmithyModel {
+    pub shapes: SmithyShapeMap,
+}
+impl FromJson for SmithyModel {
+    fn from_json(json: &Value) -> Self {
+        let shapes = SmithyShapeMap::from_json(&json["shapes"]);
+        SmithyModel { shapes }
+    }
+}
+impl SmithyModel {
+    pub fn get_shape_of(&self, member: &SmithyMember) -> &SmithyShape {
+        &self.shapes[&member.target]
+    }
+    pub fn get_shape_if(&self, member: Option<&SmithyMember>) -> Option<&SmithyShape> {
+        member.map(|m| self.get_shape_of(m))
+    }
+    pub fn get_shape_by_key(&self, k: &str) -> &SmithyShape {
+        &self.shapes[k]
+    }
+    pub fn iter_shapes_by_type<'a>(
+        &'a self,
+        t: SmithyType,
+    ) -> impl Iterator<Item = &'a SmithyShape> + 'a {
+        self.shapes.values().filter(move |s| s.typ == t)
+    }
+    pub fn iter_shapes_with_trait<'a>(
+        &'a self,
+        t: &'a str,
+    ) -> impl Iterator<Item = &'a SmithyShape> + 'a {
+        self.shapes.values().filter(|s| s.has_trait(t))
+    }
 }
 
 type JsonObject = Map<String, Value>;
@@ -90,44 +699,6 @@ impl<T: SmithyTraitor> SmithyTraits for T {
 type SmithyShapeMap = HashMap<String, SmithyShape>;
 type SmithyMemberMap = HashMap<String, SmithyMember>;
 
-///
-/// SmithyModel is a wrapper around the smithy JSON AST model
-/// which provides a convenient interface to read the model
-///
-#[derive(Debug, Clone)]
-pub struct SmithyModel {
-    pub shapes: SmithyShapeMap,
-}
-impl FromJson for SmithyModel {
-    fn from_json(json: &Value) -> Self {
-        let shapes = SmithyShapeMap::from_json(&json["shapes"]);
-        SmithyModel { shapes }
-    }
-}
-impl SmithyModel {
-    pub fn get_shape_of(&self, member: &SmithyMember) -> &SmithyShape {
-        &self.shapes[&member.target]
-    }
-    pub fn get_shape_if(&self, member: &SmithyMember) -> Option<&SmithyShape> {
-        self.shapes.get(&member.target)
-    }
-    pub fn get_shape_by_key(&self, k: &str) -> &SmithyShape {
-        &self.shapes[k]
-    }
-    pub fn iter_shapes_by_type<'a>(
-        &'a self,
-        t: SmithyType,
-    ) -> impl Iterator<Item = &'a SmithyShape> + 'a {
-        self.shapes.values().filter(move |s| s.typ == t)
-    }
-    pub fn iter_shapes_with_trait<'a>(
-        &'a self,
-        t: &'a str,
-    ) -> impl Iterator<Item = &'a SmithyShape> + 'a {
-        self.shapes.values().filter(|s| s.has_trait(t))
-    }
-}
-
 #[derive(Debug, Clone)]
 pub struct SmithyShape {
     pub key: String,
@@ -143,13 +714,9 @@ impl SmithyTraitor for SmithyShape {
 }
 impl SmithyShape {
     pub fn new(json: &Value, key: &str) -> Self {
-        let typ = if json.is_null() || !json["type"].is_string() {
-            SmithyType::String
-        } else {
-            SmithyType::from(json["type"].as_str().unwrap())
-        };
+        let typ = SmithyType::from(json["type"].as_str().unwrap());
         let traits = json["traits"].to_owned();
-        let members = SmithyMemberMap::from_json(&json["members"]);
+        let mut members = SmithyMemberMap::from_json(&json["members"]);
         for k in ["input", "output", "member", "key", "value"].iter() {
             if json[k].is_object() {
                 members.insert(k.to_string(), SmithyMember::new(k, &json[k]));
@@ -226,574 +793,6 @@ impl SmithyMember {
     }
 }
 
-///
-/// Generator is the main generator class.
-///
-/// It keeps the state of the generation process.
-/// For example the set `xml_models_done` is used to avoid duplicates.
-///
-pub struct Generator {
-    pub writer: Option<CodeWriter>,
-    pub out_path: PathBuf,
-    pub xml_models_queue: Vec<(String, TokenStream)>,
-    pub xml_models_done: HashSet<String>,
-}
-
-///
-/// CodeWriter pipes generated code through rustfmt
-/// and then into an output file.
-///
-pub struct CodeWriter {
-    path: PathBuf,
-    rustfmt: Option<Child>,
-    w: Option<BufWriter<ChildStdin>>,
-}
-
-impl Generator {
-    pub fn new(out_path: &Path) -> Self {
-        Self {
-            writer: None,
-            out_path: out_path.to_path_buf(),
-            xml_models_queue: Vec::new(),
-            xml_models_done: HashSet::new(),
-        }
-    }
-
-    pub fn generate(&mut self, m: &SmithyModel) {
-        self.set_output_file("s3.base.rs");
-        self.gen_ops_enum(m);
-        self.set_output_file("s3.enums.rs");
-        for en in m.iter_shapes_with_trait(SM_ENUM) {
-            self.gen_enum_type(&en);
-        }
-        self.set_output_file("s3.server.rs");
-        for it in m.iter_shapes_by_type(SmithyType::Operation) {
-            self.gen_server_op(m, &it);
-        }
-        self.set_output_file("s3.smithy.rs");
-        for it in m.shapes.values() {
-            self.gen_server_shape(&it);
-        }
-        self.set_output_file("s3.xml.rs");
-        while !self.xml_models_queue.is_empty() {
-            let (key, tok) = self.xml_models_queue.pop().unwrap();
-            if self.xml_models_done.insert(key.clone()) {
-                self.gen_xml_model(&m.get_shape_by_key(&key), tok);
-            }
-        }
-        self.close_output_file();
-    }
-
-    fn gen_server_shape(&mut self, s: &SmithyShape) {
-        match s.typ {
-            SmithyType::Structure => self.gen_shape_struct(s),
-            // SmithyType::Operation => self.gen_shape_op(s),
-            // SmithyType::Blob => self.gen_shape_blob(s),
-            _ => (),
-        }
-    }
-    fn gen_shape_struct(&mut self, s: &SmithyShape) {
-        let sdk_ident = s.sdk_ident();
-        self.write_code(quote! {
-            impl ServerShape for #sdk_ident {
-
-            }
-        });
-    }
-
-    ///
-    /// Generate the basic enum of operation kinds + macros to quickly generate code for each operation.
-    ///
-    /// The enum is flat - meaning it defines no attached state to any of the operations.
-    /// It might be interesting to consider a more complex enum if needed by the daemon,
-    /// or perhaps that would instead go to it's own enum, with auto-generated-mapping to this one.
-    ///
-    fn gen_ops_enum(&mut self, m: &SmithyModel) {
-        let it1 = m
-            .iter_shapes_by_type(SmithyType::Operation)
-            .map(|op| op.ident());
-        let it2 = m
-            .iter_shapes_by_type(SmithyType::Operation)
-            .map(|op| op.ident());
-        let it3 = m
-            .iter_shapes_by_type(SmithyType::Operation)
-            .map(|op| op.ident());
-        let it4 = m
-            .iter_shapes_by_type(SmithyType::Operation)
-            .map(|op| op.ident());
-
-        self.write_code(quote! {
-
-            #[derive(Debug, PartialEq, Eq, Clone, Copy)]
-            pub enum S3Ops {
-                #(#it1),*
-            }
-
-            /// This macro calls a provided $macro for each S3 operation to generate code per op.
-            macro_rules! generate_code_for_each_s3_op {
-                ($macro:ident) => {
-                    #( $macro!(#it2); )*
-                }
-            }
-
-            /// This macro matches a variable of S3Ops type and expands the provided $macro
-            /// for each S3 operation to generate code handler per op.
-            macro_rules! generate_match_for_each_s3_op {
-                ($macro:ident, $op:expr) => {
-                    match ($op) {
-                        #( S3Ops::#it3 => $macro!(#it4), )*
-                    }
-                }
-            }
-
-            pub(crate) use generate_code_for_each_s3_op;
-            pub(crate) use generate_match_for_each_s3_op;
-
-        });
-    }
-
-    ///
-    /// Generates an impl of ServerOperation per operation.
-    ///
-    fn gen_server_op(&mut self, m: &SmithyModel, op: &SmithyShape) {
-        let op_ident = op.ident();
-        let sdk_input_ident = op.sdk_input_ident();
-        let sdk_output_ident = op.sdk_output_ident();
-        let sdk_error_ident = op.sdk_error_ident();
-        let input = m.get_shape_if(&op.members["input"]);
-        let output = m.get_shape_if(&op.members["output"]);
-        assert_eq!(op.get_type(), SM_TYPE_OP);
-
-        let input_decoder = if input.is_some() {
-            assert_eq!(input.unwrap().get_type(), SM_TYPE_STRUCT);
-            self.gen_input_decoder(op, input.unwrap())
-        } else {
-            quote! {}
-        };
-        let output_decoder = if output.is_some() {
-            assert_eq!(output.unwrap().get_type(), SM_TYPE_STRUCT);
-            self.gen_output_decoder(op, output.unwrap())
-        } else {
-            quote! {}
-        };
-
-        self.write_code(quote! {
-            pub struct #op_ident {}
-            impl ServerOperation for #op_ident {
-                const OP: S3Ops = S3Ops::#op_ident;
-                type Input = #sdk_input_ident;
-                type Output = #sdk_output_ident;
-                type Error = #sdk_error_ident;
-                #input_decoder
-                #output_decoder
-            }
-        });
-    }
-
-    fn gen_input_decoder(&mut self, op: &SmithyShape, input: &SmithyShape) -> TokenStream {
-        let (head_fields, body_fields) = input.get_members_group_by_http_traits();
-        let head_decoders = head_fields
-            .iter()
-            .map(|ref f| self.gen_op_head_decoder_field(f))
-            .collect::<Vec<_>>();
-        let body_decoders = body_fields
-            .iter()
-            .map(|ref f| self.gen_op_body_decoder_field(f))
-            .collect::<Vec<_>>();
-
-        quote! {
-            fn decode_input(req: &mut S3Request) -> TraitFuture<Self::Input, S3Error> {
-                Box::pin(async move {
-                    let mut b = Self::Input::builder();
-                    #(#head_decoders)*
-                    #(#body_decoders)*
-                    Ok(b.build()?)
-                })
-            }
-        }
-    }
-
-    fn gen_output_decoder(&mut self, op: &SmithyShape, output: &SmithyShape) -> TokenStream {
-        let (head_fields, body_fields) = output.get_members_group_by_http_traits();
-
-        let head_encoders = head_fields
-            .iter()
-            .map(|f| self.gen_op_head_encoder_field(f))
-            .collect::<Vec<_>>();
-
-        let body_encoder = if output.has_trait(SM_XML_NAME) {
-            let xml_name = output.get_trait(SM_XML_NAME);
-            if !self.xml_models_done.contains(&output.key) {
-                self.xml_models_queue
-                    .push((output.key.clone(), op.sdk_output_ident()));
-            }
-            quote! {
-                let body = Body::from(xml_response(&o, #xml_name)?);
-                error!("{:#?}", body);
-            }
-        } else if body_fields.len() == 1 {
-            self.gen_xml_enc(&body_fields[0])
-        } else if body_fields.is_empty() {
-            quote! { let body = Body::empty(); }
-        } else {
-            quote! { let body = Body::empty(); }
-        };
-
-        quote! {
-            fn encode_output(mut o: Self::Output) -> TraitFuture<'static, HttpResponse, S3Error> {
-                Box::pin(async move {
-                    let mut r = responder();
-                    let h = r.headers_mut().unwrap();
-                    #(#head_encoders)*
-                    #body_encoder
-                    Ok(r.body(body)?)
-                })
-            }
-        }
-    }
-
-    fn gen_op_head_decoder_field(&mut self, f: &SmithyMember) -> TokenStream {
-        let field_id = f.ident();
-        let get_field = f.get_ident();
-        let set_field = f.set_ident();
-        if f.has_trait(SM_HTTP_LABEL) {
-            return quote! { b = b.#field_id(req.#get_field()); };
-        }
-        if f.has_trait(SM_HTTP_QUERY) {
-            let param = f.get_trait(SM_HTTP_QUERY);
-            return quote! { b = b.#set_field(req.get_param(#param)); };
-        }
-        if f.has_trait(SM_HTTP_HEADER) {
-            let header = f.get_trait(SM_HTTP_HEADER);
-            return quote! { b = b.#set_field(req.get_header(#header)); };
-        }
-        if f.has_trait(SM_HTTP_PREFIX_HEADERS) {
-            let header_map = f.get_trait(SM_HTTP_PREFIX_HEADERS);
-            return quote! { b = b.#set_field(req.get_header_map(#header_map)); };
-        }
-        panic!("gen_op_head_decoder: PANIC UNEXPECTED FIELD {:?}", f);
-    }
-
-    fn gen_op_head_encoder_field(&mut self, f: &SmithyMember) -> TokenStream {
-        let field_id = f.ident();
-        if f.has_trait(SM_HTTP_HEADER) {
-            let header = f.get_trait(SM_HTTP_HEADER);
-            return quote! { o.#field_id().set_header(h, #header); };
-        }
-        if f.has_trait(SM_HTTP_PREFIX_HEADERS) {
-            let header_prefix = f.get_trait(SM_HTTP_PREFIX_HEADERS);
-            return quote! { o.#field_id().set_header(h, #header_prefix); };
-        }
-        panic!("gen_op_head_encoder_field: PANIC UNEXPECTED FIELD {:?}", f);
-    }
-
-    fn gen_op_body_decoder_field(&mut self, f: &SmithyMember) -> TokenStream {
-        let s = f.get_shape_ref();
-        let shape_ident = s.ident();
-        let sdk_model_ident = s.sdk_model_ident();
-        let set_field = f.set_ident();
-
-        if f.has_trait(SM_HTTP_PAYLOAD) {
-            if f.has_trait(SM_XML_NAME) {
-                if !self.xml_models_done.contains(&s.key) {
-                    self.xml_models_queue
-                        .push((s.key.clone(), sdk_model_ident.clone()));
-                }
-                let xml_name = f.get_trait(SM_XML_NAME);
-                return quote! {
-                    b = b.#set_field(Some(
-                        req.take_body_xml::<#sdk_model_ident>(#xml_name).await?
-                    ));
-                };
-            }
-            match s.get_type() {
-                SM_TYPE_BLOB => {
-                    return quote! {
-                        b = b.#set_field(Some(ByteStream::new(req.take_body().into())));
-                    };
-                }
-                SM_TYPE_STR => {
-                    if s.has_trait(SM_ENUM) {
-                        return quote! {
-                            b = b.#set_field(
-                                #sdk_model_ident::from_http(
-                                    req.take_body_string().await?.as_str()
-                                )
-                            );
-                        };
-                    } else {
-                        return quote! {
-                            b = b.#set_field(Some(
-                                req.take_body_string().await?
-                            ));
-                        };
-                    }
-                }
-                _ => {}
-            }
-        }
-
-        // TODO gen_op_body_dec_field - SelectObjectContent only
-        return quote! { b = b.#set_field(None); };
-    }
-
-    fn gen_op_body_encoder_field(&mut self, f: &SmithyMember) -> TokenStream {
-        let s = f.get_shape_ref();
-        let shape_ident = s.ident();
-        let sdk_model_ident = s.sdk_model_ident();
-        let field_id = f.ident();
-
-        if f.has_trait(SM_HTTP_PAYLOAD) {
-            if f.has_trait(SM_XML_NAME) {
-                let xml_name = f.get_trait(SM_XML_NAME);
-                if !self.xml_models_done.contains(&s.key) {
-                    self.xml_models_queue
-                        .push((s.key.clone(), s.sdk_model_ident()));
-                }
-                return quote! {
-                    let body = Body::from(xml_response(o.#field_id, #xml_name)?);
-                };
-                // return quote! {
-                //     let body = Body::from(xml_doc!(#xml_name, w, {
-                //         self::models::#shape_ident::encode_xml(w)
-                //     }));
-                // };
-            }
-            match s.get_type() {
-                SM_TYPE_BLOB => {
-                    return quote! { let body = Body::wrap_stream(o.#field_id); };
-                }
-                SM_TYPE_STR => {
-                    return quote! { let body = o.#field_id.map_or(Body::empty(), |s| Body::from(s)); };
-                }
-                _ => {}
-            }
-        }
-
-        // TODO gen_op_body_enc_field
-        return quote! { let body = Body::empty(); };
-    }
-
-    fn gen_xml_model(&mut self, s: &SmithyShape, tok: TokenStream) {
-        let ident = s.ident();
-        let err = format!("Bad {}", s.name);
-        let field_decoders = s
-            .get_members()
-            .map(|ref f| self.gen_xml_dec(f))
-            .collect::<Vec<_>>();
-        let field_encoders = s
-            .get_members()
-            .map(|ref f| self.gen_xml_enc(f))
-            .collect::<Vec<_>>();
-
-        self.write_code(quote! {
-
-            impl XmlModel for #tok {
-
-                fn decode_xml(d: &mut ScopedDecoder) -> Result<Self, S3Error> {
-                    let mut b = Self::builder();
-                    while let Some(mut d) = d.next_tag() {
-                        match d.start_el() {
-                            #(#field_decoders)*
-                             _ => Err(S3Error::bad_request(#err))?,
-                        }
-                    }
-                    Ok(b.build())
-                }
-
-                fn encode_xml(&self, w: &mut ScopeWriter) -> Result<(), S3Error> {
-                    #(#field_encoders)*
-                    Ok(())
-                }
-
-            }
-
-        });
-    }
-
-    fn gen_xml_dec(&mut self, f: &SmithyMember) -> TokenStream {
-        let s = f.get_shape_ref();
-        let set_field = f.set_ident();
-        let shape_name = &s.name;
-
-        match s.get_type() {
-            SM_TYPE_STRUCT => quote! {
-                el if el.matches(#shape_name) => {
-                    b = b.#set_field(None); // TODO decode_xml STRUCTURE
-                },
-            },
-            SM_TYPE_UNION => quote! {
-                el if el.matches(#shape_name) => {
-                    b = b.#set_field(None); // TODO decode_xml UNION
-                },
-            },
-            SM_TYPE_LIST => quote! {
-                el if el.matches(#shape_name) => {
-                    b = b.#set_field(None); // TODO decode_xml LIST
-                    // b = b.#field(None);
-                },
-            },
-            SM_TYPE_TIMESTAMP => quote! {
-                el if el.matches(#shape_name) => {
-                    b = b.#set_field(xml_to_date(&mut d));
-                },
-            },
-            _ => quote! {
-                el if el.matches(#shape_name) => {
-                    b = b.#set_field(xml_to_data(&mut d));
-                },
-            },
-        }
-    }
-
-    fn gen_xml_enc(&mut self, f: &SmithyMember) -> TokenStream {
-        let s = f.get_shape_ref();
-        let field_id = f.ident();
-        let xml_name = if f.has_trait(SM_XML_NAME) {
-            f.get_trait(SM_XML_NAME)
-        } else {
-            f.name.to_string()
-        };
-
-        match s.get_type() {
-            SM_TYPE_STRUCT => {
-                if !self.xml_models_done.contains(&s.key) {
-                    self.xml_models_queue
-                        .push((s.key.clone(), s.sdk_model_ident()));
-                }
-                quote! {
-                    {
-                        let mut w = w.start_el(#xml_name).finish();
-                        if let Some(ref #field_id) = self.#field_id {
-                            #field_id.encode_xml(&mut w)?;
-                        }
-                        w.finish();
-                    }
-                }
-            }
-            // SM_TYPE_UNION => quote! {},
-            SM_TYPE_LIST => {
-                let xml_name = s.get_trait_of("member", SM_XML_NAME);
-                quote! {
-                    let mut w = w.start_el(#xml_name).finish();
-                    for it in self.#field_id.unwrap_or_default() {
-                        set_xml(w, #xml_name, it.clone());
-                    }
-                    w.finish();
-                }
-            }
-            SM_TYPE_TIMESTAMP => quote! {
-                set_xml(w, #xml_name, self.#field_id);
-            },
-            _SM_TYPE_INT | _SM_TYPE_BOOL => quote! {
-                set_xml(w, #xml_name, Some(self.#field_id));
-            },
-            _ => quote! {
-                set_xml(w, #xml_name, self.#field_id.clone());
-            },
-        }
-    }
-
-    fn gen_enum_type(&mut self, en: &SmithyShape) {
-        let sdk_model_ident = en.sdk_model_ident();
-        self.write_code(quote! {
-
-            impl FromHttp for #sdk_model_ident {
-                fn from_http(v: &str) -> Option<Self> {
-                    Some(Self::from(v))
-                }
-            }
-
-            impl ToHeader for &#sdk_model_ident {
-                fn to_header(self) -> Option<HeaderValue> {
-                    self.as_str().to_header()
-                }
-            }
-
-            impl ToXml for #sdk_model_ident {
-                fn to_xml(&self) -> String {
-                    self.as_str().to_string()
-                }
-            }
-
-        });
-    }
-
-    pub fn close_output_file(&mut self) {
-        let w = self.writer.take();
-        if w.is_some() {
-            w.unwrap().flush().unwrap();
-        }
-    }
-    pub fn set_output_file(&mut self, fname: &str) {
-        self.close_output_file();
-        self.writer = Some(CodeWriter::new(&self.out_path.join(fname)));
-    }
-
-    fn write_code<T: ToString>(&mut self, code: T) {
-        let w = self.writer.as_mut().unwrap();
-        w.write_all(code.to_string().as_bytes()).unwrap();
-        w.write_all(b"\n\n").unwrap();
-    }
-
-    fn _writeln<T: AsRef<[u8]>>(&mut self, s: T) {
-        let w = self.writer.as_mut().unwrap();
-        w.write_all(s.as_ref()).unwrap();
-        w.write_all(b"\n").unwrap();
-    }
-}
-
-const _SM_TYPE_SRV: &str = "service";
-const SM_TYPE_OP: &str = "operation";
-const SM_TYPE_STRUCT: &str = "structure";
-const SM_TYPE_UNION: &str = "union";
-const SM_TYPE_LIST: &str = "list";
-const _SM_TYPE_SET: &str = "set";
-const _SM_TYPE_MAP: &str = "map";
-const SM_TYPE_BLOB: &str = "blob";
-const _SM_TYPE_BOOL: &str = "boolean";
-const _SM_TYPE_DOC: &str = "document";
-const SM_TYPE_STR: &str = "string";
-const _SM_TYPE_BYTE: &str = "byte";
-const _SM_TYPE_SHORT: &str = "short";
-const _SM_TYPE_INT: &str = "integer";
-const _SM_TYPE_LONG: &str = "long";
-const _SM_TYPE_FLOAT: &str = "float";
-const _SM_TYPE_DOUBLE: &str = "double";
-const _SM_TYPE_BIGINT: &str = "bigInteger";
-const _SM_TYPE_BIGDEC: &str = "bigDecimal";
-const SM_TYPE_TIMESTAMP: &str = "timestamp";
-
-// smithy traits used in s3.json:
-const _SM_PREFIX: &str = "smithy.api#";
-const _SM_DOC: &str = "smithy.api#documentation";
-const SM_ENUM: &str = "smithy.api#enum";
-const _SM_ERROR: &str = "smithy.api#error";
-const _SM_REQUIRED: &str = "smithy.api#required";
-const _SM_HTTP: &str = "smithy.api#http";
-const SM_HTTP_LABEL: &str = "smithy.api#httpLabel";
-const SM_HTTP_QUERY: &str = "smithy.api#httpQuery";
-const SM_HTTP_HEADER: &str = "smithy.api#httpHeader";
-const SM_HTTP_PAYLOAD: &str = "smithy.api#httpPayload";
-const SM_HTTP_PREFIX_HEADERS: &str = "smithy.api#httpPrefixHeaders";
-const _SM_HTTP_CHECKSUM_REQUIRED: &str = "smithy.api#httpChecksumRequired";
-const _SM_XML_NS: &str = "smithy.api#xmlNamespace";
-const SM_XML_NAME: &str = "smithy.api#xmlName";
-const _SM_XML_ATTR: &str = "smithy.api#xmlAttribute";
-const _SM_XML_FLATTENED: &str = "smithy.api#xmlFlattened";
-const _SM_SENSITIVE: &str = "smithy.api#sensitive";
-const _SM_TIMESTAMP_FORMAT: &str = "smithy.api#timestampFormat";
-const _SM_EVENT_PAYLOAD: &str = "smithy.api#eventPayload";
-const _SM_STREAMING: &str = "smithy.api#streaming";
-const _SM_PAGINATED: &str = "smithy.api#paginated";
-const _SM_DEPRECATED: &str = "smithy.api#deprecated";
-const _SM_TITLE: &str = "smithy.api#title";
-const _SM_PATTERN: &str = "smithy.api#pattern";
-const _SM_LENGTH: &str = "smithy.api#length";
-const _SM_HOST_LABEL: &str = "smithy.api#hostLabel";
-const _SM_ENDPOINT: &str = "smithy.api#endpoint";
-const _SM_AUTH: &str = "smithy.api#auth";
-
 /// unprefix returns just the suffix for `prefix#suffix` strings
 fn unprefix(s: &str) -> String {
     s.split_once('#')
@@ -849,40 +848,6 @@ fn snake(s: &str) -> String {
         }
     }
     out
-}
-
-impl CodeWriter {
-    fn new(file_path: &Path) -> Self {
-        println!("CodeWriter file {:?}", file_path);
-        let file = File::create(file_path).unwrap();
-        let mut rustfmt = Command::new("rustfmt")
-            .arg("--edition=2021")
-            .stdin(Stdio::piped())
-            .stdout(file)
-            .spawn()
-            .unwrap();
-        println!("CodeWriter rustfmt {:?}", rustfmt);
-        let w = BufWriter::new(rustfmt.stdin.take().unwrap());
-        CodeWriter {
-            path: file_path.to_path_buf(),
-            rustfmt: Some(rustfmt),
-            w: Some(w),
-        }
-    }
-}
-
-impl Write for CodeWriter {
-    fn write(&mut self, buf: &[u8]) -> std::io::Result<usize> {
-        self.w.as_mut().unwrap().write(buf)
-    }
-    fn flush(&mut self) -> std::io::Result<()> {
-        println!("CodeWriter flush buffers {}", self.path.display());
-        self.w.take().unwrap().flush()?;
-        println!("CodeWriter wait rustfmt {}", self.path.display());
-        self.rustfmt.take().unwrap().wait()?;
-        println!("CodeWriter done {}", self.path.display());
-        Ok(())
-    }
 }
 
 impl FromJson for SmithyShapeMap {
@@ -941,76 +906,130 @@ pub enum SmithyType {
     Operation,
     Resource,
 }
-
 impl AsRef<str> for SmithyType {
     fn as_ref(&self) -> &str {
         match self {
             // simple-shapes
-            SmithyType::Blob => "blob",
-            SmithyType::Boolean => "boolean",
-            SmithyType::String => "string",
-            SmithyType::Timestamp => "timestamp",
-            SmithyType::Document => "document",
+            SmithyType::Blob => SM_TYPE_BLOB,
+            SmithyType::Boolean => SM_TYPE_BOOLEAN,
+            SmithyType::String => SM_TYPE_STRING,
+            SmithyType::Timestamp => SM_TYPE_TIMESTAMP,
+            SmithyType::Document => SM_TYPE_DOCUMENT,
             // simple-shapes (numbers)
-            SmithyType::Byte => "byte",
-            SmithyType::Short => "short",
-            SmithyType::Integer => "integer",
-            SmithyType::Long => "long",
-            SmithyType::Float => "float",
-            SmithyType::Double => "double",
-            SmithyType::BigInteger => "bigInteger",
-            SmithyType::BigDecimal => "bigDecimal",
+            SmithyType::Byte => SM_TYPE_BYTE,
+            SmithyType::Short => SM_TYPE_SHORT,
+            SmithyType::Integer => SM_TYPE_INTEGER,
+            SmithyType::Long => SM_TYPE_LONG,
+            SmithyType::Float => SM_TYPE_FLOAT,
+            SmithyType::Double => SM_TYPE_DOUBLE,
+            SmithyType::BigInteger => SM_TYPE_BIGINTEGER,
+            SmithyType::BigDecimal => SM_TYPE_BIGDECIMAL,
             // aggregate-shapes
-            SmithyType::Member => "member",
-            SmithyType::List => "list",
-            SmithyType::Set => "set",
-            SmithyType::Map => "map",
-            SmithyType::Structure => "structure",
-            SmithyType::Union => "union",
+            SmithyType::Member => SM_TYPE_MEMBER,
+            SmithyType::List => SM_TYPE_LIST,
+            SmithyType::Set => SM_TYPE_SET,
+            SmithyType::Map => SM_TYPE_MAP,
+            SmithyType::Structure => SM_TYPE_STRUCTURE,
+            SmithyType::Union => SM_TYPE_UNION,
             // service-shapes
-            SmithyType::Service => "service",
-            SmithyType::Operation => "operation",
-            SmithyType::Resource => "resource",
+            SmithyType::Service => SM_TYPE_SERVICE,
+            SmithyType::Operation => SM_TYPE_OPERATION,
+            SmithyType::Resource => SM_TYPE_RESOURCE,
         }
     }
 }
-
+impl From<&str> for SmithyType {
+    fn from(s: &str) -> Self {
+        match s {
+            // simple-shapes
+            SM_TYPE_BLOB => SmithyType::Blob,
+            SM_TYPE_BOOLEAN => SmithyType::Boolean,
+            SM_TYPE_STRING => SmithyType::String,
+            SM_TYPE_TIMESTAMP => SmithyType::Timestamp,
+            SM_TYPE_DOCUMENT => SmithyType::Document,
+            // simple-shapes (numbers)
+            SM_TYPE_BYTE => SmithyType::Byte,
+            SM_TYPE_SHORT => SmithyType::Short,
+            SM_TYPE_INTEGER => SmithyType::Integer,
+            SM_TYPE_LONG => SmithyType::Long,
+            SM_TYPE_FLOAT => SmithyType::Float,
+            SM_TYPE_DOUBLE => SmithyType::Double,
+            SM_TYPE_BIGINTEGER => SmithyType::BigInteger,
+            SM_TYPE_BIGDECIMAL => SmithyType::BigDecimal,
+            // aggregate-shapes
+            SM_TYPE_MEMBER => SmithyType::Member,
+            SM_TYPE_LIST => SmithyType::List,
+            SM_TYPE_SET => SmithyType::Set,
+            SM_TYPE_MAP => SmithyType::Map,
+            SM_TYPE_STRUCTURE => SmithyType::Structure,
+            SM_TYPE_UNION => SmithyType::Union,
+            // service-shapes
+            SM_TYPE_SERVICE => SmithyType::Service,
+            SM_TYPE_OPERATION => SmithyType::Operation,
+            SM_TYPE_RESOURCE => SmithyType::Resource,
+            _ => panic!("unknown SmithyType: {}", s),
+        }
+    }
+}
 impl ToString for SmithyType {
     fn to_string(&self) -> String {
         self.as_ref().to_string()
     }
 }
 
-impl From<&str> for SmithyType {
-    fn from(s: &str) -> Self {
-        match s {
-            // simple-shapes
-            "blob" => SmithyType::Blob,
-            "boolean" => SmithyType::Boolean,
-            "string" => SmithyType::String,
-            "timestamp" => SmithyType::Timestamp,
-            "document" => SmithyType::Document,
-            // simple-shapes (numbers)
-            "byte" => SmithyType::Byte,
-            "short" => SmithyType::Short,
-            "integer" => SmithyType::Integer,
-            "long" => SmithyType::Long,
-            "float" => SmithyType::Float,
-            "double" => SmithyType::Double,
-            "bigInteger" => SmithyType::BigInteger,
-            "bigDecimal" => SmithyType::BigDecimal,
-            // aggregate-shapes
-            "member" => SmithyType::Member,
-            "list" => SmithyType::List,
-            "set" => SmithyType::Set,
-            "map" => SmithyType::Map,
-            "structure" => SmithyType::Structure,
-            "union" => SmithyType::Union,
-            // service-shapes
-            "service" => SmithyType::Service,
-            "operation" => SmithyType::Operation,
-            "resource" => SmithyType::Resource,
-            _ => panic!("unknown SmithyType: {}", s),
-        }
-    }
-}
+// simple-shapes
+const SM_TYPE_BLOB: &str = "blob";
+const SM_TYPE_BOOLEAN: &str = "boolean";
+const SM_TYPE_STRING: &str = "string";
+const SM_TYPE_TIMESTAMP: &str = "timestamp";
+const SM_TYPE_DOCUMENT: &str = "document";
+// simple-shapes (numbers)
+const SM_TYPE_BYTE: &str = "byte";
+const SM_TYPE_SHORT: &str = "short";
+const SM_TYPE_INTEGER: &str = "integer";
+const SM_TYPE_LONG: &str = "long";
+const SM_TYPE_FLOAT: &str = "float";
+const SM_TYPE_DOUBLE: &str = "double";
+const SM_TYPE_BIGINTEGER: &str = "bigInteger";
+const SM_TYPE_BIGDECIMAL: &str = "bigDecimal";
+// aggregate-shapes
+const SM_TYPE_MEMBER: &str = "member";
+const SM_TYPE_LIST: &str = "list";
+const SM_TYPE_SET: &str = "set";
+const SM_TYPE_MAP: &str = "map";
+const SM_TYPE_STRUCTURE: &str = "structure";
+const SM_TYPE_UNION: &str = "union";
+// service-shapes
+const SM_TYPE_SERVICE: &str = "service";
+const SM_TYPE_OPERATION: &str = "operation";
+const SM_TYPE_RESOURCE: &str = "resource";
+
+// smithy traits used in s3.json:
+const _SM_PREFIX: &str = "smithy.api#";
+const _SM_DOC: &str = "smithy.api#documentation";
+const SM_ENUM: &str = "smithy.api#enum";
+const _SM_ERROR: &str = "smithy.api#error";
+const _SM_REQUIRED: &str = "smithy.api#required";
+const _SM_HTTP: &str = "smithy.api#http";
+const SM_HTTP_LABEL: &str = "smithy.api#httpLabel";
+const SM_HTTP_QUERY: &str = "smithy.api#httpQuery";
+const SM_HTTP_HEADER: &str = "smithy.api#httpHeader";
+const SM_HTTP_PAYLOAD: &str = "smithy.api#httpPayload";
+const SM_HTTP_PREFIX_HEADERS: &str = "smithy.api#httpPrefixHeaders";
+const _SM_HTTP_CHECKSUM_REQUIRED: &str = "smithy.api#httpChecksumRequired";
+const _SM_XML_NS: &str = "smithy.api#xmlNamespace";
+const SM_XML_NAME: &str = "smithy.api#xmlName";
+const _SM_XML_ATTR: &str = "smithy.api#xmlAttribute";
+const _SM_XML_FLATTENED: &str = "smithy.api#xmlFlattened";
+const _SM_SENSITIVE: &str = "smithy.api#sensitive";
+const _SM_TIMESTAMP_FORMAT: &str = "smithy.api#timestampFormat";
+const _SM_EVENT_PAYLOAD: &str = "smithy.api#eventPayload";
+const _SM_STREAMING: &str = "smithy.api#streaming";
+const _SM_PAGINATED: &str = "smithy.api#paginated";
+const _SM_DEPRECATED: &str = "smithy.api#deprecated";
+const _SM_TITLE: &str = "smithy.api#title";
+const _SM_PATTERN: &str = "smithy.api#pattern";
+const _SM_LENGTH: &str = "smithy.api#length";
+const _SM_HOST_LABEL: &str = "smithy.api#hostLabel";
+const _SM_ENDPOINT: &str = "smithy.api#endpoint";
+const _SM_AUTH: &str = "smithy.api#auth";

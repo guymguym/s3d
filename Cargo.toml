@@ -52,10 +52,10 @@ proc-macro2 = "1.0.34"
 bytes = "1.1.0"
 base64 = "0.13.0"
 chrono = "0.4.19"
-clap = "3.0.0-rc.4"
 url = "2.2.2"
 urlencoding = "2.1.0"
 uuid = { version = "0.8.2", features = ["v4"] }
+clap = { version = "3.0.0-rc.7", features = ["derive"] }
 
 # Encoding/decoding crates
 
@@ -66,18 +66,18 @@ quick-xml = "0.22.0" # seems to be more popular than other serde_xml* crates
 
 # AWS crates
 
-aws-types = "0.3.0"
-aws-hyper = "0.3.0"
-aws-config = "0.3.0"
-aws-endpoint = "0.3.0"
-aws-sdk-s3 = "0.3.0"
-aws-sdk-signer = "0.3.0"
+aws-smithy-client = { version = "0.33.1", features = ["client-hyper"] }
+aws-smithy-http = "0.33.1"
+aws-smithy-http-server = "0.33.1"
 aws-smithy-xml = "0.33.1"
 aws-smithy-json = "0.33.1"
 aws-smithy-query = "0.33.1"
 aws-smithy-types = "0.33.1"
-aws-smithy-client = "0.33.1"
-aws-smithy-http = "0.33.1"
-aws-smithy-http-tower = "0.33.1"
+
+aws-types = "0.3.0"
+aws-config = "0.3.0"
+aws-endpoint = "0.3.0"
+aws-sdk-s3 = "0.3.0"
+aws-sdk-signer = "0.3.0"
 
 s3 = { path = "./s3-server-codegen/" }

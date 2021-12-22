@@ -117,13 +117,14 @@ impl Daemon {
             ($op:ident) => {
                 paste::paste! {
                     {
-                        let input = crate::gen::server::[<$op>]::decode_input(req).await?;
-                        debug!("input {:?}", input);
-                        let output = self.s3d_api.[<$op:snake>](input).await.map_err(|err| err.meta().clone())?;
-                        debug!("output {:?}", output);
-                        let response = crate::gen::server::[<$op>]::encode_output(output).await?;
-                        debug!("response {:?}", response);
-                        response
+                        // let input = crate::gen::server::[<$op>]::decode_input(req).await?;
+                        // debug!("input {:?}", input);
+                        // let output = self.s3d_api.[<$op:snake>](input).await.map_err(|err| err.meta().clone())?;
+                        // debug!("output {:?}", output);
+                        // let response = crate::gen::server::[<$op>]::encode_output(output).await?;
+                        // debug!("response {:?}", response);
+                        // response
+                        responder().body(Body::empty())?
                     }
                 }
             };

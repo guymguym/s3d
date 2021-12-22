@@ -16,6 +16,9 @@ pub mod store;
 extern crate log;
 
 #[macro_use]
+extern crate clap;
+
+#[macro_use]
 extern crate anyhow;
 
 use crate::cli::CLI;

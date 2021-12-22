@@ -4,6 +4,11 @@ use crate::store;
 use aws_sdk_s3::{error::*, input::*, output::*};
 use aws_smithy_http::result::SdkError;
 
+pub type SMClient = aws_smithy_client::Client<
+    aws_smithy_client::erase::DynConnector,
+    aws_sdk_s3::middleware::DefaultMiddleware,
+>;
+
 /// This macro generates a default function for each op.
 macro_rules! gen_api_default_fn {
     ($op:ident) => {
@@ -27,7 +32,7 @@ macro_rules! gen_api_default_fn {
 /// This can be connected to any S3 service directly.
 pub trait S3Api: Sync + Send {
     fn get_s3_conf<'a>(&'a self) -> &'a aws_sdk_s3::Config;
-    fn get_sm_client<'a>(&'a self) -> &'a aws_hyper::StandardClient;
+    fn get_sm_client<'a>(&'a self) -> &'a SMClient;
     generate_code_for_each_s3_op!(gen_api_default_fn);
 }
 
@@ -35,12 +40,27 @@ pub trait S3Api: Sync + Send {
 #[derive(Debug)]
 pub struct S3DApi {
     pub s3_client: aws_sdk_s3::Client,
-    pub sm_client: aws_hyper::StandardClient,
+    pub sm_client: SMClient,
 }
 
 impl S3DApi {
     pub fn new(s3_client: aws_sdk_s3::Client) -> Self {
-        let sm_client = aws_hyper::https();
+        // let retry_config = conf.retry_config.as_ref().cloned().unwrap_or_default();
+        // let timeout_config = conf.timeout_config.as_ref().cloned().unwrap_or_default();
+        // let sleep_impl = conf.sleep_impl.clone();
+        // builder.set_retry_config(retry_config.into());
+        // builder.set_timeout_config(timeout_config);
+        // the builder maintains a try-state. To avoid suppressing the warning when sleep is unset,
+        // only set it if we actually have a sleep impl.
+        // if let Some(sleep_impl) = sleep_impl {
+        //     builder.set_sleep_impl(Some(sleep_impl));
+        // }
+        let mut sm_builder = aws_smithy_client::Builder::dyn_https()
+            .middleware(aws_sdk_s3::middleware::DefaultMiddleware::new());
+        let sm_client = sm_builder.build();
+
+        // let sm_client =
+        // aws_smithy_client::Client::new(aws_smithy_client::conns::https()).into_dyn();
         Self {
             s3_client,
             sm_client,
@@ -52,7 +72,7 @@ impl S3Api for S3DApi {
     fn get_s3_conf<'a>(&'a self) -> &'a aws_sdk_s3::Config {
         &self.s3_client.conf()
     }
-    fn get_sm_client<'a>(&'a self) -> &'a aws_hyper::StandardClient {
+    fn get_sm_client<'a>(&'a self) -> &'a SMClient {
         &self.sm_client
     }
 
