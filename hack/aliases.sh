@@ -1,4 +1,4 @@
-# source me to add aliases to your shell
+# source me to add aliases to the shell
 export S3D_ENDPOINT='http://localhost:3333'
 alias s3d='cargo -q run --'
 alias s3w='cargo -q run --example writer --'

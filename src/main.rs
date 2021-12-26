@@ -6,7 +6,7 @@ pub mod api;
 pub mod cli;
 pub mod conf;
 pub mod daemon;
-pub mod fuse;
+// pub mod fuse;
 pub mod gen;
 pub mod proto;
 pub mod resources;

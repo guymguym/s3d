@@ -37,7 +37,7 @@ use std::{
 fn main() {
     let out_dir = env::var("OUT_DIR").unwrap();
     let out_path = Path::new(out_dir.as_str());
-    let model_path = Path::new("models").join("s3.json");
+    let model_path = Path::new("smithy/models/s3.json");
     println!("cargo:rerun-if-changed=build.rs");
     println!("cargo:rerun-if-changed={}", model_path.display());
     let model_json: Value = serde_json::from_reader(File::open(model_path).unwrap()).unwrap();

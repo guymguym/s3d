@@ -28,7 +28,7 @@ static DAEMON: OnceCell<Daemon> = OnceCell::const_new();
 pub async fn run(conf: Conf) -> anyhow::Result<()> {
     DAEMON.set(Daemon::new(conf).await).unwrap();
     tokio::try_join!(
-        DAEMON.get().unwrap().start_fuse_mount(),
+        // DAEMON.get().unwrap().start_fuse_mount(),
         DAEMON.get().unwrap().start_http_server(),
     )?;
     Ok(())
@@ -54,6 +54,7 @@ impl Daemon {
             let srv = service_fn(move |req| self.handle_http(req, remote_addr));
             async move { Ok::<_, Infallible>(srv) }
         });
+
         let server = hyper::Server::bind(&addr).serve(mksrv);
         info!("Listening on http://{}", addr);
         server.await?;
