@@ -4,6 +4,7 @@
 
 pub mod api;
 pub mod cli;
+pub mod codegen;
 pub mod conf;
 pub mod daemon;
 // pub mod fuse;

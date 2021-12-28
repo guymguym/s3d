@@ -1,0 +1,4 @@
+[submodule "smithy-rs"]
+	path = smithy-rs
+	url = https://github.com/s3d-rs/smithy-rs
+	branch = s3d

@@ -29,7 +29,8 @@ pub async fn run(conf: Conf) -> anyhow::Result<()> {
     DAEMON.set(Daemon::new(conf).await).unwrap();
     tokio::try_join!(
         // DAEMON.get().unwrap().start_fuse_mount(),
-        DAEMON.get().unwrap().start_http_server(),
+        // DAEMON.get().unwrap().start_http_server(),
+        crate::codegen::serve(),
     )?;
     Ok(())
 }
