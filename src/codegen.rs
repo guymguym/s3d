@@ -7,7 +7,7 @@ pub async fn serve() -> anyhow::Result<()> {
             Ok(AbortMultipartUploadOutput::builder().build())
         })
         .complete_multipart_upload(|i: CompleteMultipartUploadInput| async move {
-            println!("abort_multipart_upload: {:?}", i);
+            println!("complete_multipart_upload: {:?}", i);
             CompleteMultipartUploadOutput::builder().build()
         })
         .copy_object(|i: CopyObjectInput| async move {
