@@ -68,42 +68,41 @@ serde_yaml = "0.8.23"
 
 [dependencies.aws-config]
 version = "0.3.0"
-path = "smithy-rs/aws/sdk/build/aws-sdk/sdk/aws-config"
-
-[dependencies.aws-sdk-s3]
-version = "0.3.0"
-path = "smithy-rs/aws/sdk/build/aws-sdk/sdk/s3"
+path = "smithy-rs/s3d/build/rust-runtime/aws-config"
 
 [dependencies.aws-smithy-client]
 version = "0.33.1"
-path = "smithy-rs/aws/sdk/build/aws-sdk/sdk/aws-smithy-client"
+path = "smithy-rs/s3d/build/rust-runtime/aws-smithy-client"
 features = ["client-hyper"]
 
 [dependencies.aws-smithy-types]
 version = "0.33.1"
-path = "smithy-rs/aws/sdk/build/aws-sdk/sdk/aws-smithy-types"
+path = "smithy-rs/s3d/build/rust-runtime/aws-smithy-types"
 
 [dependencies.aws-smithy-xml]
 version = "0.33.1"
-path = "smithy-rs/aws/sdk/build/aws-sdk/sdk/aws-smithy-xml"
+path = "smithy-rs/s3d/build/rust-runtime/aws-smithy-xml"
 
 #[dependencies.aws-smithy-json]
 #version = "0.33.1"
-#path = "smithy-rs/aws/sdk/build/aws-sdk/sdk/aws-smithy-json"
+#path = "smithy-rs/s3d/build/rust-runtime/aws-smithy-json"
 
 #[dependencies.aws-smithy-query]
 #version = "0.33.1"
-#path = "smithy-rs/aws/sdk/build/aws-sdk/sdk/aws-smithy-query"
+#path = "smithy-rs/s3d/build/rust-runtime/aws-smithy-query"
 
 [dependencies.aws-smithy-http]
 version = "0.33.1"
-path = "smithy-rs/aws/sdk/build/aws-sdk/sdk/aws-smithy-http"
-features = ["event-stream"]
+path = "smithy-rs/s3d/build/rust-runtime/aws-smithy-http"
+
+[dependencies.aws-sdk-s3]
+version = "0.3.0"
+path = "smithy-rs/s3d/build/rust-runtime/aws-sdk-s3"
 
 [dependencies.aws-smithy-http-server]
 #version = "0.33.1"
 version = "0"
-path = "smithy-rs/rust-runtime/aws-smithy-http-server"
+path = "smithy-rs/s3d/build/rust-runtime/aws-smithy-http-server"
 
 [dependencies.s3-codegen-server]
 #version = "0.3.0"

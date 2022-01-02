@@ -1,17 +1,19 @@
-use s3_codegen_server::{error::*, input::*, operation_registry::*, output::*};
+use crate::store;
+use aws_sdk_s3::error::PutObjectError;
+use s3_codegen_server::{input::*, operation_registry::*, output::*};
 
 pub async fn serve() -> anyhow::Result<()> {
     let ops = OperationRegistryBuilder::default()
         .abort_multipart_upload(|i: AbortMultipartUploadInput| async move {
-            println!("abort_multipart_upload: {:?}", i);
+            info!("abort_multipart_upload: {:?}", i);
             Ok(AbortMultipartUploadOutput::builder().build())
         })
         .complete_multipart_upload(|i: CompleteMultipartUploadInput| async move {
-            println!("complete_multipart_upload: {:?}", i);
+            info!("complete_multipart_upload: {:?}", i);
             CompleteMultipartUploadOutput::builder().build()
         })
         .copy_object(|i: CopyObjectInput| async move {
-            println!("copy_object: {:?}", i);
+            info!("copy_object: {:?}", i);
             Ok(CopyObjectOutput::builder().build())
         })
         .create_bucket(|i: CreateBucketInput| async move {
@@ -186,7 +188,7 @@ pub async fn serve() -> anyhow::Result<()> {
         })
         .get_object(|i: GetObjectInput| async move {
             info!("get_object: {:?}", i);
-            Ok(get_object_output::Builder::default().build())
+            store::get_object(i).await
         })
         .get_object_acl(|i: GetObjectAclInput| async move {
             info!("get_object_acl: {:?}", i);
@@ -350,7 +352,7 @@ pub async fn serve() -> anyhow::Result<()> {
         })
         .put_object(|i: PutObjectInput| async move {
             info!("put_object: {:?}", i);
-            put_object_output::Builder::default().build()
+            store::put_object(i).await.unwrap()
         })
         .put_object_acl(|i: PutObjectAclInput| async move {
             info!("put_object_acl: {:?}", i);
@@ -394,6 +396,22 @@ pub async fn serve() -> anyhow::Result<()> {
         })
         .build()
         .unwrap();
+
+    {
+        #[rustfmt::skip]
+        let _: &OperationRegistry<hyper::Body,
+            _, (), _, (), _, (), _, (), _, (), _, (), _, (), _, (), _, (), _, (),
+            _, (), _, (), _, (), _, (), _, (), _, (), _, (), _, (), _, (), _, (),
+            _, (), _, (), _, (), _, (), _, (), _, (), _, (), _, (), _, (), _, (),
+            _, (), _, (), _, (), _, (), _, (), _, (), _, (), _, (), _, (), _, (),
+            _, (), _, (), _, (), _, (), _, (), _, (), _, (), _, (), _, (), _, (),
+            _, (), _, (), _, (), _, (), _, (), _, (), _, (), _, (), _, (), _, (),
+            _, (), _, (), _, (), _, (), _, (), _, (), _, (), _, (), _, (), _, (),
+            _, (), _, (), _, (), _, (), _, (), _, (), _, (), _, (), _, (), _, (),
+            _, (), _, (), _, (), _, (), _, (), _, (), _, (), _, (), _, (), _, (),
+            _, ()> = &ops;
+    }
+
     let router = aws_smithy_http_server::Router::from(ops);
     let addr = std::net::SocketAddr::from(([127, 0, 0, 1], 3333));
     let server = hyper::Server::bind(&addr).serve(router.into_make_service());
@@ -401,139 +419,3 @@ pub async fn serve() -> anyhow::Result<()> {
     server.await?;
     Ok(())
 }
-
-// pub async fn abort_multipart_upload_handler(
-//     i: AbortMultipartUploadInput,
-// ) -> Result<
-//     AbortMultipartUploadOutput,
-//     s3_server_codegen::error::AbortMultipartUploadError,
-// > {
-//     Ok(abort_multipart_upload_output::Builder::default().build())
-// }
-
-// pub async fn complete_multipart_upload_handler(
-//     i: CompleteMultipartUploadInput,
-// ) -> CompleteMultipartUploadOutput {
-//     complete_multipart_upload_output::Builder::default().build()
-// }
-
-// pub trait Fut<O, E>: std::future::Future<Output = Result<O, E>> + Clone + Send + 'static {}
-// pub type Fun1<I, O, E> = dyn FnOnce(I) -> dyn Fut<O, E>;
-// pub trait Fun2<I, Fut>: FnOnce(I) -> Fut {}
-
-// pub fn handler<I, O, E, T: Fut<O, E>>() -> impl FnOnce(I) -> T {
-//     |_| unimplemented!()
-// }
-
-// pub struct Handler<I,O,E> = T where T: FnOnce(I) -> Fut<O, E>;{
-//      Fut: std::future::Future<Output = Result<O, E>> + Clone + Send + Sized + 'static;
-//     pub fun: FnOnce(I) ,
-// }
-
-// #[rustfmt::skip]
-// pub type S3OperationsRegistry = OperationRegistry<
-//     aws_smithy_http_server::Body,
-//     Fun1<
-//         AbortMultipartUploadInput,
-//         AbortMultipartUploadOutput,
-//         s3_server_codegen::error::AbortMultipartUploadError>, (),
-//     (), (),
-//     (), (),
-//     (), (),
-//     (), (),
-//     (), (),
-//     (), (),
-//     (), (),
-//     (), (),
-//     (), (),
-
-//     (), (),
-//     (), (),
-//     (), (),
-//     (), (),
-//     (), (),
-//     (), (),
-//     (), (),
-//     (), (),
-//     (), (),
-//     (), (),
-
-//     (), (),
-//     (), (),
-//     (), (),
-//     (), (),
-//     (), (),
-//     (), (),
-//     (), (),
-//     (), (),
-//     (), (),
-//     (), (),
-
-//     (), (),
-//     (), (),
-//     (), (),
-//     (), (),
-//     (), (),
-//     (), (),
-//     (), (),
-//     (), (),
-//     (), (),
-//     (), (),
-
-//     (), (),
-//     (), (),
-//     (), (),
-//     (), (),
-//     (), (),
-//     (), (),
-//     (), (),
-//     (), (),
-//     (), (),
-//     (), (),
-
-//     (), (),
-//     (), (),
-//     (), (),
-//     (), (),
-//     (), (),
-//     (), (),
-//     (), (),
-//     (), (),
-//     (), (),
-//     (), (),
-
-//     (), (),
-//     (), (),
-//     (), (),
-//     (), (),
-//     (), (),
-//     (), (),
-//     (), (),
-//     (), (),
-//     (), (),
-//     (), (),
-
-//     (), (),
-//     (), (),
-//     (), (),
-//     (), (),
-//     (), (),
-//     (), (),
-//     (), (),
-//     (), (),
-//     (), (),
-//     (), (),
-
-//     (), (),
-//     (), (),
-//     (), (),
-//     (), (),
-//     (), (),
-//     (), (),
-//     (), (),
-//     (), (),
-//     (), (),
-//     (), (),
-
-//     (), (),
-// >;

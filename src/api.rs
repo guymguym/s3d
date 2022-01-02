@@ -76,9 +76,9 @@ impl S3Api for S3DApi {
         &self.sm_client
     }
 
-    fn put_object(&self, mut i: PutObjectInput) -> TraitFuture<PutObjectOutput, PutObjectError> {
-        Box::pin(async move { store::put_object(i).await })
-    }
+    // fn put_object(&self, mut i: PutObjectInput) -> TraitFuture<PutObjectOutput, PutObjectError> {
+    //     Box::pin(async move { store::put_object(i).await })
+    // }
 
     // fn get_object(&self, _i: GetObjectInput) -> TraitFuture<GetObjectOutput, GetObjectError> {
     //     Box::pin(async move {

@@ -1,58 +1,41 @@
-use aws_sdk_s3::{error::*, input::*, output::*, ByteStream};
-use tokio::{
-    fs::File,
-    io::{AsyncReadExt, AsyncWriteExt},
-};
-use tokio_stream::{Stream, StreamExt};
+use s3_codegen_server::{error::*, input::*, output::*, ByteStream};
+use std::path::Path;
+use tokio::{fs::File, io::AsyncWriteExt};
+use tokio_stream::StreamExt;
 
-type DataStreamItem = Result<hyper::body::Bytes, aws_smithy_http::byte_stream::Error>;
-
-pub async fn put_object(mut i: PutObjectInput) -> Result<PutObjectOutput, PutObjectError> {
+pub async fn get_object(mut i: GetObjectInput) -> Result<GetObjectOutput, GetObjectError> {
     warn!("-----------------------");
     warn!("------ S3D STORE ------");
     warn!("-----------------------");
-    let fname = format!(
-        ".s3d/{}/{}",
-        i.bucket().unwrap(),
-        urlencoding::encode(i.key().unwrap())
-    );
-    write_stream_to_file(fname.as_ref(), &mut i.body)
+    let fname = to_file_name(i.bucket(), i.key());
+    let stream = ByteStream::from_path(Path::new(&fname))
         .await
-        .map_err(|e| PutObjectError::unhandled(e))?;
+        .map_err(|err| {
+            error!("{}", err);
+            GetObjectError::NoSuchKey(NoSuchKey::builder().build())
+        })?;
+    Ok(GetObjectOutput::builder().set_body(Some(stream)).build())
+}
+
+pub async fn put_object(mut i: PutObjectInput) -> anyhow::Result<PutObjectOutput> {
+    warn!("-----------------------");
+    warn!("------ S3D STORE ------");
+    warn!("-----------------------");
+    let fname = to_file_name(i.bucket(), i.key());
+    let mut file = File::create(fname).await?;
+    while let Some(v) = i.body.next().await {
+        file.write_all(&v?).await?;
+    }
+    file.flush().await?;
+    file.sync_all().await?;
+    file.shutdown().await?;
     Ok(PutObjectOutput::builder().e_tag("s3d-etag-todo").build())
 }
 
-async fn write_stream_to_file<T: Stream<Item = DataStreamItem> + Unpin>(
-    fname: &str,
-    stream: &mut T,
-) -> Result<(), std::io::Error> {
-    let mut file = File::create(fname).await.unwrap();
-    while let Some(v) = stream.next().await {
-        file.write_all(&v.unwrap()).await.unwrap();
-    }
-    file.flush().await.unwrap();
-    file.sync_all().await.unwrap();
-    file.shutdown().await?;
-    Ok(())
+pub fn to_file_name(bucket: Option<&str>, key: Option<&str>) -> String {
+    format!(
+        ".s3d/{}/{}",
+        bucket.unwrap(),
+        urlencoding::encode(key.unwrap())
+    )
 }
-
-// async fn read_stream_from_file<T: Stream<Item = DataStreamItem> + Unpin>(
-//     fname: &str,
-//     stream: &mut T,
-// ) -> Result<(), std::io::Error> {
-//     let mut file = File::open(fname).await.unwrap();
-//     while let Some(v) = file.next().await {
-//         stream.write_all(&v.unwrap()).await.unwrap();
-//     }
-//     Ok(())
-// }
-
-// pub async fn get_object<T: Stream<Item = DataStreamItem> + Unpin>() -> Result<T, anyhow::Error> {
-//     let mut file = File::open("foo.txt").await.unwrap();
-//     while let Some(v) = file.next().await {
-//         file.write_all(&v.unwrap()).await.unwrap();
-//     }
-//     file.flush().await.unwrap();
-//     file.sync_all().await.unwrap();
-//     file.shutdown().await.unwrap();
-// }
