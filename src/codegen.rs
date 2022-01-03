@@ -1,6 +1,6 @@
 use crate::store;
 use aws_sdk_s3::error::PutObjectError;
-use s3_codegen_server::{input::*, operation_registry::*, output::*};
+use s3d_codegen::{input::*, operation_registry::*, output::*};
 
 pub async fn serve() -> anyhow::Result<()> {
     let ops = OperationRegistryBuilder::default()

@@ -223,7 +223,7 @@ dependencies = [
 
 [[package]]
 name = "aws-smithy-http-server"
-version = "0.1.0"
+version = "0.33.1"
 dependencies = [
  "async-trait",
  "aws-smithy-http",
@@ -1062,26 +1062,6 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "73b4b750c782965c211b42f022f59af1fbceabdd026623714f104152f1ec149f"
 
 [[package]]
-name = "s3-codegen-server"
-version = "0.0.1"
-dependencies = [
- "async-trait",
- "aws-smithy-http",
- "aws-smithy-http-server",
- "aws-smithy-types",
- "aws-smithy-xml",
- "axum-core",
- "futures-util",
- "http",
- "lazy_static",
- "percent-encoding",
- "pin-project-lite",
- "regex",
- "serde_urlencoded",
- "tower",
-]
-
-[[package]]
 name = "s3d"
 version = "0.0.1-alpha4"
 dependencies = [
@@ -1105,7 +1085,7 @@ dependencies = [
  "paste",
  "proc-macro2",
  "quote",
- "s3-codegen-server",
+ "s3d-codegen",
  "serde",
  "serde_json",
  "serde_yaml",
@@ -1114,6 +1094,26 @@ dependencies = [
  "url",
  "urlencoding 2.1.0",
  "uuid",
+]
+
+[[package]]
+name = "s3d-codegen"
+version = "0.0.1"
+dependencies = [
+ "async-trait",
+ "aws-smithy-http",
+ "aws-smithy-http-server",
+ "aws-smithy-types",
+ "aws-smithy-xml",
+ "axum-core",
+ "futures-util",
+ "http",
+ "lazy_static",
+ "percent-encoding",
+ "pin-project-lite",
+ "regex",
+ "serde_urlencoded",
+ "tower",
 ]
 
 [[package]]
