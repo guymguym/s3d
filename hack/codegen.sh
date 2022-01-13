@@ -4,7 +4,7 @@
 
 set -e -x -o pipefail
 
-# build with smithy-rs wrapped in sub shell to avoid polution of env
+# build with smithy-rs wrapped in sub shell to avoid polution of working dir (or env)
 (
     set -e -x -o pipefail
     cd smithy-rs
@@ -22,8 +22,8 @@ echo "----------------------------"
 echo "USE WITH:"
 echo "- . hack/aliases.sh"
 echo "- s3d run"
-echo "- s3c ls"
-echo "- s3a list-buckets"
+echo "- s3 ls"
+echo "- s3api list-buckets"
 echo "----------------------------"
 echo ""
 echo ""

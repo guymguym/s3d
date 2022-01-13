@@ -4,14 +4,15 @@
 
 pub mod api;
 pub mod cli;
-pub mod codegen;
 pub mod conf;
 pub mod daemon;
-// pub mod fuse;
 pub mod gen;
 pub mod proto;
 pub mod resources;
+pub mod router;
 pub mod store;
+
+// pub mod fuse;
 
 #[macro_use]
 extern crate log;

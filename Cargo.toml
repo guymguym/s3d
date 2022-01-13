@@ -22,19 +22,20 @@ maintenance = { status = "experimental" }
 panic = 'abort'
 
 [build-dependencies]
-quote = "1.0.10"
-proc-macro2 = "1.0.33"
-serde = { version = "1.0.130", features = ["derive"] }
-serde_json = "1.0.72"
+quote = "1.0.14"
+proc-macro2 = "1.0.36"
+serde = { version = "1.0.133", features = ["derive"] }
+serde_json = "1.0.74"
 
 [dependencies]
 
 ## Runtime crates
 
 hyper = { version = "0.14.16", features = ["full"] }
+tower = { version = "0.4.11", features = ["full"] }
 tokio = { version = "1.15.0", features = ["full"] }
 tokio-stream = "0.1.8"
-#fuser = "0.9.1"
+#fuser = "0.10.0"
 libc = "0.2.112"
 log = "0.4.14"
 env_logger = "0.9.0"
@@ -55,53 +56,40 @@ chrono = "0.4.19"
 url = "2.2.2"
 urlencoding = "2.1.0"
 uuid = { version = "0.8.2", features = ["v4"] }
-clap = { version = "3.0.0-rc.9", features = ["derive"] }
+clap = { version = "3.0.7", features = ["derive"] }
 
 ## Encoding/decoding crates
 
-serde = { version = "1.0.132", features = ["derive"] }
+serde = { version = "1.0.133", features = ["derive"] }
 serde_yaml = "0.8.23"
-#serde_json = "1.0.73"
+#serde_json = "1.0.74"
 #quick-xml = "0.22.0" # seems to be more popular than other serde_xml* crates
 
 ## AWS smithy-rs crates (git submodule)
-
-[dependencies.aws-config]
-version = "0.3.0"
-path = "codegen/build/rust-runtime/aws-config"
 
 [dependencies.aws-smithy-client]
 version = "0.33.1"
 path = "codegen/build/rust-runtime/aws-smithy-client"
 features = ["client-hyper"]
-
 [dependencies.aws-smithy-types]
 version = "0.33.1"
 path = "codegen/build/rust-runtime/aws-smithy-types"
-
 [dependencies.aws-smithy-xml]
 version = "0.33.1"
 path = "codegen/build/rust-runtime/aws-smithy-xml"
-
-#[dependencies.aws-smithy-json]
-#version = "0.33.1"
-#path = "codegen/build/rust-runtime/aws-smithy-json"
-
-#[dependencies.aws-smithy-query]
-#version = "0.33.1"
-#path = "codegen/build/rust-runtime/aws-smithy-query"
-
 [dependencies.aws-smithy-http]
 version = "0.33.1"
 path = "codegen/build/rust-runtime/aws-smithy-http"
-
-[dependencies.aws-sdk-s3]
-version = "0.3.0"
-path = "codegen/build/rust-runtime/aws-sdk-s3"
-
 [dependencies.aws-smithy-http-server]
 version = "0.33.1"
 path = "codegen/build/rust-runtime/aws-smithy-http-server"
+
+[dependencies.aws-config]
+version = "0.3.0"
+path = "codegen/build/rust-runtime/aws-config"
+[dependencies.aws-sdk-s3]
+version = "0.3.0"
+path = "codegen/build/rust-runtime/aws-sdk-s3"
 
 [dependencies.s3d-codegen]
 #version = "0.3.0"
