@@ -27,12 +27,11 @@
 </div>
 <br />
 
-
 # S3 Daemon
 
 `s3d` is a daemon for efficient data access to remote S3 API storage.
-The promise of `s3d` is simple - Applications that deploy remotely from their main S3 storage, 
-  can run it as their S3 gateway to optimize data availability, performance, and costs.
+The promise of `s3d` is simple - Applications that deploy remotely from their main S3 storage,
+can run it as their S3 gateway to optimize data availability, performance, and costs.
 
 The need for a solution like `s3d` emerges from Edge computing use cases,
 where data is owned by a super-massive main S3 storage,
@@ -44,28 +43,29 @@ but the applications are deployed to a remote location:
 
 # Features
 
-1. **S3-API** - generate protocol code with awslabs/smithy-rs 
-  which is highly compatible and parses S3 requests and responses.
+1. **S3-API** - generate protocol code with awslabs/smithy-rs
+   which is highly compatible and parses S3 requests and responses.
 1. **UPLOAD-QUEUE** - writing new objects to local filesystem first,
-  and pushing in the background to the main storage to tolerate connection issues.
+   and pushing in the background to the main storage to tolerate connection issues.
 1. **READ-CACHE** - store cached and prefetched objects in local filesystem
-  to reduce egress costs and latency of reads from main storage.
+   to reduce egress costs and latency of reads from main storage.
 1. **SELECTORS** - choose which objects to include/exclude for upload/cache/sync
-  by bucket name, bucket tags, object keys (or prefixes), object tags, and object meta-data.
+   by bucket name, bucket tags, object keys (or prefixes), object tags, and object meta-data.
 1. **SYNC-FOLDER** - continuous and bidirectional background sync of remote buckets
-  with a local dir (aka "dropbox folder").
+   with a local dir (aka "dropbox folder").
 1. **FUSE-MOUNT** - filesystem in userspace lets the daemon provide a mount point
-  and map FS requests to S3 API for applications that do not use S3.
+   and map FS requests to S3 API for applications that do not use S3.
 
 # Architecture
 
-`s3d` aims to integrate with open source tools and platforms and keep itself as simple as possible, 
+`s3d` aims to integrate with open source tools and platforms and keep itself as simple as possible,
 while providing a fully capable service for the edge computing technology stack.
 
 The following are the key components and concepts used in the making of `s3d`:
 
 ### Rust-lang
-- The choice of the Rust language was a natural fit for edge systems, 
+
+- The choice of the Rust language was a natural fit for edge systems,
   as it is a modern language with a focus on functionality, safety and performance.
 - Building with the rust toolchain into a single, standalone, lightweight binary,
   makes it easy to set up and configure for linux and containers,
@@ -74,24 +74,28 @@ The following are the key components and concepts used in the making of `s3d`:
   such as the `tokio` library for async I/O, `hyper` for HTTP, etc.
 
 ### S3 protocol by awslabs/smithy-rs
+
 - [Smithy-rs](https://github.com/awslabs/smithy-rs) is the library that makes the official AWS SDK for Rust.
 - It is therefore aiming for high API compatibility and provides a solid base S3 protocol foundation.
 - Using it to generate client and server protocol code, and hook in the extended features.
 
 ### Data flows
+
 - Using a local (filesystem) storage for implementing inline and background data flow features
   such as queueing uploads, caching downloads, and synching objects of the remote S3.
 - `TODO:` Work in progress
 - `TODO:` Sync-folder with change notifications
 
 ### Selectors
+
 - Defining a simple selector syntax for fine grain control over which objects
   to include/exclude for each feature by bucket-name, key/prefix, tags, meta-data.
-- The syntax is loosly based on [css selectors](https://www.w3schools.com/cssref/css_selectors.asp) 
+- The syntax is loosly based on [css selectors](https://www.w3schools.com/cssref/css_selectors.asp)
   where css classes => s3 tags, and css attributes => s3 meta-data/headers.
 - `TODO:` Work in progress
 
 ### Filesystem in Userspace (FUSE)
+
 - This option provides access for applications that do not use the S3 API.
 - The daemon binds a FUSE filesystem and provides a mount point that maps to the S3 API.
 - FUSE is a good fit for immutable files, and reading small portions of large datasets.
@@ -101,21 +105,23 @@ The following are the key components and concepts used in the making of `s3d`:
 - `TODO:` Need details on the mapping of FUSE -> S3
 
 ### Monitoring
+
 - Using [opentelemetry crate](https://crates.io/crates/opentelemetry) for monitoring and tracing.
 - `TODO:` Work in progress
-
 
 # How-To
 
 ## Install
 
-Installing `s3d` requires the [rust toolchain](https://www.rust-lang.org/tools/install) 
+Installing `s3d` requires the [rust toolchain](https://www.rust-lang.org/tools/install)
 which can be used to install the latest release from crates.io:
+
 ```shell
 cargo install s3d
 ```
 
 Run `s3d` in foreground:
+
 ```shell
 s3d run
 ```
@@ -130,28 +136,30 @@ In addition, to support S3 compatible endpoints, it reads the `S3_ENDPOINT` envi
 
 The credentials provided for `s3d` in the aws config files should be valid for the main storage, and the identity provided to `s3d` is the one it will use in all the requests to the main storage.
 
-To check the remote S3 storage status, run:
-```
-s3d remote status
+To check and report the remote S3 storage status, use:
+
+```shell
+s3d remote
 ```
 
 ## Connect S3 Clients
 
-Redirect S3 clients to the `s3d` endpoint at `localhost:33333`, for example with aws-cli:
+Redirecting clients to the `s3d` endpoint at `localhost:33333`
+can be configured in the AWS SDK and other tools,
+for example aws-cli takes a --endpoint option:
 
 ```shell
-export S3D_ENDPOINT='http://localhost:33333'
-alias s3='aws --endpoint $S3D_ENDPOINT s3'
-alias s3api='aws --endpoint $S3D_ENDPOINT s3api'
+alias s3='aws --endpoint localhost:33333 s3'
+alias s3api='aws --endpoint localhost:33333 s3api'
 
 s3 ls s3://bucket/prefix/
 s3 cp file s3://bucket/key
 s3 cp s3://bucket/key file
-
 s3api get-object-tagging --bucket bucket --key key
 ```
 
-`s3d` itself can be used as a CLI to access the running daemon to make it easy for users to access it locally:
+`s3d` itself can be used as a CLI to access the running daemon
+to make it easy for users to access it locally:
 
 ```shell
 s3d get bucket/my-key > file
@@ -164,83 +172,103 @@ s3d ls [bucket/prefix]
 `s3d` uses the filesystem as a local storage, which is used for queueing, caching, and synching data from and to the remote storage.
 
 The following environment variables can be used to configure the local store:
-- `S3D_LOCAL_STORE` - path to the local store. Defaults to `.`.
+
+- `S3D_DIR` - path to the local store. Defaults to `$HOME/.s3d`.
 
 ## Upload-queue
 
 When enabled, `s3d` first writes new objects to files in the local store, and will push them to the main storage in the background. This is to mitigate connection issues and improve performance.
 
 The following environment variables can be used to configure the upload-queue:
+
 - `S3D_UPLOAD_QUEUE` - true/false, default false.
+- `S3D_UPLOAD_QUEUE_DIR` - directory to store the queue, default `$S3D_DIR/upload-queue`.
+- `S3D_UPLOAD_QUEUE_SELECTOR` - object selector to push, default all.
 - `S3D_UPLOAD_QUEUE_MAX_SIZE` - maximum size of the queue in bytes, default 1GB.
 - `S3D_UPLOAD_QUEUE_MAX_FILES` - maximum number of files in the queue, default 100.
 - `S3D_UPLOAD_QUEUE_MAX_AGE` - maximum age of uploads in the queue in seconds, default 3600.
-- `S3D_UPLOAD_QUEUE_PUSH_SELECTOR` - selector syntax, default all.
 
+When the limits are exceeded, new upload requests will not be added to the queue, instead it will wait for pending uploads to push and make room for it.
 
-When the limits are exceeded, new upload requests will not be able to add to the queue, instead it will be sent directly to the main storage, or wait for previous uploads to push.
-
-See filters for fine grain control of which data to upload.
+See selectors syntax for fine grain control of which data to push.
+In order to dynamically change the selection of an object that was not pushed,
+use put-object-tagging which can be used on an existing in the uploads queue.
 
 ## Read-cache
 
-When enabled, `s3d` will store objects in the local store on read, in order to reduce egress costs and latency on repeated reads from the main storage. 
+When enabled, `s3d` will store objects in the local store on read, in order to reduce egress costs and latency on repeated reads from the main storage.
 
 The following environment variables can be used to configure the read-cache:
+
 - `S3D_READ_CACHE` - true/false, default false.
+- `S3D_READ_CACHE_DIR` - directory to store the cache, default `$S3D_DIR/read-cache`.
+- `S3D_READ_CACHE_SELECTOR` - object selector to cache, default all.
 - `S3D_READ_CACHE_MAX_SIZE` - maximum size of the cache in bytes, default 1GB.
 - `S3D_READ_CACHE_MAX_FILES` - maximum number of files in the cache, default 100.
 - `S3D_READ_CACHE_MAX_AGE` - maximum age of files in the cache in seconds, default 3600.
 
-When the limits are exceeded, old items from the cache will be pruned.
-See filters for fine grain control of which data to cache.
+When the limits are exceeded, old items from the cache will be pruned before adding new items.
+See selectors syntax for fine grain control of which data to cache.
+
+## Selectors
+
+By default, `s3d` will include all objects eligible for upload-queue, read-cache, and sync-folder. However for fine control over which objects to include, selectors can be configured.
+
+Here are a few examples of a selector syntax:
+
+```re
+bucket[tag:key]
+bucket[tag:key=value]
+bucket[tag:key!=value]
+bucket[tag:key=value][tag:key=value]
+bucket/prefix*
+bucket/prefix*[tag:key]
+bucket/prefix*[tag:key=value]
+bucket/prefix*[tag:key!=value]
+bucket/prefix*[tag:key1=value][tag:key2=value]
+bucket/prefix*[hdr:content-type=value]
+bucket/prefix*[hdr:content-length<100]
+bucket/prefix*[md:custom-meta-data=value]
+bucket[tag:key1=val1]/prefix*[tag:key2=val2][hdr:content-type='video/*']
+```
+
+Tags provide a way to update the selection of existing objects,
+for example using the S3 put-object-tagging API:
+
+```shell
+alias s3api='aws --endpoint localhost:33333 s3api'
+
+s3api put-object-tagging --bucket bucket --key key --tagging '{"TagSet":[
+  { "Key": "s3d.upload", "Value": "false" }
+]}'
+```
+
+Notice that put-object-tagging is overriding the entire tag set, so in order to add a tag to existing set, you will need to use get-object-tagging, append to the TagSet array and then put-object-tagging.
 
 ## Sync-folder
 
 When enabled, `s3d` will perform a continuous bidirectional background sync of the remote buckets with a local dir (aka "dropbox folder").
 
 The following environment variables can be used to configure the sync-folder:
+
 - `S3D_SYNC_FOLDER` - true/false, default false.
-- `S3D_SYNC_FOLDER_DIR` - directory to store the folder, default $HOME/.s3d/sync-folder.
+- `S3D_SYNC_FOLDER_DIR` - directory to store the folder, default `$S3D_DIR/sync-folder`.
+- `S3D_SYNC_FOLDER_SELECTOR` - object selector to sync, default all.
 - `S3D_SYNC_FOLDER_MAX_SIZE` - maximum size of the folder in bytes, default 1GB.
 - `S3D_SYNC_FOLDER_MAX_FILES` - maximum number of files in the folder, default 100.
 - `S3D_SYNC_FOLDER_MAX_AGE` - maximum age of (unsync-ed) files in the folder in seconds, default 3600.
 
 When the limits are exceeded, sync will skip adding new data to the local folder.
-See filters for fine grain control of which data to sync.
+See selectors syntax for fine grain control of which data to sync.
 
 ## Fuse-mount
 
 When enabled, `s3d` will set up a FUSE mount point, which exposes the same buckets and objects through a POSIX-like file interface.
 
 The following environment variables can be used to configure the fuse-mount:
+
 - `S3D_FUSE_MOUNT` - true/false, default false.
-- `S3D_FUSE_MOUNT_DIR` - directory to store the folder, default $HOME/.s3d/fuse-mount.
-
-## Filters
-
-By default, `s3d` will include all objects eligible for upload-queue, read-cache, and sync-folder. However for fine control over which objects to include, filters can be configured.
-
-The following environment variables can be used to configure the filters:
-- `S3D_FILTER` - true/false, default false.
-- `S3D_FILTER_BUCKET_PREFIXES` - comma separated list of bucket-prefixes to include/exclude, default all. Use `!` in front of a bucket-prefix to exclude it.
-- `S3D_FILTER_OBJECT_TAGS` - comma separated list of object-tags to include, default all. Use `!` in front of an object-tag to exclude it. Use `tag=value` or `tag=*`.
-
-When the filters exclude a file:
-- when the file is in upload-queue, it will remain in the queue and will not be uploaded.
-- when the file is read, it will not be added to the cache.
-- when the file is synced, it will not be added to the folder, and will not be synced to the main storage.
-
-In order to set object tags, the S3 put-object-tagging API can be used, e.g:
-
-```shell
-export S3D_ENDPOINT='http://localhost:33333'
-alias s3api='aws --endpoint $S3D_ENDPOINT s3api'
-
-s3api put-object-tagging --bucket bucket --key key --tagging '{"TagSet":[{"Key":"s3d.filter","Value":"false"}]}'
-```
-
-Notice that put-object-tagging is overriding the entire tag set, so in order to add a tag to existing set, you will need to use get-object-tagging, append to the TagSet array and then put-object-tagging.
+- `S3D_FUSE_MOUNT_DIR` - directory to bind the mount point, default `$S3D_DIR/fuse-mount`.
 
 ## Develop
 
@@ -282,14 +310,13 @@ docker push $IMG
 kubectl create -f deploy/deployment.yaml
 ```
 
-
 # Project
 
 This project was initiated at [Red Hat emerging technologies](https://github.com/redhat-et).
 
 ## Status
 
-This project is still  🛸🛸🛸  **Experimental**  🚀🚀🚀 , which means it's a great time to affect its direction, and we welcome contributions and open discussions
+This project is still 🛸🛸🛸 **Experimental** 🚀🚀🚀 , which means it's a great time to affect its direction, and we welcome contributions and open discussions
 
 All internal and external interfaces are considered unstable and subject to change without notice.
 
@@ -304,8 +331,6 @@ All internal and external interfaces are considered unstable and subject to chan
 Directions for future development:
 
 1. Multi-tenancy:
-    1. IAM - Identity and Access Management (long-term credentials)
-    1. STS - Secure Token Service (short-term credentials)
-    1. IMDSv2 - Instance Meta-Data Service (integrated credential provider)
-
-
+   1. IAM - Identity and Access Management (long-term credentials)
+   1. STS - Secure Token Service (short-term credentials)
+   1. IMDSv2 - Instance Meta-Data Service (integrated credential provider)
