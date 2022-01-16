@@ -53,9 +53,10 @@ checksum = "cdb031dd78e28731d87d56cc8ffef4a8f36ca26c38fe2de700543e627f8a464a"
 
 [[package]]
 name = "aws-config"
-version = "0.3.0"
+version = "0.4.1"
 dependencies = [
  "aws-http",
+ "aws-sdk-sso",
  "aws-sdk-sts",
  "aws-smithy-async",
  "aws-smithy-client",
@@ -65,16 +66,19 @@ dependencies = [
  "aws-smithy-types",
  "aws-types",
  "bytes",
+ "hex",
  "http",
  "hyper",
+ "ring",
  "tokio",
  "tower",
  "tracing",
+ "zeroize",
 ]
 
 [[package]]
 name = "aws-endpoint"
-version = "0.3.0"
+version = "0.4.1"
 dependencies = [
  "aws-smithy-http",
  "aws-types",
@@ -85,7 +89,7 @@ dependencies = [
 
 [[package]]
 name = "aws-http"
-version = "0.3.0"
+version = "0.4.1"
 dependencies = [
  "aws-smithy-http",
  "aws-smithy-types",
@@ -98,7 +102,7 @@ dependencies = [
 
 [[package]]
 name = "aws-sdk-s3"
-version = "0.3.0"
+version = "0.4.1"
 dependencies = [
  "aws-endpoint",
  "aws-http",
@@ -115,12 +119,33 @@ dependencies = [
  "bytes",
  "http",
  "md5",
+ "tokio-stream",
+ "tower",
+]
+
+[[package]]
+name = "aws-sdk-sso"
+version = "0.4.1"
+dependencies = [
+ "aws-endpoint",
+ "aws-http",
+ "aws-sig-auth",
+ "aws-smithy-async",
+ "aws-smithy-client",
+ "aws-smithy-http",
+ "aws-smithy-http-tower",
+ "aws-smithy-json",
+ "aws-smithy-types",
+ "aws-types",
+ "bytes",
+ "http",
+ "tokio-stream",
  "tower",
 ]
 
 [[package]]
 name = "aws-sdk-sts"
-version = "0.3.0"
+version = "0.4.1"
 dependencies = [
  "aws-endpoint",
  "aws-http",
@@ -140,7 +165,7 @@ dependencies = [
 
 [[package]]
 name = "aws-sig-auth"
-version = "0.3.0"
+version = "0.4.1"
 dependencies = [
  "aws-sigv4",
  "aws-smithy-eventstream",
@@ -153,7 +178,7 @@ dependencies = [
 
 [[package]]
 name = "aws-sigv4"
-version = "0.3.0"
+version = "0.4.1"
 dependencies = [
  "aws-smithy-eventstream",
  "aws-smithy-http",
@@ -171,15 +196,17 @@ dependencies = [
 
 [[package]]
 name = "aws-smithy-async"
-version = "0.33.1"
+version = "0.34.1"
 dependencies = [
+ "futures-util",
  "pin-project-lite",
  "tokio",
+ "tokio-stream",
 ]
 
 [[package]]
 name = "aws-smithy-client"
-version = "0.33.1"
+version = "0.34.1"
 dependencies = [
  "aws-smithy-async",
  "aws-smithy-http",
@@ -201,7 +228,7 @@ dependencies = [
 
 [[package]]
 name = "aws-smithy-eventstream"
-version = "0.33.1"
+version = "0.34.1"
 dependencies = [
  "aws-smithy-types",
  "bytes",
@@ -210,7 +237,7 @@ dependencies = [
 
 [[package]]
 name = "aws-smithy-http"
-version = "0.33.1"
+version = "0.34.1"
 dependencies = [
  "aws-smithy-eventstream",
  "aws-smithy-types",
@@ -229,7 +256,7 @@ dependencies = [
 
 [[package]]
 name = "aws-smithy-http-server"
-version = "0.33.1"
+version = "0.34.1"
 dependencies = [
  "async-trait",
  "aws-smithy-http",
@@ -243,6 +270,7 @@ dependencies = [
  "http-body",
  "hyper",
  "mime",
+ "nom 7.1.0",
  "pin-project-lite",
  "regex",
  "serde_urlencoded",
@@ -254,7 +282,7 @@ dependencies = [
 
 [[package]]
 name = "aws-smithy-http-tower"
-version = "0.33.1"
+version = "0.34.1"
 dependencies = [
  "aws-smithy-http",
  "bytes",
@@ -267,14 +295,14 @@ dependencies = [
 
 [[package]]
 name = "aws-smithy-json"
-version = "0.33.1"
+version = "0.34.1"
 dependencies = [
  "aws-smithy-types",
 ]
 
 [[package]]
 name = "aws-smithy-query"
-version = "0.33.1"
+version = "0.34.1"
 dependencies = [
  "aws-smithy-types",
  "urlencoding 1.3.3",
@@ -282,9 +310,9 @@ dependencies = [
 
 [[package]]
 name = "aws-smithy-types"
-version = "0.33.1"
+version = "0.34.1"
 dependencies = [
- "itoa 0.4.8",
+ "itoa 1.0.1",
  "num-integer",
  "ryu",
  "time 0.3.5",
@@ -292,7 +320,7 @@ dependencies = [
 
 [[package]]
 name = "aws-smithy-xml"
-version = "0.33.1"
+version = "0.34.1"
 dependencies = [
  "thiserror",
  "xmlparser",
@@ -300,7 +328,7 @@ dependencies = [
 
 [[package]]
 name = "aws-types"
-version = "0.3.0"
+version = "0.4.1"
 dependencies = [
  "aws-smithy-async",
  "aws-smithy-types",
@@ -640,7 +668,7 @@ dependencies = [
  "byteorder",
  "crossbeam-channel",
  "flate2",
- "nom",
+ "nom 4.2.3",
  "num-traits",
 ]
 
@@ -861,6 +889,12 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "2a60c7ce501c71e03a9c9c0d35b861413ae925bd979cc7a4e30d060069aaac8d"
 
 [[package]]
+name = "minimal-lexical"
+version = "0.2.1"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "68354c5c6bd36d73ff3feceb05efa59b6acb7626617f4962be322a825e61f79a"
+
+[[package]]
 name = "miniz_oxide"
 version = "0.4.4"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -900,6 +934,17 @@ checksum = "2ad2a91a8e869eeb30b9cb3119ae87773a8f4ae617f41b1eb9c154b2905f7bd6"
 dependencies = [
  "memchr",
  "version_check 0.1.5",
+]
+
+[[package]]
+name = "nom"
+version = "7.1.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "1b1d11e1ef389c76fe5b81bcaf2ea32cf88b62bc494e19f493d0b30e7a930109"
+dependencies = [
+ "memchr",
+ "minimal-lexical",
+ "version_check 0.9.4",
 ]
 
 [[package]]
@@ -1247,10 +1292,9 @@ dependencies = [
  "axum-core",
  "futures-util",
  "http",
- "lazy_static",
+ "nom 7.1.0",
  "percent-encoding",
  "pin-project-lite",
- "regex",
  "serde_urlencoded",
  "tower",
 ]

@@ -13,7 +13,7 @@
                     "module": "s3d-codegen",
                     "moduleVersion": "0.0.1",
                     "moduleDescription": "s3d-codegen",
-                    "moduleAuthors": ["authors@s3d.rs"]
+                    "moduleAuthors": ["s3d@s3d.rs"]
                 }
             }
         }

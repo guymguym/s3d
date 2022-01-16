@@ -37,12 +37,18 @@ tasks.register("copyAllRuntimes") {
             into(runtimesOutputDir)
         }
         // TODO sts and s3 sdks are needed on runtime, and we just assume here that it is already built:
-        // - ./gradlew -Paws.services=+sts,+s3 :aws:sdk:assemble
+        // - ./gradlew -Paws.services=+sts,+sso,+s3 :aws:sdk:assemble
         copy {
             from("$rootDir/aws/sdk/build/smithyprojections/sdk/sts/rust-codegen")
             include("**")
             exclude("**/target", "**/Cargo.lock", "**/node_modules")
             into(runtimesOutputDir.resolve("sts")) // the `aws-config` crate depends on sts this way
+        }
+        copy {
+            from("$rootDir/aws/sdk/build/smithyprojections/sdk/sso/rust-codegen")
+            include("**")
+            exclude("**/target", "**/Cargo.lock", "**/node_modules")
+            into(runtimesOutputDir.resolve("sso")) // the `aws-config` crate depends on sts this way
         }
         copy {
             from("$rootDir/aws/sdk/build/smithyprojections/sdk/s3/rust-codegen")
@@ -69,7 +75,7 @@ tasks.register("relocateAllRuntimes") {
         }
 
         // Patch the Cargo.toml files
-        listOf("sts", "aws-sdk-s3").forEach { moduleName ->
+        listOf("sts", "sso", "aws-sdk-s3").forEach { moduleName ->
             patchFile(runtimesOutputDir.resolve("$moduleName/Cargo.toml")) { line ->
                 rewriteAwsSdkCrateVersion(properties, line.let(::rewritePathDependency))
             }
