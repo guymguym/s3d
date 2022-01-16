@@ -28,52 +28,94 @@
 <br />
 
 
-# S3D::README
+# S3 Daemon
 
-`s3d` is a local S3 storage daemon at `http://localhost:33333`.
+`s3d` is a daemon for efficient data access to remote S3 API storage.
+The promise of `s3d` is simple - Applications that deploy remotely from their main S3 storage, 
+  can run it as their S3 gateway to optimize data availability, performance, and costs.
 
-The promise of s3d is simple - Applications that deploy remotely from their S3 storage, can run `s3d` as a local data gateway to improve performance, availability and functionality.
+The need for a solution like `s3d` emerges from Edge computing use cases,
+where data is owned by a super-massive main S3 storage,
+but the applications are deployed to a remote location:
 
-
-# Rational
-
-> Edge computing is a distributed computing paradigm that brings computation and **data storage closer to the sources** of data.
-> This is expected to improve response times and save bandwidth.
-> (see [Edge computing on wikipedia](https://en.wikipedia.org/wiki/Edge_computing))
-
-`s3d` is a data gateway daemon for the edge, that brings **data storage closer to the sources** of data.
-
-Running `s3d` on edge deployments to connect to a main S3 storage (aka "Hub"), runs a simple and lightweight local service, which uses its local storage transparently to queue and cache data. This allows it to enhance the availability of the data to the application, improve the performance, and lower the costs, with minimal management hassle.
-
-For fine grain control of which data to sync to/from the main hub storage, `s3d` provides filters by tagging objects or specifying prefixes.
-
-In addition to the S3 API access, `s3d` provides two models for applications that use filesystem based access - Fuse-mount and Sync-folder.
-
-The choice of the Rust language was a natural fit for edge systems, as it is a modern language with a focus on functionality, safety and performance. `s3d` builds with the rust toolchain into a single binary, which makes it easy to set up and configure in linux and containerized environments like podman/Kubernetes.
-
+> Edge computing is a distributed computing paradigm that brings computation and **data storage closer to the sources of data**.\
+> This is expected to improve response times and save bandwidth.\
+> (follow to [wikipedia - Edge computing](https://en.wikipedia.org/wiki/Edge_computing))
 
 # Features
 
-1. **S3-API** - using auto generated protocol code by awslabs/smithy-rs which is highly compatible and used to parse any S3 request for forwarding as is or processing locally.
-1. **UPLOAD-QUEUE** - writing new objects to a local filesystem and pushing them to the main storage in the background in order to tolerate connection issues.
-1. **READ-CACHE** - stored in a local filesystem in order to reduce egress costs and latency on repeated reads from the main storage.
-1. **SYNC-FOLDER** - continuous and bidirectional background sync of remote buckets with a local dir (aka "dropbox folder").
-1. **FUSE-MOUNT** - filesystem mount point mapped to S3 can be used for large datasets which require a file interface (non POSIX).
-1. **FILTERS** - apply a policy of which objects to push and pull by configuring bucket-prefixes or setting per object tags.
+1. **S3-API** - generate protocol code with awslabs/smithy-rs 
+  which is highly compatible and parses S3 requests and responses.
+1. **UPLOAD-QUEUE** - writing new objects to local filesystem first,
+  and pushing in the background to the main storage to tolerate connection issues.
+1. **READ-CACHE** - store cached and prefetched objects in local filesystem
+  to reduce egress costs and latency of reads from main storage.
+1. **SELECTORS** - choose which objects to include/exclude for upload/cache/sync
+  by bucket name, bucket tags, object keys (or prefixes), object tags, and object meta-data.
+1. **SYNC-FOLDER** - continuous and bidirectional background sync of remote buckets
+  with a local dir (aka "dropbox folder").
+1. **FUSE-MOUNT** - filesystem in userspace lets the daemon provide a mount point
+  and map FS requests to S3 API for applications that do not use S3.
+
+# Architecture
+
+`s3d` aims to integrate with open source tools and platforms and keep itself as simple as possible, 
+while providing a fully capable service for the edge computing technology stack.
+
+The following are the key components and concepts used in the making of `s3d`:
+
+### Rust-lang
+- The choice of the Rust language was a natural fit for edge systems, 
+  as it is a modern language with a focus on functionality, safety and performance.
+- Building with the rust toolchain into a single, standalone, lightweight binary,
+  makes it easy to set up and configure for linux and containers,
+  in order to run alongside any application.
+- Libraries from crates.io provide a great set of features for building daemons,
+  such as the `tokio` library for async I/O, `hyper` for HTTP, etc.
+
+### S3 protocol by awslabs/smithy-rs
+- [Smithy-rs](https://github.com/awslabs/smithy-rs) is the library that makes the official AWS SDK for Rust.
+- It is therefore aiming for high API compatibility and provides a solid base S3 protocol foundation.
+- Using it to generate client and server protocol code, and hook in the extended features.
+
+### Data flows
+- Using a local (filesystem) storage for implementing inline and background data flow features
+  such as queueing uploads, caching downloads, and synching objects of the remote S3.
+- `TODO:` Work in progress
+- `TODO:` Sync-folder with change notifications
+
+### Selectors
+- Defining a simple selector syntax for fine grain control over which objects
+  to include/exclude for each feature by bucket-name, key/prefix, tags, meta-data.
+- The syntax is loosly based on [css selectors](https://www.w3schools.com/cssref/css_selectors.asp) 
+  where css classes => s3 tags, and css attributes => s3 meta-data/headers.
+- `TODO:` Work in progress
+
+### Filesystem in Userspace (FUSE)
+- This option provides access for applications that do not use the S3 API.
+- The daemon binds a FUSE filesystem and provides a mount point that maps to the S3 API.
+- FUSE is a good fit for immutable files, and reading small portions of large datasets.
+- FUSE is a bad fit for mutable files (overwrites/appends), or file locks (not supported).
+- Using [fuser crate](https://crates.io/crates/fuser) for FUSE binding.
+- `TODO:` Work in progress
+- `TODO:` Need details on the mapping of FUSE -> S3
+
+### Monitoring
+- Using [opentelemetry crate](https://crates.io/crates/opentelemetry) for monitoring and tracing.
+- `TODO:` Work in progress
 
 
 # How-To
 
 ## Install
 
-Installing `s3d` requires the [rust toolchain](https://www.rust-lang.org/tools/install) which can be used to install the latest release from crates.io:
-
+Installing `s3d` requires the [rust toolchain](https://www.rust-lang.org/tools/install) 
+which can be used to install the latest release from crates.io:
 ```shell
 cargo install s3d
 ```
 
 Run `s3d` in foreground:
-
 ```shell
 s3d run
 ```
@@ -85,6 +127,13 @@ Use `s3d help` for a list of commands and options.
 `s3d` reads the standard S3 config and credential files and environment variables just like any other S3 SDK client in order to connect to its main storage.
 
 In addition, to support S3 compatible endpoints, it reads the `S3_ENDPOINT` environment variable.
+
+The credentials provided for `s3d` in the aws config files should be valid for the main storage, and the identity provided to `s3d` is the one it will use in all the requests to the main storage.
+
+To check the remote S3 storage status, run:
+```
+s3d remote status
+```
 
 ## Connect S3 Clients
 
@@ -110,27 +159,35 @@ s3d put bucket/my-key < file
 s3d ls [bucket/prefix]
 ```
 
-## Upload queue
+## Local store
 
-When enabled, `s3d` writes new objects to a local filesystem and push them to the main storage in the background. This is to mitigate connection issues and improve performance.
+`s3d` uses the filesystem as a local storage, which is used for queueing, caching, and synching data from and to the remote storage.
+
+The following environment variables can be used to configure the local store:
+- `S3D_LOCAL_STORE` - path to the local store. Defaults to `.`.
+
+## Upload-queue
+
+When enabled, `s3d` first writes new objects to files in the local store, and will push them to the main storage in the background. This is to mitigate connection issues and improve performance.
 
 The following environment variables can be used to configure the upload-queue:
 - `S3D_UPLOAD_QUEUE` - true/false, default false.
-- `S3D_UPLOAD_QUEUE_DIR` - directory to store the queue, default $HOME/.s3d/upload-queue.
 - `S3D_UPLOAD_QUEUE_MAX_SIZE` - maximum size of the queue in bytes, default 1GB.
 - `S3D_UPLOAD_QUEUE_MAX_FILES` - maximum number of files in the queue, default 100.
 - `S3D_UPLOAD_QUEUE_MAX_AGE` - maximum age of uploads in the queue in seconds, default 3600.
+- `S3D_UPLOAD_QUEUE_PUSH_SELECTOR` - selector syntax, default all.
 
-When the limits are exceeded, new upload requests will skip the queue and sent directly to the main storage.
+
+When the limits are exceeded, new upload requests will not be able to add to the queue, instead it will be sent directly to the main storage, or wait for previous uploads to push.
+
 See filters for fine grain control of which data to upload.
 
-## Read cache
+## Read-cache
 
-When enabled, `s3d` will cache objects in a local filesystem in order to reduce egress costs and latency on repeated reads from the main storage. 
+When enabled, `s3d` will store objects in the local store on read, in order to reduce egress costs and latency on repeated reads from the main storage. 
 
 The following environment variables can be used to configure the read-cache:
 - `S3D_READ_CACHE` - true/false, default false.
-- `S3D_READ_CACHE_DIR` - directory to store the cache, default $HOME/.s3d/read-cache.
 - `S3D_READ_CACHE_MAX_SIZE` - maximum size of the cache in bytes, default 1GB.
 - `S3D_READ_CACHE_MAX_FILES` - maximum number of files in the cache, default 100.
 - `S3D_READ_CACHE_MAX_AGE` - maximum age of files in the cache in seconds, default 3600.
