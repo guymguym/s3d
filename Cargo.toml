@@ -2,10 +2,10 @@
 
 [package]
 name = "s3d"
-version = "0.0.1-alpha4"
+version = "0.0.1-alpha.5"
 authors = ["guymguym"]
 edition = "2021"
-description = "s3d is an S3 daemon for the Edge written in Rust. The goal of s3d is to provide a daemon for edge platforms (e.g. factory servers  🏭  planes  🛩  ships  🚢  cars  🏎  laptops  💻  mobile devices  📱  wearables  ⌚  ...) that connect to a central object storage (aka Hub). Since edge applications operate in subideal environments (high latency network, disconnections, hardware failures, eavesdropping, ...), s3d aims to make the applications run smoothly while it handles the flows of data, security, networking, local capacity, metadata caching, write queueing, etc."
+description = "s3d is a daemon for efficient data access to remote S3 API storage. The promise of s3d is simple - Applications that deploy remotely from their main S3 storage, can run it as their S3 gateway to optimize data availability, performance, and costs."
 homepage = "https://s3d.rs"
 repository = "https://github.com/s3d-rs/s3d"
 license = "Apache-2.0"
@@ -25,7 +25,7 @@ panic = 'abort'
 quote = "1.0.14"
 proc-macro2 = "1.0.36"
 serde = { version = "1.0.133", features = ["derive"] }
-serde_json = "1.0.74"
+serde_json = "1.0.75"
 
 [dependencies]
 
@@ -62,36 +62,36 @@ clap = { version = "3.0.7", features = ["derive"] }
 
 serde = { version = "1.0.133", features = ["derive"] }
 serde_yaml = "0.8.23"
-#serde_json = "1.0.74"
+#serde_json = "1.0.75"
 #quick-xml = "0.22.0" # seems to be more popular than other serde_xml* crates
 
 ## AWS smithy-rs crates (git submodule)
 
 [dependencies.aws-smithy-client]
-version = "0.33.1"
+version = "0.34.1"
 path = "codegen/build/rust-runtime/aws-smithy-client"
 features = ["client-hyper"]
 [dependencies.aws-smithy-types]
-version = "0.33.1"
+version = "0.34.1"
 path = "codegen/build/rust-runtime/aws-smithy-types"
 [dependencies.aws-smithy-xml]
-version = "0.33.1"
+version = "0.34.1"
 path = "codegen/build/rust-runtime/aws-smithy-xml"
 [dependencies.aws-smithy-http]
-version = "0.33.1"
+version = "0.34.1"
 path = "codegen/build/rust-runtime/aws-smithy-http"
 [dependencies.aws-smithy-http-server]
-version = "0.33.1"
+version = "0.34.1"
 path = "codegen/build/rust-runtime/aws-smithy-http-server"
 
 [dependencies.aws-config]
-version = "0.3.0"
+version = "0.4.1"
 path = "codegen/build/rust-runtime/aws-config"
 [dependencies.aws-sdk-s3]
-version = "0.3.0"
+version = "0.4.1"
 path = "codegen/build/rust-runtime/aws-sdk-s3"
 
 [dependencies.s3d-codegen]
-#version = "0.3.0"
+#version = "0.4.1"
 version = "0"
 path = "codegen/build/smithyprojections/s3d/s3/rust-server-codegen"

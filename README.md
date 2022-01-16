@@ -30,16 +30,17 @@
 # S3 Daemon
 
 `s3d` is a daemon for efficient data access to remote S3 API storage.
-The promise of `s3d` is simple - Applications that deploy remotely from their main S3 storage,
-can run it as their S3 gateway to optimize data availability, performance, and costs.
 
+The promise of `s3d` is simple - Applications that deploy remotely from their main S3 storage,
+can run it as their local S3 gateway to optimize data availability, performance, and costs.
 The need for a solution like `s3d` emerges from Edge computing use cases,
 where data is owned by a super-massive main S3 storage,
-but the applications are deployed to a remote location:
+but the applications are deployed to remote locations:
 
-> Edge computing is a distributed computing paradigm that brings computation and **data storage closer to the sources of data**.\
-> This is expected to improve response times and save bandwidth.\
-> (follow to [wikipedia - Edge computing](https://en.wikipedia.org/wiki/Edge_computing))
+> Edge computing is a distributed computing paradigm
+> that brings computation and **data storage closer to the sources of data**.\
+> This is expected to improve response times and save bandwidth. \
+> (see [wikipedia - Edge computing](https://en.wikipedia.org/wiki/Edge_computing))
 
 # Features
 
@@ -116,13 +117,13 @@ The following are the key components and concepts used in the making of `s3d`:
 Installing `s3d` requires the [rust toolchain](https://www.rust-lang.org/tools/install)
 which can be used to install the latest release from crates.io:
 
-```shell
+```bash
 cargo install s3d
 ```
 
 Run `s3d` in foreground:
 
-```shell
+```bash
 s3d run
 ```
 
@@ -130,15 +131,17 @@ Use `s3d help` for a list of commands and options.
 
 ## Connect to main storage
 
-`s3d` reads the standard S3 config and credential files and environment variables just like any other S3 SDK client in order to connect to its main storage.
+`s3d` reads the standard S3 config and credential files and environment variables
+just like any other S3 SDK client in order to connect to its main storage.
 
 In addition, to support S3 compatible endpoints, it reads the `S3_ENDPOINT` environment variable.
 
-The credentials provided for `s3d` in the aws config files should be valid for the main storage, and the identity provided to `s3d` is the one it will use in all the requests to the main storage.
+The credentials provided for `s3d` in the aws config files should be valid for the main storage,
+and the identity provided to `s3d` is the one it will use in all the requests to the main storage.
 
 To check and report the remote S3 storage status, use:
 
-```shell
+```bash
 s3d remote
 ```
 
@@ -148,10 +151,9 @@ Redirecting clients to the `s3d` endpoint at `localhost:33333`
 can be configured in the AWS SDK and other tools,
 for example aws-cli takes a --endpoint option:
 
-```shell
+```bash
 alias s3='aws --endpoint localhost:33333 s3'
 alias s3api='aws --endpoint localhost:33333 s3api'
-
 s3 ls s3://bucket/prefix/
 s3 cp file s3://bucket/key
 s3 cp s3://bucket/key file
@@ -161,7 +163,7 @@ s3api get-object-tagging --bucket bucket --key key
 `s3d` itself can be used as a CLI to access the running daemon
 to make it easy for users to access it locally:
 
-```shell
+```bash
 s3d get bucket/my-key > file
 s3d put bucket/my-key < file
 s3d ls [bucket/prefix]
@@ -235,9 +237,8 @@ bucket[tag:key1=val1]/prefix*[tag:key2=val2][hdr:content-type='video/*']
 Tags provide a way to update the selection of existing objects,
 for example using the S3 put-object-tagging API:
 
-```shell
+```bash
 alias s3api='aws --endpoint localhost:33333 s3api'
-
 s3api put-object-tagging --bucket bucket --key key --tagging '{"TagSet":[
   { "Key": "s3d.upload", "Value": "false" }
 ]}'
@@ -274,36 +275,43 @@ The following environment variables can be used to configure the fuse-mount:
 
 Clone from repo (use a fork if you want to contribute back upstream):
 
-```shell
-git clone https://github.com/s3d-rs/s3d.git
+```bash
+git clone --recurse-submodules https://github.com/s3d-rs/s3d.git
 cd s3d
 ```
 
 Build and execute in one command:
 
-```shell
+```bash
 cargo run -- <args>
 ```
 
 Or in two commands:
 
-```shell
+```bash
 cargo build
 ./target/debug/s3d <args>
 ```
 
 Additional developer scripts are in `hack/` dir, e.g:
 
-```shell
+```bash
 . hack/aliases.sh
+```
+
+In order to run smithy-rs codegen, you need to have java and run:
+
+```bash
+hack/submodules.sh # updates the smithy-rs submodule HEAD
+hack/codegen.sh # builds smithy-rs and runs the codegen for s3
 ```
 
 ## Deploy
 
 See examples of using `s3d` in container images and kubernetes yamls in `deploy/` dir:
 
-```shell
-IMG="<username>/s3d"
+```bash
+IMG="<username>/s3d:<tag>"
 docker build . -t $IMG
 docker push $IMG
 # update image in yaml ... TODO kustomize

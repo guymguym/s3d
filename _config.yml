@@ -7,7 +7,3 @@ minima:
   skin: dark
   social_links:
     github: s3d-rs
-header_pages:
-  - docs/commands.md
-  - docs/config.md
-  - docs/examples.md
