@@ -6,7 +6,7 @@ use s3d_codegen::{error::*, input::*, operation_registry::*, output::*};
 pub type Router = aws_smithy_http_server::Router<hyper::Body>;
 
 pub async fn serve() -> anyhow::Result<()> {
-    let addr = std::net::SocketAddr::from(([127, 0, 0, 1], 3333));
+    let addr = std::net::SocketAddr::from(([127, 0, 0, 1], 33333));
     let router = build_router();
     let server = hyper::Server::bind(&addr).serve(router.into_make_service());
     info!("Listening on http://{}", addr);

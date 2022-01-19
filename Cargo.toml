@@ -62,6 +62,7 @@ clap = { version = "3.0.7", features = ["derive"] }
 
 serde = { version = "1.0.133", features = ["derive"] }
 serde_yaml = "0.8.23"
+envy = "0.4.2"
 #serde_json = "1.0.75"
 #quick-xml = "0.22.0" # seems to be more popular than other serde_xml* crates
 

@@ -28,12 +28,12 @@ pub struct CLI {
 #[derive(clap::Subcommand, Debug, Clone)]
 enum Cmd {
     Run(RunCmd),
+    Status(StatusCmd),
     Init(InitCmd),
     Fetch(FetchCmd),
     Pull(PullCmd),
     Push(PushCmd),
     Prune(PruneCmd),
-    Status(StatusCmd),
     Diff(DiffCmd),
     Get(GetCmd),
     Put(PutCmd),
@@ -43,6 +43,10 @@ enum Cmd {
 #[derive(Parser, Debug, Clone, Copy)]
 #[clap(about = "Run the daemon")]
 struct RunCmd {}
+
+#[derive(Parser, Debug, Clone, Copy)]
+#[clap(about = "Status shows a summary of the local state")]
+struct StatusCmd {}
 
 #[derive(Parser, Debug, Clone, Copy)]
 #[clap(about = "Init sets up config and local store for the daemon")]
@@ -63,10 +67,6 @@ struct PushCmd {}
 #[derive(Parser, Debug, Clone, Copy)]
 #[clap(about = "Prune objects from local store")]
 struct PruneCmd {}
-
-#[derive(Parser, Debug, Clone, Copy)]
-#[clap(about = "Status shows a summary of the local state")]
-struct StatusCmd {}
 
 #[derive(Parser, Debug, Clone, Copy)]
 #[clap(about = "Diff shows objects pending for pull/push")]
@@ -94,18 +94,18 @@ impl CLI {
 
         debug!("{:?}", cli);
 
-        // load the config file
+        // load the configuration
         let conf = cli.load_conf().await?;
 
         // dispatch the command
         match cli.cmd {
             Cmd::Run(_cmd) => daemon::run(conf).await,
+            // Cmd::Status(cmd) => cmd.run(conf).await,
             // Cmd::Init(cmd) => cmd.run(conf).await,
             // Cmd::Fetch(cmd) => cmd.run(conf).await,
             // Cmd::Pull(cmd) => cmd.run(conf).await,
             // Cmd::Push(cmd) => cmd.run(conf).await,
             // Cmd::Prune(cmd) => cmd.run(conf).await,
-            // Cmd::Status(cmd) => cmd.run(conf).await,
             // Cmd::Diff(cmd) => cmd.run(conf).await,
             // Cmd::Get(cmd) => cmd.run(conf).await,
             // Cmd::Put(cmd) => cmd.run(conf).await,
@@ -115,9 +115,10 @@ impl CLI {
     }
 
     async fn load_conf(&self) -> anyhow::Result<Conf> {
-        let conf = Conf::load(&self.dir)
-            .await
-            .with_context(|| format!("Failed to load config file from dir \"{}\"", self.dir))?;
+        let conf = Conf::default();
+        // let conf = Conf::load(&self.dir)
+        //     .await
+        //     .with_context(|| format!("Failed to load config file from dir \"{}\"", self.dir))?;
 
         info!("Loaded config file from dir \"{}\"", self.dir);
 

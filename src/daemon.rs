@@ -3,7 +3,7 @@ use crate::{
     conf::Conf, 
     gen::{S3Ops, generate_match_for_each_s3_op},
     proto::*,
-    router::{Router,build_router},
+    router,
 };
 use hyper::{
     Body, Method, StatusCode, header::{HeaderValue, HeaderName},
@@ -16,7 +16,7 @@ use tokio::sync::OnceCell;
 #[derive(Debug)]
 pub struct Daemon {
     pub conf: Conf,
-    pub router: Router,
+    // pub router: Router,
     pub s3d_api: S3DApi,
 }
 
@@ -30,8 +30,9 @@ static DAEMON: OnceCell<Daemon> = OnceCell::const_new();
 pub async fn run(conf: Conf) -> anyhow::Result<()> {
     DAEMON.set(Daemon::new(conf).await).unwrap();
     tokio::try_join!(
-        DAEMON.get().unwrap().start_http_server(),
+        //DAEMON.get().unwrap().start_http_server(),
         // DAEMON.get().unwrap().start_fuse_mount(),
+        router::serve(),
     )?;
     Ok(())
 }
@@ -39,13 +40,13 @@ pub async fn run(conf: Conf) -> anyhow::Result<()> {
 impl Daemon {
     /// Initialize the daemon with the given configuration.
     pub async fn new(conf: Conf) -> Self {
-        let router = build_router();
+        // let router = build_router();
         let aws_config = aws_config::from_env().load().await;
         let s3_client = aws_sdk_s3::Client::new(&aws_config);
 
         Daemon {
             conf,
-            router,
+            // router,
             s3d_api: S3DApi::new(s3_client),
         }
     }

@@ -32,18 +32,23 @@ impl Conf {
         let conf: Conf = serde_yaml::from_str(&contents)?;
         Ok(conf)
     }
+}
 
-    // pub fn _defaults() -> Self {
-    //     Self {
-    //         schema: String::from("https://s3d.rs/schemas/v0.0.1/config.schema.json"),
-    //         local: LocalConf {
-    //             ttl: 0,
-    //         },
-    //         remote: RemoteConf {
-    //             endpoint: String::from("localhost:9000"),
-    //             access_key: String::from(""),
-    //             secret_key: String::from(""),
-    //         },
-    //     }
-    // }
+impl Default for Conf {
+    fn default() -> Self {
+        Self {
+            schema: String::from("https://s3d.rs/schemas/v0.0.1/config.schema.json"),
+            local: LocalConf {
+                port: 33333,
+                ttl: String::from("1h"),
+                max_disk_usage: String::from("1G"),
+                fuse_mount_point: String::from("/mnt/s3d"),
+            },
+            remotes: vec![RemoteConf {
+                name: String::from("default"),
+                endpoint: String::from("localhost:9000"),
+                profile: None,
+            }],
+        }
+    }
 }
