@@ -95,4 +95,4 @@ path = "smithy-codegen-s3d/build/rust-runtime/aws-sdk-s3"
 [dependencies.s3d-codegen]
 #version = "0.4.1"
 version = "0"
-path = "smithy-codegen-s3d/build/smithyprojections/codegen-s3d/s3/rust-server-codegen"
+path = "smithy-codegen-s3d/s3d-codegen"

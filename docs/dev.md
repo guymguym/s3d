@@ -24,15 +24,15 @@ cargo build
 ./target/debug/s3d <args>
 ```
 
-Additional developer scripts are in `hack/` dir, e.g:
+Additional developer scripts are in `hack/` dir, most useful is the env script:
 
 ```bash
-. hack/aliases.sh
+. hack/env.sh
 ```
 
-In order to run smithy-rs codegen, you need to have java and run:
+In order to update and build the smithy-rs submodule, you need to have java and run:
 
 ```bash
-hack/submodules.sh # updates the smithy-rs submodule HEAD
-hack/codegen.sh # builds smithy-rs and runs the codegen for s3
+hack/smithy-update.sh # updates the smithy-rs submodule HEAD
+hack/smithy-build.sh # builds smithy-rs and codegen for S3 API
 ```

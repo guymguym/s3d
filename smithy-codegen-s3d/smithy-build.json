@@ -6,7 +6,7 @@
             "plugins": {
                 "rust-server-codegen": {
                     "runtimeConfig": {
-                        "relativePath": "../../../../rust-runtime/",
+                        "relativePath": "../build/rust-runtime/",
                         "version": "DEFAULT"
                     },
                     "service": "com.amazonaws.s3#AmazonS3",

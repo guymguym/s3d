@@ -1,4 +1,4 @@
 /target
-*.IGNORE
+.IGNORE
 .s3d/
 .gradle/
