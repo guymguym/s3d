@@ -42,12 +42,14 @@ where
         input =
             input.set_key(crate::operation_deser::parse_str_abort_multipart_upload_input_key(m1)?);
         let query_string = request.uri().query().unwrap_or("");
-        let pairs = serde_urlencoded::from_str::<Vec<(&str, &str)>>(query_string)?;
+        let pairs = serde_urlencoded::from_str::<
+            Vec<(std::borrow::Cow<'_, str>, std::borrow::Cow<'_, str>)>,
+        >(query_string)?;
         let mut seen_upload_id = false;
         for (k, v) in pairs {
             if !seen_upload_id && k == "uploadId" {
                 input = input.set_upload_id(
-                    crate::operation_deser::parse_str_abort_multipart_upload_input_upload_id(v)?,
+                    crate::operation_deser::parse_str_abort_multipart_upload_input_upload_id(&v)?,
                 );
                 seen_upload_id = true;
             }
@@ -76,6 +78,13 @@ where
         input = input.set_expected_bucket_owner(
             crate::http_serde::deser_header_complete_multipart_upload_complete_multipart_upload_input_expected_bucket_owner(request.headers().ok_or(aws_smithy_http_server::rejection::HeadersAlreadyExtracted)?)?
         );
+        input = input.set_multipart_upload(
+            {
+                                            let body = request.take_body().ok_or(aws_smithy_http_server::rejection::BodyAlreadyExtracted)?;
+                                            let bytes = hyper::body::to_bytes(body).await?;
+                                            crate::http_serde::deser_payload_complete_multipart_upload_complete_multipart_upload_input_multipart_upload(&bytes)?
+                                        }
+        );
         input = input.set_request_payer(
             crate::http_serde::deser_header_complete_multipart_upload_complete_multipart_upload_input_request_payer(request.headers().ok_or(aws_smithy_http_server::rejection::HeadersAlreadyExtracted)?)?
         );
@@ -100,12 +109,16 @@ where
         input = input
             .set_key(crate::operation_deser::parse_str_complete_multipart_upload_input_key(m1)?);
         let query_string = request.uri().query().unwrap_or("");
-        let pairs = serde_urlencoded::from_str::<Vec<(&str, &str)>>(query_string)?;
+        let pairs = serde_urlencoded::from_str::<
+            Vec<(std::borrow::Cow<'_, str>, std::borrow::Cow<'_, str>)>,
+        >(query_string)?;
         let mut seen_upload_id = false;
         for (k, v) in pairs {
             if !seen_upload_id && k == "uploadId" {
                 input = input.set_upload_id(
-                    crate::operation_deser::parse_str_complete_multipart_upload_input_upload_id(v)?,
+                    crate::operation_deser::parse_str_complete_multipart_upload_input_upload_id(
+                        &v,
+                    )?,
                 );
                 seen_upload_id = true;
             }
@@ -393,6 +406,13 @@ where
                     .ok_or(aws_smithy_http_server::rejection::HeadersAlreadyExtracted)?,
             )?,
         );
+        input = input.set_create_bucket_configuration(
+            {
+                                            let body = request.take_body().ok_or(aws_smithy_http_server::rejection::BodyAlreadyExtracted)?;
+                                            let bytes = hyper::body::to_bytes(body).await?;
+                                            crate::http_serde::deser_payload_create_bucket_create_bucket_input_create_bucket_configuration(&bytes)?
+                                        }
+        );
         input = input.set_grant_full_control(
             crate::http_serde::deser_header_create_bucket_create_bucket_input_grant_full_control(
                 request
@@ -641,12 +661,14 @@ where
             )?,
         );
         let query_string = request.uri().query().unwrap_or("");
-        let pairs = serde_urlencoded::from_str::<Vec<(&str, &str)>>(query_string)?;
+        let pairs = serde_urlencoded::from_str::<
+            Vec<(std::borrow::Cow<'_, str>, std::borrow::Cow<'_, str>)>,
+        >(query_string)?;
         let mut seen_id = false;
         for (k, v) in pairs {
             if !seen_id && k == "id" {
                 input = input.set_id(
-                    crate::operation_deser::parse_str_delete_bucket_analytics_configuration_input_id(v)?
+                    crate::operation_deser::parse_str_delete_bucket_analytics_configuration_input_id(&v)?
                 );
                 seen_id = true;
             }
@@ -757,12 +779,14 @@ where
             crate::operation_deser::parse_str_delete_bucket_intelligent_tiering_configuration_input_bucket(m0)?
         );
         let query_string = request.uri().query().unwrap_or("");
-        let pairs = serde_urlencoded::from_str::<Vec<(&str, &str)>>(query_string)?;
+        let pairs = serde_urlencoded::from_str::<
+            Vec<(std::borrow::Cow<'_, str>, std::borrow::Cow<'_, str>)>,
+        >(query_string)?;
         let mut seen_id = false;
         for (k, v) in pairs {
             if !seen_id && k == "id" {
                 input = input.set_id(
-                    crate::operation_deser::parse_str_delete_bucket_intelligent_tiering_configuration_input_id(v)?
+                    crate::operation_deser::parse_str_delete_bucket_intelligent_tiering_configuration_input_id(&v)?
                 );
                 seen_id = true;
             }
@@ -807,12 +831,14 @@ where
             )?,
         );
         let query_string = request.uri().query().unwrap_or("");
-        let pairs = serde_urlencoded::from_str::<Vec<(&str, &str)>>(query_string)?;
+        let pairs = serde_urlencoded::from_str::<
+            Vec<(std::borrow::Cow<'_, str>, std::borrow::Cow<'_, str>)>,
+        >(query_string)?;
         let mut seen_id = false;
         for (k, v) in pairs {
             if !seen_id && k == "id" {
                 input = input.set_id(
-                    crate::operation_deser::parse_str_delete_bucket_inventory_configuration_input_id(v)?
+                    crate::operation_deser::parse_str_delete_bucket_inventory_configuration_input_id(&v)?
                 );
                 seen_id = true;
             }
@@ -890,13 +916,15 @@ where
             crate::operation_deser::parse_str_delete_bucket_metrics_configuration_input_bucket(m0)?,
         );
         let query_string = request.uri().query().unwrap_or("");
-        let pairs = serde_urlencoded::from_str::<Vec<(&str, &str)>>(query_string)?;
+        let pairs = serde_urlencoded::from_str::<
+            Vec<(std::borrow::Cow<'_, str>, std::borrow::Cow<'_, str>)>,
+        >(query_string)?;
         let mut seen_id = false;
         for (k, v) in pairs {
             if !seen_id && k == "id" {
                 input = input.set_id(
                     crate::operation_deser::parse_str_delete_bucket_metrics_configuration_input_id(
-                        v,
+                        &v,
                     )?,
                 );
                 seen_id = true;
@@ -1140,12 +1168,14 @@ where
             m1,
         )?);
         let query_string = request.uri().query().unwrap_or("");
-        let pairs = serde_urlencoded::from_str::<Vec<(&str, &str)>>(query_string)?;
+        let pairs = serde_urlencoded::from_str::<
+            Vec<(std::borrow::Cow<'_, str>, std::borrow::Cow<'_, str>)>,
+        >(query_string)?;
         let mut seen_version_id = false;
         for (k, v) in pairs {
             if !seen_version_id && k == "versionId" {
                 input = input.set_version_id(
-                    crate::operation_deser::parse_str_delete_object_input_version_id(v)?,
+                    crate::operation_deser::parse_str_delete_object_input_version_id(&v)?,
                 );
                 seen_version_id = true;
             }
@@ -1174,6 +1204,13 @@ where
         input = input.set_bypass_governance_retention(
             crate::http_serde::deser_header_delete_objects_delete_objects_input_bypass_governance_retention(request.headers().ok_or(aws_smithy_http_server::rejection::HeadersAlreadyExtracted)?)?
         );
+        input = input.set_delete({
+            let body = request
+                .take_body()
+                .ok_or(aws_smithy_http_server::rejection::BodyAlreadyExtracted)?;
+            let bytes = hyper::body::to_bytes(body).await?;
+            crate::http_serde::deser_payload_delete_objects_delete_objects_input_delete(&bytes)?
+        });
         input = input.set_expected_bucket_owner(
             crate::http_serde::deser_header_delete_objects_delete_objects_input_expected_bucket_owner(request.headers().ok_or(aws_smithy_http_server::rejection::HeadersAlreadyExtracted)?)?
         );
@@ -1246,12 +1283,14 @@ where
         input =
             input.set_key(crate::operation_deser::parse_str_delete_object_tagging_input_key(m1)?);
         let query_string = request.uri().query().unwrap_or("");
-        let pairs = serde_urlencoded::from_str::<Vec<(&str, &str)>>(query_string)?;
+        let pairs = serde_urlencoded::from_str::<
+            Vec<(std::borrow::Cow<'_, str>, std::borrow::Cow<'_, str>)>,
+        >(query_string)?;
         let mut seen_version_id = false;
         for (k, v) in pairs {
             if !seen_version_id && k == "versionId" {
                 input = input.set_version_id(
-                    crate::operation_deser::parse_str_delete_object_tagging_input_version_id(v)?,
+                    crate::operation_deser::parse_str_delete_object_tagging_input_version_id(&v)?,
                 );
                 seen_version_id = true;
             }
@@ -1400,13 +1439,15 @@ where
             crate::operation_deser::parse_str_get_bucket_analytics_configuration_input_bucket(m0)?,
         );
         let query_string = request.uri().query().unwrap_or("");
-        let pairs = serde_urlencoded::from_str::<Vec<(&str, &str)>>(query_string)?;
+        let pairs = serde_urlencoded::from_str::<
+            Vec<(std::borrow::Cow<'_, str>, std::borrow::Cow<'_, str>)>,
+        >(query_string)?;
         let mut seen_id = false;
         for (k, v) in pairs {
             if !seen_id && k == "id" {
                 input = input.set_id(
                     crate::operation_deser::parse_str_get_bucket_analytics_configuration_input_id(
-                        v,
+                        &v,
                     )?,
                 );
                 seen_id = true;
@@ -1517,12 +1558,14 @@ where
             crate::operation_deser::parse_str_get_bucket_intelligent_tiering_configuration_input_bucket(m0)?
         );
         let query_string = request.uri().query().unwrap_or("");
-        let pairs = serde_urlencoded::from_str::<Vec<(&str, &str)>>(query_string)?;
+        let pairs = serde_urlencoded::from_str::<
+            Vec<(std::borrow::Cow<'_, str>, std::borrow::Cow<'_, str>)>,
+        >(query_string)?;
         let mut seen_id = false;
         for (k, v) in pairs {
             if !seen_id && k == "id" {
                 input = input.set_id(
-                    crate::operation_deser::parse_str_get_bucket_intelligent_tiering_configuration_input_id(v)?
+                    crate::operation_deser::parse_str_get_bucket_intelligent_tiering_configuration_input_id(&v)?
                 );
                 seen_id = true;
             }
@@ -1564,13 +1607,15 @@ where
             crate::operation_deser::parse_str_get_bucket_inventory_configuration_input_bucket(m0)?,
         );
         let query_string = request.uri().query().unwrap_or("");
-        let pairs = serde_urlencoded::from_str::<Vec<(&str, &str)>>(query_string)?;
+        let pairs = serde_urlencoded::from_str::<
+            Vec<(std::borrow::Cow<'_, str>, std::borrow::Cow<'_, str>)>,
+        >(query_string)?;
         let mut seen_id = false;
         for (k, v) in pairs {
             if !seen_id && k == "id" {
                 input = input.set_id(
                     crate::operation_deser::parse_str_get_bucket_inventory_configuration_input_id(
-                        v,
+                        &v,
                     )?,
                 );
                 seen_id = true;
@@ -1719,12 +1764,16 @@ where
             crate::operation_deser::parse_str_get_bucket_metrics_configuration_input_bucket(m0)?,
         );
         let query_string = request.uri().query().unwrap_or("");
-        let pairs = serde_urlencoded::from_str::<Vec<(&str, &str)>>(query_string)?;
+        let pairs = serde_urlencoded::from_str::<
+            Vec<(std::borrow::Cow<'_, str>, std::borrow::Cow<'_, str>)>,
+        >(query_string)?;
         let mut seen_id = false;
         for (k, v) in pairs {
             if !seen_id && k == "id" {
                 input = input.set_id(
-                    crate::operation_deser::parse_str_get_bucket_metrics_configuration_input_id(v)?,
+                    crate::operation_deser::parse_str_get_bucket_metrics_configuration_input_id(
+                        &v,
+                    )?,
                 );
                 seen_id = true;
             }
@@ -2162,7 +2211,9 @@ where
         )?);
         input = input.set_key(crate::operation_deser::parse_str_get_object_input_key(m1)?);
         let query_string = request.uri().query().unwrap_or("");
-        let pairs = serde_urlencoded::from_str::<Vec<(&str, &str)>>(query_string)?;
+        let pairs = serde_urlencoded::from_str::<
+            Vec<(std::borrow::Cow<'_, str>, std::borrow::Cow<'_, str>)>,
+        >(query_string)?;
         let mut seen_part_number = false;
         let mut seen_response_cache_control = false;
         let mut seen_response_content_disposition = false;
@@ -2174,26 +2225,26 @@ where
         for (k, v) in pairs {
             if !seen_part_number && k == "partNumber" {
                 input = input.set_part_number(
-                    crate::operation_deser::parse_str_get_object_input_part_number(v)?,
+                    crate::operation_deser::parse_str_get_object_input_part_number(&v)?,
                 );
                 seen_part_number = true;
             }
             if !seen_response_cache_control && k == "response-cache-control" {
                 input = input.set_response_cache_control(
-                    crate::operation_deser::parse_str_get_object_input_response_cache_control(v)?,
+                    crate::operation_deser::parse_str_get_object_input_response_cache_control(&v)?,
                 );
                 seen_response_cache_control = true;
             }
             if !seen_response_content_disposition && k == "response-content-disposition" {
                 input = input.set_response_content_disposition(
-                    crate::operation_deser::parse_str_get_object_input_response_content_disposition(v)?
+                    crate::operation_deser::parse_str_get_object_input_response_content_disposition(&v)?
                 );
                 seen_response_content_disposition = true;
             }
             if !seen_response_content_encoding && k == "response-content-encoding" {
                 input = input.set_response_content_encoding(
                     crate::operation_deser::parse_str_get_object_input_response_content_encoding(
-                        v,
+                        &v,
                     )?,
                 );
                 seen_response_content_encoding = true;
@@ -2201,26 +2252,26 @@ where
             if !seen_response_content_language && k == "response-content-language" {
                 input = input.set_response_content_language(
                     crate::operation_deser::parse_str_get_object_input_response_content_language(
-                        v,
+                        &v,
                     )?,
                 );
                 seen_response_content_language = true;
             }
             if !seen_response_content_type && k == "response-content-type" {
                 input = input.set_response_content_type(
-                    crate::operation_deser::parse_str_get_object_input_response_content_type(v)?,
+                    crate::operation_deser::parse_str_get_object_input_response_content_type(&v)?,
                 );
                 seen_response_content_type = true;
             }
             if !seen_response_expires && k == "response-expires" {
                 input = input.set_response_expires(
-                    crate::operation_deser::parse_str_get_object_input_response_expires(v)?,
+                    crate::operation_deser::parse_str_get_object_input_response_expires(&v)?,
                 );
                 seen_response_expires = true;
             }
             if !seen_version_id && k == "versionId" {
                 input = input.set_version_id(
-                    crate::operation_deser::parse_str_get_object_input_version_id(v)?,
+                    crate::operation_deser::parse_str_get_object_input_version_id(&v)?,
                 );
                 seen_version_id = true;
             }
@@ -2277,12 +2328,14 @@ where
             m1,
         )?);
         let query_string = request.uri().query().unwrap_or("");
-        let pairs = serde_urlencoded::from_str::<Vec<(&str, &str)>>(query_string)?;
+        let pairs = serde_urlencoded::from_str::<
+            Vec<(std::borrow::Cow<'_, str>, std::borrow::Cow<'_, str>)>,
+        >(query_string)?;
         let mut seen_version_id = false;
         for (k, v) in pairs {
             if !seen_version_id && k == "versionId" {
                 input = input.set_version_id(
-                    crate::operation_deser::parse_str_get_object_acl_input_version_id(v)?,
+                    crate::operation_deser::parse_str_get_object_acl_input_version_id(&v)?,
                 );
                 seen_version_id = true;
             }
@@ -2334,12 +2387,14 @@ where
         input =
             input.set_key(crate::operation_deser::parse_str_get_object_legal_hold_input_key(m1)?);
         let query_string = request.uri().query().unwrap_or("");
-        let pairs = serde_urlencoded::from_str::<Vec<(&str, &str)>>(query_string)?;
+        let pairs = serde_urlencoded::from_str::<
+            Vec<(std::borrow::Cow<'_, str>, std::borrow::Cow<'_, str>)>,
+        >(query_string)?;
         let mut seen_version_id = false;
         for (k, v) in pairs {
             if !seen_version_id && k == "versionId" {
                 input = input.set_version_id(
-                    crate::operation_deser::parse_str_get_object_legal_hold_input_version_id(v)?,
+                    crate::operation_deser::parse_str_get_object_legal_hold_input_version_id(&v)?,
                 );
                 seen_version_id = true;
             }
@@ -2427,12 +2482,14 @@ where
         input =
             input.set_key(crate::operation_deser::parse_str_get_object_retention_input_key(m1)?);
         let query_string = request.uri().query().unwrap_or("");
-        let pairs = serde_urlencoded::from_str::<Vec<(&str, &str)>>(query_string)?;
+        let pairs = serde_urlencoded::from_str::<
+            Vec<(std::borrow::Cow<'_, str>, std::borrow::Cow<'_, str>)>,
+        >(query_string)?;
         let mut seen_version_id = false;
         for (k, v) in pairs {
             if !seen_version_id && k == "versionId" {
                 input = input.set_version_id(
-                    crate::operation_deser::parse_str_get_object_retention_input_version_id(v)?,
+                    crate::operation_deser::parse_str_get_object_retention_input_version_id(&v)?,
                 );
                 seen_version_id = true;
             }
@@ -2483,12 +2540,14 @@ where
             .set_bucket(crate::operation_deser::parse_str_get_object_tagging_input_bucket(m0)?);
         input = input.set_key(crate::operation_deser::parse_str_get_object_tagging_input_key(m1)?);
         let query_string = request.uri().query().unwrap_or("");
-        let pairs = serde_urlencoded::from_str::<Vec<(&str, &str)>>(query_string)?;
+        let pairs = serde_urlencoded::from_str::<
+            Vec<(std::borrow::Cow<'_, str>, std::borrow::Cow<'_, str>)>,
+        >(query_string)?;
         let mut seen_version_id = false;
         for (k, v) in pairs {
             if !seen_version_id && k == "versionId" {
                 input = input.set_version_id(
-                    crate::operation_deser::parse_str_get_object_tagging_input_version_id(v)?,
+                    crate::operation_deser::parse_str_get_object_tagging_input_version_id(&v)?,
                 );
                 seen_version_id = true;
             }
@@ -2725,19 +2784,21 @@ where
         )?);
         input = input.set_key(crate::operation_deser::parse_str_head_object_input_key(m1)?);
         let query_string = request.uri().query().unwrap_or("");
-        let pairs = serde_urlencoded::from_str::<Vec<(&str, &str)>>(query_string)?;
+        let pairs = serde_urlencoded::from_str::<
+            Vec<(std::borrow::Cow<'_, str>, std::borrow::Cow<'_, str>)>,
+        >(query_string)?;
         let mut seen_part_number = false;
         let mut seen_version_id = false;
         for (k, v) in pairs {
             if !seen_part_number && k == "partNumber" {
                 input = input.set_part_number(
-                    crate::operation_deser::parse_str_head_object_input_part_number(v)?,
+                    crate::operation_deser::parse_str_head_object_input_part_number(&v)?,
                 );
                 seen_part_number = true;
             }
             if !seen_version_id && k == "versionId" {
                 input = input.set_version_id(
-                    crate::operation_deser::parse_str_head_object_input_version_id(v)?,
+                    crate::operation_deser::parse_str_head_object_input_version_id(&v)?,
                 );
                 seen_version_id = true;
             }
@@ -2782,12 +2843,14 @@ where
             )?,
         );
         let query_string = request.uri().query().unwrap_or("");
-        let pairs = serde_urlencoded::from_str::<Vec<(&str, &str)>>(query_string)?;
+        let pairs = serde_urlencoded::from_str::<
+            Vec<(std::borrow::Cow<'_, str>, std::borrow::Cow<'_, str>)>,
+        >(query_string)?;
         let mut seen_continuation_token = false;
         for (k, v) in pairs {
             if !seen_continuation_token && k == "continuation-token" {
                 input = input.set_continuation_token(
-                    crate::operation_deser::parse_str_list_bucket_analytics_configurations_input_continuation_token(v)?
+                    crate::operation_deser::parse_str_list_bucket_analytics_configurations_input_continuation_token(&v)?
                 );
                 seen_continuation_token = true;
             }
@@ -2827,12 +2890,14 @@ where
             crate::operation_deser::parse_str_list_bucket_intelligent_tiering_configurations_input_bucket(m0)?
         );
         let query_string = request.uri().query().unwrap_or("");
-        let pairs = serde_urlencoded::from_str::<Vec<(&str, &str)>>(query_string)?;
+        let pairs = serde_urlencoded::from_str::<
+            Vec<(std::borrow::Cow<'_, str>, std::borrow::Cow<'_, str>)>,
+        >(query_string)?;
         let mut seen_continuation_token = false;
         for (k, v) in pairs {
             if !seen_continuation_token && k == "continuation-token" {
                 input = input.set_continuation_token(
-                    crate::operation_deser::parse_str_list_bucket_intelligent_tiering_configurations_input_continuation_token(v)?
+                    crate::operation_deser::parse_str_list_bucket_intelligent_tiering_configurations_input_continuation_token(&v)?
                 );
                 seen_continuation_token = true;
             }
@@ -2877,12 +2942,14 @@ where
             )?,
         );
         let query_string = request.uri().query().unwrap_or("");
-        let pairs = serde_urlencoded::from_str::<Vec<(&str, &str)>>(query_string)?;
+        let pairs = serde_urlencoded::from_str::<
+            Vec<(std::borrow::Cow<'_, str>, std::borrow::Cow<'_, str>)>,
+        >(query_string)?;
         let mut seen_continuation_token = false;
         for (k, v) in pairs {
             if !seen_continuation_token && k == "continuation-token" {
                 input = input.set_continuation_token(
-                    crate::operation_deser::parse_str_list_bucket_inventory_configurations_input_continuation_token(v)?
+                    crate::operation_deser::parse_str_list_bucket_inventory_configurations_input_continuation_token(&v)?
                 );
                 seen_continuation_token = true;
             }
@@ -2924,12 +2991,14 @@ where
             crate::operation_deser::parse_str_list_bucket_metrics_configurations_input_bucket(m0)?,
         );
         let query_string = request.uri().query().unwrap_or("");
-        let pairs = serde_urlencoded::from_str::<Vec<(&str, &str)>>(query_string)?;
+        let pairs = serde_urlencoded::from_str::<
+            Vec<(std::borrow::Cow<'_, str>, std::borrow::Cow<'_, str>)>,
+        >(query_string)?;
         let mut seen_continuation_token = false;
         for (k, v) in pairs {
             if !seen_continuation_token && k == "continuation-token" {
                 input = input.set_continuation_token(
-                    crate::operation_deser::parse_str_list_bucket_metrics_configurations_input_continuation_token(v)?
+                    crate::operation_deser::parse_str_list_bucket_metrics_configurations_input_continuation_token(&v)?
                 );
                 seen_continuation_token = true;
             }
@@ -2991,7 +3060,9 @@ where
         input = input
             .set_bucket(crate::operation_deser::parse_str_list_multipart_uploads_input_bucket(m0)?);
         let query_string = request.uri().query().unwrap_or("");
-        let pairs = serde_urlencoded::from_str::<Vec<(&str, &str)>>(query_string)?;
+        let pairs = serde_urlencoded::from_str::<
+            Vec<(std::borrow::Cow<'_, str>, std::borrow::Cow<'_, str>)>,
+        >(query_string)?;
         let mut seen_delimiter = false;
         let mut seen_encoding_type = false;
         let mut seen_key_marker = false;
@@ -3001,39 +3072,39 @@ where
         for (k, v) in pairs {
             if !seen_delimiter && k == "delimiter" {
                 input = input.set_delimiter(
-                    crate::operation_deser::parse_str_list_multipart_uploads_input_delimiter(v)?,
+                    crate::operation_deser::parse_str_list_multipart_uploads_input_delimiter(&v)?,
                 );
                 seen_delimiter = true;
             }
             if !seen_encoding_type && k == "encoding-type" {
                 input = input.set_encoding_type(
                     crate::operation_deser::parse_str_list_multipart_uploads_input_encoding_type(
-                        v,
+                        &v,
                     )?,
                 );
                 seen_encoding_type = true;
             }
             if !seen_key_marker && k == "key-marker" {
                 input = input.set_key_marker(
-                    crate::operation_deser::parse_str_list_multipart_uploads_input_key_marker(v)?,
+                    crate::operation_deser::parse_str_list_multipart_uploads_input_key_marker(&v)?,
                 );
                 seen_key_marker = true;
             }
             if !seen_max_uploads && k == "max-uploads" {
                 input = input.set_max_uploads(
-                    crate::operation_deser::parse_str_list_multipart_uploads_input_max_uploads(v)?,
+                    crate::operation_deser::parse_str_list_multipart_uploads_input_max_uploads(&v)?,
                 );
                 seen_max_uploads = true;
             }
             if !seen_prefix && k == "prefix" {
                 input = input.set_prefix(
-                    crate::operation_deser::parse_str_list_multipart_uploads_input_prefix(v)?,
+                    crate::operation_deser::parse_str_list_multipart_uploads_input_prefix(&v)?,
                 );
                 seen_prefix = true;
             }
             if !seen_upload_id_marker && k == "upload-id-marker" {
                 input = input.set_upload_id_marker(
-                    crate::operation_deser::parse_str_list_multipart_uploads_input_upload_id_marker(v)?
+                    crate::operation_deser::parse_str_list_multipart_uploads_input_upload_id_marker(&v)?
                 );
                 seen_upload_id_marker = true;
             }
@@ -3086,7 +3157,9 @@ where
             m0,
         )?);
         let query_string = request.uri().query().unwrap_or("");
-        let pairs = serde_urlencoded::from_str::<Vec<(&str, &str)>>(query_string)?;
+        let pairs = serde_urlencoded::from_str::<
+            Vec<(std::borrow::Cow<'_, str>, std::borrow::Cow<'_, str>)>,
+        >(query_string)?;
         let mut seen_delimiter = false;
         let mut seen_encoding_type = false;
         let mut seen_marker = false;
@@ -3095,31 +3168,31 @@ where
         for (k, v) in pairs {
             if !seen_delimiter && k == "delimiter" {
                 input = input.set_delimiter(
-                    crate::operation_deser::parse_str_list_objects_input_delimiter(v)?,
+                    crate::operation_deser::parse_str_list_objects_input_delimiter(&v)?,
                 );
                 seen_delimiter = true;
             }
             if !seen_encoding_type && k == "encoding-type" {
                 input = input.set_encoding_type(
-                    crate::operation_deser::parse_str_list_objects_input_encoding_type(v)?,
+                    crate::operation_deser::parse_str_list_objects_input_encoding_type(&v)?,
                 );
                 seen_encoding_type = true;
             }
             if !seen_marker && k == "marker" {
                 input = input.set_marker(
-                    crate::operation_deser::parse_str_list_objects_input_marker(v)?,
+                    crate::operation_deser::parse_str_list_objects_input_marker(&v)?,
                 );
                 seen_marker = true;
             }
             if !seen_max_keys && k == "max-keys" {
                 input = input.set_max_keys(
-                    crate::operation_deser::parse_str_list_objects_input_max_keys(v)?,
+                    crate::operation_deser::parse_str_list_objects_input_max_keys(&v)?,
                 );
                 seen_max_keys = true;
             }
             if !seen_prefix && k == "prefix" {
                 input = input.set_prefix(
-                    crate::operation_deser::parse_str_list_objects_input_prefix(v)?,
+                    crate::operation_deser::parse_str_list_objects_input_prefix(&v)?,
                 );
                 seen_prefix = true;
             }
@@ -3167,7 +3240,9 @@ where
         input =
             input.set_bucket(crate::operation_deser::parse_str_list_objects_v2_input_bucket(m0)?);
         let query_string = request.uri().query().unwrap_or("");
-        let pairs = serde_urlencoded::from_str::<Vec<(&str, &str)>>(query_string)?;
+        let pairs = serde_urlencoded::from_str::<
+            Vec<(std::borrow::Cow<'_, str>, std::borrow::Cow<'_, str>)>,
+        >(query_string)?;
         let mut seen_continuation_token = false;
         let mut seen_delimiter = false;
         let mut seen_encoding_type = false;
@@ -3178,42 +3253,43 @@ where
         for (k, v) in pairs {
             if !seen_continuation_token && k == "continuation-token" {
                 input = input.set_continuation_token(
-                    crate::operation_deser::parse_str_list_objects_v2_input_continuation_token(v)?,
+                    crate::operation_deser::parse_str_list_objects_v2_input_continuation_token(&v)?,
                 );
                 seen_continuation_token = true;
             }
             if !seen_delimiter && k == "delimiter" {
                 input = input.set_delimiter(
-                    crate::operation_deser::parse_str_list_objects_v2_input_delimiter(v)?,
+                    crate::operation_deser::parse_str_list_objects_v2_input_delimiter(&v)?,
                 );
                 seen_delimiter = true;
             }
             if !seen_encoding_type && k == "encoding-type" {
                 input = input.set_encoding_type(
-                    crate::operation_deser::parse_str_list_objects_v2_input_encoding_type(v)?,
+                    crate::operation_deser::parse_str_list_objects_v2_input_encoding_type(&v)?,
                 );
                 seen_encoding_type = true;
             }
             if !seen_fetch_owner && k == "fetch-owner" {
                 input = input.set_fetch_owner(
-                    crate::operation_deser::parse_str_list_objects_v2_input_fetch_owner(v)?,
+                    crate::operation_deser::parse_str_list_objects_v2_input_fetch_owner(&v)?,
                 );
                 seen_fetch_owner = true;
             }
             if !seen_max_keys && k == "max-keys" {
                 input = input.set_max_keys(
-                    crate::operation_deser::parse_str_list_objects_v2_input_max_keys(v)?,
+                    crate::operation_deser::parse_str_list_objects_v2_input_max_keys(&v)?,
                 );
                 seen_max_keys = true;
             }
             if !seen_prefix && k == "prefix" {
-                input = input
-                    .set_prefix(crate::operation_deser::parse_str_list_objects_v2_input_prefix(v)?);
+                input = input.set_prefix(
+                    crate::operation_deser::parse_str_list_objects_v2_input_prefix(&v)?,
+                );
                 seen_prefix = true;
             }
             if !seen_start_after && k == "start-after" {
                 input = input.set_start_after(
-                    crate::operation_deser::parse_str_list_objects_v2_input_start_after(v)?,
+                    crate::operation_deser::parse_str_list_objects_v2_input_start_after(&v)?,
                 );
                 seen_start_after = true;
             }
@@ -3254,7 +3330,9 @@ where
         input = input
             .set_bucket(crate::operation_deser::parse_str_list_object_versions_input_bucket(m0)?);
         let query_string = request.uri().query().unwrap_or("");
-        let pairs = serde_urlencoded::from_str::<Vec<(&str, &str)>>(query_string)?;
+        let pairs = serde_urlencoded::from_str::<
+            Vec<(std::borrow::Cow<'_, str>, std::borrow::Cow<'_, str>)>,
+        >(query_string)?;
         let mut seen_delimiter = false;
         let mut seen_encoding_type = false;
         let mut seen_key_marker = false;
@@ -3264,38 +3342,38 @@ where
         for (k, v) in pairs {
             if !seen_delimiter && k == "delimiter" {
                 input = input.set_delimiter(
-                    crate::operation_deser::parse_str_list_object_versions_input_delimiter(v)?,
+                    crate::operation_deser::parse_str_list_object_versions_input_delimiter(&v)?,
                 );
                 seen_delimiter = true;
             }
             if !seen_encoding_type && k == "encoding-type" {
                 input = input.set_encoding_type(
-                    crate::operation_deser::parse_str_list_object_versions_input_encoding_type(v)?,
+                    crate::operation_deser::parse_str_list_object_versions_input_encoding_type(&v)?,
                 );
                 seen_encoding_type = true;
             }
             if !seen_key_marker && k == "key-marker" {
                 input = input.set_key_marker(
-                    crate::operation_deser::parse_str_list_object_versions_input_key_marker(v)?,
+                    crate::operation_deser::parse_str_list_object_versions_input_key_marker(&v)?,
                 );
                 seen_key_marker = true;
             }
             if !seen_max_keys && k == "max-keys" {
                 input = input.set_max_keys(
-                    crate::operation_deser::parse_str_list_object_versions_input_max_keys(v)?,
+                    crate::operation_deser::parse_str_list_object_versions_input_max_keys(&v)?,
                 );
                 seen_max_keys = true;
             }
             if !seen_prefix && k == "prefix" {
                 input = input.set_prefix(
-                    crate::operation_deser::parse_str_list_object_versions_input_prefix(v)?,
+                    crate::operation_deser::parse_str_list_object_versions_input_prefix(&v)?,
                 );
                 seen_prefix = true;
             }
             if !seen_version_id_marker && k == "version-id-marker" {
                 input = input.set_version_id_marker(
                     crate::operation_deser::parse_str_list_object_versions_input_version_id_marker(
-                        v,
+                        &v,
                     )?,
                 );
                 seen_version_id_marker = true;
@@ -3356,26 +3434,28 @@ where
         )?);
         input = input.set_key(crate::operation_deser::parse_str_list_parts_input_key(m1)?);
         let query_string = request.uri().query().unwrap_or("");
-        let pairs = serde_urlencoded::from_str::<Vec<(&str, &str)>>(query_string)?;
+        let pairs = serde_urlencoded::from_str::<
+            Vec<(std::borrow::Cow<'_, str>, std::borrow::Cow<'_, str>)>,
+        >(query_string)?;
         let mut seen_max_parts = false;
         let mut seen_part_number_marker = false;
         let mut seen_upload_id = false;
         for (k, v) in pairs {
             if !seen_max_parts && k == "max-parts" {
                 input = input.set_max_parts(
-                    crate::operation_deser::parse_str_list_parts_input_max_parts(v)?,
+                    crate::operation_deser::parse_str_list_parts_input_max_parts(&v)?,
                 );
                 seen_max_parts = true;
             }
             if !seen_part_number_marker && k == "part-number-marker" {
                 input = input.set_part_number_marker(
-                    crate::operation_deser::parse_str_list_parts_input_part_number_marker(v)?,
+                    crate::operation_deser::parse_str_list_parts_input_part_number_marker(&v)?,
                 );
                 seen_part_number_marker = true;
             }
             if !seen_upload_id && k == "uploadId" {
                 input = input.set_upload_id(
-                    crate::operation_deser::parse_str_list_parts_input_upload_id(v)?,
+                    crate::operation_deser::parse_str_list_parts_input_upload_id(&v)?,
                 );
                 seen_upload_id = true;
             }
@@ -3401,6 +3481,13 @@ where
     Ok({
         #[allow(unused_mut)]
         let mut input = crate::input::put_bucket_accelerate_configuration_input::Builder::default();
+        input = input.set_accelerate_configuration(
+            {
+                                            let body = request.take_body().ok_or(aws_smithy_http_server::rejection::BodyAlreadyExtracted)?;
+                                            let bytes = hyper::body::to_bytes(body).await?;
+                                            crate::http_serde::deser_payload_put_bucket_accelerate_configuration_put_bucket_accelerate_configuration_input_accelerate_configuration(&bytes)?
+                                        }
+        );
         input = input.set_expected_bucket_owner(
             crate::http_serde::deser_header_put_bucket_accelerate_configuration_put_bucket_accelerate_configuration_input_expected_bucket_owner(request.headers().ok_or(aws_smithy_http_server::rejection::HeadersAlreadyExtracted)?)?
         );
@@ -3443,6 +3530,13 @@ where
                     .headers()
                     .ok_or(aws_smithy_http_server::rejection::HeadersAlreadyExtracted)?,
             )?,
+        );
+        input = input.set_access_control_policy(
+            {
+                                            let body = request.take_body().ok_or(aws_smithy_http_server::rejection::BodyAlreadyExtracted)?;
+                                            let bytes = hyper::body::to_bytes(body).await?;
+                                            crate::http_serde::deser_payload_put_bucket_acl_put_bucket_acl_input_access_control_policy(&bytes)?
+                                        }
         );
         input = input.set_content_md5(
             crate::http_serde::deser_header_put_bucket_acl_put_bucket_acl_input_content_md5(
@@ -3521,6 +3615,13 @@ where
     Ok({
         #[allow(unused_mut)]
         let mut input = crate::input::put_bucket_analytics_configuration_input::Builder::default();
+        input = input.set_analytics_configuration(
+            {
+                                            let body = request.take_body().ok_or(aws_smithy_http_server::rejection::BodyAlreadyExtracted)?;
+                                            let bytes = hyper::body::to_bytes(body).await?;
+                                            crate::http_serde::deser_payload_put_bucket_analytics_configuration_put_bucket_analytics_configuration_input_analytics_configuration(&bytes)?
+                                        }
+        );
         input = input.set_expected_bucket_owner(
             crate::http_serde::deser_header_put_bucket_analytics_configuration_put_bucket_analytics_configuration_input_expected_bucket_owner(request.headers().ok_or(aws_smithy_http_server::rejection::HeadersAlreadyExtracted)?)?
         );
@@ -3537,13 +3638,15 @@ where
             crate::operation_deser::parse_str_put_bucket_analytics_configuration_input_bucket(m0)?,
         );
         let query_string = request.uri().query().unwrap_or("");
-        let pairs = serde_urlencoded::from_str::<Vec<(&str, &str)>>(query_string)?;
+        let pairs = serde_urlencoded::from_str::<
+            Vec<(std::borrow::Cow<'_, str>, std::borrow::Cow<'_, str>)>,
+        >(query_string)?;
         let mut seen_id = false;
         for (k, v) in pairs {
             if !seen_id && k == "id" {
                 input = input.set_id(
                     crate::operation_deser::parse_str_put_bucket_analytics_configuration_input_id(
-                        v,
+                        &v,
                     )?,
                 );
                 seen_id = true;
@@ -3570,6 +3673,13 @@ where
     Ok({
         #[allow(unused_mut)]
         let mut input = crate::input::put_bucket_cors_input::Builder::default();
+        input = input.set_cors_configuration(
+            {
+                                            let body = request.take_body().ok_or(aws_smithy_http_server::rejection::BodyAlreadyExtracted)?;
+                                            let bytes = hyper::body::to_bytes(body).await?;
+                                            crate::http_serde::deser_payload_put_bucket_cors_put_bucket_cors_input_cors_configuration(&bytes)?
+                                        }
+        );
         input = input.set_content_md5(
             crate::http_serde::deser_header_put_bucket_cors_put_bucket_cors_input_content_md5(
                 request
@@ -3618,6 +3728,13 @@ where
         input = input.set_expected_bucket_owner(
             crate::http_serde::deser_header_put_bucket_encryption_put_bucket_encryption_input_expected_bucket_owner(request.headers().ok_or(aws_smithy_http_server::rejection::HeadersAlreadyExtracted)?)?
         );
+        input = input.set_server_side_encryption_configuration(
+            {
+                                            let body = request.take_body().ok_or(aws_smithy_http_server::rejection::BodyAlreadyExtracted)?;
+                                            let bytes = hyper::body::to_bytes(body).await?;
+                                            crate::http_serde::deser_payload_put_bucket_encryption_put_bucket_encryption_input_server_side_encryption_configuration(&bytes)?
+                                        }
+        );
         let input_string = request.uri().path();
         let (input_string, m0) = nom::sequence::preceded(
             nom::bytes::complete::tag("/"),
@@ -3651,6 +3768,13 @@ where
         #[allow(unused_mut)]
         let mut input =
             crate::input::put_bucket_intelligent_tiering_configuration_input::Builder::default();
+        input = input.set_intelligent_tiering_configuration(
+            {
+                                            let body = request.take_body().ok_or(aws_smithy_http_server::rejection::BodyAlreadyExtracted)?;
+                                            let bytes = hyper::body::to_bytes(body).await?;
+                                            crate::http_serde::deser_payload_put_bucket_intelligent_tiering_configuration_put_bucket_intelligent_tiering_configuration_input_intelligent_tiering_configuration(&bytes)?
+                                        }
+        );
         let input_string = request.uri().path();
         let (input_string, m0) = nom::sequence::preceded(
             nom::bytes::complete::tag("/"),
@@ -3664,12 +3788,14 @@ where
             crate::operation_deser::parse_str_put_bucket_intelligent_tiering_configuration_input_bucket(m0)?
         );
         let query_string = request.uri().query().unwrap_or("");
-        let pairs = serde_urlencoded::from_str::<Vec<(&str, &str)>>(query_string)?;
+        let pairs = serde_urlencoded::from_str::<
+            Vec<(std::borrow::Cow<'_, str>, std::borrow::Cow<'_, str>)>,
+        >(query_string)?;
         let mut seen_id = false;
         for (k, v) in pairs {
             if !seen_id && k == "id" {
                 input = input.set_id(
-                    crate::operation_deser::parse_str_put_bucket_intelligent_tiering_configuration_input_id(v)?
+                    crate::operation_deser::parse_str_put_bucket_intelligent_tiering_configuration_input_id(&v)?
                 );
                 seen_id = true;
             }
@@ -3698,6 +3824,13 @@ where
         input = input.set_expected_bucket_owner(
             crate::http_serde::deser_header_put_bucket_inventory_configuration_put_bucket_inventory_configuration_input_expected_bucket_owner(request.headers().ok_or(aws_smithy_http_server::rejection::HeadersAlreadyExtracted)?)?
         );
+        input = input.set_inventory_configuration(
+            {
+                                            let body = request.take_body().ok_or(aws_smithy_http_server::rejection::BodyAlreadyExtracted)?;
+                                            let bytes = hyper::body::to_bytes(body).await?;
+                                            crate::http_serde::deser_payload_put_bucket_inventory_configuration_put_bucket_inventory_configuration_input_inventory_configuration(&bytes)?
+                                        }
+        );
         let input_string = request.uri().path();
         let (input_string, m0) = nom::sequence::preceded(
             nom::bytes::complete::tag("/"),
@@ -3711,13 +3844,15 @@ where
             crate::operation_deser::parse_str_put_bucket_inventory_configuration_input_bucket(m0)?,
         );
         let query_string = request.uri().query().unwrap_or("");
-        let pairs = serde_urlencoded::from_str::<Vec<(&str, &str)>>(query_string)?;
+        let pairs = serde_urlencoded::from_str::<
+            Vec<(std::borrow::Cow<'_, str>, std::borrow::Cow<'_, str>)>,
+        >(query_string)?;
         let mut seen_id = false;
         for (k, v) in pairs {
             if !seen_id && k == "id" {
                 input = input.set_id(
                     crate::operation_deser::parse_str_put_bucket_inventory_configuration_input_id(
-                        v,
+                        &v,
                     )?,
                 );
                 seen_id = true;
@@ -3746,6 +3881,13 @@ where
         let mut input = crate::input::put_bucket_lifecycle_configuration_input::Builder::default();
         input = input.set_expected_bucket_owner(
             crate::http_serde::deser_header_put_bucket_lifecycle_configuration_put_bucket_lifecycle_configuration_input_expected_bucket_owner(request.headers().ok_or(aws_smithy_http_server::rejection::HeadersAlreadyExtracted)?)?
+        );
+        input = input.set_lifecycle_configuration(
+            {
+                                            let body = request.take_body().ok_or(aws_smithy_http_server::rejection::BodyAlreadyExtracted)?;
+                                            let bytes = hyper::body::to_bytes(body).await?;
+                                            crate::http_serde::deser_payload_put_bucket_lifecycle_configuration_put_bucket_lifecycle_configuration_input_lifecycle_configuration(&bytes)?
+                                        }
         );
         let input_string = request.uri().path();
         let (input_string, m0) = nom::sequence::preceded(
@@ -3780,6 +3922,13 @@ where
     Ok({
         #[allow(unused_mut)]
         let mut input = crate::input::put_bucket_logging_input::Builder::default();
+        input = input.set_bucket_logging_status(
+            {
+                                            let body = request.take_body().ok_or(aws_smithy_http_server::rejection::BodyAlreadyExtracted)?;
+                                            let bytes = hyper::body::to_bytes(body).await?;
+                                            crate::http_serde::deser_payload_put_bucket_logging_put_bucket_logging_input_bucket_logging_status(&bytes)?
+                                        }
+        );
         input = input.set_content_md5(
             crate::http_serde::deser_header_put_bucket_logging_put_bucket_logging_input_content_md5(request.headers().ok_or(aws_smithy_http_server::rejection::HeadersAlreadyExtracted)?)?
         );
@@ -3821,6 +3970,13 @@ where
         input = input.set_expected_bucket_owner(
             crate::http_serde::deser_header_put_bucket_metrics_configuration_put_bucket_metrics_configuration_input_expected_bucket_owner(request.headers().ok_or(aws_smithy_http_server::rejection::HeadersAlreadyExtracted)?)?
         );
+        input = input.set_metrics_configuration(
+            {
+                                            let body = request.take_body().ok_or(aws_smithy_http_server::rejection::BodyAlreadyExtracted)?;
+                                            let bytes = hyper::body::to_bytes(body).await?;
+                                            crate::http_serde::deser_payload_put_bucket_metrics_configuration_put_bucket_metrics_configuration_input_metrics_configuration(&bytes)?
+                                        }
+        );
         let input_string = request.uri().path();
         let (input_string, m0) = nom::sequence::preceded(
             nom::bytes::complete::tag("/"),
@@ -3834,12 +3990,16 @@ where
             crate::operation_deser::parse_str_put_bucket_metrics_configuration_input_bucket(m0)?,
         );
         let query_string = request.uri().query().unwrap_or("");
-        let pairs = serde_urlencoded::from_str::<Vec<(&str, &str)>>(query_string)?;
+        let pairs = serde_urlencoded::from_str::<
+            Vec<(std::borrow::Cow<'_, str>, std::borrow::Cow<'_, str>)>,
+        >(query_string)?;
         let mut seen_id = false;
         for (k, v) in pairs {
             if !seen_id && k == "id" {
                 input = input.set_id(
-                    crate::operation_deser::parse_str_put_bucket_metrics_configuration_input_id(v)?,
+                    crate::operation_deser::parse_str_put_bucket_metrics_configuration_input_id(
+                        &v,
+                    )?,
                 );
                 seen_id = true;
             }
@@ -3868,6 +4028,13 @@ where
             crate::input::put_bucket_notification_configuration_input::Builder::default();
         input = input.set_expected_bucket_owner(
             crate::http_serde::deser_header_put_bucket_notification_configuration_put_bucket_notification_configuration_input_expected_bucket_owner(request.headers().ok_or(aws_smithy_http_server::rejection::HeadersAlreadyExtracted)?)?
+        );
+        input = input.set_notification_configuration(
+            {
+                                            let body = request.take_body().ok_or(aws_smithy_http_server::rejection::BodyAlreadyExtracted)?;
+                                            let bytes = hyper::body::to_bytes(body).await?;
+                                            crate::http_serde::deser_payload_put_bucket_notification_configuration_put_bucket_notification_configuration_input_notification_configuration(&bytes)?
+                                        }
         );
         input = input.set_skip_destination_validation(
             crate::http_serde::deser_header_put_bucket_notification_configuration_put_bucket_notification_configuration_input_skip_destination_validation(request.headers().ok_or(aws_smithy_http_server::rejection::HeadersAlreadyExtracted)?)?
@@ -3912,6 +4079,13 @@ where
         );
         input = input.set_expected_bucket_owner(
             crate::http_serde::deser_header_put_bucket_ownership_controls_put_bucket_ownership_controls_input_expected_bucket_owner(request.headers().ok_or(aws_smithy_http_server::rejection::HeadersAlreadyExtracted)?)?
+        );
+        input = input.set_ownership_controls(
+            {
+                                            let body = request.take_body().ok_or(aws_smithy_http_server::rejection::BodyAlreadyExtracted)?;
+                                            let bytes = hyper::body::to_bytes(body).await?;
+                                            crate::http_serde::deser_payload_put_bucket_ownership_controls_put_bucket_ownership_controls_input_ownership_controls(&bytes)?
+                                        }
         );
         let input_string = request.uri().path();
         let (input_string, m0) = nom::sequence::preceded(
@@ -3959,6 +4133,15 @@ where
         input = input.set_expected_bucket_owner(
             crate::http_serde::deser_header_put_bucket_policy_put_bucket_policy_input_expected_bucket_owner(request.headers().ok_or(aws_smithy_http_server::rejection::HeadersAlreadyExtracted)?)?
         );
+        input = input.set_policy({
+            let body = request
+                .take_body()
+                .ok_or(aws_smithy_http_server::rejection::BodyAlreadyExtracted)?;
+            let bytes = hyper::body::to_bytes(body).await?;
+            crate::http_serde::deser_payload_put_bucket_policy_put_bucket_policy_input_policy(
+                &bytes,
+            )?
+        });
         let input_string = request.uri().path();
         let (input_string, m0) = nom::sequence::preceded(
             nom::bytes::complete::tag("/"),
@@ -3996,6 +4179,13 @@ where
         );
         input = input.set_expected_bucket_owner(
             crate::http_serde::deser_header_put_bucket_replication_put_bucket_replication_input_expected_bucket_owner(request.headers().ok_or(aws_smithy_http_server::rejection::HeadersAlreadyExtracted)?)?
+        );
+        input = input.set_replication_configuration(
+            {
+                                            let body = request.take_body().ok_or(aws_smithy_http_server::rejection::BodyAlreadyExtracted)?;
+                                            let bytes = hyper::body::to_bytes(body).await?;
+                                            crate::http_serde::deser_payload_put_bucket_replication_put_bucket_replication_input_replication_configuration(&bytes)?
+                                        }
         );
         input = input.set_token(
             crate::http_serde::deser_header_put_bucket_replication_put_bucket_replication_input_token(request.headers().ok_or(aws_smithy_http_server::rejection::HeadersAlreadyExtracted)?)?
@@ -4038,6 +4228,13 @@ where
         input = input.set_expected_bucket_owner(
             crate::http_serde::deser_header_put_bucket_request_payment_put_bucket_request_payment_input_expected_bucket_owner(request.headers().ok_or(aws_smithy_http_server::rejection::HeadersAlreadyExtracted)?)?
         );
+        input = input.set_request_payment_configuration(
+            {
+                                            let body = request.take_body().ok_or(aws_smithy_http_server::rejection::BodyAlreadyExtracted)?;
+                                            let bytes = hyper::body::to_bytes(body).await?;
+                                            crate::http_serde::deser_payload_put_bucket_request_payment_put_bucket_request_payment_input_request_payment_configuration(&bytes)?
+                                        }
+        );
         let input_string = request.uri().path();
         let (input_string, m0) = nom::sequence::preceded(
             nom::bytes::complete::tag("/"),
@@ -4077,6 +4274,15 @@ where
         input = input.set_expected_bucket_owner(
             crate::http_serde::deser_header_put_bucket_tagging_put_bucket_tagging_input_expected_bucket_owner(request.headers().ok_or(aws_smithy_http_server::rejection::HeadersAlreadyExtracted)?)?
         );
+        input = input.set_tagging({
+            let body = request
+                .take_body()
+                .ok_or(aws_smithy_http_server::rejection::BodyAlreadyExtracted)?;
+            let bytes = hyper::body::to_bytes(body).await?;
+            crate::http_serde::deser_payload_put_bucket_tagging_put_bucket_tagging_input_tagging(
+                &bytes,
+            )?
+        });
         let input_string = request.uri().path();
         let (input_string, m0) = nom::sequence::preceded(
             nom::bytes::complete::tag("/"),
@@ -4122,6 +4328,13 @@ where
                     .ok_or(aws_smithy_http_server::rejection::HeadersAlreadyExtracted)?,
             )?,
         );
+        input = input.set_versioning_configuration(
+            {
+                                            let body = request.take_body().ok_or(aws_smithy_http_server::rejection::BodyAlreadyExtracted)?;
+                                            let bytes = hyper::body::to_bytes(body).await?;
+                                            crate::http_serde::deser_payload_put_bucket_versioning_put_bucket_versioning_input_versioning_configuration(&bytes)?
+                                        }
+        );
         let input_string = request.uri().path();
         let (input_string, m0) = nom::sequence::preceded(
             nom::bytes::complete::tag("/"),
@@ -4160,6 +4373,13 @@ where
         input = input.set_expected_bucket_owner(
             crate::http_serde::deser_header_put_bucket_website_put_bucket_website_input_expected_bucket_owner(request.headers().ok_or(aws_smithy_http_server::rejection::HeadersAlreadyExtracted)?)?
         );
+        input = input.set_website_configuration(
+            {
+                                            let body = request.take_body().ok_or(aws_smithy_http_server::rejection::BodyAlreadyExtracted)?;
+                                            let bytes = hyper::body::to_bytes(body).await?;
+                                            crate::http_serde::deser_payload_put_bucket_website_put_bucket_website_input_website_configuration(&bytes)?
+                                        }
+        );
         let input_string = request.uri().path();
         let (input_string, m0) = nom::sequence::preceded(
             nom::bytes::complete::tag("/"),
@@ -4197,194 +4417,6 @@ where
             .take_body()
             .ok_or(aws_smithy_http_server::rejection::BodyAlreadyExtracted)?;
         input = input.set_body(Some(body.into()));
-        input = input.set_acl(
-            crate::http_serde::deser_header_put_object_put_object_input_acl(
-                request
-                    .headers()
-                    .ok_or(aws_smithy_http_server::rejection::HeadersAlreadyExtracted)?,
-            )?,
-        );
-        input = input.set_bucket_key_enabled(
-            crate::http_serde::deser_header_put_object_put_object_input_bucket_key_enabled(
-                request
-                    .headers()
-                    .ok_or(aws_smithy_http_server::rejection::HeadersAlreadyExtracted)?,
-            )?,
-        );
-        input = input.set_cache_control(
-            crate::http_serde::deser_header_put_object_put_object_input_cache_control(
-                request
-                    .headers()
-                    .ok_or(aws_smithy_http_server::rejection::HeadersAlreadyExtracted)?,
-            )?,
-        );
-        input = input.set_content_disposition(
-            crate::http_serde::deser_header_put_object_put_object_input_content_disposition(
-                request
-                    .headers()
-                    .ok_or(aws_smithy_http_server::rejection::HeadersAlreadyExtracted)?,
-            )?,
-        );
-        input = input.set_content_encoding(
-            crate::http_serde::deser_header_put_object_put_object_input_content_encoding(
-                request
-                    .headers()
-                    .ok_or(aws_smithy_http_server::rejection::HeadersAlreadyExtracted)?,
-            )?,
-        );
-        input = input.set_content_language(
-            crate::http_serde::deser_header_put_object_put_object_input_content_language(
-                request
-                    .headers()
-                    .ok_or(aws_smithy_http_server::rejection::HeadersAlreadyExtracted)?,
-            )?,
-        );
-        input = input.set_content_length(
-            crate::http_serde::deser_header_put_object_put_object_input_content_length(
-                request
-                    .headers()
-                    .ok_or(aws_smithy_http_server::rejection::HeadersAlreadyExtracted)?,
-            )?,
-        );
-        input = input.set_content_md5(
-            crate::http_serde::deser_header_put_object_put_object_input_content_md5(
-                request
-                    .headers()
-                    .ok_or(aws_smithy_http_server::rejection::HeadersAlreadyExtracted)?,
-            )?,
-        );
-        input = input.set_content_type(
-            crate::http_serde::deser_header_put_object_put_object_input_content_type(
-                request
-                    .headers()
-                    .ok_or(aws_smithy_http_server::rejection::HeadersAlreadyExtracted)?,
-            )?,
-        );
-        input = input.set_expected_bucket_owner(
-            crate::http_serde::deser_header_put_object_put_object_input_expected_bucket_owner(
-                request
-                    .headers()
-                    .ok_or(aws_smithy_http_server::rejection::HeadersAlreadyExtracted)?,
-            )?,
-        );
-        input = input.set_expires(
-            crate::http_serde::deser_header_put_object_put_object_input_expires(
-                request
-                    .headers()
-                    .ok_or(aws_smithy_http_server::rejection::HeadersAlreadyExtracted)?,
-            )?,
-        );
-        input = input.set_grant_full_control(
-            crate::http_serde::deser_header_put_object_put_object_input_grant_full_control(
-                request
-                    .headers()
-                    .ok_or(aws_smithy_http_server::rejection::HeadersAlreadyExtracted)?,
-            )?,
-        );
-        input = input.set_grant_read(
-            crate::http_serde::deser_header_put_object_put_object_input_grant_read(
-                request
-                    .headers()
-                    .ok_or(aws_smithy_http_server::rejection::HeadersAlreadyExtracted)?,
-            )?,
-        );
-        input = input.set_grant_read_acp(
-            crate::http_serde::deser_header_put_object_put_object_input_grant_read_acp(
-                request
-                    .headers()
-                    .ok_or(aws_smithy_http_server::rejection::HeadersAlreadyExtracted)?,
-            )?,
-        );
-        input = input.set_grant_write_acp(
-            crate::http_serde::deser_header_put_object_put_object_input_grant_write_acp(
-                request
-                    .headers()
-                    .ok_or(aws_smithy_http_server::rejection::HeadersAlreadyExtracted)?,
-            )?,
-        );
-        input = input.set_object_lock_legal_hold_status(
-            crate::http_serde::deser_header_put_object_put_object_input_object_lock_legal_hold_status(request.headers().ok_or(aws_smithy_http_server::rejection::HeadersAlreadyExtracted)?)?
-        );
-        input = input.set_object_lock_mode(
-            crate::http_serde::deser_header_put_object_put_object_input_object_lock_mode(
-                request
-                    .headers()
-                    .ok_or(aws_smithy_http_server::rejection::HeadersAlreadyExtracted)?,
-            )?,
-        );
-        input = input.set_object_lock_retain_until_date(
-            crate::http_serde::deser_header_put_object_put_object_input_object_lock_retain_until_date(request.headers().ok_or(aws_smithy_http_server::rejection::HeadersAlreadyExtracted)?)?
-        );
-        input = input.set_request_payer(
-            crate::http_serde::deser_header_put_object_put_object_input_request_payer(
-                request
-                    .headers()
-                    .ok_or(aws_smithy_http_server::rejection::HeadersAlreadyExtracted)?,
-            )?,
-        );
-        input = input.set_sse_customer_algorithm(
-            crate::http_serde::deser_header_put_object_put_object_input_sse_customer_algorithm(
-                request
-                    .headers()
-                    .ok_or(aws_smithy_http_server::rejection::HeadersAlreadyExtracted)?,
-            )?,
-        );
-        input = input.set_sse_customer_key(
-            crate::http_serde::deser_header_put_object_put_object_input_sse_customer_key(
-                request
-                    .headers()
-                    .ok_or(aws_smithy_http_server::rejection::HeadersAlreadyExtracted)?,
-            )?,
-        );
-        input = input.set_sse_customer_key_md5(
-            crate::http_serde::deser_header_put_object_put_object_input_sse_customer_key_md5(
-                request
-                    .headers()
-                    .ok_or(aws_smithy_http_server::rejection::HeadersAlreadyExtracted)?,
-            )?,
-        );
-        input = input.set_ssekms_encryption_context(
-            crate::http_serde::deser_header_put_object_put_object_input_ssekms_encryption_context(
-                request
-                    .headers()
-                    .ok_or(aws_smithy_http_server::rejection::HeadersAlreadyExtracted)?,
-            )?,
-        );
-        input = input.set_ssekms_key_id(
-            crate::http_serde::deser_header_put_object_put_object_input_ssekms_key_id(
-                request
-                    .headers()
-                    .ok_or(aws_smithy_http_server::rejection::HeadersAlreadyExtracted)?,
-            )?,
-        );
-        input = input.set_server_side_encryption(
-            crate::http_serde::deser_header_put_object_put_object_input_server_side_encryption(
-                request
-                    .headers()
-                    .ok_or(aws_smithy_http_server::rejection::HeadersAlreadyExtracted)?,
-            )?,
-        );
-        input = input.set_storage_class(
-            crate::http_serde::deser_header_put_object_put_object_input_storage_class(
-                request
-                    .headers()
-                    .ok_or(aws_smithy_http_server::rejection::HeadersAlreadyExtracted)?,
-            )?,
-        );
-        input = input.set_tagging(
-            crate::http_serde::deser_header_put_object_put_object_input_tagging(
-                request
-                    .headers()
-                    .ok_or(aws_smithy_http_server::rejection::HeadersAlreadyExtracted)?,
-            )?,
-        );
-        input = input.set_website_redirect_location(
-            crate::http_serde::deser_header_put_object_put_object_input_website_redirect_location(
-                request
-                    .headers()
-                    .ok_or(aws_smithy_http_server::rejection::HeadersAlreadyExtracted)?,
-            )?,
-        );
         let input_string = request.uri().path();
         let (input_string, (m0, m1)) = nom::sequence::tuple::<_, _, nom::error::Error<&str>, _>((
             nom::sequence::preceded(
@@ -4431,6 +4463,13 @@ where
                     .headers()
                     .ok_or(aws_smithy_http_server::rejection::HeadersAlreadyExtracted)?,
             )?,
+        );
+        input = input.set_access_control_policy(
+            {
+                                            let body = request.take_body().ok_or(aws_smithy_http_server::rejection::BodyAlreadyExtracted)?;
+                                            let bytes = hyper::body::to_bytes(body).await?;
+                                            crate::http_serde::deser_payload_put_object_acl_put_object_acl_input_access_control_policy(&bytes)?
+                                        }
         );
         input = input.set_content_md5(
             crate::http_serde::deser_header_put_object_acl_put_object_acl_input_content_md5(
@@ -4505,12 +4544,14 @@ where
             m1,
         )?);
         let query_string = request.uri().query().unwrap_or("");
-        let pairs = serde_urlencoded::from_str::<Vec<(&str, &str)>>(query_string)?;
+        let pairs = serde_urlencoded::from_str::<
+            Vec<(std::borrow::Cow<'_, str>, std::borrow::Cow<'_, str>)>,
+        >(query_string)?;
         let mut seen_version_id = false;
         for (k, v) in pairs {
             if !seen_version_id && k == "versionId" {
                 input = input.set_version_id(
-                    crate::operation_deser::parse_str_put_object_acl_input_version_id(v)?,
+                    crate::operation_deser::parse_str_put_object_acl_input_version_id(&v)?,
                 );
                 seen_version_id = true;
             }
@@ -4542,6 +4583,13 @@ where
         input = input.set_expected_bucket_owner(
             crate::http_serde::deser_header_put_object_legal_hold_put_object_legal_hold_input_expected_bucket_owner(request.headers().ok_or(aws_smithy_http_server::rejection::HeadersAlreadyExtracted)?)?
         );
+        input = input.set_legal_hold(
+            {
+                                            let body = request.take_body().ok_or(aws_smithy_http_server::rejection::BodyAlreadyExtracted)?;
+                                            let bytes = hyper::body::to_bytes(body).await?;
+                                            crate::http_serde::deser_payload_put_object_legal_hold_put_object_legal_hold_input_legal_hold(&bytes)?
+                                        }
+        );
         input = input.set_request_payer(
             crate::http_serde::deser_header_put_object_legal_hold_put_object_legal_hold_input_request_payer(request.headers().ok_or(aws_smithy_http_server::rejection::HeadersAlreadyExtracted)?)?
         );
@@ -4565,12 +4613,14 @@ where
         input =
             input.set_key(crate::operation_deser::parse_str_put_object_legal_hold_input_key(m1)?);
         let query_string = request.uri().query().unwrap_or("");
-        let pairs = serde_urlencoded::from_str::<Vec<(&str, &str)>>(query_string)?;
+        let pairs = serde_urlencoded::from_str::<
+            Vec<(std::borrow::Cow<'_, str>, std::borrow::Cow<'_, str>)>,
+        >(query_string)?;
         let mut seen_version_id = false;
         for (k, v) in pairs {
             if !seen_version_id && k == "versionId" {
                 input = input.set_version_id(
-                    crate::operation_deser::parse_str_put_object_legal_hold_input_version_id(v)?,
+                    crate::operation_deser::parse_str_put_object_legal_hold_input_version_id(&v)?,
                 );
                 seen_version_id = true;
             }
@@ -4601,6 +4651,13 @@ where
         );
         input = input.set_expected_bucket_owner(
             crate::http_serde::deser_header_put_object_lock_configuration_put_object_lock_configuration_input_expected_bucket_owner(request.headers().ok_or(aws_smithy_http_server::rejection::HeadersAlreadyExtracted)?)?
+        );
+        input = input.set_object_lock_configuration(
+            {
+                                            let body = request.take_body().ok_or(aws_smithy_http_server::rejection::BodyAlreadyExtracted)?;
+                                            let bytes = hyper::body::to_bytes(body).await?;
+                                            crate::http_serde::deser_payload_put_object_lock_configuration_put_object_lock_configuration_input_object_lock_configuration(&bytes)?
+                                        }
         );
         input = input.set_request_payer(
             crate::http_serde::deser_header_put_object_lock_configuration_put_object_lock_configuration_input_request_payer(request.headers().ok_or(aws_smithy_http_server::rejection::HeadersAlreadyExtracted)?)?
@@ -4653,6 +4710,13 @@ where
         input = input.set_request_payer(
             crate::http_serde::deser_header_put_object_retention_put_object_retention_input_request_payer(request.headers().ok_or(aws_smithy_http_server::rejection::HeadersAlreadyExtracted)?)?
         );
+        input = input.set_retention(
+            {
+                                            let body = request.take_body().ok_or(aws_smithy_http_server::rejection::BodyAlreadyExtracted)?;
+                                            let bytes = hyper::body::to_bytes(body).await?;
+                                            crate::http_serde::deser_payload_put_object_retention_put_object_retention_input_retention(&bytes)?
+                                        }
+        );
         let input_string = request.uri().path();
         let (input_string, (m0, m1)) = nom::sequence::tuple::<_, _, nom::error::Error<&str>, _>((
             nom::sequence::preceded(
@@ -4673,12 +4737,14 @@ where
         input =
             input.set_key(crate::operation_deser::parse_str_put_object_retention_input_key(m1)?);
         let query_string = request.uri().query().unwrap_or("");
-        let pairs = serde_urlencoded::from_str::<Vec<(&str, &str)>>(query_string)?;
+        let pairs = serde_urlencoded::from_str::<
+            Vec<(std::borrow::Cow<'_, str>, std::borrow::Cow<'_, str>)>,
+        >(query_string)?;
         let mut seen_version_id = false;
         for (k, v) in pairs {
             if !seen_version_id && k == "versionId" {
                 input = input.set_version_id(
-                    crate::operation_deser::parse_str_put_object_retention_input_version_id(v)?,
+                    crate::operation_deser::parse_str_put_object_retention_input_version_id(&v)?,
                 );
                 seen_version_id = true;
             }
@@ -4713,6 +4779,15 @@ where
         input = input.set_request_payer(
             crate::http_serde::deser_header_put_object_tagging_put_object_tagging_input_request_payer(request.headers().ok_or(aws_smithy_http_server::rejection::HeadersAlreadyExtracted)?)?
         );
+        input = input.set_tagging({
+            let body = request
+                .take_body()
+                .ok_or(aws_smithy_http_server::rejection::BodyAlreadyExtracted)?;
+            let bytes = hyper::body::to_bytes(body).await?;
+            crate::http_serde::deser_payload_put_object_tagging_put_object_tagging_input_tagging(
+                &bytes,
+            )?
+        });
         let input_string = request.uri().path();
         let (input_string, (m0, m1)) = nom::sequence::tuple::<_, _, nom::error::Error<&str>, _>((
             nom::sequence::preceded(
@@ -4732,12 +4807,14 @@ where
             .set_bucket(crate::operation_deser::parse_str_put_object_tagging_input_bucket(m0)?);
         input = input.set_key(crate::operation_deser::parse_str_put_object_tagging_input_key(m1)?);
         let query_string = request.uri().query().unwrap_or("");
-        let pairs = serde_urlencoded::from_str::<Vec<(&str, &str)>>(query_string)?;
+        let pairs = serde_urlencoded::from_str::<
+            Vec<(std::borrow::Cow<'_, str>, std::borrow::Cow<'_, str>)>,
+        >(query_string)?;
         let mut seen_version_id = false;
         for (k, v) in pairs {
             if !seen_version_id && k == "versionId" {
                 input = input.set_version_id(
-                    crate::operation_deser::parse_str_put_object_tagging_input_version_id(v)?,
+                    crate::operation_deser::parse_str_put_object_tagging_input_version_id(&v)?,
                 );
                 seen_version_id = true;
             }
@@ -4768,6 +4845,13 @@ where
         );
         input = input.set_expected_bucket_owner(
             crate::http_serde::deser_header_put_public_access_block_put_public_access_block_input_expected_bucket_owner(request.headers().ok_or(aws_smithy_http_server::rejection::HeadersAlreadyExtracted)?)?
+        );
+        input = input.set_public_access_block_configuration(
+            {
+                                            let body = request.take_body().ok_or(aws_smithy_http_server::rejection::BodyAlreadyExtracted)?;
+                                            let bytes = hyper::body::to_bytes(body).await?;
+                                            crate::http_serde::deser_payload_put_public_access_block_put_public_access_block_input_public_access_block_configuration(&bytes)?
+                                        }
         );
         let input_string = request.uri().path();
         let (input_string, m0) = nom::sequence::preceded(
@@ -4812,6 +4896,15 @@ where
                     .ok_or(aws_smithy_http_server::rejection::HeadersAlreadyExtracted)?,
             )?,
         );
+        input = input.set_restore_request({
+            let body = request
+                .take_body()
+                .ok_or(aws_smithy_http_server::rejection::BodyAlreadyExtracted)?;
+            let bytes = hyper::body::to_bytes(body).await?;
+            crate::http_serde::deser_payload_restore_object_restore_object_input_restore_request(
+                &bytes,
+            )?
+        });
         let input_string = request.uri().path();
         let (input_string, (m0, m1)) = nom::sequence::tuple::<_, _, nom::error::Error<&str>, _>((
             nom::sequence::preceded(
@@ -4833,12 +4926,14 @@ where
             m1,
         )?);
         let query_string = request.uri().query().unwrap_or("");
-        let pairs = serde_urlencoded::from_str::<Vec<(&str, &str)>>(query_string)?;
+        let pairs = serde_urlencoded::from_str::<
+            Vec<(std::borrow::Cow<'_, str>, std::borrow::Cow<'_, str>)>,
+        >(query_string)?;
         let mut seen_version_id = false;
         for (k, v) in pairs {
             if !seen_version_id && k == "versionId" {
                 input = input.set_version_id(
-                    crate::operation_deser::parse_str_restore_object_input_version_id(v)?,
+                    crate::operation_deser::parse_str_restore_object_input_version_id(&v)?,
                 );
                 seen_version_id = true;
             }
@@ -4869,55 +4964,6 @@ where
             .take_body()
             .ok_or(aws_smithy_http_server::rejection::BodyAlreadyExtracted)?;
         input = input.set_body(Some(body.into()));
-        input = input.set_content_length(
-            crate::http_serde::deser_header_upload_part_upload_part_input_content_length(
-                request
-                    .headers()
-                    .ok_or(aws_smithy_http_server::rejection::HeadersAlreadyExtracted)?,
-            )?,
-        );
-        input = input.set_content_md5(
-            crate::http_serde::deser_header_upload_part_upload_part_input_content_md5(
-                request
-                    .headers()
-                    .ok_or(aws_smithy_http_server::rejection::HeadersAlreadyExtracted)?,
-            )?,
-        );
-        input = input.set_expected_bucket_owner(
-            crate::http_serde::deser_header_upload_part_upload_part_input_expected_bucket_owner(
-                request
-                    .headers()
-                    .ok_or(aws_smithy_http_server::rejection::HeadersAlreadyExtracted)?,
-            )?,
-        );
-        input = input.set_request_payer(
-            crate::http_serde::deser_header_upload_part_upload_part_input_request_payer(
-                request
-                    .headers()
-                    .ok_or(aws_smithy_http_server::rejection::HeadersAlreadyExtracted)?,
-            )?,
-        );
-        input = input.set_sse_customer_algorithm(
-            crate::http_serde::deser_header_upload_part_upload_part_input_sse_customer_algorithm(
-                request
-                    .headers()
-                    .ok_or(aws_smithy_http_server::rejection::HeadersAlreadyExtracted)?,
-            )?,
-        );
-        input = input.set_sse_customer_key(
-            crate::http_serde::deser_header_upload_part_upload_part_input_sse_customer_key(
-                request
-                    .headers()
-                    .ok_or(aws_smithy_http_server::rejection::HeadersAlreadyExtracted)?,
-            )?,
-        );
-        input = input.set_sse_customer_key_md5(
-            crate::http_serde::deser_header_upload_part_upload_part_input_sse_customer_key_md5(
-                request
-                    .headers()
-                    .ok_or(aws_smithy_http_server::rejection::HeadersAlreadyExtracted)?,
-            )?,
-        );
         let input_string = request.uri().path();
         let (input_string, (m0, m1)) = nom::sequence::tuple::<_, _, nom::error::Error<&str>, _>((
             nom::sequence::preceded(
@@ -4938,19 +4984,21 @@ where
         )?);
         input = input.set_key(crate::operation_deser::parse_str_upload_part_input_key(m1)?);
         let query_string = request.uri().query().unwrap_or("");
-        let pairs = serde_urlencoded::from_str::<Vec<(&str, &str)>>(query_string)?;
+        let pairs = serde_urlencoded::from_str::<
+            Vec<(std::borrow::Cow<'_, str>, std::borrow::Cow<'_, str>)>,
+        >(query_string)?;
         let mut seen_part_number = false;
         let mut seen_upload_id = false;
         for (k, v) in pairs {
             if !seen_part_number && k == "partNumber" {
                 input = input.set_part_number(
-                    crate::operation_deser::parse_str_upload_part_input_part_number(v)?,
+                    crate::operation_deser::parse_str_upload_part_input_part_number(&v)?,
                 );
                 seen_part_number = true;
             }
             if !seen_upload_id && k == "uploadId" {
                 input = input.set_upload_id(
-                    crate::operation_deser::parse_str_upload_part_input_upload_id(v)?,
+                    crate::operation_deser::parse_str_upload_part_input_upload_id(&v)?,
                 );
                 seen_upload_id = true;
             }
@@ -5048,19 +5096,21 @@ where
             input.set_bucket(crate::operation_deser::parse_str_upload_part_copy_input_bucket(m0)?);
         input = input.set_key(crate::operation_deser::parse_str_upload_part_copy_input_key(m1)?);
         let query_string = request.uri().query().unwrap_or("");
-        let pairs = serde_urlencoded::from_str::<Vec<(&str, &str)>>(query_string)?;
+        let pairs = serde_urlencoded::from_str::<
+            Vec<(std::borrow::Cow<'_, str>, std::borrow::Cow<'_, str>)>,
+        >(query_string)?;
         let mut seen_part_number = false;
         let mut seen_upload_id = false;
         for (k, v) in pairs {
             if !seen_part_number && k == "partNumber" {
                 input = input.set_part_number(
-                    crate::operation_deser::parse_str_upload_part_copy_input_part_number(v)?,
+                    crate::operation_deser::parse_str_upload_part_copy_input_part_number(&v)?,
                 );
                 seen_part_number = true;
             }
             if !seen_upload_id && k == "uploadId" {
                 input = input.set_upload_id(
-                    crate::operation_deser::parse_str_upload_part_copy_input_upload_id(v)?,
+                    crate::operation_deser::parse_str_upload_part_copy_input_upload_id(&v)?,
                 );
                 seen_upload_id = true;
             }
@@ -5091,108 +5141,6 @@ where
             .take_body()
             .ok_or(aws_smithy_http_server::rejection::BodyAlreadyExtracted)?;
         input = input.set_body(Some(body.into()));
-        input = input.set_accept_ranges(
-            crate::http_serde::deser_header_write_get_object_response_write_get_object_response_input_accept_ranges(request.headers().ok_or(aws_smithy_http_server::rejection::HeadersAlreadyExtracted)?)?
-        );
-        input = input.set_bucket_key_enabled(
-            crate::http_serde::deser_header_write_get_object_response_write_get_object_response_input_bucket_key_enabled(request.headers().ok_or(aws_smithy_http_server::rejection::HeadersAlreadyExtracted)?)?
-        );
-        input = input.set_cache_control(
-            crate::http_serde::deser_header_write_get_object_response_write_get_object_response_input_cache_control(request.headers().ok_or(aws_smithy_http_server::rejection::HeadersAlreadyExtracted)?)?
-        );
-        input = input.set_content_disposition(
-            crate::http_serde::deser_header_write_get_object_response_write_get_object_response_input_content_disposition(request.headers().ok_or(aws_smithy_http_server::rejection::HeadersAlreadyExtracted)?)?
-        );
-        input = input.set_content_encoding(
-            crate::http_serde::deser_header_write_get_object_response_write_get_object_response_input_content_encoding(request.headers().ok_or(aws_smithy_http_server::rejection::HeadersAlreadyExtracted)?)?
-        );
-        input = input.set_content_language(
-            crate::http_serde::deser_header_write_get_object_response_write_get_object_response_input_content_language(request.headers().ok_or(aws_smithy_http_server::rejection::HeadersAlreadyExtracted)?)?
-        );
-        input = input.set_content_length(
-            crate::http_serde::deser_header_write_get_object_response_write_get_object_response_input_content_length(request.headers().ok_or(aws_smithy_http_server::rejection::HeadersAlreadyExtracted)?)?
-        );
-        input = input.set_content_range(
-            crate::http_serde::deser_header_write_get_object_response_write_get_object_response_input_content_range(request.headers().ok_or(aws_smithy_http_server::rejection::HeadersAlreadyExtracted)?)?
-        );
-        input = input.set_content_type(
-            crate::http_serde::deser_header_write_get_object_response_write_get_object_response_input_content_type(request.headers().ok_or(aws_smithy_http_server::rejection::HeadersAlreadyExtracted)?)?
-        );
-        input = input.set_delete_marker(
-            crate::http_serde::deser_header_write_get_object_response_write_get_object_response_input_delete_marker(request.headers().ok_or(aws_smithy_http_server::rejection::HeadersAlreadyExtracted)?)?
-        );
-        input = input.set_e_tag(
-            crate::http_serde::deser_header_write_get_object_response_write_get_object_response_input_e_tag(request.headers().ok_or(aws_smithy_http_server::rejection::HeadersAlreadyExtracted)?)?
-        );
-        input = input.set_error_code(
-            crate::http_serde::deser_header_write_get_object_response_write_get_object_response_input_error_code(request.headers().ok_or(aws_smithy_http_server::rejection::HeadersAlreadyExtracted)?)?
-        );
-        input = input.set_error_message(
-            crate::http_serde::deser_header_write_get_object_response_write_get_object_response_input_error_message(request.headers().ok_or(aws_smithy_http_server::rejection::HeadersAlreadyExtracted)?)?
-        );
-        input = input.set_expiration(
-            crate::http_serde::deser_header_write_get_object_response_write_get_object_response_input_expiration(request.headers().ok_or(aws_smithy_http_server::rejection::HeadersAlreadyExtracted)?)?
-        );
-        input = input.set_expires(
-            crate::http_serde::deser_header_write_get_object_response_write_get_object_response_input_expires(request.headers().ok_or(aws_smithy_http_server::rejection::HeadersAlreadyExtracted)?)?
-        );
-        input = input.set_last_modified(
-            crate::http_serde::deser_header_write_get_object_response_write_get_object_response_input_last_modified(request.headers().ok_or(aws_smithy_http_server::rejection::HeadersAlreadyExtracted)?)?
-        );
-        input = input.set_missing_meta(
-            crate::http_serde::deser_header_write_get_object_response_write_get_object_response_input_missing_meta(request.headers().ok_or(aws_smithy_http_server::rejection::HeadersAlreadyExtracted)?)?
-        );
-        input = input.set_object_lock_legal_hold_status(
-            crate::http_serde::deser_header_write_get_object_response_write_get_object_response_input_object_lock_legal_hold_status(request.headers().ok_or(aws_smithy_http_server::rejection::HeadersAlreadyExtracted)?)?
-        );
-        input = input.set_object_lock_mode(
-            crate::http_serde::deser_header_write_get_object_response_write_get_object_response_input_object_lock_mode(request.headers().ok_or(aws_smithy_http_server::rejection::HeadersAlreadyExtracted)?)?
-        );
-        input = input.set_object_lock_retain_until_date(
-            crate::http_serde::deser_header_write_get_object_response_write_get_object_response_input_object_lock_retain_until_date(request.headers().ok_or(aws_smithy_http_server::rejection::HeadersAlreadyExtracted)?)?
-        );
-        input = input.set_parts_count(
-            crate::http_serde::deser_header_write_get_object_response_write_get_object_response_input_parts_count(request.headers().ok_or(aws_smithy_http_server::rejection::HeadersAlreadyExtracted)?)?
-        );
-        input = input.set_replication_status(
-            crate::http_serde::deser_header_write_get_object_response_write_get_object_response_input_replication_status(request.headers().ok_or(aws_smithy_http_server::rejection::HeadersAlreadyExtracted)?)?
-        );
-        input = input.set_request_charged(
-            crate::http_serde::deser_header_write_get_object_response_write_get_object_response_input_request_charged(request.headers().ok_or(aws_smithy_http_server::rejection::HeadersAlreadyExtracted)?)?
-        );
-        input = input.set_request_route(
-            crate::http_serde::deser_header_write_get_object_response_write_get_object_response_input_request_route(request.headers().ok_or(aws_smithy_http_server::rejection::HeadersAlreadyExtracted)?)?
-        );
-        input = input.set_request_token(
-            crate::http_serde::deser_header_write_get_object_response_write_get_object_response_input_request_token(request.headers().ok_or(aws_smithy_http_server::rejection::HeadersAlreadyExtracted)?)?
-        );
-        input = input.set_restore(
-            crate::http_serde::deser_header_write_get_object_response_write_get_object_response_input_restore(request.headers().ok_or(aws_smithy_http_server::rejection::HeadersAlreadyExtracted)?)?
-        );
-        input = input.set_sse_customer_algorithm(
-            crate::http_serde::deser_header_write_get_object_response_write_get_object_response_input_sse_customer_algorithm(request.headers().ok_or(aws_smithy_http_server::rejection::HeadersAlreadyExtracted)?)?
-        );
-        input = input.set_sse_customer_key_md5(
-            crate::http_serde::deser_header_write_get_object_response_write_get_object_response_input_sse_customer_key_md5(request.headers().ok_or(aws_smithy_http_server::rejection::HeadersAlreadyExtracted)?)?
-        );
-        input = input.set_ssekms_key_id(
-            crate::http_serde::deser_header_write_get_object_response_write_get_object_response_input_ssekms_key_id(request.headers().ok_or(aws_smithy_http_server::rejection::HeadersAlreadyExtracted)?)?
-        );
-        input = input.set_server_side_encryption(
-            crate::http_serde::deser_header_write_get_object_response_write_get_object_response_input_server_side_encryption(request.headers().ok_or(aws_smithy_http_server::rejection::HeadersAlreadyExtracted)?)?
-        );
-        input = input.set_status_code(
-            crate::http_serde::deser_header_write_get_object_response_write_get_object_response_input_status_code(request.headers().ok_or(aws_smithy_http_server::rejection::HeadersAlreadyExtracted)?)?
-        );
-        input = input.set_storage_class(
-            crate::http_serde::deser_header_write_get_object_response_write_get_object_response_input_storage_class(request.headers().ok_or(aws_smithy_http_server::rejection::HeadersAlreadyExtracted)?)?
-        );
-        input = input.set_tag_count(
-            crate::http_serde::deser_header_write_get_object_response_write_get_object_response_input_tag_count(request.headers().ok_or(aws_smithy_http_server::rejection::HeadersAlreadyExtracted)?)?
-        );
-        input = input.set_version_id(
-            crate::http_serde::deser_header_write_get_object_response_write_get_object_response_input_version_id(request.headers().ok_or(aws_smithy_http_server::rejection::HeadersAlreadyExtracted)?)?
-        );
         input.build()?
     })
 }

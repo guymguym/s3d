@@ -9,22 +9,24 @@ edition = "2018"
 version = "0.1"
 [dependencies.aws-smithy-http]
 path = "../build/rust-runtime/aws-smithy-http"
-version = "0.34.1"
+version = "0.35.1"
 [dependencies.aws-smithy-http-server]
 path = "../build/rust-runtime/aws-smithy-http-server"
-version = "0.34.1"
+version = "0.35.1"
 [dependencies.aws-smithy-types]
 path = "../build/rust-runtime/aws-smithy-types"
-version = "0.34.1"
+version = "0.35.1"
 [dependencies.aws-smithy-xml]
 path = "../build/rust-runtime/aws-smithy-xml"
-version = "0.34.1"
+version = "0.35.1"
 [dependencies.axum-core]
 version = "0.1"
 [dependencies.futures-util]
 version = "0.3"
 [dependencies.http]
 version = "0.2"
+[dependencies.hyper]
+version = "0.14"
 [dependencies.nom]
 version = "7"
 [dependencies.percent-encoding]

@@ -29,6 +29,17 @@ pub fn deser_header_complete_multipart_upload_complete_multipart_upload_input_ex
     aws_smithy_http::header::one_or_none(headers)
 }
 
+pub fn deser_payload_complete_multipart_upload_complete_multipart_upload_input_multipart_upload(
+    body: &[u8],
+) -> std::result::Result<
+    std::option::Option<crate::model::CompletedMultipartUpload>,
+    aws_smithy_xml::decode::XmlError,
+> {
+    (!body.is_empty()).then(||{
+        crate::xml_deser::deser_member_com_amazonaws_s3_synthetic_complete_multipart_upload_input_multipart_upload(body)
+    }).transpose()
+}
+
 pub fn deser_header_complete_multipart_upload_complete_multipart_upload_input_request_payer(
     header_map: &http::HeaderMap,
 ) -> std::result::Result<
@@ -492,6 +503,17 @@ pub fn deser_header_create_bucket_create_bucket_input_acl(
 > {
     let headers = header_map.get_all("x-amz-acl").iter();
     aws_smithy_http::header::one_or_none(headers)
+}
+
+pub fn deser_payload_create_bucket_create_bucket_input_create_bucket_configuration(
+    body: &[u8],
+) -> std::result::Result<
+    std::option::Option<crate::model::CreateBucketConfiguration>,
+    aws_smithy_xml::decode::XmlError,
+> {
+    (!body.is_empty()).then(||{
+        crate::xml_deser::deser_member_com_amazonaws_s3_synthetic_create_bucket_input_create_bucket_configuration(body)
+    }).transpose()
 }
 
 pub fn deser_header_create_bucket_create_bucket_input_grant_full_control(
@@ -1054,6 +1076,19 @@ pub fn deser_header_delete_objects_delete_objects_input_bypass_governance_retent
         let mut var_11 = var_11;
         Ok(var_11.pop())
     }
+}
+
+pub fn deser_payload_delete_objects_delete_objects_input_delete(
+    body: &[u8],
+) -> std::result::Result<std::option::Option<crate::model::Delete>, aws_smithy_xml::decode::XmlError>
+{
+    (!body.is_empty())
+        .then(|| {
+            crate::xml_deser::deser_member_com_amazonaws_s3_synthetic_delete_objects_input_delete(
+                body,
+            )
+        })
+        .transpose()
 }
 
 pub fn deser_header_delete_objects_delete_objects_input_expected_bucket_owner(
@@ -1792,6 +1827,17 @@ pub fn deser_header_list_parts_list_parts_input_request_payer(
     aws_smithy_http::header::one_or_none(headers)
 }
 
+pub fn deser_payload_put_bucket_accelerate_configuration_put_bucket_accelerate_configuration_input_accelerate_configuration(
+    body: &[u8],
+) -> std::result::Result<
+    std::option::Option<crate::model::AccelerateConfiguration>,
+    aws_smithy_xml::decode::XmlError,
+> {
+    (!body.is_empty()).then(||{
+        crate::xml_deser::deser_member_com_amazonaws_s3_synthetic_put_bucket_accelerate_configuration_input_accelerate_configuration(body)
+    }).transpose()
+}
+
 pub fn deser_header_put_bucket_accelerate_configuration_put_bucket_accelerate_configuration_input_expected_bucket_owner(
     header_map: &http::HeaderMap,
 ) -> std::result::Result<
@@ -1810,6 +1856,17 @@ pub fn deser_header_put_bucket_acl_put_bucket_acl_input_acl(
 > {
     let headers = header_map.get_all("x-amz-acl").iter();
     aws_smithy_http::header::one_or_none(headers)
+}
+
+pub fn deser_payload_put_bucket_acl_put_bucket_acl_input_access_control_policy(
+    body: &[u8],
+) -> std::result::Result<
+    std::option::Option<crate::model::AccessControlPolicy>,
+    aws_smithy_xml::decode::XmlError,
+> {
+    (!body.is_empty()).then(||{
+        crate::xml_deser::deser_member_com_amazonaws_s3_synthetic_put_bucket_acl_input_access_control_policy(body)
+    }).transpose()
 }
 
 pub fn deser_header_put_bucket_acl_put_bucket_acl_input_content_md5(
@@ -1882,6 +1939,17 @@ pub fn deser_header_put_bucket_acl_put_bucket_acl_input_grant_write_acp(
     aws_smithy_http::header::one_or_none(headers)
 }
 
+pub fn deser_payload_put_bucket_analytics_configuration_put_bucket_analytics_configuration_input_analytics_configuration(
+    body: &[u8],
+) -> std::result::Result<
+    std::option::Option<crate::model::AnalyticsConfiguration>,
+    aws_smithy_xml::decode::XmlError,
+> {
+    (!body.is_empty()).then(||{
+        crate::xml_deser::deser_member_com_amazonaws_s3_synthetic_put_bucket_analytics_configuration_input_analytics_configuration(body)
+    }).transpose()
+}
+
 pub fn deser_header_put_bucket_analytics_configuration_put_bucket_analytics_configuration_input_expected_bucket_owner(
     header_map: &http::HeaderMap,
 ) -> std::result::Result<
@@ -1890,6 +1958,17 @@ pub fn deser_header_put_bucket_analytics_configuration_put_bucket_analytics_conf
 > {
     let headers = header_map.get_all("x-amz-expected-bucket-owner").iter();
     aws_smithy_http::header::one_or_none(headers)
+}
+
+pub fn deser_payload_put_bucket_cors_put_bucket_cors_input_cors_configuration(
+    body: &[u8],
+) -> std::result::Result<
+    std::option::Option<crate::model::CorsConfiguration>,
+    aws_smithy_xml::decode::XmlError,
+> {
+    (!body.is_empty()).then(||{
+        crate::xml_deser::deser_member_com_amazonaws_s3_synthetic_put_bucket_cors_input_cors_configuration(body)
+    }).transpose()
 }
 
 pub fn deser_header_put_bucket_cors_put_bucket_cors_input_content_md5(
@@ -1932,6 +2011,28 @@ pub fn deser_header_put_bucket_encryption_put_bucket_encryption_input_expected_b
     aws_smithy_http::header::one_or_none(headers)
 }
 
+pub fn deser_payload_put_bucket_encryption_put_bucket_encryption_input_server_side_encryption_configuration(
+    body: &[u8],
+) -> std::result::Result<
+    std::option::Option<crate::model::ServerSideEncryptionConfiguration>,
+    aws_smithy_xml::decode::XmlError,
+> {
+    (!body.is_empty()).then(||{
+        crate::xml_deser::deser_member_com_amazonaws_s3_synthetic_put_bucket_encryption_input_server_side_encryption_configuration(body)
+    }).transpose()
+}
+
+pub fn deser_payload_put_bucket_intelligent_tiering_configuration_put_bucket_intelligent_tiering_configuration_input_intelligent_tiering_configuration(
+    body: &[u8],
+) -> std::result::Result<
+    std::option::Option<crate::model::IntelligentTieringConfiguration>,
+    aws_smithy_xml::decode::XmlError,
+> {
+    (!body.is_empty()).then(||{
+        crate::xml_deser::deser_member_com_amazonaws_s3_synthetic_put_bucket_intelligent_tiering_configuration_input_intelligent_tiering_configuration(body)
+    }).transpose()
+}
+
 pub fn deser_header_put_bucket_inventory_configuration_put_bucket_inventory_configuration_input_expected_bucket_owner(
     header_map: &http::HeaderMap,
 ) -> std::result::Result<
@@ -1942,6 +2043,17 @@ pub fn deser_header_put_bucket_inventory_configuration_put_bucket_inventory_conf
     aws_smithy_http::header::one_or_none(headers)
 }
 
+pub fn deser_payload_put_bucket_inventory_configuration_put_bucket_inventory_configuration_input_inventory_configuration(
+    body: &[u8],
+) -> std::result::Result<
+    std::option::Option<crate::model::InventoryConfiguration>,
+    aws_smithy_xml::decode::XmlError,
+> {
+    (!body.is_empty()).then(||{
+        crate::xml_deser::deser_member_com_amazonaws_s3_synthetic_put_bucket_inventory_configuration_input_inventory_configuration(body)
+    }).transpose()
+}
+
 pub fn deser_header_put_bucket_lifecycle_configuration_put_bucket_lifecycle_configuration_input_expected_bucket_owner(
     header_map: &http::HeaderMap,
 ) -> std::result::Result<
@@ -1950,6 +2062,28 @@ pub fn deser_header_put_bucket_lifecycle_configuration_put_bucket_lifecycle_conf
 > {
     let headers = header_map.get_all("x-amz-expected-bucket-owner").iter();
     aws_smithy_http::header::one_or_none(headers)
+}
+
+pub fn deser_payload_put_bucket_lifecycle_configuration_put_bucket_lifecycle_configuration_input_lifecycle_configuration(
+    body: &[u8],
+) -> std::result::Result<
+    std::option::Option<crate::model::BucketLifecycleConfiguration>,
+    aws_smithy_xml::decode::XmlError,
+> {
+    (!body.is_empty()).then(||{
+        crate::xml_deser::deser_member_com_amazonaws_s3_synthetic_put_bucket_lifecycle_configuration_input_lifecycle_configuration(body)
+    }).transpose()
+}
+
+pub fn deser_payload_put_bucket_logging_put_bucket_logging_input_bucket_logging_status(
+    body: &[u8],
+) -> std::result::Result<
+    std::option::Option<crate::model::BucketLoggingStatus>,
+    aws_smithy_xml::decode::XmlError,
+> {
+    (!body.is_empty()).then(||{
+        crate::xml_deser::deser_member_com_amazonaws_s3_synthetic_put_bucket_logging_input_bucket_logging_status(body)
+    }).transpose()
 }
 
 pub fn deser_header_put_bucket_logging_put_bucket_logging_input_content_md5(
@@ -1982,6 +2116,17 @@ pub fn deser_header_put_bucket_metrics_configuration_put_bucket_metrics_configur
     aws_smithy_http::header::one_or_none(headers)
 }
 
+pub fn deser_payload_put_bucket_metrics_configuration_put_bucket_metrics_configuration_input_metrics_configuration(
+    body: &[u8],
+) -> std::result::Result<
+    std::option::Option<crate::model::MetricsConfiguration>,
+    aws_smithy_xml::decode::XmlError,
+> {
+    (!body.is_empty()).then(||{
+        crate::xml_deser::deser_member_com_amazonaws_s3_synthetic_put_bucket_metrics_configuration_input_metrics_configuration(body)
+    }).transpose()
+}
+
 pub fn deser_header_put_bucket_notification_configuration_put_bucket_notification_configuration_input_expected_bucket_owner(
     header_map: &http::HeaderMap,
 ) -> std::result::Result<
@@ -1990,6 +2135,17 @@ pub fn deser_header_put_bucket_notification_configuration_put_bucket_notificatio
 > {
     let headers = header_map.get_all("x-amz-expected-bucket-owner").iter();
     aws_smithy_http::header::one_or_none(headers)
+}
+
+pub fn deser_payload_put_bucket_notification_configuration_put_bucket_notification_configuration_input_notification_configuration(
+    body: &[u8],
+) -> std::result::Result<
+    std::option::Option<crate::model::NotificationConfiguration>,
+    aws_smithy_xml::decode::XmlError,
+> {
+    (!body.is_empty()).then(||{
+        crate::xml_deser::deser_member_com_amazonaws_s3_synthetic_put_bucket_notification_configuration_input_notification_configuration(body)
+    }).transpose()
 }
 
 pub fn deser_header_put_bucket_notification_configuration_put_bucket_notification_configuration_input_skip_destination_validation(
@@ -2029,6 +2185,17 @@ pub fn deser_header_put_bucket_ownership_controls_put_bucket_ownership_controls_
     aws_smithy_http::header::one_or_none(headers)
 }
 
+pub fn deser_payload_put_bucket_ownership_controls_put_bucket_ownership_controls_input_ownership_controls(
+    body: &[u8],
+) -> std::result::Result<
+    std::option::Option<crate::model::OwnershipControls>,
+    aws_smithy_xml::decode::XmlError,
+> {
+    (!body.is_empty()).then(||{
+        crate::xml_deser::deser_member_com_amazonaws_s3_synthetic_put_bucket_ownership_controls_input_ownership_controls(body)
+    }).transpose()
+}
+
 pub fn deser_header_put_bucket_policy_put_bucket_policy_input_confirm_remove_self_bucket_access(
     header_map: &http::HeaderMap,
 ) -> std::result::Result<std::option::Option<bool>, aws_smithy_http::header::ParseError> {
@@ -2066,6 +2233,20 @@ pub fn deser_header_put_bucket_policy_put_bucket_policy_input_expected_bucket_ow
     aws_smithy_http::header::one_or_none(headers)
 }
 
+pub fn deser_payload_put_bucket_policy_put_bucket_policy_input_policy(
+    body: &[u8],
+) -> std::result::Result<
+    std::option::Option<std::string::String>,
+    aws_smithy_http_server::rejection::SmithyRejection,
+> {
+    (!body.is_empty())
+        .then(|| {
+            let body_str = std::str::from_utf8(body)?;
+            Ok(body_str.to_string())
+        })
+        .transpose()
+}
+
 pub fn deser_header_put_bucket_replication_put_bucket_replication_input_content_md5(
     header_map: &http::HeaderMap,
 ) -> std::result::Result<
@@ -2084,6 +2265,17 @@ pub fn deser_header_put_bucket_replication_put_bucket_replication_input_expected
 > {
     let headers = header_map.get_all("x-amz-expected-bucket-owner").iter();
     aws_smithy_http::header::one_or_none(headers)
+}
+
+pub fn deser_payload_put_bucket_replication_put_bucket_replication_input_replication_configuration(
+    body: &[u8],
+) -> std::result::Result<
+    std::option::Option<crate::model::ReplicationConfiguration>,
+    aws_smithy_xml::decode::XmlError,
+> {
+    (!body.is_empty()).then(||{
+        crate::xml_deser::deser_member_com_amazonaws_s3_synthetic_put_bucket_replication_input_replication_configuration(body)
+    }).transpose()
 }
 
 pub fn deser_header_put_bucket_replication_put_bucket_replication_input_token(
@@ -2116,6 +2308,17 @@ pub fn deser_header_put_bucket_request_payment_put_bucket_request_payment_input_
     aws_smithy_http::header::one_or_none(headers)
 }
 
+pub fn deser_payload_put_bucket_request_payment_put_bucket_request_payment_input_request_payment_configuration(
+    body: &[u8],
+) -> std::result::Result<
+    std::option::Option<crate::model::RequestPaymentConfiguration>,
+    aws_smithy_xml::decode::XmlError,
+> {
+    (!body.is_empty()).then(||{
+        crate::xml_deser::deser_member_com_amazonaws_s3_synthetic_put_bucket_request_payment_input_request_payment_configuration(body)
+    }).transpose()
+}
+
 pub fn deser_header_put_bucket_tagging_put_bucket_tagging_input_content_md5(
     header_map: &http::HeaderMap,
 ) -> std::result::Result<
@@ -2134,6 +2337,15 @@ pub fn deser_header_put_bucket_tagging_put_bucket_tagging_input_expected_bucket_
 > {
     let headers = header_map.get_all("x-amz-expected-bucket-owner").iter();
     aws_smithy_http::header::one_or_none(headers)
+}
+
+pub fn deser_payload_put_bucket_tagging_put_bucket_tagging_input_tagging(
+    body: &[u8],
+) -> std::result::Result<std::option::Option<crate::model::Tagging>, aws_smithy_xml::decode::XmlError>
+{
+    (!body.is_empty()).then(||{
+        crate::xml_deser::deser_member_com_amazonaws_s3_synthetic_put_bucket_tagging_input_tagging(body)
+    }).transpose()
 }
 
 pub fn deser_header_put_bucket_versioning_put_bucket_versioning_input_content_md5(
@@ -2166,6 +2378,17 @@ pub fn deser_header_put_bucket_versioning_put_bucket_versioning_input_mfa(
     aws_smithy_http::header::one_or_none(headers)
 }
 
+pub fn deser_payload_put_bucket_versioning_put_bucket_versioning_input_versioning_configuration(
+    body: &[u8],
+) -> std::result::Result<
+    std::option::Option<crate::model::VersioningConfiguration>,
+    aws_smithy_xml::decode::XmlError,
+> {
+    (!body.is_empty()).then(||{
+        crate::xml_deser::deser_member_com_amazonaws_s3_synthetic_put_bucket_versioning_input_versioning_configuration(body)
+    }).transpose()
+}
+
 pub fn deser_header_put_bucket_website_put_bucket_website_input_content_md5(
     header_map: &http::HeaderMap,
 ) -> std::result::Result<
@@ -2186,330 +2409,15 @@ pub fn deser_header_put_bucket_website_put_bucket_website_input_expected_bucket_
     aws_smithy_http::header::one_or_none(headers)
 }
 
-pub fn deser_header_put_object_put_object_input_acl(
-    header_map: &http::HeaderMap,
+pub fn deser_payload_put_bucket_website_put_bucket_website_input_website_configuration(
+    body: &[u8],
 ) -> std::result::Result<
-    std::option::Option<crate::model::ObjectCannedAcl>,
-    aws_smithy_http::header::ParseError,
+    std::option::Option<crate::model::WebsiteConfiguration>,
+    aws_smithy_xml::decode::XmlError,
 > {
-    let headers = header_map.get_all("x-amz-acl").iter();
-    aws_smithy_http::header::one_or_none(headers)
-}
-
-pub fn deser_header_put_object_put_object_input_bucket_key_enabled(
-    header_map: &http::HeaderMap,
-) -> std::result::Result<std::option::Option<bool>, aws_smithy_http::header::ParseError> {
-    let headers = header_map
-        .get_all("x-amz-server-side-encryption-bucket-key-enabled")
-        .iter();
-    let var_18 = aws_smithy_http::header::read_many_primitive::<bool>(headers)?;
-    if var_18.len() > 1 {
-        Err(aws_smithy_http::header::ParseError::new_with_message(
-            format!("expected one item but found {}", var_18.len()),
-        ))
-    } else {
-        let mut var_18 = var_18;
-        Ok(var_18.pop())
-    }
-}
-
-pub fn deser_header_put_object_put_object_input_cache_control(
-    header_map: &http::HeaderMap,
-) -> std::result::Result<
-    std::option::Option<std::string::String>,
-    aws_smithy_http::header::ParseError,
-> {
-    let headers = header_map.get_all("Cache-Control").iter();
-    aws_smithy_http::header::one_or_none(headers)
-}
-
-pub fn deser_header_put_object_put_object_input_content_disposition(
-    header_map: &http::HeaderMap,
-) -> std::result::Result<
-    std::option::Option<std::string::String>,
-    aws_smithy_http::header::ParseError,
-> {
-    let headers = header_map.get_all("Content-Disposition").iter();
-    aws_smithy_http::header::one_or_none(headers)
-}
-
-pub fn deser_header_put_object_put_object_input_content_encoding(
-    header_map: &http::HeaderMap,
-) -> std::result::Result<
-    std::option::Option<std::string::String>,
-    aws_smithy_http::header::ParseError,
-> {
-    let headers = header_map.get_all("Content-Encoding").iter();
-    aws_smithy_http::header::one_or_none(headers)
-}
-
-pub fn deser_header_put_object_put_object_input_content_language(
-    header_map: &http::HeaderMap,
-) -> std::result::Result<
-    std::option::Option<std::string::String>,
-    aws_smithy_http::header::ParseError,
-> {
-    let headers = header_map.get_all("Content-Language").iter();
-    aws_smithy_http::header::one_or_none(headers)
-}
-
-pub fn deser_header_put_object_put_object_input_content_length(
-    header_map: &http::HeaderMap,
-) -> std::result::Result<std::option::Option<i64>, aws_smithy_http::header::ParseError> {
-    let headers = header_map.get_all("Content-Length").iter();
-    let var_19 = aws_smithy_http::header::read_many_primitive::<i64>(headers)?;
-    if var_19.len() > 1 {
-        Err(aws_smithy_http::header::ParseError::new_with_message(
-            format!("expected one item but found {}", var_19.len()),
-        ))
-    } else {
-        let mut var_19 = var_19;
-        Ok(var_19.pop())
-    }
-}
-
-pub fn deser_header_put_object_put_object_input_content_md5(
-    header_map: &http::HeaderMap,
-) -> std::result::Result<
-    std::option::Option<std::string::String>,
-    aws_smithy_http::header::ParseError,
-> {
-    let headers = header_map.get_all("Content-MD5").iter();
-    aws_smithy_http::header::one_or_none(headers)
-}
-
-pub fn deser_header_put_object_put_object_input_content_type(
-    header_map: &http::HeaderMap,
-) -> std::result::Result<
-    std::option::Option<std::string::String>,
-    aws_smithy_http::header::ParseError,
-> {
-    let headers = header_map.get_all("Content-Type").iter();
-    aws_smithy_http::header::one_or_none(headers)
-}
-
-pub fn deser_header_put_object_put_object_input_expected_bucket_owner(
-    header_map: &http::HeaderMap,
-) -> std::result::Result<
-    std::option::Option<std::string::String>,
-    aws_smithy_http::header::ParseError,
-> {
-    let headers = header_map.get_all("x-amz-expected-bucket-owner").iter();
-    aws_smithy_http::header::one_or_none(headers)
-}
-
-pub fn deser_header_put_object_put_object_input_expires(
-    header_map: &http::HeaderMap,
-) -> std::result::Result<
-    std::option::Option<aws_smithy_types::DateTime>,
-    aws_smithy_http::header::ParseError,
-> {
-    let headers = header_map.get_all("Expires").iter();
-    let var_20: Vec<aws_smithy_types::DateTime> = aws_smithy_http::header::many_dates(
-        headers,
-        aws_smithy_types::date_time::Format::HttpDate,
-    )?;
-    if var_20.len() > 1 {
-        Err(aws_smithy_http::header::ParseError::new_with_message(
-            format!("expected one item but found {}", var_20.len()),
-        ))
-    } else {
-        let mut var_20 = var_20;
-        Ok(var_20.pop())
-    }
-}
-
-pub fn deser_header_put_object_put_object_input_grant_full_control(
-    header_map: &http::HeaderMap,
-) -> std::result::Result<
-    std::option::Option<std::string::String>,
-    aws_smithy_http::header::ParseError,
-> {
-    let headers = header_map.get_all("x-amz-grant-full-control").iter();
-    aws_smithy_http::header::one_or_none(headers)
-}
-
-pub fn deser_header_put_object_put_object_input_grant_read(
-    header_map: &http::HeaderMap,
-) -> std::result::Result<
-    std::option::Option<std::string::String>,
-    aws_smithy_http::header::ParseError,
-> {
-    let headers = header_map.get_all("x-amz-grant-read").iter();
-    aws_smithy_http::header::one_or_none(headers)
-}
-
-pub fn deser_header_put_object_put_object_input_grant_read_acp(
-    header_map: &http::HeaderMap,
-) -> std::result::Result<
-    std::option::Option<std::string::String>,
-    aws_smithy_http::header::ParseError,
-> {
-    let headers = header_map.get_all("x-amz-grant-read-acp").iter();
-    aws_smithy_http::header::one_or_none(headers)
-}
-
-pub fn deser_header_put_object_put_object_input_grant_write_acp(
-    header_map: &http::HeaderMap,
-) -> std::result::Result<
-    std::option::Option<std::string::String>,
-    aws_smithy_http::header::ParseError,
-> {
-    let headers = header_map.get_all("x-amz-grant-write-acp").iter();
-    aws_smithy_http::header::one_or_none(headers)
-}
-
-pub fn deser_header_put_object_put_object_input_object_lock_legal_hold_status(
-    header_map: &http::HeaderMap,
-) -> std::result::Result<
-    std::option::Option<crate::model::ObjectLockLegalHoldStatus>,
-    aws_smithy_http::header::ParseError,
-> {
-    let headers = header_map.get_all("x-amz-object-lock-legal-hold").iter();
-    aws_smithy_http::header::one_or_none(headers)
-}
-
-pub fn deser_header_put_object_put_object_input_object_lock_mode(
-    header_map: &http::HeaderMap,
-) -> std::result::Result<
-    std::option::Option<crate::model::ObjectLockMode>,
-    aws_smithy_http::header::ParseError,
-> {
-    let headers = header_map.get_all("x-amz-object-lock-mode").iter();
-    aws_smithy_http::header::one_or_none(headers)
-}
-
-pub fn deser_header_put_object_put_object_input_object_lock_retain_until_date(
-    header_map: &http::HeaderMap,
-) -> std::result::Result<
-    std::option::Option<aws_smithy_types::DateTime>,
-    aws_smithy_http::header::ParseError,
-> {
-    let headers = header_map
-        .get_all("x-amz-object-lock-retain-until-date")
-        .iter();
-    let var_21: Vec<aws_smithy_types::DateTime> = aws_smithy_http::header::many_dates(
-        headers,
-        aws_smithy_types::date_time::Format::DateTime,
-    )?;
-    if var_21.len() > 1 {
-        Err(aws_smithy_http::header::ParseError::new_with_message(
-            format!("expected one item but found {}", var_21.len()),
-        ))
-    } else {
-        let mut var_21 = var_21;
-        Ok(var_21.pop())
-    }
-}
-
-pub fn deser_header_put_object_put_object_input_request_payer(
-    header_map: &http::HeaderMap,
-) -> std::result::Result<
-    std::option::Option<crate::model::RequestPayer>,
-    aws_smithy_http::header::ParseError,
-> {
-    let headers = header_map.get_all("x-amz-request-payer").iter();
-    aws_smithy_http::header::one_or_none(headers)
-}
-
-pub fn deser_header_put_object_put_object_input_sse_customer_algorithm(
-    header_map: &http::HeaderMap,
-) -> std::result::Result<
-    std::option::Option<std::string::String>,
-    aws_smithy_http::header::ParseError,
-> {
-    let headers = header_map
-        .get_all("x-amz-server-side-encryption-customer-algorithm")
-        .iter();
-    aws_smithy_http::header::one_or_none(headers)
-}
-
-pub fn deser_header_put_object_put_object_input_sse_customer_key(
-    header_map: &http::HeaderMap,
-) -> std::result::Result<
-    std::option::Option<std::string::String>,
-    aws_smithy_http::header::ParseError,
-> {
-    let headers = header_map
-        .get_all("x-amz-server-side-encryption-customer-key")
-        .iter();
-    aws_smithy_http::header::one_or_none(headers)
-}
-
-pub fn deser_header_put_object_put_object_input_sse_customer_key_md5(
-    header_map: &http::HeaderMap,
-) -> std::result::Result<
-    std::option::Option<std::string::String>,
-    aws_smithy_http::header::ParseError,
-> {
-    let headers = header_map
-        .get_all("x-amz-server-side-encryption-customer-key-MD5")
-        .iter();
-    aws_smithy_http::header::one_or_none(headers)
-}
-
-pub fn deser_header_put_object_put_object_input_ssekms_encryption_context(
-    header_map: &http::HeaderMap,
-) -> std::result::Result<
-    std::option::Option<std::string::String>,
-    aws_smithy_http::header::ParseError,
-> {
-    let headers = header_map
-        .get_all("x-amz-server-side-encryption-context")
-        .iter();
-    aws_smithy_http::header::one_or_none(headers)
-}
-
-pub fn deser_header_put_object_put_object_input_ssekms_key_id(
-    header_map: &http::HeaderMap,
-) -> std::result::Result<
-    std::option::Option<std::string::String>,
-    aws_smithy_http::header::ParseError,
-> {
-    let headers = header_map
-        .get_all("x-amz-server-side-encryption-aws-kms-key-id")
-        .iter();
-    aws_smithy_http::header::one_or_none(headers)
-}
-
-pub fn deser_header_put_object_put_object_input_server_side_encryption(
-    header_map: &http::HeaderMap,
-) -> std::result::Result<
-    std::option::Option<crate::model::ServerSideEncryption>,
-    aws_smithy_http::header::ParseError,
-> {
-    let headers = header_map.get_all("x-amz-server-side-encryption").iter();
-    aws_smithy_http::header::one_or_none(headers)
-}
-
-pub fn deser_header_put_object_put_object_input_storage_class(
-    header_map: &http::HeaderMap,
-) -> std::result::Result<
-    std::option::Option<crate::model::StorageClass>,
-    aws_smithy_http::header::ParseError,
-> {
-    let headers = header_map.get_all("x-amz-storage-class").iter();
-    aws_smithy_http::header::one_or_none(headers)
-}
-
-pub fn deser_header_put_object_put_object_input_tagging(
-    header_map: &http::HeaderMap,
-) -> std::result::Result<
-    std::option::Option<std::string::String>,
-    aws_smithy_http::header::ParseError,
-> {
-    let headers = header_map.get_all("x-amz-tagging").iter();
-    aws_smithy_http::header::one_or_none(headers)
-}
-
-pub fn deser_header_put_object_put_object_input_website_redirect_location(
-    header_map: &http::HeaderMap,
-) -> std::result::Result<
-    std::option::Option<std::string::String>,
-    aws_smithy_http::header::ParseError,
-> {
-    let headers = header_map.get_all("x-amz-website-redirect-location").iter();
-    aws_smithy_http::header::one_or_none(headers)
+    (!body.is_empty()).then(||{
+        crate::xml_deser::deser_member_com_amazonaws_s3_synthetic_put_bucket_website_input_website_configuration(body)
+    }).transpose()
 }
 
 pub fn deser_header_put_object_acl_put_object_acl_input_acl(
@@ -2520,6 +2428,17 @@ pub fn deser_header_put_object_acl_put_object_acl_input_acl(
 > {
     let headers = header_map.get_all("x-amz-acl").iter();
     aws_smithy_http::header::one_or_none(headers)
+}
+
+pub fn deser_payload_put_object_acl_put_object_acl_input_access_control_policy(
+    body: &[u8],
+) -> std::result::Result<
+    std::option::Option<crate::model::AccessControlPolicy>,
+    aws_smithy_xml::decode::XmlError,
+> {
+    (!body.is_empty()).then(||{
+        crate::xml_deser::deser_member_com_amazonaws_s3_synthetic_put_object_acl_input_access_control_policy(body)
+    }).transpose()
 }
 
 pub fn deser_header_put_object_acl_put_object_acl_input_content_md5(
@@ -2622,6 +2541,17 @@ pub fn deser_header_put_object_legal_hold_put_object_legal_hold_input_expected_b
     aws_smithy_http::header::one_or_none(headers)
 }
 
+pub fn deser_payload_put_object_legal_hold_put_object_legal_hold_input_legal_hold(
+    body: &[u8],
+) -> std::result::Result<
+    std::option::Option<crate::model::ObjectLockLegalHold>,
+    aws_smithy_xml::decode::XmlError,
+> {
+    (!body.is_empty()).then(||{
+        crate::xml_deser::deser_member_com_amazonaws_s3_synthetic_put_object_legal_hold_input_legal_hold(body)
+    }).transpose()
+}
+
 pub fn deser_header_put_object_legal_hold_put_object_legal_hold_input_request_payer(
     header_map: &http::HeaderMap,
 ) -> std::result::Result<
@@ -2652,6 +2582,17 @@ pub fn deser_header_put_object_lock_configuration_put_object_lock_configuration_
     aws_smithy_http::header::one_or_none(headers)
 }
 
+pub fn deser_payload_put_object_lock_configuration_put_object_lock_configuration_input_object_lock_configuration(
+    body: &[u8],
+) -> std::result::Result<
+    std::option::Option<crate::model::ObjectLockConfiguration>,
+    aws_smithy_xml::decode::XmlError,
+> {
+    (!body.is_empty()).then(||{
+        crate::xml_deser::deser_member_com_amazonaws_s3_synthetic_put_object_lock_configuration_input_object_lock_configuration(body)
+    }).transpose()
+}
+
 pub fn deser_header_put_object_lock_configuration_put_object_lock_configuration_input_request_payer(
     header_map: &http::HeaderMap,
 ) -> std::result::Result<
@@ -2678,14 +2619,14 @@ pub fn deser_header_put_object_retention_put_object_retention_input_bypass_gover
     let headers = header_map
         .get_all("x-amz-bypass-governance-retention")
         .iter();
-    let var_22 = aws_smithy_http::header::read_many_primitive::<bool>(headers)?;
-    if var_22.len() > 1 {
+    let var_18 = aws_smithy_http::header::read_many_primitive::<bool>(headers)?;
+    if var_18.len() > 1 {
         Err(aws_smithy_http::header::ParseError::new_with_message(
-            format!("expected one item but found {}", var_22.len()),
+            format!("expected one item but found {}", var_18.len()),
         ))
     } else {
-        let mut var_22 = var_22;
-        Ok(var_22.pop())
+        let mut var_18 = var_18;
+        Ok(var_18.pop())
     }
 }
 
@@ -2719,6 +2660,17 @@ pub fn deser_header_put_object_retention_put_object_retention_input_request_paye
     aws_smithy_http::header::one_or_none(headers)
 }
 
+pub fn deser_payload_put_object_retention_put_object_retention_input_retention(
+    body: &[u8],
+) -> std::result::Result<
+    std::option::Option<crate::model::ObjectLockRetention>,
+    aws_smithy_xml::decode::XmlError,
+> {
+    (!body.is_empty()).then(||{
+        crate::xml_deser::deser_member_com_amazonaws_s3_synthetic_put_object_retention_input_retention(body)
+    }).transpose()
+}
+
 pub fn deser_header_put_object_tagging_put_object_tagging_input_content_md5(
     header_map: &http::HeaderMap,
 ) -> std::result::Result<
@@ -2749,6 +2701,15 @@ pub fn deser_header_put_object_tagging_put_object_tagging_input_request_payer(
     aws_smithy_http::header::one_or_none(headers)
 }
 
+pub fn deser_payload_put_object_tagging_put_object_tagging_input_tagging(
+    body: &[u8],
+) -> std::result::Result<std::option::Option<crate::model::Tagging>, aws_smithy_xml::decode::XmlError>
+{
+    (!body.is_empty()).then(||{
+        crate::xml_deser::deser_member_com_amazonaws_s3_synthetic_put_object_tagging_input_tagging(body)
+    }).transpose()
+}
+
 pub fn deser_header_put_public_access_block_put_public_access_block_input_content_md5(
     header_map: &http::HeaderMap,
 ) -> std::result::Result<
@@ -2767,6 +2728,17 @@ pub fn deser_header_put_public_access_block_put_public_access_block_input_expect
 > {
     let headers = header_map.get_all("x-amz-expected-bucket-owner").iter();
     aws_smithy_http::header::one_or_none(headers)
+}
+
+pub fn deser_payload_put_public_access_block_put_public_access_block_input_public_access_block_configuration(
+    body: &[u8],
+) -> std::result::Result<
+    std::option::Option<crate::model::PublicAccessBlockConfiguration>,
+    aws_smithy_xml::decode::XmlError,
+> {
+    (!body.is_empty()).then(||{
+        crate::xml_deser::deser_member_com_amazonaws_s3_synthetic_put_public_access_block_input_public_access_block_configuration(body)
+    }).transpose()
 }
 
 pub fn deser_header_restore_object_restore_object_input_expected_bucket_owner(
@@ -2789,85 +2761,15 @@ pub fn deser_header_restore_object_restore_object_input_request_payer(
     aws_smithy_http::header::one_or_none(headers)
 }
 
-pub fn deser_header_upload_part_upload_part_input_content_length(
-    header_map: &http::HeaderMap,
-) -> std::result::Result<std::option::Option<i64>, aws_smithy_http::header::ParseError> {
-    let headers = header_map.get_all("Content-Length").iter();
-    let var_23 = aws_smithy_http::header::read_many_primitive::<i64>(headers)?;
-    if var_23.len() > 1 {
-        Err(aws_smithy_http::header::ParseError::new_with_message(
-            format!("expected one item but found {}", var_23.len()),
-        ))
-    } else {
-        let mut var_23 = var_23;
-        Ok(var_23.pop())
-    }
-}
-
-pub fn deser_header_upload_part_upload_part_input_content_md5(
-    header_map: &http::HeaderMap,
+pub fn deser_payload_restore_object_restore_object_input_restore_request(
+    body: &[u8],
 ) -> std::result::Result<
-    std::option::Option<std::string::String>,
-    aws_smithy_http::header::ParseError,
+    std::option::Option<crate::model::RestoreRequest>,
+    aws_smithy_xml::decode::XmlError,
 > {
-    let headers = header_map.get_all("Content-MD5").iter();
-    aws_smithy_http::header::one_or_none(headers)
-}
-
-pub fn deser_header_upload_part_upload_part_input_expected_bucket_owner(
-    header_map: &http::HeaderMap,
-) -> std::result::Result<
-    std::option::Option<std::string::String>,
-    aws_smithy_http::header::ParseError,
-> {
-    let headers = header_map.get_all("x-amz-expected-bucket-owner").iter();
-    aws_smithy_http::header::one_or_none(headers)
-}
-
-pub fn deser_header_upload_part_upload_part_input_request_payer(
-    header_map: &http::HeaderMap,
-) -> std::result::Result<
-    std::option::Option<crate::model::RequestPayer>,
-    aws_smithy_http::header::ParseError,
-> {
-    let headers = header_map.get_all("x-amz-request-payer").iter();
-    aws_smithy_http::header::one_or_none(headers)
-}
-
-pub fn deser_header_upload_part_upload_part_input_sse_customer_algorithm(
-    header_map: &http::HeaderMap,
-) -> std::result::Result<
-    std::option::Option<std::string::String>,
-    aws_smithy_http::header::ParseError,
-> {
-    let headers = header_map
-        .get_all("x-amz-server-side-encryption-customer-algorithm")
-        .iter();
-    aws_smithy_http::header::one_or_none(headers)
-}
-
-pub fn deser_header_upload_part_upload_part_input_sse_customer_key(
-    header_map: &http::HeaderMap,
-) -> std::result::Result<
-    std::option::Option<std::string::String>,
-    aws_smithy_http::header::ParseError,
-> {
-    let headers = header_map
-        .get_all("x-amz-server-side-encryption-customer-key")
-        .iter();
-    aws_smithy_http::header::one_or_none(headers)
-}
-
-pub fn deser_header_upload_part_upload_part_input_sse_customer_key_md5(
-    header_map: &http::HeaderMap,
-) -> std::result::Result<
-    std::option::Option<std::string::String>,
-    aws_smithy_http::header::ParseError,
-> {
-    let headers = header_map
-        .get_all("x-amz-server-side-encryption-customer-key-MD5")
-        .iter();
-    aws_smithy_http::header::one_or_none(headers)
+    (!body.is_empty()).then(||{
+        crate::xml_deser::deser_member_com_amazonaws_s3_synthetic_restore_object_input_restore_request(body)
+    }).transpose()
 }
 
 pub fn deser_header_upload_part_copy_upload_part_copy_input_copy_source(
@@ -2899,17 +2801,17 @@ pub fn deser_header_upload_part_copy_upload_part_copy_input_copy_source_if_modif
     let headers = header_map
         .get_all("x-amz-copy-source-if-modified-since")
         .iter();
-    let var_24: Vec<aws_smithy_types::DateTime> = aws_smithy_http::header::many_dates(
+    let var_19: Vec<aws_smithy_types::DateTime> = aws_smithy_http::header::many_dates(
         headers,
         aws_smithy_types::date_time::Format::HttpDate,
     )?;
-    if var_24.len() > 1 {
+    if var_19.len() > 1 {
         Err(aws_smithy_http::header::ParseError::new_with_message(
-            format!("expected one item but found {}", var_24.len()),
+            format!("expected one item but found {}", var_19.len()),
         ))
     } else {
-        let mut var_24 = var_24;
-        Ok(var_24.pop())
+        let mut var_19 = var_19;
+        Ok(var_19.pop())
     }
 }
 
@@ -2932,17 +2834,17 @@ pub fn deser_header_upload_part_copy_upload_part_copy_input_copy_source_if_unmod
     let headers = header_map
         .get_all("x-amz-copy-source-if-unmodified-since")
         .iter();
-    let var_25: Vec<aws_smithy_types::DateTime> = aws_smithy_http::header::many_dates(
+    let var_20: Vec<aws_smithy_types::DateTime> = aws_smithy_http::header::many_dates(
         headers,
         aws_smithy_types::date_time::Format::HttpDate,
     )?;
-    if var_25.len() > 1 {
+    if var_20.len() > 1 {
         Err(aws_smithy_http::header::ParseError::new_with_message(
-            format!("expected one item but found {}", var_25.len()),
+            format!("expected one item but found {}", var_20.len()),
         ))
     } else {
-        let mut var_25 = var_25;
-        Ok(var_25.pop())
+        let mut var_20 = var_20;
+        Ok(var_20.pop())
     }
 }
 
@@ -3056,454 +2958,6 @@ pub fn deser_header_upload_part_copy_upload_part_copy_input_sse_customer_key_md5
 > {
     let headers = header_map
         .get_all("x-amz-server-side-encryption-customer-key-MD5")
-        .iter();
-    aws_smithy_http::header::one_or_none(headers)
-}
-
-pub fn deser_header_write_get_object_response_write_get_object_response_input_accept_ranges(
-    header_map: &http::HeaderMap,
-) -> std::result::Result<
-    std::option::Option<std::string::String>,
-    aws_smithy_http::header::ParseError,
-> {
-    let headers = header_map.get_all("x-amz-fwd-header-accept-ranges").iter();
-    aws_smithy_http::header::one_or_none(headers)
-}
-
-pub fn deser_header_write_get_object_response_write_get_object_response_input_bucket_key_enabled(
-    header_map: &http::HeaderMap,
-) -> std::result::Result<std::option::Option<bool>, aws_smithy_http::header::ParseError> {
-    let headers = header_map
-        .get_all("x-amz-fwd-header-x-amz-server-side-encryption-bucket-key-enabled")
-        .iter();
-    let var_26 = aws_smithy_http::header::read_many_primitive::<bool>(headers)?;
-    if var_26.len() > 1 {
-        Err(aws_smithy_http::header::ParseError::new_with_message(
-            format!("expected one item but found {}", var_26.len()),
-        ))
-    } else {
-        let mut var_26 = var_26;
-        Ok(var_26.pop())
-    }
-}
-
-pub fn deser_header_write_get_object_response_write_get_object_response_input_cache_control(
-    header_map: &http::HeaderMap,
-) -> std::result::Result<
-    std::option::Option<std::string::String>,
-    aws_smithy_http::header::ParseError,
-> {
-    let headers = header_map.get_all("x-amz-fwd-header-Cache-Control").iter();
-    aws_smithy_http::header::one_or_none(headers)
-}
-
-pub fn deser_header_write_get_object_response_write_get_object_response_input_content_disposition(
-    header_map: &http::HeaderMap,
-) -> std::result::Result<
-    std::option::Option<std::string::String>,
-    aws_smithy_http::header::ParseError,
-> {
-    let headers = header_map
-        .get_all("x-amz-fwd-header-Content-Disposition")
-        .iter();
-    aws_smithy_http::header::one_or_none(headers)
-}
-
-pub fn deser_header_write_get_object_response_write_get_object_response_input_content_encoding(
-    header_map: &http::HeaderMap,
-) -> std::result::Result<
-    std::option::Option<std::string::String>,
-    aws_smithy_http::header::ParseError,
-> {
-    let headers = header_map
-        .get_all("x-amz-fwd-header-Content-Encoding")
-        .iter();
-    aws_smithy_http::header::one_or_none(headers)
-}
-
-pub fn deser_header_write_get_object_response_write_get_object_response_input_content_language(
-    header_map: &http::HeaderMap,
-) -> std::result::Result<
-    std::option::Option<std::string::String>,
-    aws_smithy_http::header::ParseError,
-> {
-    let headers = header_map
-        .get_all("x-amz-fwd-header-Content-Language")
-        .iter();
-    aws_smithy_http::header::one_or_none(headers)
-}
-
-pub fn deser_header_write_get_object_response_write_get_object_response_input_content_length(
-    header_map: &http::HeaderMap,
-) -> std::result::Result<std::option::Option<i64>, aws_smithy_http::header::ParseError> {
-    let headers = header_map.get_all("Content-Length").iter();
-    let var_27 = aws_smithy_http::header::read_many_primitive::<i64>(headers)?;
-    if var_27.len() > 1 {
-        Err(aws_smithy_http::header::ParseError::new_with_message(
-            format!("expected one item but found {}", var_27.len()),
-        ))
-    } else {
-        let mut var_27 = var_27;
-        Ok(var_27.pop())
-    }
-}
-
-pub fn deser_header_write_get_object_response_write_get_object_response_input_content_range(
-    header_map: &http::HeaderMap,
-) -> std::result::Result<
-    std::option::Option<std::string::String>,
-    aws_smithy_http::header::ParseError,
-> {
-    let headers = header_map.get_all("x-amz-fwd-header-Content-Range").iter();
-    aws_smithy_http::header::one_or_none(headers)
-}
-
-pub fn deser_header_write_get_object_response_write_get_object_response_input_content_type(
-    header_map: &http::HeaderMap,
-) -> std::result::Result<
-    std::option::Option<std::string::String>,
-    aws_smithy_http::header::ParseError,
-> {
-    let headers = header_map.get_all("x-amz-fwd-header-Content-Type").iter();
-    aws_smithy_http::header::one_or_none(headers)
-}
-
-pub fn deser_header_write_get_object_response_write_get_object_response_input_delete_marker(
-    header_map: &http::HeaderMap,
-) -> std::result::Result<std::option::Option<bool>, aws_smithy_http::header::ParseError> {
-    let headers = header_map
-        .get_all("x-amz-fwd-header-x-amz-delete-marker")
-        .iter();
-    let var_28 = aws_smithy_http::header::read_many_primitive::<bool>(headers)?;
-    if var_28.len() > 1 {
-        Err(aws_smithy_http::header::ParseError::new_with_message(
-            format!("expected one item but found {}", var_28.len()),
-        ))
-    } else {
-        let mut var_28 = var_28;
-        Ok(var_28.pop())
-    }
-}
-
-pub fn deser_header_write_get_object_response_write_get_object_response_input_e_tag(
-    header_map: &http::HeaderMap,
-) -> std::result::Result<
-    std::option::Option<std::string::String>,
-    aws_smithy_http::header::ParseError,
-> {
-    let headers = header_map.get_all("x-amz-fwd-header-ETag").iter();
-    aws_smithy_http::header::one_or_none(headers)
-}
-
-pub fn deser_header_write_get_object_response_write_get_object_response_input_error_code(
-    header_map: &http::HeaderMap,
-) -> std::result::Result<
-    std::option::Option<std::string::String>,
-    aws_smithy_http::header::ParseError,
-> {
-    let headers = header_map.get_all("x-amz-fwd-error-code").iter();
-    aws_smithy_http::header::one_or_none(headers)
-}
-
-pub fn deser_header_write_get_object_response_write_get_object_response_input_error_message(
-    header_map: &http::HeaderMap,
-) -> std::result::Result<
-    std::option::Option<std::string::String>,
-    aws_smithy_http::header::ParseError,
-> {
-    let headers = header_map.get_all("x-amz-fwd-error-message").iter();
-    aws_smithy_http::header::one_or_none(headers)
-}
-
-pub fn deser_header_write_get_object_response_write_get_object_response_input_expiration(
-    header_map: &http::HeaderMap,
-) -> std::result::Result<
-    std::option::Option<std::string::String>,
-    aws_smithy_http::header::ParseError,
-> {
-    let headers = header_map
-        .get_all("x-amz-fwd-header-x-amz-expiration")
-        .iter();
-    aws_smithy_http::header::one_or_none(headers)
-}
-
-pub fn deser_header_write_get_object_response_write_get_object_response_input_expires(
-    header_map: &http::HeaderMap,
-) -> std::result::Result<
-    std::option::Option<aws_smithy_types::DateTime>,
-    aws_smithy_http::header::ParseError,
-> {
-    let headers = header_map.get_all("x-amz-fwd-header-Expires").iter();
-    let var_29: Vec<aws_smithy_types::DateTime> = aws_smithy_http::header::many_dates(
-        headers,
-        aws_smithy_types::date_time::Format::HttpDate,
-    )?;
-    if var_29.len() > 1 {
-        Err(aws_smithy_http::header::ParseError::new_with_message(
-            format!("expected one item but found {}", var_29.len()),
-        ))
-    } else {
-        let mut var_29 = var_29;
-        Ok(var_29.pop())
-    }
-}
-
-pub fn deser_header_write_get_object_response_write_get_object_response_input_last_modified(
-    header_map: &http::HeaderMap,
-) -> std::result::Result<
-    std::option::Option<aws_smithy_types::DateTime>,
-    aws_smithy_http::header::ParseError,
-> {
-    let headers = header_map.get_all("x-amz-fwd-header-Last-Modified").iter();
-    let var_30: Vec<aws_smithy_types::DateTime> = aws_smithy_http::header::many_dates(
-        headers,
-        aws_smithy_types::date_time::Format::HttpDate,
-    )?;
-    if var_30.len() > 1 {
-        Err(aws_smithy_http::header::ParseError::new_with_message(
-            format!("expected one item but found {}", var_30.len()),
-        ))
-    } else {
-        let mut var_30 = var_30;
-        Ok(var_30.pop())
-    }
-}
-
-pub fn deser_header_write_get_object_response_write_get_object_response_input_missing_meta(
-    header_map: &http::HeaderMap,
-) -> std::result::Result<std::option::Option<i32>, aws_smithy_http::header::ParseError> {
-    let headers = header_map
-        .get_all("x-amz-fwd-header-x-amz-missing-meta")
-        .iter();
-    let var_31 = aws_smithy_http::header::read_many_primitive::<i32>(headers)?;
-    if var_31.len() > 1 {
-        Err(aws_smithy_http::header::ParseError::new_with_message(
-            format!("expected one item but found {}", var_31.len()),
-        ))
-    } else {
-        let mut var_31 = var_31;
-        Ok(var_31.pop())
-    }
-}
-
-pub fn deser_header_write_get_object_response_write_get_object_response_input_object_lock_legal_hold_status(
-    header_map: &http::HeaderMap,
-) -> std::result::Result<
-    std::option::Option<crate::model::ObjectLockLegalHoldStatus>,
-    aws_smithy_http::header::ParseError,
-> {
-    let headers = header_map
-        .get_all("x-amz-fwd-header-x-amz-object-lock-legal-hold")
-        .iter();
-    aws_smithy_http::header::one_or_none(headers)
-}
-
-pub fn deser_header_write_get_object_response_write_get_object_response_input_object_lock_mode(
-    header_map: &http::HeaderMap,
-) -> std::result::Result<
-    std::option::Option<crate::model::ObjectLockMode>,
-    aws_smithy_http::header::ParseError,
-> {
-    let headers = header_map
-        .get_all("x-amz-fwd-header-x-amz-object-lock-mode")
-        .iter();
-    aws_smithy_http::header::one_or_none(headers)
-}
-
-pub fn deser_header_write_get_object_response_write_get_object_response_input_object_lock_retain_until_date(
-    header_map: &http::HeaderMap,
-) -> std::result::Result<
-    std::option::Option<aws_smithy_types::DateTime>,
-    aws_smithy_http::header::ParseError,
-> {
-    let headers = header_map
-        .get_all("x-amz-fwd-header-x-amz-object-lock-retain-until-date")
-        .iter();
-    let var_32: Vec<aws_smithy_types::DateTime> = aws_smithy_http::header::many_dates(
-        headers,
-        aws_smithy_types::date_time::Format::DateTime,
-    )?;
-    if var_32.len() > 1 {
-        Err(aws_smithy_http::header::ParseError::new_with_message(
-            format!("expected one item but found {}", var_32.len()),
-        ))
-    } else {
-        let mut var_32 = var_32;
-        Ok(var_32.pop())
-    }
-}
-
-pub fn deser_header_write_get_object_response_write_get_object_response_input_parts_count(
-    header_map: &http::HeaderMap,
-) -> std::result::Result<std::option::Option<i32>, aws_smithy_http::header::ParseError> {
-    let headers = header_map
-        .get_all("x-amz-fwd-header-x-amz-mp-parts-count")
-        .iter();
-    let var_33 = aws_smithy_http::header::read_many_primitive::<i32>(headers)?;
-    if var_33.len() > 1 {
-        Err(aws_smithy_http::header::ParseError::new_with_message(
-            format!("expected one item but found {}", var_33.len()),
-        ))
-    } else {
-        let mut var_33 = var_33;
-        Ok(var_33.pop())
-    }
-}
-
-pub fn deser_header_write_get_object_response_write_get_object_response_input_replication_status(
-    header_map: &http::HeaderMap,
-) -> std::result::Result<
-    std::option::Option<crate::model::ReplicationStatus>,
-    aws_smithy_http::header::ParseError,
-> {
-    let headers = header_map
-        .get_all("x-amz-fwd-header-x-amz-replication-status")
-        .iter();
-    aws_smithy_http::header::one_or_none(headers)
-}
-
-pub fn deser_header_write_get_object_response_write_get_object_response_input_request_charged(
-    header_map: &http::HeaderMap,
-) -> std::result::Result<
-    std::option::Option<crate::model::RequestCharged>,
-    aws_smithy_http::header::ParseError,
-> {
-    let headers = header_map
-        .get_all("x-amz-fwd-header-x-amz-request-charged")
-        .iter();
-    aws_smithy_http::header::one_or_none(headers)
-}
-
-pub fn deser_header_write_get_object_response_write_get_object_response_input_request_route(
-    header_map: &http::HeaderMap,
-) -> std::result::Result<
-    std::option::Option<std::string::String>,
-    aws_smithy_http::header::ParseError,
-> {
-    let headers = header_map.get_all("x-amz-request-route").iter();
-    aws_smithy_http::header::one_or_none(headers)
-}
-
-pub fn deser_header_write_get_object_response_write_get_object_response_input_request_token(
-    header_map: &http::HeaderMap,
-) -> std::result::Result<
-    std::option::Option<std::string::String>,
-    aws_smithy_http::header::ParseError,
-> {
-    let headers = header_map.get_all("x-amz-request-token").iter();
-    aws_smithy_http::header::one_or_none(headers)
-}
-
-pub fn deser_header_write_get_object_response_write_get_object_response_input_restore(
-    header_map: &http::HeaderMap,
-) -> std::result::Result<
-    std::option::Option<std::string::String>,
-    aws_smithy_http::header::ParseError,
-> {
-    let headers = header_map.get_all("x-amz-fwd-header-x-amz-restore").iter();
-    aws_smithy_http::header::one_or_none(headers)
-}
-
-pub fn deser_header_write_get_object_response_write_get_object_response_input_sse_customer_algorithm(
-    header_map: &http::HeaderMap,
-) -> std::result::Result<
-    std::option::Option<std::string::String>,
-    aws_smithy_http::header::ParseError,
-> {
-    let headers = header_map
-        .get_all("x-amz-fwd-header-x-amz-server-side-encryption-customer-algorithm")
-        .iter();
-    aws_smithy_http::header::one_or_none(headers)
-}
-
-pub fn deser_header_write_get_object_response_write_get_object_response_input_sse_customer_key_md5(
-    header_map: &http::HeaderMap,
-) -> std::result::Result<
-    std::option::Option<std::string::String>,
-    aws_smithy_http::header::ParseError,
-> {
-    let headers = header_map
-        .get_all("x-amz-fwd-header-x-amz-server-side-encryption-customer-key-MD5")
-        .iter();
-    aws_smithy_http::header::one_or_none(headers)
-}
-
-pub fn deser_header_write_get_object_response_write_get_object_response_input_ssekms_key_id(
-    header_map: &http::HeaderMap,
-) -> std::result::Result<
-    std::option::Option<std::string::String>,
-    aws_smithy_http::header::ParseError,
-> {
-    let headers = header_map
-        .get_all("x-amz-fwd-header-x-amz-server-side-encryption-aws-kms-key-id")
-        .iter();
-    aws_smithy_http::header::one_or_none(headers)
-}
-
-pub fn deser_header_write_get_object_response_write_get_object_response_input_server_side_encryption(
-    header_map: &http::HeaderMap,
-) -> std::result::Result<
-    std::option::Option<crate::model::ServerSideEncryption>,
-    aws_smithy_http::header::ParseError,
-> {
-    let headers = header_map
-        .get_all("x-amz-fwd-header-x-amz-server-side-encryption")
-        .iter();
-    aws_smithy_http::header::one_or_none(headers)
-}
-
-pub fn deser_header_write_get_object_response_write_get_object_response_input_status_code(
-    header_map: &http::HeaderMap,
-) -> std::result::Result<std::option::Option<i32>, aws_smithy_http::header::ParseError> {
-    let headers = header_map.get_all("x-amz-fwd-status").iter();
-    let var_34 = aws_smithy_http::header::read_many_primitive::<i32>(headers)?;
-    if var_34.len() > 1 {
-        Err(aws_smithy_http::header::ParseError::new_with_message(
-            format!("expected one item but found {}", var_34.len()),
-        ))
-    } else {
-        let mut var_34 = var_34;
-        Ok(var_34.pop())
-    }
-}
-
-pub fn deser_header_write_get_object_response_write_get_object_response_input_storage_class(
-    header_map: &http::HeaderMap,
-) -> std::result::Result<
-    std::option::Option<crate::model::StorageClass>,
-    aws_smithy_http::header::ParseError,
-> {
-    let headers = header_map
-        .get_all("x-amz-fwd-header-x-amz-storage-class")
-        .iter();
-    aws_smithy_http::header::one_or_none(headers)
-}
-
-pub fn deser_header_write_get_object_response_write_get_object_response_input_tag_count(
-    header_map: &http::HeaderMap,
-) -> std::result::Result<std::option::Option<i32>, aws_smithy_http::header::ParseError> {
-    let headers = header_map
-        .get_all("x-amz-fwd-header-x-amz-tagging-count")
-        .iter();
-    let var_35 = aws_smithy_http::header::read_many_primitive::<i32>(headers)?;
-    if var_35.len() > 1 {
-        Err(aws_smithy_http::header::ParseError::new_with_message(
-            format!("expected one item but found {}", var_35.len()),
-        ))
-    } else {
-        let mut var_35 = var_35;
-        Ok(var_35.pop())
-    }
-}
-
-pub fn deser_header_write_get_object_response_write_get_object_response_input_version_id(
-    header_map: &http::HeaderMap,
-) -> std::result::Result<
-    std::option::Option<std::string::String>,
-    aws_smithy_http::header::ParseError,
-> {
-    let headers = header_map
-        .get_all("x-amz-fwd-header-x-amz-version-id")
         .iter();
     aws_smithy_http::header::one_or_none(headers)
 }

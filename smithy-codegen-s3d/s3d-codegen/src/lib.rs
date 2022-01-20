@@ -27,6 +27,7 @@ mod operation_ser;
 /// Output structures for operations.
 pub mod output;
 mod server_operation_handler_trait;
+mod xml_deser;
 mod xml_ser;
 /// Crate version number.
 pub static PKG_VERSION: &str = env!("CARGO_PKG_VERSION");

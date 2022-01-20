@@ -69,30 +69,29 @@ envy = "0.4.2"
 ## AWS smithy-rs crates (git submodule)
 
 [dependencies.aws-smithy-client]
-version = "0.34.1"
+version = "0.35.1"
 path = "smithy-codegen-s3d/build/rust-runtime/aws-smithy-client"
 features = ["client-hyper"]
 [dependencies.aws-smithy-types]
-version = "0.34.1"
+version = "0.35.1"
 path = "smithy-codegen-s3d/build/rust-runtime/aws-smithy-types"
 [dependencies.aws-smithy-xml]
-version = "0.34.1"
+version = "0.35.1"
 path = "smithy-codegen-s3d/build/rust-runtime/aws-smithy-xml"
 [dependencies.aws-smithy-http]
-version = "0.34.1"
+version = "0.35.1"
 path = "smithy-codegen-s3d/build/rust-runtime/aws-smithy-http"
 [dependencies.aws-smithy-http-server]
-version = "0.34.1"
+version = "0.35.1"
 path = "smithy-codegen-s3d/build/rust-runtime/aws-smithy-http-server"
 
 [dependencies.aws-config]
-version = "0.4.1"
+version = "0.5.1"
 path = "smithy-codegen-s3d/build/rust-runtime/aws-config"
 [dependencies.aws-sdk-s3]
-version = "0.4.1"
+version = "0.5.1"
 path = "smithy-codegen-s3d/build/rust-runtime/aws-sdk-s3"
 
 [dependencies.s3d-codegen]
-#version = "0.4.1"
-version = "0"
+version = "0.0.1"
 path = "smithy-codegen-s3d/s3d-codegen"
