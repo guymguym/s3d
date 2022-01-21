@@ -60,7 +60,7 @@ The need for a daemon running locally with client applications emerges in Edge c
 1. **FILTERS**
    - Fine control over which objects to include/exclude for upload/cache/sync.
    - Filter by bucket name, bucket tags, object keys (or prefixes), object tags, and object meta-data.
-   - Optional integration with [Open Policy Agent (OPA)](https://www.openpolicyagent.org) for advanced filtering.
+   - Optional integration with [OpenPolicyAgent (OPA)](https://www.openpolicyagent.org) for advanced filtering.
 1. **MONITORING**
    - Optional integration with [OpenTelemetry](https://opentelemetry.io).
    - Expose logging, metrics, and tracing of S3 operations and `s3d` features.

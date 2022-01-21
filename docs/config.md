@@ -129,8 +129,6 @@ Notice that put-object-tagging is overriding the entire tag set, so in order to 
 
 # Deploy
 
-> TODO: Work in progress
-
 See examples of using `s3d` in container images and kubernetes yamls in `deploy/` dir:
 
 ```bash

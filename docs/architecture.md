@@ -20,36 +20,28 @@ The following sections describe those projects, components and concepts used in 
 
 ## Smithy-rs
 
-- [awslabs/smithy-rs](https://github.com/awslabs/smithy-rs) is the official AWS SDK for Rust.
+- [awslabs/smithy-rs](https://github.com/awslabs/smithy-rs) builds the official AWS SDK for Rust.
 - It aims for high API compatibility and provides the solid S3 protocol foundation.
 - Using it to generate server and client S3 protocol code, and hook in the added functionality.
 
-## Filters
+## FUSE ("Filesystem in Userspace")
 
-> TODO: Work in progress
+- FUSE provides POSIX-like data access for applications that do not use the S3 API (see [kernel fuse docs](https://www.kernel.org/doc/html/latest/filesystems/fuse.html))
+- The daemon binds a FUSE filesystem and creates the mountpoint that maps the filesystem to the S3 API.
+- FUSE is a good fit for immutable files, and reading small portions of large datasets.
+- FUSE is a **not** a good fit for mutable files (overwrites/appends), or file locks (not supported).
+- The [fuser crate](https://crates.io/crates/fuser) is used to set up the FUSE binding.
+
+## Filters
 
 - A simple textual syntax is defined for fine grain object filters
   to include/exclude by bucket-name, key/prefix, tags, headers, meta-data.
 
-## OPA Filters
+## OpenPolicyAgent (OPA)
 
-> TODO: Work in progress
+- [OPA](https://www.openpolicyagent.org/) provides tools for declaring and evaluating policies.
 
-- [OPA (Open Policy Agent)](https://www.openpolicyagent.org/) provides tools
-  for defining and evaluating policies.
+## OpenTelemetry (OTEL)
 
-## FUSE ("Filesystem in Userspace")
-
-> TODO: Work in progress
-
-- FUSE provides POSIX-like data access for applications that do not use the S3 API.
-- The daemon binds a FUSE filesystem and creates a mount point that maps to the S3 API.
-- FUSE is a good fit for immutable files, and reading small portions of large datasets.
-- FUSE is a NOT a good fit for mutable files (overwrites/appends), or file locks (not supported).
-- Using [fuser crate](https://crates.io/crates/fuser) for FUSE binding.
-
-## Opentelemetry
-
-> TODO: Work in progress
-
-- Using [opentelemetry crate](https://crates.io/crates/opentelemetry) for monitoring and tracing.
+- [OTEL](https://opentelemetry.io/) provides a set of tools for logging, tracing and metrics.
+- The [opentelemetry crate](https://crates.io/crates/opentelemetry) provides the library.
