@@ -1,6 +1,6 @@
 <div id="top"></div>
-<div align="center" style="background-color: black; text-align: center">
-  <a alt="s3d logo" href="https://s3d.rs" style="background-color: black; text-align: center">
+<div align="center" style="background-color: hsla(0,0,0%,0.1); text-align: center">
+  <a alt="s3d logo" href="https://s3d.rs" style="background-color: hsla(0,0,0%,0.1); text-align: center">
     <img alt="s3d" src="s3d.png" width="250" />
   </a>
 </div>
@@ -43,8 +43,8 @@ The need for a daemon running locally with client applications emerges in Edge c
 # Features
 
 1. **S3 API**
-   - Generated protocol code with [awslabs/smithy-rs](https://github.com/awslabs/smithy-rs)
-   - Parsing of S3 operations, inputs, outputs, errors.
+   - Generated S3 protocol code with [awslabs/smithy-rs](https://github.com/awslabs/smithy-rs) which builds the AWS SDK for Rust.
+   - Provides compatible parsing of API operations, inputs, outputs, errors, and the server skeleton.
 1. **UPLOAD QUEUE**
    - Writing new objects to local filesystem first to tolerate connection issues.
    - Pushing in the background to remote storage.
@@ -53,14 +53,17 @@ The need for a daemon running locally with client applications emerges in Edge c
    - Reduce egress costs and latency of reads from remote storage.
 1. **SYNC DIR**
    - Continuous, bidirectional and background sync of local dirs to remote buckets.
-   - Also known as the "dropbox folder" model.
-   - This is a simple way to get data that begins as files to the remote S3 storage.
+   - This is a simple way to get data that begins as local files to the remote S3 storage.
 1. **FUSE MOUNT**
-   - Virtual filesystem mount point of the data.
-   - For applications that do not support S3 API.
+   - Virtual filesystem mountpoint provided by the daemon (see [kernel fuse docs](https://www.kernel.org/doc/html/latest/filesystems/fuse.html)).
+   - The filesystem can be accessed normally for applications that do not use the S3 API.
 1. **FILTERS**
    - Fine control over which objects to include/exclude for upload/cache/sync.
    - Filter by bucket name, bucket tags, object keys (or prefixes), object tags, and object meta-data.
+   - Optional integration with [Open Policy Agent (OPA)](https://www.openpolicyagent.org) for advanced filtering.
+1. **MONITORING**
+   - Optional integration with [OpenTelemetry](https://opentelemetry.io).
+   - Expose logging, metrics, and tracing of S3 operations and `s3d` features.
 
 # Getting Started
 
@@ -99,13 +102,13 @@ s3d help
 
 # Project
 
-> :warning: &nbsp; **Experimental status warning** &nbsp; :telescope:
+> :telescope: &nbsp; **Experimental status warning** &nbsp; :warning:
 >
 > This project is still in it's early days, which means it's a great time to affect its direction, and we welcome contributions and open discussions.
 >
 > Keep in mind that all internal and external interfaces are considered unstable and subject to change without notice.
 
 - [Github issues](https://github.com/s3d-rs/s3d/issues) - please let us know on any issues/question/suggestion.
-- [Discord channels](https://discord.com/channels/897764851580035072) - use this [invite link](https://discord.gg/kPWHDuCdhh) to join.
+- [Discord chat](https://discord.com/channels/897764851580035072) - use this [invite link](https://discord.gg/kPWHDuCdhh) to join.
 - [Redhat-et](https://github.com/redhat-et) - this project was initiated by Red Hat Emerging Technologies.
 - [License](LICENSE) - Apache 2.0

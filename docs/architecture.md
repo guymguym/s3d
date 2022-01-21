@@ -4,9 +4,9 @@ title: Architecture
 
 # Architecture
 
-In order to keep `s3d` as simple as possible, while providing a fully capable service for edge computing stack, `s3d` builds on top of some excellent open source software foundations.
+In order to keep `s3d` as simple as possible, and yet use bleeding-edge technology and provide a fully capable service for edge computing stack, `s3d` builds on the shoulders of great open source projects.
 
-The following are the key components and concepts used in the making of `s3d`:
+The following sections describe those projects, components and concepts used in the making of `s3d`:
 
 ## Rust-lang
 
@@ -28,25 +28,24 @@ The following are the key components and concepts used in the making of `s3d`:
 
 > TODO: Work in progress
 
-- Defining a simple filters syntax similar to `.gitignore` for fine grain control over which objects
-  to include/exclude for each feature by bucket-name, key/prefix, tags, headers, meta-data.
-- The syntax is loosly based on [gitignore](https://git-scm.com/docs/gitignore)
-  with extended syntax for specifying tags, headers, meta-data.
+- A simple textual syntax is defined for fine grain object filters
+  to include/exclude by bucket-name, key/prefix, tags, headers, meta-data.
 
 ## OPA Filters
 
 > TODO: Work in progress
 
-- [OPA (Open Policy Agent)](https://www.openpolicyagent.org/) provides tools for defining policies.
+- [OPA (Open Policy Agent)](https://www.openpolicyagent.org/) provides tools
+  for defining and evaluating policies.
 
 ## FUSE ("Filesystem in Userspace")
 
 > TODO: Work in progress
 
-- This option provides POSIX-like data access for applications that do not use the S3 API.
+- FUSE provides POSIX-like data access for applications that do not use the S3 API.
 - The daemon binds a FUSE filesystem and creates a mount point that maps to the S3 API.
-- FUSE is a GOOD fit for immutable files, and reading small portions of large datasets.
-- FUSE is a BAD fit for mutable files (overwrites/appends), or file locks (not supported).
+- FUSE is a good fit for immutable files, and reading small portions of large datasets.
+- FUSE is a NOT a good fit for mutable files (overwrites/appends), or file locks (not supported).
 - Using [fuser crate](https://crates.io/crates/fuser) for FUSE binding.
 
 ## Opentelemetry

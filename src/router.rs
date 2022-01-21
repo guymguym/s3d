@@ -1,7 +1,7 @@
-use std::future::Future;
-
 use crate::store;
-use s3d_codegen::{error::*, input::*, operation_registry::*, output::*};
+use aws_smithy_types::date_time::{DateTime, Format};
+use s3d_codegen::{error::*, input::*, model::*, operation_registry::*, output::*};
+use std::{future::Future, time::SystemTime};
 
 pub type Router = aws_smithy_http_server::Router<hyper::Body>;
 
@@ -262,7 +262,14 @@ pub fn build_router() -> Router {
         })
         .list_buckets(|i: ListBucketsInput| async move {
             info!("list_buckets: {:?}", i);
-            list_buckets_output::Builder::default().build()
+            ListBucketsOutput::builder()
+                .buckets(
+                    Bucket::builder()
+                        .name("bucket1")
+                        .creation_date(SystemTime::now().into())
+                        .build(),
+                )
+                .build()
         })
         .list_multipart_uploads(|i: ListMultipartUploadsInput| async move {
             info!("list_multipart_uploads: {:?}", i);
@@ -270,7 +277,15 @@ pub fn build_router() -> Router {
         })
         .list_objects(|i: ListObjectsInput| async move {
             info!("list_objects: {:?}", i);
-            Ok(list_objects_output::Builder::default().build())
+            Ok(ListObjectsOutput::builder()
+                .contents(
+                    Object::builder()
+                        .key("object1")
+                        .size(1)
+                        .last_modified(SystemTime::now().into())
+                        .build(),
+                )
+                .build())
         })
         .list_objects_v2(|i: ListObjectsV2Input| async move {
             info!("list_objects_v2: {:?}", i);
@@ -427,7 +442,6 @@ pub fn build_router() -> Router {
     let router = Router::from(ops);
     router
 }
-
 
 // OperationRegistry<
 //     hyper::Body,
