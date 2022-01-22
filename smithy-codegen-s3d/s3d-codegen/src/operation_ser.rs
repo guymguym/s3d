@@ -27,10 +27,7 @@ pub fn serialize_abort_multipart_upload_response(
                 response = response.header("x-amz-request-charged", header_value);
             }
         }
-        let payload =
-            crate::operation_ser::serialize_operation_crate_operation_abort_multipart_upload(
-                &output,
-            )?;
+        let payload = "";
         response.body(aws_smithy_http_server::body::to_boxed(payload))?
     })
 }
@@ -377,8 +374,7 @@ pub fn serialize_copy_object_response(
                 response = response.header("x-amz-version-id", header_value);
             }
         }
-        let payload =
-            crate::operation_ser::serialize_operation_crate_operation_copy_object(&output)?;
+        let payload = "";
         response.body(aws_smithy_http_server::body::to_boxed(payload))?
     })
 }
@@ -429,8 +425,7 @@ pub fn serialize_create_bucket_response(
                 response = response.header("Location", header_value);
             }
         }
-        let payload =
-            crate::operation_ser::serialize_operation_crate_operation_create_bucket(&output)?;
+        let payload = "";
         response.body(aws_smithy_http_server::body::to_boxed(payload))?
     })
 }
@@ -663,8 +658,7 @@ pub fn serialize_delete_bucket_response(
     Ok({
         #[allow(unused_mut)]
         let mut response = http::Response::builder();
-        let payload =
-            crate::operation_ser::serialize_operation_crate_operation_delete_bucket(&output)?;
+        let payload = "";
         response.body(aws_smithy_http_server::body::to_boxed(payload))?
     })
 }
@@ -679,7 +673,7 @@ pub fn serialize_delete_bucket_analytics_configuration_response(
     Ok({
         #[allow(unused_mut)]
         let mut response = http::Response::builder();
-        let payload = crate::operation_ser::serialize_operation_crate_operation_delete_bucket_analytics_configuration(&output)?;
+        let payload = "";
         response.body(aws_smithy_http_server::body::to_boxed(payload))?
     })
 }
@@ -694,8 +688,7 @@ pub fn serialize_delete_bucket_cors_response(
     Ok({
         #[allow(unused_mut)]
         let mut response = http::Response::builder();
-        let payload =
-            crate::operation_ser::serialize_operation_crate_operation_delete_bucket_cors(&output)?;
+        let payload = "";
         response.body(aws_smithy_http_server::body::to_boxed(payload))?
     })
 }
@@ -710,10 +703,7 @@ pub fn serialize_delete_bucket_encryption_response(
     Ok({
         #[allow(unused_mut)]
         let mut response = http::Response::builder();
-        let payload =
-            crate::operation_ser::serialize_operation_crate_operation_delete_bucket_encryption(
-                &output,
-            )?;
+        let payload = "";
         response.body(aws_smithy_http_server::body::to_boxed(payload))?
     })
 }
@@ -728,7 +718,7 @@ pub fn serialize_delete_bucket_intelligent_tiering_configuration_response(
     Ok({
         #[allow(unused_mut)]
         let mut response = http::Response::builder();
-        let payload = crate::operation_ser::serialize_operation_crate_operation_delete_bucket_intelligent_tiering_configuration(&output)?;
+        let payload = "";
         response.body(aws_smithy_http_server::body::to_boxed(payload))?
     })
 }
@@ -743,7 +733,7 @@ pub fn serialize_delete_bucket_inventory_configuration_response(
     Ok({
         #[allow(unused_mut)]
         let mut response = http::Response::builder();
-        let payload = crate::operation_ser::serialize_operation_crate_operation_delete_bucket_inventory_configuration(&output)?;
+        let payload = "";
         response.body(aws_smithy_http_server::body::to_boxed(payload))?
     })
 }
@@ -758,10 +748,7 @@ pub fn serialize_delete_bucket_lifecycle_response(
     Ok({
         #[allow(unused_mut)]
         let mut response = http::Response::builder();
-        let payload =
-            crate::operation_ser::serialize_operation_crate_operation_delete_bucket_lifecycle(
-                &output,
-            )?;
+        let payload = "";
         response.body(aws_smithy_http_server::body::to_boxed(payload))?
     })
 }
@@ -776,7 +763,7 @@ pub fn serialize_delete_bucket_metrics_configuration_response(
     Ok({
         #[allow(unused_mut)]
         let mut response = http::Response::builder();
-        let payload = crate::operation_ser::serialize_operation_crate_operation_delete_bucket_metrics_configuration(&output)?;
+        let payload = "";
         response.body(aws_smithy_http_server::body::to_boxed(payload))?
     })
 }
@@ -791,7 +778,7 @@ pub fn serialize_delete_bucket_ownership_controls_response(
     Ok({
         #[allow(unused_mut)]
         let mut response = http::Response::builder();
-        let payload = crate::operation_ser::serialize_operation_crate_operation_delete_bucket_ownership_controls(&output)?;
+        let payload = "";
         response.body(aws_smithy_http_server::body::to_boxed(payload))?
     })
 }
@@ -806,10 +793,7 @@ pub fn serialize_delete_bucket_policy_response(
     Ok({
         #[allow(unused_mut)]
         let mut response = http::Response::builder();
-        let payload =
-            crate::operation_ser::serialize_operation_crate_operation_delete_bucket_policy(
-                &output,
-            )?;
+        let payload = "";
         response.body(aws_smithy_http_server::body::to_boxed(payload))?
     })
 }
@@ -824,10 +808,7 @@ pub fn serialize_delete_bucket_replication_response(
     Ok({
         #[allow(unused_mut)]
         let mut response = http::Response::builder();
-        let payload =
-            crate::operation_ser::serialize_operation_crate_operation_delete_bucket_replication(
-                &output,
-            )?;
+        let payload = "";
         response.body(aws_smithy_http_server::body::to_boxed(payload))?
     })
 }
@@ -842,10 +823,7 @@ pub fn serialize_delete_bucket_tagging_response(
     Ok({
         #[allow(unused_mut)]
         let mut response = http::Response::builder();
-        let payload =
-            crate::operation_ser::serialize_operation_crate_operation_delete_bucket_tagging(
-                &output,
-            )?;
+        let payload = "";
         response.body(aws_smithy_http_server::body::to_boxed(payload))?
     })
 }
@@ -860,10 +838,7 @@ pub fn serialize_delete_bucket_website_response(
     Ok({
         #[allow(unused_mut)]
         let mut response = http::Response::builder();
-        let payload =
-            crate::operation_ser::serialize_operation_crate_operation_delete_bucket_website(
-                &output,
-            )?;
+        let payload = "";
         response.body(aws_smithy_http_server::body::to_boxed(payload))?
     })
 }
@@ -930,8 +905,7 @@ pub fn serialize_delete_object_response(
                 response = response.header("x-amz-version-id", header_value);
             }
         }
-        let payload =
-            crate::operation_ser::serialize_operation_crate_operation_delete_object(&output)?;
+        let payload = "";
         response.body(aws_smithy_http_server::body::to_boxed(payload))?
     })
 }
@@ -995,10 +969,7 @@ pub fn serialize_delete_object_tagging_response(
                 response = response.header("x-amz-version-id", header_value);
             }
         }
-        let payload =
-            crate::operation_ser::serialize_operation_crate_operation_delete_object_tagging(
-                &output,
-            )?;
+        let payload = "";
         response.body(aws_smithy_http_server::body::to_boxed(payload))?
     })
 }
@@ -1013,10 +984,7 @@ pub fn serialize_delete_public_access_block_response(
     Ok({
         #[allow(unused_mut)]
         let mut response = http::Response::builder();
-        let payload =
-            crate::operation_ser::serialize_operation_crate_operation_delete_public_access_block(
-                &output,
-            )?;
+        let payload = "";
         response.body(aws_smithy_http_server::body::to_boxed(payload))?
     })
 }
@@ -1062,7 +1030,7 @@ pub fn serialize_get_bucket_analytics_configuration_response(
     Ok({
         #[allow(unused_mut)]
         let mut response = http::Response::builder();
-        let payload = crate::operation_ser::serialize_operation_crate_operation_get_bucket_analytics_configuration(&output)?;
+        let payload = "";
         response.body(aws_smithy_http_server::body::to_boxed(payload))?
     })
 }
@@ -1093,10 +1061,7 @@ pub fn serialize_get_bucket_encryption_response(
     Ok({
         #[allow(unused_mut)]
         let mut response = http::Response::builder();
-        let payload =
-            crate::operation_ser::serialize_operation_crate_operation_get_bucket_encryption(
-                &output,
-            )?;
+        let payload = "";
         response.body(aws_smithy_http_server::body::to_boxed(payload))?
     })
 }
@@ -1111,7 +1076,7 @@ pub fn serialize_get_bucket_intelligent_tiering_configuration_response(
     Ok({
         #[allow(unused_mut)]
         let mut response = http::Response::builder();
-        let payload = crate::operation_ser::serialize_operation_crate_operation_get_bucket_intelligent_tiering_configuration(&output)?;
+        let payload = "";
         response.body(aws_smithy_http_server::body::to_boxed(payload))?
     })
 }
@@ -1126,7 +1091,7 @@ pub fn serialize_get_bucket_inventory_configuration_response(
     Ok({
         #[allow(unused_mut)]
         let mut response = http::Response::builder();
-        let payload = crate::operation_ser::serialize_operation_crate_operation_get_bucket_inventory_configuration(&output)?;
+        let payload = "";
         response.body(aws_smithy_http_server::body::to_boxed(payload))?
     })
 }
@@ -1188,7 +1153,7 @@ pub fn serialize_get_bucket_metrics_configuration_response(
     Ok({
         #[allow(unused_mut)]
         let mut response = http::Response::builder();
-        let payload = crate::operation_ser::serialize_operation_crate_operation_get_bucket_metrics_configuration(&output)?;
+        let payload = "";
         response.body(aws_smithy_http_server::body::to_boxed(payload))?
     })
 }
@@ -1218,7 +1183,7 @@ pub fn serialize_get_bucket_ownership_controls_response(
     Ok({
         #[allow(unused_mut)]
         let mut response = http::Response::builder();
-        let payload = crate::operation_ser::serialize_operation_crate_operation_get_bucket_ownership_controls(&output)?;
+        let payload = "";
         response.body(aws_smithy_http_server::body::to_boxed(payload))?
     })
 }
@@ -1233,8 +1198,7 @@ pub fn serialize_get_bucket_policy_response(
     Ok({
         #[allow(unused_mut)]
         let mut response = http::Response::builder();
-        let payload =
-            crate::operation_ser::serialize_operation_crate_operation_get_bucket_policy(&output)?;
+        let payload = "";
         response.body(aws_smithy_http_server::body::to_boxed(payload))?
     })
 }
@@ -1249,10 +1213,7 @@ pub fn serialize_get_bucket_policy_status_response(
     Ok({
         #[allow(unused_mut)]
         let mut response = http::Response::builder();
-        let payload =
-            crate::operation_ser::serialize_operation_crate_operation_get_bucket_policy_status(
-                &output,
-            )?;
+        let payload = "";
         response.body(aws_smithy_http_server::body::to_boxed(payload))?
     })
 }
@@ -1267,10 +1228,7 @@ pub fn serialize_get_bucket_replication_response(
     Ok({
         #[allow(unused_mut)]
         let mut response = http::Response::builder();
-        let payload =
-            crate::operation_ser::serialize_operation_crate_operation_get_bucket_replication(
-                &output,
-            )?;
+        let payload = "";
         response.body(aws_smithy_http_server::body::to_boxed(payload))?
     })
 }
@@ -2016,10 +1974,7 @@ pub fn serialize_get_object_legal_hold_response(
     Ok({
         #[allow(unused_mut)]
         let mut response = http::Response::builder();
-        let payload =
-            crate::operation_ser::serialize_operation_crate_operation_get_object_legal_hold(
-                &output,
-            )?;
+        let payload = "";
         response.body(aws_smithy_http_server::body::to_boxed(payload))?
     })
 }
@@ -2034,7 +1989,7 @@ pub fn serialize_get_object_lock_configuration_response(
     Ok({
         #[allow(unused_mut)]
         let mut response = http::Response::builder();
-        let payload = crate::operation_ser::serialize_operation_crate_operation_get_object_lock_configuration(&output)?;
+        let payload = "";
         response.body(aws_smithy_http_server::body::to_boxed(payload))?
     })
 }
@@ -2049,10 +2004,7 @@ pub fn serialize_get_object_retention_response(
     Ok({
         #[allow(unused_mut)]
         let mut response = http::Response::builder();
-        let payload =
-            crate::operation_ser::serialize_operation_crate_operation_get_object_retention(
-                &output,
-            )?;
+        let payload = "";
         response.body(aws_smithy_http_server::body::to_boxed(payload))?
     })
 }
@@ -2131,10 +2083,7 @@ pub fn serialize_get_public_access_block_response(
     Ok({
         #[allow(unused_mut)]
         let mut response = http::Response::builder();
-        let payload =
-            crate::operation_ser::serialize_operation_crate_operation_get_public_access_block(
-                &output,
-            )?;
+        let payload = "";
         response.body(aws_smithy_http_server::body::to_boxed(payload))?
     })
 }
@@ -2149,8 +2098,7 @@ pub fn serialize_head_bucket_response(
     Ok({
         #[allow(unused_mut)]
         let mut response = http::Response::builder();
-        let payload =
-            crate::operation_ser::serialize_operation_crate_operation_head_bucket(&output)?;
+        let payload = "";
         response.body(aws_smithy_http_server::body::to_boxed(payload))?
     })
 }
@@ -2732,8 +2680,7 @@ pub fn serialize_head_object_response(
                 response = response.header("x-amz-website-redirect-location", header_value);
             }
         }
-        let payload =
-            crate::operation_ser::serialize_operation_crate_operation_head_object(&output)?;
+        let payload = "";
         response.body(aws_smithy_http_server::body::to_boxed(payload))?
     })
 }
@@ -3025,7 +2972,7 @@ pub fn serialize_put_bucket_accelerate_configuration_response(
     Ok({
         #[allow(unused_mut)]
         let mut response = http::Response::builder();
-        let payload = crate::operation_ser::serialize_operation_crate_operation_put_bucket_accelerate_configuration(&output)?;
+        let payload = "";
         response.body(aws_smithy_http_server::body::to_boxed(payload))?
     })
 }
@@ -3040,8 +2987,7 @@ pub fn serialize_put_bucket_acl_response(
     Ok({
         #[allow(unused_mut)]
         let mut response = http::Response::builder();
-        let payload =
-            crate::operation_ser::serialize_operation_crate_operation_put_bucket_acl(&output)?;
+        let payload = "";
         response.body(aws_smithy_http_server::body::to_boxed(payload))?
     })
 }
@@ -3056,7 +3002,7 @@ pub fn serialize_put_bucket_analytics_configuration_response(
     Ok({
         #[allow(unused_mut)]
         let mut response = http::Response::builder();
-        let payload = crate::operation_ser::serialize_operation_crate_operation_put_bucket_analytics_configuration(&output)?;
+        let payload = "";
         response.body(aws_smithy_http_server::body::to_boxed(payload))?
     })
 }
@@ -3071,8 +3017,7 @@ pub fn serialize_put_bucket_cors_response(
     Ok({
         #[allow(unused_mut)]
         let mut response = http::Response::builder();
-        let payload =
-            crate::operation_ser::serialize_operation_crate_operation_put_bucket_cors(&output)?;
+        let payload = "";
         response.body(aws_smithy_http_server::body::to_boxed(payload))?
     })
 }
@@ -3087,10 +3032,7 @@ pub fn serialize_put_bucket_encryption_response(
     Ok({
         #[allow(unused_mut)]
         let mut response = http::Response::builder();
-        let payload =
-            crate::operation_ser::serialize_operation_crate_operation_put_bucket_encryption(
-                &output,
-            )?;
+        let payload = "";
         response.body(aws_smithy_http_server::body::to_boxed(payload))?
     })
 }
@@ -3105,7 +3047,7 @@ pub fn serialize_put_bucket_intelligent_tiering_configuration_response(
     Ok({
         #[allow(unused_mut)]
         let mut response = http::Response::builder();
-        let payload = crate::operation_ser::serialize_operation_crate_operation_put_bucket_intelligent_tiering_configuration(&output)?;
+        let payload = "";
         response.body(aws_smithy_http_server::body::to_boxed(payload))?
     })
 }
@@ -3120,7 +3062,7 @@ pub fn serialize_put_bucket_inventory_configuration_response(
     Ok({
         #[allow(unused_mut)]
         let mut response = http::Response::builder();
-        let payload = crate::operation_ser::serialize_operation_crate_operation_put_bucket_inventory_configuration(&output)?;
+        let payload = "";
         response.body(aws_smithy_http_server::body::to_boxed(payload))?
     })
 }
@@ -3135,7 +3077,7 @@ pub fn serialize_put_bucket_lifecycle_configuration_response(
     Ok({
         #[allow(unused_mut)]
         let mut response = http::Response::builder();
-        let payload = crate::operation_ser::serialize_operation_crate_operation_put_bucket_lifecycle_configuration(&output)?;
+        let payload = "";
         response.body(aws_smithy_http_server::body::to_boxed(payload))?
     })
 }
@@ -3150,8 +3092,7 @@ pub fn serialize_put_bucket_logging_response(
     Ok({
         #[allow(unused_mut)]
         let mut response = http::Response::builder();
-        let payload =
-            crate::operation_ser::serialize_operation_crate_operation_put_bucket_logging(&output)?;
+        let payload = "";
         response.body(aws_smithy_http_server::body::to_boxed(payload))?
     })
 }
@@ -3166,7 +3107,7 @@ pub fn serialize_put_bucket_metrics_configuration_response(
     Ok({
         #[allow(unused_mut)]
         let mut response = http::Response::builder();
-        let payload = crate::operation_ser::serialize_operation_crate_operation_put_bucket_metrics_configuration(&output)?;
+        let payload = "";
         response.body(aws_smithy_http_server::body::to_boxed(payload))?
     })
 }
@@ -3181,7 +3122,7 @@ pub fn serialize_put_bucket_notification_configuration_response(
     Ok({
         #[allow(unused_mut)]
         let mut response = http::Response::builder();
-        let payload = crate::operation_ser::serialize_operation_crate_operation_put_bucket_notification_configuration(&output)?;
+        let payload = "";
         response.body(aws_smithy_http_server::body::to_boxed(payload))?
     })
 }
@@ -3196,7 +3137,7 @@ pub fn serialize_put_bucket_ownership_controls_response(
     Ok({
         #[allow(unused_mut)]
         let mut response = http::Response::builder();
-        let payload = crate::operation_ser::serialize_operation_crate_operation_put_bucket_ownership_controls(&output)?;
+        let payload = "";
         response.body(aws_smithy_http_server::body::to_boxed(payload))?
     })
 }
@@ -3211,8 +3152,7 @@ pub fn serialize_put_bucket_policy_response(
     Ok({
         #[allow(unused_mut)]
         let mut response = http::Response::builder();
-        let payload =
-            crate::operation_ser::serialize_operation_crate_operation_put_bucket_policy(&output)?;
+        let payload = "";
         response.body(aws_smithy_http_server::body::to_boxed(payload))?
     })
 }
@@ -3227,10 +3167,7 @@ pub fn serialize_put_bucket_replication_response(
     Ok({
         #[allow(unused_mut)]
         let mut response = http::Response::builder();
-        let payload =
-            crate::operation_ser::serialize_operation_crate_operation_put_bucket_replication(
-                &output,
-            )?;
+        let payload = "";
         response.body(aws_smithy_http_server::body::to_boxed(payload))?
     })
 }
@@ -3245,10 +3182,7 @@ pub fn serialize_put_bucket_request_payment_response(
     Ok({
         #[allow(unused_mut)]
         let mut response = http::Response::builder();
-        let payload =
-            crate::operation_ser::serialize_operation_crate_operation_put_bucket_request_payment(
-                &output,
-            )?;
+        let payload = "";
         response.body(aws_smithy_http_server::body::to_boxed(payload))?
     })
 }
@@ -3263,8 +3197,7 @@ pub fn serialize_put_bucket_tagging_response(
     Ok({
         #[allow(unused_mut)]
         let mut response = http::Response::builder();
-        let payload =
-            crate::operation_ser::serialize_operation_crate_operation_put_bucket_tagging(&output)?;
+        let payload = "";
         response.body(aws_smithy_http_server::body::to_boxed(payload))?
     })
 }
@@ -3279,10 +3212,7 @@ pub fn serialize_put_bucket_versioning_response(
     Ok({
         #[allow(unused_mut)]
         let mut response = http::Response::builder();
-        let payload =
-            crate::operation_ser::serialize_operation_crate_operation_put_bucket_versioning(
-                &output,
-            )?;
+        let payload = "";
         response.body(aws_smithy_http_server::body::to_boxed(payload))?
     })
 }
@@ -3297,8 +3227,7 @@ pub fn serialize_put_bucket_website_response(
     Ok({
         #[allow(unused_mut)]
         let mut response = http::Response::builder();
-        let payload =
-            crate::operation_ser::serialize_operation_crate_operation_put_bucket_website(&output)?;
+        let payload = "";
         response.body(aws_smithy_http_server::body::to_boxed(payload))?
     })
 }
@@ -3495,8 +3424,7 @@ pub fn serialize_put_object_response(
                 response = response.header("x-amz-version-id", header_value);
             }
         }
-        let payload =
-            crate::operation_ser::serialize_operation_crate_operation_put_object(&output)?;
+        let payload = "";
         response.body(aws_smithy_http_server::body::to_boxed(payload))?
     })
 }
@@ -3529,8 +3457,7 @@ pub fn serialize_put_object_acl_response(
                 response = response.header("x-amz-request-charged", header_value);
             }
         }
-        let payload =
-            crate::operation_ser::serialize_operation_crate_operation_put_object_acl(&output)?;
+        let payload = "";
         response.body(aws_smithy_http_server::body::to_boxed(payload))?
     })
 }
@@ -3585,10 +3512,7 @@ pub fn serialize_put_object_legal_hold_response(
                 response = response.header("x-amz-request-charged", header_value);
             }
         }
-        let payload =
-            crate::operation_ser::serialize_operation_crate_operation_put_object_legal_hold(
-                &output,
-            )?;
+        let payload = "";
         response.body(aws_smithy_http_server::body::to_boxed(payload))?
     })
 }
@@ -3621,7 +3545,7 @@ pub fn serialize_put_object_lock_configuration_response(
                 response = response.header("x-amz-request-charged", header_value);
             }
         }
-        let payload = crate::operation_ser::serialize_operation_crate_operation_put_object_lock_configuration(&output)?;
+        let payload = "";
         response.body(aws_smithy_http_server::body::to_boxed(payload))?
     })
 }
@@ -3654,10 +3578,7 @@ pub fn serialize_put_object_retention_response(
                 response = response.header("x-amz-request-charged", header_value);
             }
         }
-        let payload =
-            crate::operation_ser::serialize_operation_crate_operation_put_object_retention(
-                &output,
-            )?;
+        let payload = "";
         response.body(aws_smithy_http_server::body::to_boxed(payload))?
     })
 }
@@ -3687,8 +3608,7 @@ pub fn serialize_put_object_tagging_response(
                 response = response.header("x-amz-version-id", header_value);
             }
         }
-        let payload =
-            crate::operation_ser::serialize_operation_crate_operation_put_object_tagging(&output)?;
+        let payload = "";
         response.body(aws_smithy_http_server::body::to_boxed(payload))?
     })
 }
@@ -3703,10 +3623,7 @@ pub fn serialize_put_public_access_block_response(
     Ok({
         #[allow(unused_mut)]
         let mut response = http::Response::builder();
-        let payload =
-            crate::operation_ser::serialize_operation_crate_operation_put_public_access_block(
-                &output,
-            )?;
+        let payload = "";
         response.body(aws_smithy_http_server::body::to_boxed(payload))?
     })
 }
@@ -3757,8 +3674,7 @@ pub fn serialize_restore_object_response(
                 response = response.header("x-amz-restore-output-path", header_value);
             }
         }
-        let payload =
-            crate::operation_ser::serialize_operation_crate_operation_restore_object(&output)?;
+        let payload = "";
         response.body(aws_smithy_http_server::body::to_boxed(payload))?
     })
 }
@@ -3928,8 +3844,7 @@ pub fn serialize_upload_part_response(
                 response = response.header("x-amz-server-side-encryption", header_value);
             }
         }
-        let payload =
-            crate::operation_ser::serialize_operation_crate_operation_upload_part(&output)?;
+        let payload = "";
         response.body(aws_smithy_http_server::body::to_boxed(payload))?
     })
 }
@@ -4081,8 +3996,7 @@ pub fn serialize_upload_part_copy_response(
                 response = response.header("x-amz-server-side-encryption", header_value);
             }
         }
-        let payload =
-            crate::operation_ser::serialize_operation_crate_operation_upload_part_copy(&output)?;
+        let payload = "";
         response.body(aws_smithy_http_server::body::to_boxed(payload))?
     })
 }
@@ -4097,29 +4011,9 @@ pub fn serialize_write_get_object_response_response(
     Ok({
         #[allow(unused_mut)]
         let mut response = http::Response::builder();
-        let payload =
-            crate::operation_ser::serialize_operation_crate_operation_write_get_object_response(
-                &output,
-            )?;
+        let payload = "";
         response.body(aws_smithy_http_server::body::to_boxed(payload))?
     })
-}
-
-pub fn serialize_operation_crate_operation_abort_multipart_upload(
-    output: &crate::output::AbortMultipartUploadOutput,
-) -> Result<String, aws_smithy_http::operation::SerializationError> {
-    let mut out = String::new();
-    {
-        let mut writer = aws_smithy_xml::encode::XmlWriter::new(&mut out);
-        #[allow(unused_mut)]
-        let mut root = writer
-            .start_el("AbortMultipartUploadOutput")
-            .write_ns("http://s3.amazonaws.com/doc/2006-03-01/", None);
-        crate::xml_ser::serialize_structure_crate_output_abort_multipart_upload_output(
-            output, root,
-        )?
-    }
-    Ok(out)
 }
 
 pub fn serialize_structure_crate_error_no_such_upload(
@@ -4154,21 +4048,6 @@ pub fn serialize_operation_crate_operation_complete_multipart_upload(
     Ok(out)
 }
 
-pub fn serialize_operation_crate_operation_copy_object(
-    output: &crate::output::CopyObjectOutput,
-) -> Result<String, aws_smithy_http::operation::SerializationError> {
-    let mut out = String::new();
-    {
-        let mut writer = aws_smithy_xml::encode::XmlWriter::new(&mut out);
-        #[allow(unused_mut)]
-        let mut root = writer
-            .start_el("CopyObjectOutput")
-            .write_ns("http://s3.amazonaws.com/doc/2006-03-01/", None);
-        crate::xml_ser::serialize_structure_crate_output_copy_object_output(output, root)?
-    }
-    Ok(out)
-}
-
 pub fn serialize_structure_crate_error_object_not_in_active_tier_error(
     error: &crate::error::ObjectNotInActiveTierError,
 ) -> Result<String, aws_smithy_http::operation::SerializationError> {
@@ -4182,21 +4061,6 @@ pub fn serialize_structure_crate_error_object_not_in_active_tier_error(
         crate::xml_ser::serialize_structure_crate_error_object_not_in_active_tier_error(
             error, root,
         )?
-    }
-    Ok(out)
-}
-
-pub fn serialize_operation_crate_operation_create_bucket(
-    output: &crate::output::CreateBucketOutput,
-) -> Result<String, aws_smithy_http::operation::SerializationError> {
-    let mut out = String::new();
-    {
-        let mut writer = aws_smithy_xml::encode::XmlWriter::new(&mut out);
-        #[allow(unused_mut)]
-        let mut root = writer
-            .start_el("CreateBucketOutput")
-            .write_ns("http://s3.amazonaws.com/doc/2006-03-01/", None);
-        crate::xml_ser::serialize_structure_crate_output_create_bucket_output(output, root)?
     }
     Ok(out)
 }
@@ -4248,226 +4112,6 @@ pub fn serialize_operation_crate_operation_create_multipart_upload(
     Ok(out)
 }
 
-pub fn serialize_operation_crate_operation_delete_bucket(
-    output: &crate::output::DeleteBucketOutput,
-) -> Result<String, aws_smithy_http::operation::SerializationError> {
-    let mut out = String::new();
-    {
-        let mut writer = aws_smithy_xml::encode::XmlWriter::new(&mut out);
-        #[allow(unused_mut)]
-        let mut root = writer
-            .start_el("DeleteBucketOutput")
-            .write_ns("http://s3.amazonaws.com/doc/2006-03-01/", None);
-        crate::xml_ser::serialize_structure_crate_output_delete_bucket_output(output, root)?
-    }
-    Ok(out)
-}
-
-pub fn serialize_operation_crate_operation_delete_bucket_analytics_configuration(
-    output: &crate::output::DeleteBucketAnalyticsConfigurationOutput,
-) -> Result<String, aws_smithy_http::operation::SerializationError> {
-    let mut out = String::new();
-    {
-        let mut writer = aws_smithy_xml::encode::XmlWriter::new(&mut out);
-        #[allow(unused_mut)]
-        let mut root = writer
-            .start_el("DeleteBucketAnalyticsConfigurationOutput")
-            .write_ns("http://s3.amazonaws.com/doc/2006-03-01/", None);
-        crate::xml_ser::serialize_structure_crate_output_delete_bucket_analytics_configuration_output(output, root)?
-    }
-    Ok(out)
-}
-
-pub fn serialize_operation_crate_operation_delete_bucket_cors(
-    output: &crate::output::DeleteBucketCorsOutput,
-) -> Result<String, aws_smithy_http::operation::SerializationError> {
-    let mut out = String::new();
-    {
-        let mut writer = aws_smithy_xml::encode::XmlWriter::new(&mut out);
-        #[allow(unused_mut)]
-        let mut root = writer
-            .start_el("DeleteBucketCorsOutput")
-            .write_ns("http://s3.amazonaws.com/doc/2006-03-01/", None);
-        crate::xml_ser::serialize_structure_crate_output_delete_bucket_cors_output(output, root)?
-    }
-    Ok(out)
-}
-
-pub fn serialize_operation_crate_operation_delete_bucket_encryption(
-    output: &crate::output::DeleteBucketEncryptionOutput,
-) -> Result<String, aws_smithy_http::operation::SerializationError> {
-    let mut out = String::new();
-    {
-        let mut writer = aws_smithy_xml::encode::XmlWriter::new(&mut out);
-        #[allow(unused_mut)]
-        let mut root = writer
-            .start_el("DeleteBucketEncryptionOutput")
-            .write_ns("http://s3.amazonaws.com/doc/2006-03-01/", None);
-        crate::xml_ser::serialize_structure_crate_output_delete_bucket_encryption_output(
-            output, root,
-        )?
-    }
-    Ok(out)
-}
-
-pub fn serialize_operation_crate_operation_delete_bucket_intelligent_tiering_configuration(
-    output: &crate::output::DeleteBucketIntelligentTieringConfigurationOutput,
-) -> Result<String, aws_smithy_http::operation::SerializationError> {
-    let mut out = String::new();
-    {
-        let mut writer = aws_smithy_xml::encode::XmlWriter::new(&mut out);
-        #[allow(unused_mut)]
-        let mut root = writer
-            .start_el("DeleteBucketIntelligentTieringConfigurationOutput")
-            .write_ns("http://s3.amazonaws.com/doc/2006-03-01/", None);
-        crate::xml_ser::serialize_structure_crate_output_delete_bucket_intelligent_tiering_configuration_output(output, root)?
-    }
-    Ok(out)
-}
-
-pub fn serialize_operation_crate_operation_delete_bucket_inventory_configuration(
-    output: &crate::output::DeleteBucketInventoryConfigurationOutput,
-) -> Result<String, aws_smithy_http::operation::SerializationError> {
-    let mut out = String::new();
-    {
-        let mut writer = aws_smithy_xml::encode::XmlWriter::new(&mut out);
-        #[allow(unused_mut)]
-        let mut root = writer
-            .start_el("DeleteBucketInventoryConfigurationOutput")
-            .write_ns("http://s3.amazonaws.com/doc/2006-03-01/", None);
-        crate::xml_ser::serialize_structure_crate_output_delete_bucket_inventory_configuration_output(output, root)?
-    }
-    Ok(out)
-}
-
-pub fn serialize_operation_crate_operation_delete_bucket_lifecycle(
-    output: &crate::output::DeleteBucketLifecycleOutput,
-) -> Result<String, aws_smithy_http::operation::SerializationError> {
-    let mut out = String::new();
-    {
-        let mut writer = aws_smithy_xml::encode::XmlWriter::new(&mut out);
-        #[allow(unused_mut)]
-        let mut root = writer
-            .start_el("DeleteBucketLifecycleOutput")
-            .write_ns("http://s3.amazonaws.com/doc/2006-03-01/", None);
-        crate::xml_ser::serialize_structure_crate_output_delete_bucket_lifecycle_output(
-            output, root,
-        )?
-    }
-    Ok(out)
-}
-
-pub fn serialize_operation_crate_operation_delete_bucket_metrics_configuration(
-    output: &crate::output::DeleteBucketMetricsConfigurationOutput,
-) -> Result<String, aws_smithy_http::operation::SerializationError> {
-    let mut out = String::new();
-    {
-        let mut writer = aws_smithy_xml::encode::XmlWriter::new(&mut out);
-        #[allow(unused_mut)]
-        let mut root = writer
-            .start_el("DeleteBucketMetricsConfigurationOutput")
-            .write_ns("http://s3.amazonaws.com/doc/2006-03-01/", None);
-        crate::xml_ser::serialize_structure_crate_output_delete_bucket_metrics_configuration_output(
-            output, root,
-        )?
-    }
-    Ok(out)
-}
-
-pub fn serialize_operation_crate_operation_delete_bucket_ownership_controls(
-    output: &crate::output::DeleteBucketOwnershipControlsOutput,
-) -> Result<String, aws_smithy_http::operation::SerializationError> {
-    let mut out = String::new();
-    {
-        let mut writer = aws_smithy_xml::encode::XmlWriter::new(&mut out);
-        #[allow(unused_mut)]
-        let mut root = writer
-            .start_el("DeleteBucketOwnershipControlsOutput")
-            .write_ns("http://s3.amazonaws.com/doc/2006-03-01/", None);
-        crate::xml_ser::serialize_structure_crate_output_delete_bucket_ownership_controls_output(
-            output, root,
-        )?
-    }
-    Ok(out)
-}
-
-pub fn serialize_operation_crate_operation_delete_bucket_policy(
-    output: &crate::output::DeleteBucketPolicyOutput,
-) -> Result<String, aws_smithy_http::operation::SerializationError> {
-    let mut out = String::new();
-    {
-        let mut writer = aws_smithy_xml::encode::XmlWriter::new(&mut out);
-        #[allow(unused_mut)]
-        let mut root = writer
-            .start_el("DeleteBucketPolicyOutput")
-            .write_ns("http://s3.amazonaws.com/doc/2006-03-01/", None);
-        crate::xml_ser::serialize_structure_crate_output_delete_bucket_policy_output(output, root)?
-    }
-    Ok(out)
-}
-
-pub fn serialize_operation_crate_operation_delete_bucket_replication(
-    output: &crate::output::DeleteBucketReplicationOutput,
-) -> Result<String, aws_smithy_http::operation::SerializationError> {
-    let mut out = String::new();
-    {
-        let mut writer = aws_smithy_xml::encode::XmlWriter::new(&mut out);
-        #[allow(unused_mut)]
-        let mut root = writer
-            .start_el("DeleteBucketReplicationOutput")
-            .write_ns("http://s3.amazonaws.com/doc/2006-03-01/", None);
-        crate::xml_ser::serialize_structure_crate_output_delete_bucket_replication_output(
-            output, root,
-        )?
-    }
-    Ok(out)
-}
-
-pub fn serialize_operation_crate_operation_delete_bucket_tagging(
-    output: &crate::output::DeleteBucketTaggingOutput,
-) -> Result<String, aws_smithy_http::operation::SerializationError> {
-    let mut out = String::new();
-    {
-        let mut writer = aws_smithy_xml::encode::XmlWriter::new(&mut out);
-        #[allow(unused_mut)]
-        let mut root = writer
-            .start_el("DeleteBucketTaggingOutput")
-            .write_ns("http://s3.amazonaws.com/doc/2006-03-01/", None);
-        crate::xml_ser::serialize_structure_crate_output_delete_bucket_tagging_output(output, root)?
-    }
-    Ok(out)
-}
-
-pub fn serialize_operation_crate_operation_delete_bucket_website(
-    output: &crate::output::DeleteBucketWebsiteOutput,
-) -> Result<String, aws_smithy_http::operation::SerializationError> {
-    let mut out = String::new();
-    {
-        let mut writer = aws_smithy_xml::encode::XmlWriter::new(&mut out);
-        #[allow(unused_mut)]
-        let mut root = writer
-            .start_el("DeleteBucketWebsiteOutput")
-            .write_ns("http://s3.amazonaws.com/doc/2006-03-01/", None);
-        crate::xml_ser::serialize_structure_crate_output_delete_bucket_website_output(output, root)?
-    }
-    Ok(out)
-}
-
-pub fn serialize_operation_crate_operation_delete_object(
-    output: &crate::output::DeleteObjectOutput,
-) -> Result<String, aws_smithy_http::operation::SerializationError> {
-    let mut out = String::new();
-    {
-        let mut writer = aws_smithy_xml::encode::XmlWriter::new(&mut out);
-        #[allow(unused_mut)]
-        let mut root = writer
-            .start_el("DeleteObjectOutput")
-            .write_ns("http://s3.amazonaws.com/doc/2006-03-01/", None);
-        crate::xml_ser::serialize_structure_crate_output_delete_object_output(output, root)?
-    }
-    Ok(out)
-}
-
 pub fn serialize_operation_crate_operation_delete_objects(
     output: &crate::output::DeleteObjectsOutput,
 ) -> Result<String, aws_smithy_http::operation::SerializationError> {
@@ -4479,38 +4123,6 @@ pub fn serialize_operation_crate_operation_delete_objects(
             .start_el("DeleteResult")
             .write_ns("http://s3.amazonaws.com/doc/2006-03-01/", None);
         crate::xml_ser::serialize_structure_crate_output_delete_objects_output(output, root)?
-    }
-    Ok(out)
-}
-
-pub fn serialize_operation_crate_operation_delete_object_tagging(
-    output: &crate::output::DeleteObjectTaggingOutput,
-) -> Result<String, aws_smithy_http::operation::SerializationError> {
-    let mut out = String::new();
-    {
-        let mut writer = aws_smithy_xml::encode::XmlWriter::new(&mut out);
-        #[allow(unused_mut)]
-        let mut root = writer
-            .start_el("DeleteObjectTaggingOutput")
-            .write_ns("http://s3.amazonaws.com/doc/2006-03-01/", None);
-        crate::xml_ser::serialize_structure_crate_output_delete_object_tagging_output(output, root)?
-    }
-    Ok(out)
-}
-
-pub fn serialize_operation_crate_operation_delete_public_access_block(
-    output: &crate::output::DeletePublicAccessBlockOutput,
-) -> Result<String, aws_smithy_http::operation::SerializationError> {
-    let mut out = String::new();
-    {
-        let mut writer = aws_smithy_xml::encode::XmlWriter::new(&mut out);
-        #[allow(unused_mut)]
-        let mut root = writer
-            .start_el("DeletePublicAccessBlockOutput")
-            .write_ns("http://s3.amazonaws.com/doc/2006-03-01/", None);
-        crate::xml_ser::serialize_structure_crate_output_delete_public_access_block_output(
-            output, root,
-        )?
     }
     Ok(out)
 }
@@ -4547,23 +4159,6 @@ pub fn serialize_operation_crate_operation_get_bucket_acl(
     Ok(out)
 }
 
-pub fn serialize_operation_crate_operation_get_bucket_analytics_configuration(
-    output: &crate::output::GetBucketAnalyticsConfigurationOutput,
-) -> Result<String, aws_smithy_http::operation::SerializationError> {
-    let mut out = String::new();
-    {
-        let mut writer = aws_smithy_xml::encode::XmlWriter::new(&mut out);
-        #[allow(unused_mut)]
-        let mut root = writer
-            .start_el("GetBucketAnalyticsConfigurationOutput")
-            .write_ns("http://s3.amazonaws.com/doc/2006-03-01/", None);
-        crate::xml_ser::serialize_structure_crate_output_get_bucket_analytics_configuration_output(
-            output, root,
-        )?
-    }
-    Ok(out)
-}
-
 pub fn serialize_operation_crate_operation_get_bucket_cors(
     output: &crate::output::GetBucketCorsOutput,
 ) -> Result<String, aws_smithy_http::operation::SerializationError> {
@@ -4575,53 +4170,6 @@ pub fn serialize_operation_crate_operation_get_bucket_cors(
             .start_el("CORSConfiguration")
             .write_ns("http://s3.amazonaws.com/doc/2006-03-01/", None);
         crate::xml_ser::serialize_structure_crate_output_get_bucket_cors_output(output, root)?
-    }
-    Ok(out)
-}
-
-pub fn serialize_operation_crate_operation_get_bucket_encryption(
-    output: &crate::output::GetBucketEncryptionOutput,
-) -> Result<String, aws_smithy_http::operation::SerializationError> {
-    let mut out = String::new();
-    {
-        let mut writer = aws_smithy_xml::encode::XmlWriter::new(&mut out);
-        #[allow(unused_mut)]
-        let mut root = writer
-            .start_el("GetBucketEncryptionOutput")
-            .write_ns("http://s3.amazonaws.com/doc/2006-03-01/", None);
-        crate::xml_ser::serialize_structure_crate_output_get_bucket_encryption_output(output, root)?
-    }
-    Ok(out)
-}
-
-pub fn serialize_operation_crate_operation_get_bucket_intelligent_tiering_configuration(
-    output: &crate::output::GetBucketIntelligentTieringConfigurationOutput,
-) -> Result<String, aws_smithy_http::operation::SerializationError> {
-    let mut out = String::new();
-    {
-        let mut writer = aws_smithy_xml::encode::XmlWriter::new(&mut out);
-        #[allow(unused_mut)]
-        let mut root = writer
-            .start_el("GetBucketIntelligentTieringConfigurationOutput")
-            .write_ns("http://s3.amazonaws.com/doc/2006-03-01/", None);
-        crate::xml_ser::serialize_structure_crate_output_get_bucket_intelligent_tiering_configuration_output(output, root)?
-    }
-    Ok(out)
-}
-
-pub fn serialize_operation_crate_operation_get_bucket_inventory_configuration(
-    output: &crate::output::GetBucketInventoryConfigurationOutput,
-) -> Result<String, aws_smithy_http::operation::SerializationError> {
-    let mut out = String::new();
-    {
-        let mut writer = aws_smithy_xml::encode::XmlWriter::new(&mut out);
-        #[allow(unused_mut)]
-        let mut root = writer
-            .start_el("GetBucketInventoryConfigurationOutput")
-            .write_ns("http://s3.amazonaws.com/doc/2006-03-01/", None);
-        crate::xml_ser::serialize_structure_crate_output_get_bucket_inventory_configuration_output(
-            output, root,
-        )?
     }
     Ok(out)
 }
@@ -4673,23 +4221,6 @@ pub fn serialize_operation_crate_operation_get_bucket_logging(
     Ok(out)
 }
 
-pub fn serialize_operation_crate_operation_get_bucket_metrics_configuration(
-    output: &crate::output::GetBucketMetricsConfigurationOutput,
-) -> Result<String, aws_smithy_http::operation::SerializationError> {
-    let mut out = String::new();
-    {
-        let mut writer = aws_smithy_xml::encode::XmlWriter::new(&mut out);
-        #[allow(unused_mut)]
-        let mut root = writer
-            .start_el("GetBucketMetricsConfigurationOutput")
-            .write_ns("http://s3.amazonaws.com/doc/2006-03-01/", None);
-        crate::xml_ser::serialize_structure_crate_output_get_bucket_metrics_configuration_output(
-            output, root,
-        )?
-    }
-    Ok(out)
-}
-
 pub fn serialize_operation_crate_operation_get_bucket_notification_configuration(
     output: &crate::output::GetBucketNotificationConfigurationOutput,
 ) -> Result<String, aws_smithy_http::operation::SerializationError> {
@@ -4701,72 +4232,6 @@ pub fn serialize_operation_crate_operation_get_bucket_notification_configuration
             .start_el("NotificationConfiguration")
             .write_ns("http://s3.amazonaws.com/doc/2006-03-01/", None);
         crate::xml_ser::serialize_structure_crate_output_get_bucket_notification_configuration_output(output, root)?
-    }
-    Ok(out)
-}
-
-pub fn serialize_operation_crate_operation_get_bucket_ownership_controls(
-    output: &crate::output::GetBucketOwnershipControlsOutput,
-) -> Result<String, aws_smithy_http::operation::SerializationError> {
-    let mut out = String::new();
-    {
-        let mut writer = aws_smithy_xml::encode::XmlWriter::new(&mut out);
-        #[allow(unused_mut)]
-        let mut root = writer
-            .start_el("GetBucketOwnershipControlsOutput")
-            .write_ns("http://s3.amazonaws.com/doc/2006-03-01/", None);
-        crate::xml_ser::serialize_structure_crate_output_get_bucket_ownership_controls_output(
-            output, root,
-        )?
-    }
-    Ok(out)
-}
-
-pub fn serialize_operation_crate_operation_get_bucket_policy(
-    output: &crate::output::GetBucketPolicyOutput,
-) -> Result<String, aws_smithy_http::operation::SerializationError> {
-    let mut out = String::new();
-    {
-        let mut writer = aws_smithy_xml::encode::XmlWriter::new(&mut out);
-        #[allow(unused_mut)]
-        let mut root = writer
-            .start_el("GetBucketPolicyOutput")
-            .write_ns("http://s3.amazonaws.com/doc/2006-03-01/", None);
-        crate::xml_ser::serialize_structure_crate_output_get_bucket_policy_output(output, root)?
-    }
-    Ok(out)
-}
-
-pub fn serialize_operation_crate_operation_get_bucket_policy_status(
-    output: &crate::output::GetBucketPolicyStatusOutput,
-) -> Result<String, aws_smithy_http::operation::SerializationError> {
-    let mut out = String::new();
-    {
-        let mut writer = aws_smithy_xml::encode::XmlWriter::new(&mut out);
-        #[allow(unused_mut)]
-        let mut root = writer
-            .start_el("GetBucketPolicyStatusOutput")
-            .write_ns("http://s3.amazonaws.com/doc/2006-03-01/", None);
-        crate::xml_ser::serialize_structure_crate_output_get_bucket_policy_status_output(
-            output, root,
-        )?
-    }
-    Ok(out)
-}
-
-pub fn serialize_operation_crate_operation_get_bucket_replication(
-    output: &crate::output::GetBucketReplicationOutput,
-) -> Result<String, aws_smithy_http::operation::SerializationError> {
-    let mut out = String::new();
-    {
-        let mut writer = aws_smithy_xml::encode::XmlWriter::new(&mut out);
-        #[allow(unused_mut)]
-        let mut root = writer
-            .start_el("GetBucketReplicationOutput")
-            .write_ns("http://s3.amazonaws.com/doc/2006-03-01/", None);
-        crate::xml_ser::serialize_structure_crate_output_get_bucket_replication_output(
-            output, root,
-        )?
     }
     Ok(out)
 }
@@ -4878,53 +4343,6 @@ pub fn serialize_operation_crate_operation_get_object_acl(
     Ok(out)
 }
 
-pub fn serialize_operation_crate_operation_get_object_legal_hold(
-    output: &crate::output::GetObjectLegalHoldOutput,
-) -> Result<String, aws_smithy_http::operation::SerializationError> {
-    let mut out = String::new();
-    {
-        let mut writer = aws_smithy_xml::encode::XmlWriter::new(&mut out);
-        #[allow(unused_mut)]
-        let mut root = writer
-            .start_el("GetObjectLegalHoldOutput")
-            .write_ns("http://s3.amazonaws.com/doc/2006-03-01/", None);
-        crate::xml_ser::serialize_structure_crate_output_get_object_legal_hold_output(output, root)?
-    }
-    Ok(out)
-}
-
-pub fn serialize_operation_crate_operation_get_object_lock_configuration(
-    output: &crate::output::GetObjectLockConfigurationOutput,
-) -> Result<String, aws_smithy_http::operation::SerializationError> {
-    let mut out = String::new();
-    {
-        let mut writer = aws_smithy_xml::encode::XmlWriter::new(&mut out);
-        #[allow(unused_mut)]
-        let mut root = writer
-            .start_el("GetObjectLockConfigurationOutput")
-            .write_ns("http://s3.amazonaws.com/doc/2006-03-01/", None);
-        crate::xml_ser::serialize_structure_crate_output_get_object_lock_configuration_output(
-            output, root,
-        )?
-    }
-    Ok(out)
-}
-
-pub fn serialize_operation_crate_operation_get_object_retention(
-    output: &crate::output::GetObjectRetentionOutput,
-) -> Result<String, aws_smithy_http::operation::SerializationError> {
-    let mut out = String::new();
-    {
-        let mut writer = aws_smithy_xml::encode::XmlWriter::new(&mut out);
-        #[allow(unused_mut)]
-        let mut root = writer
-            .start_el("GetObjectRetentionOutput")
-            .write_ns("http://s3.amazonaws.com/doc/2006-03-01/", None);
-        crate::xml_ser::serialize_structure_crate_output_get_object_retention_output(output, root)?
-    }
-    Ok(out)
-}
-
 pub fn serialize_operation_crate_operation_get_object_tagging(
     output: &crate::output::GetObjectTaggingOutput,
 ) -> Result<String, aws_smithy_http::operation::SerializationError> {
@@ -4940,38 +4358,6 @@ pub fn serialize_operation_crate_operation_get_object_tagging(
     Ok(out)
 }
 
-pub fn serialize_operation_crate_operation_get_public_access_block(
-    output: &crate::output::GetPublicAccessBlockOutput,
-) -> Result<String, aws_smithy_http::operation::SerializationError> {
-    let mut out = String::new();
-    {
-        let mut writer = aws_smithy_xml::encode::XmlWriter::new(&mut out);
-        #[allow(unused_mut)]
-        let mut root = writer
-            .start_el("GetPublicAccessBlockOutput")
-            .write_ns("http://s3.amazonaws.com/doc/2006-03-01/", None);
-        crate::xml_ser::serialize_structure_crate_output_get_public_access_block_output(
-            output, root,
-        )?
-    }
-    Ok(out)
-}
-
-pub fn serialize_operation_crate_operation_head_bucket(
-    output: &crate::output::HeadBucketOutput,
-) -> Result<String, aws_smithy_http::operation::SerializationError> {
-    let mut out = String::new();
-    {
-        let mut writer = aws_smithy_xml::encode::XmlWriter::new(&mut out);
-        #[allow(unused_mut)]
-        let mut root = writer
-            .start_el("HeadBucketOutput")
-            .write_ns("http://s3.amazonaws.com/doc/2006-03-01/", None);
-        crate::xml_ser::serialize_structure_crate_output_head_bucket_output(output, root)?
-    }
-    Ok(out)
-}
-
 pub fn serialize_structure_crate_error_not_found(
     error: &crate::error::NotFound,
 ) -> Result<String, aws_smithy_http::operation::SerializationError> {
@@ -4983,21 +4369,6 @@ pub fn serialize_structure_crate_error_not_found(
             .start_el("Error")
             .write_ns("http://s3.amazonaws.com/doc/2006-03-01/", None);
         crate::xml_ser::serialize_structure_crate_error_not_found(error, root)?
-    }
-    Ok(out)
-}
-
-pub fn serialize_operation_crate_operation_head_object(
-    output: &crate::output::HeadObjectOutput,
-) -> Result<String, aws_smithy_http::operation::SerializationError> {
-    let mut out = String::new();
-    {
-        let mut writer = aws_smithy_xml::encode::XmlWriter::new(&mut out);
-        #[allow(unused_mut)]
-        let mut root = writer
-            .start_el("HeadObjectOutput")
-            .write_ns("http://s3.amazonaws.com/doc/2006-03-01/", None);
-        crate::xml_ser::serialize_structure_crate_output_head_object_output(output, root)?
     }
     Ok(out)
 }
@@ -5171,416 +4542,6 @@ pub fn serialize_operation_crate_operation_list_parts(
     Ok(out)
 }
 
-pub fn serialize_operation_crate_operation_put_bucket_accelerate_configuration(
-    output: &crate::output::PutBucketAccelerateConfigurationOutput,
-) -> Result<String, aws_smithy_http::operation::SerializationError> {
-    let mut out = String::new();
-    {
-        let mut writer = aws_smithy_xml::encode::XmlWriter::new(&mut out);
-        #[allow(unused_mut)]
-        let mut root = writer
-            .start_el("PutBucketAccelerateConfigurationOutput")
-            .write_ns("http://s3.amazonaws.com/doc/2006-03-01/", None);
-        crate::xml_ser::serialize_structure_crate_output_put_bucket_accelerate_configuration_output(
-            output, root,
-        )?
-    }
-    Ok(out)
-}
-
-pub fn serialize_operation_crate_operation_put_bucket_acl(
-    output: &crate::output::PutBucketAclOutput,
-) -> Result<String, aws_smithy_http::operation::SerializationError> {
-    let mut out = String::new();
-    {
-        let mut writer = aws_smithy_xml::encode::XmlWriter::new(&mut out);
-        #[allow(unused_mut)]
-        let mut root = writer
-            .start_el("PutBucketAclOutput")
-            .write_ns("http://s3.amazonaws.com/doc/2006-03-01/", None);
-        crate::xml_ser::serialize_structure_crate_output_put_bucket_acl_output(output, root)?
-    }
-    Ok(out)
-}
-
-pub fn serialize_operation_crate_operation_put_bucket_analytics_configuration(
-    output: &crate::output::PutBucketAnalyticsConfigurationOutput,
-) -> Result<String, aws_smithy_http::operation::SerializationError> {
-    let mut out = String::new();
-    {
-        let mut writer = aws_smithy_xml::encode::XmlWriter::new(&mut out);
-        #[allow(unused_mut)]
-        let mut root = writer
-            .start_el("PutBucketAnalyticsConfigurationOutput")
-            .write_ns("http://s3.amazonaws.com/doc/2006-03-01/", None);
-        crate::xml_ser::serialize_structure_crate_output_put_bucket_analytics_configuration_output(
-            output, root,
-        )?
-    }
-    Ok(out)
-}
-
-pub fn serialize_operation_crate_operation_put_bucket_cors(
-    output: &crate::output::PutBucketCorsOutput,
-) -> Result<String, aws_smithy_http::operation::SerializationError> {
-    let mut out = String::new();
-    {
-        let mut writer = aws_smithy_xml::encode::XmlWriter::new(&mut out);
-        #[allow(unused_mut)]
-        let mut root = writer
-            .start_el("PutBucketCorsOutput")
-            .write_ns("http://s3.amazonaws.com/doc/2006-03-01/", None);
-        crate::xml_ser::serialize_structure_crate_output_put_bucket_cors_output(output, root)?
-    }
-    Ok(out)
-}
-
-pub fn serialize_operation_crate_operation_put_bucket_encryption(
-    output: &crate::output::PutBucketEncryptionOutput,
-) -> Result<String, aws_smithy_http::operation::SerializationError> {
-    let mut out = String::new();
-    {
-        let mut writer = aws_smithy_xml::encode::XmlWriter::new(&mut out);
-        #[allow(unused_mut)]
-        let mut root = writer
-            .start_el("PutBucketEncryptionOutput")
-            .write_ns("http://s3.amazonaws.com/doc/2006-03-01/", None);
-        crate::xml_ser::serialize_structure_crate_output_put_bucket_encryption_output(output, root)?
-    }
-    Ok(out)
-}
-
-pub fn serialize_operation_crate_operation_put_bucket_intelligent_tiering_configuration(
-    output: &crate::output::PutBucketIntelligentTieringConfigurationOutput,
-) -> Result<String, aws_smithy_http::operation::SerializationError> {
-    let mut out = String::new();
-    {
-        let mut writer = aws_smithy_xml::encode::XmlWriter::new(&mut out);
-        #[allow(unused_mut)]
-        let mut root = writer
-            .start_el("PutBucketIntelligentTieringConfigurationOutput")
-            .write_ns("http://s3.amazonaws.com/doc/2006-03-01/", None);
-        crate::xml_ser::serialize_structure_crate_output_put_bucket_intelligent_tiering_configuration_output(output, root)?
-    }
-    Ok(out)
-}
-
-pub fn serialize_operation_crate_operation_put_bucket_inventory_configuration(
-    output: &crate::output::PutBucketInventoryConfigurationOutput,
-) -> Result<String, aws_smithy_http::operation::SerializationError> {
-    let mut out = String::new();
-    {
-        let mut writer = aws_smithy_xml::encode::XmlWriter::new(&mut out);
-        #[allow(unused_mut)]
-        let mut root = writer
-            .start_el("PutBucketInventoryConfigurationOutput")
-            .write_ns("http://s3.amazonaws.com/doc/2006-03-01/", None);
-        crate::xml_ser::serialize_structure_crate_output_put_bucket_inventory_configuration_output(
-            output, root,
-        )?
-    }
-    Ok(out)
-}
-
-pub fn serialize_operation_crate_operation_put_bucket_lifecycle_configuration(
-    output: &crate::output::PutBucketLifecycleConfigurationOutput,
-) -> Result<String, aws_smithy_http::operation::SerializationError> {
-    let mut out = String::new();
-    {
-        let mut writer = aws_smithy_xml::encode::XmlWriter::new(&mut out);
-        #[allow(unused_mut)]
-        let mut root = writer
-            .start_el("PutBucketLifecycleConfigurationOutput")
-            .write_ns("http://s3.amazonaws.com/doc/2006-03-01/", None);
-        crate::xml_ser::serialize_structure_crate_output_put_bucket_lifecycle_configuration_output(
-            output, root,
-        )?
-    }
-    Ok(out)
-}
-
-pub fn serialize_operation_crate_operation_put_bucket_logging(
-    output: &crate::output::PutBucketLoggingOutput,
-) -> Result<String, aws_smithy_http::operation::SerializationError> {
-    let mut out = String::new();
-    {
-        let mut writer = aws_smithy_xml::encode::XmlWriter::new(&mut out);
-        #[allow(unused_mut)]
-        let mut root = writer
-            .start_el("PutBucketLoggingOutput")
-            .write_ns("http://s3.amazonaws.com/doc/2006-03-01/", None);
-        crate::xml_ser::serialize_structure_crate_output_put_bucket_logging_output(output, root)?
-    }
-    Ok(out)
-}
-
-pub fn serialize_operation_crate_operation_put_bucket_metrics_configuration(
-    output: &crate::output::PutBucketMetricsConfigurationOutput,
-) -> Result<String, aws_smithy_http::operation::SerializationError> {
-    let mut out = String::new();
-    {
-        let mut writer = aws_smithy_xml::encode::XmlWriter::new(&mut out);
-        #[allow(unused_mut)]
-        let mut root = writer
-            .start_el("PutBucketMetricsConfigurationOutput")
-            .write_ns("http://s3.amazonaws.com/doc/2006-03-01/", None);
-        crate::xml_ser::serialize_structure_crate_output_put_bucket_metrics_configuration_output(
-            output, root,
-        )?
-    }
-    Ok(out)
-}
-
-pub fn serialize_operation_crate_operation_put_bucket_notification_configuration(
-    output: &crate::output::PutBucketNotificationConfigurationOutput,
-) -> Result<String, aws_smithy_http::operation::SerializationError> {
-    let mut out = String::new();
-    {
-        let mut writer = aws_smithy_xml::encode::XmlWriter::new(&mut out);
-        #[allow(unused_mut)]
-        let mut root = writer
-            .start_el("PutBucketNotificationConfigurationOutput")
-            .write_ns("http://s3.amazonaws.com/doc/2006-03-01/", None);
-        crate::xml_ser::serialize_structure_crate_output_put_bucket_notification_configuration_output(output, root)?
-    }
-    Ok(out)
-}
-
-pub fn serialize_operation_crate_operation_put_bucket_ownership_controls(
-    output: &crate::output::PutBucketOwnershipControlsOutput,
-) -> Result<String, aws_smithy_http::operation::SerializationError> {
-    let mut out = String::new();
-    {
-        let mut writer = aws_smithy_xml::encode::XmlWriter::new(&mut out);
-        #[allow(unused_mut)]
-        let mut root = writer
-            .start_el("PutBucketOwnershipControlsOutput")
-            .write_ns("http://s3.amazonaws.com/doc/2006-03-01/", None);
-        crate::xml_ser::serialize_structure_crate_output_put_bucket_ownership_controls_output(
-            output, root,
-        )?
-    }
-    Ok(out)
-}
-
-pub fn serialize_operation_crate_operation_put_bucket_policy(
-    output: &crate::output::PutBucketPolicyOutput,
-) -> Result<String, aws_smithy_http::operation::SerializationError> {
-    let mut out = String::new();
-    {
-        let mut writer = aws_smithy_xml::encode::XmlWriter::new(&mut out);
-        #[allow(unused_mut)]
-        let mut root = writer
-            .start_el("PutBucketPolicyOutput")
-            .write_ns("http://s3.amazonaws.com/doc/2006-03-01/", None);
-        crate::xml_ser::serialize_structure_crate_output_put_bucket_policy_output(output, root)?
-    }
-    Ok(out)
-}
-
-pub fn serialize_operation_crate_operation_put_bucket_replication(
-    output: &crate::output::PutBucketReplicationOutput,
-) -> Result<String, aws_smithy_http::operation::SerializationError> {
-    let mut out = String::new();
-    {
-        let mut writer = aws_smithy_xml::encode::XmlWriter::new(&mut out);
-        #[allow(unused_mut)]
-        let mut root = writer
-            .start_el("PutBucketReplicationOutput")
-            .write_ns("http://s3.amazonaws.com/doc/2006-03-01/", None);
-        crate::xml_ser::serialize_structure_crate_output_put_bucket_replication_output(
-            output, root,
-        )?
-    }
-    Ok(out)
-}
-
-pub fn serialize_operation_crate_operation_put_bucket_request_payment(
-    output: &crate::output::PutBucketRequestPaymentOutput,
-) -> Result<String, aws_smithy_http::operation::SerializationError> {
-    let mut out = String::new();
-    {
-        let mut writer = aws_smithy_xml::encode::XmlWriter::new(&mut out);
-        #[allow(unused_mut)]
-        let mut root = writer
-            .start_el("PutBucketRequestPaymentOutput")
-            .write_ns("http://s3.amazonaws.com/doc/2006-03-01/", None);
-        crate::xml_ser::serialize_structure_crate_output_put_bucket_request_payment_output(
-            output, root,
-        )?
-    }
-    Ok(out)
-}
-
-pub fn serialize_operation_crate_operation_put_bucket_tagging(
-    output: &crate::output::PutBucketTaggingOutput,
-) -> Result<String, aws_smithy_http::operation::SerializationError> {
-    let mut out = String::new();
-    {
-        let mut writer = aws_smithy_xml::encode::XmlWriter::new(&mut out);
-        #[allow(unused_mut)]
-        let mut root = writer
-            .start_el("PutBucketTaggingOutput")
-            .write_ns("http://s3.amazonaws.com/doc/2006-03-01/", None);
-        crate::xml_ser::serialize_structure_crate_output_put_bucket_tagging_output(output, root)?
-    }
-    Ok(out)
-}
-
-pub fn serialize_operation_crate_operation_put_bucket_versioning(
-    output: &crate::output::PutBucketVersioningOutput,
-) -> Result<String, aws_smithy_http::operation::SerializationError> {
-    let mut out = String::new();
-    {
-        let mut writer = aws_smithy_xml::encode::XmlWriter::new(&mut out);
-        #[allow(unused_mut)]
-        let mut root = writer
-            .start_el("PutBucketVersioningOutput")
-            .write_ns("http://s3.amazonaws.com/doc/2006-03-01/", None);
-        crate::xml_ser::serialize_structure_crate_output_put_bucket_versioning_output(output, root)?
-    }
-    Ok(out)
-}
-
-pub fn serialize_operation_crate_operation_put_bucket_website(
-    output: &crate::output::PutBucketWebsiteOutput,
-) -> Result<String, aws_smithy_http::operation::SerializationError> {
-    let mut out = String::new();
-    {
-        let mut writer = aws_smithy_xml::encode::XmlWriter::new(&mut out);
-        #[allow(unused_mut)]
-        let mut root = writer
-            .start_el("PutBucketWebsiteOutput")
-            .write_ns("http://s3.amazonaws.com/doc/2006-03-01/", None);
-        crate::xml_ser::serialize_structure_crate_output_put_bucket_website_output(output, root)?
-    }
-    Ok(out)
-}
-
-pub fn serialize_operation_crate_operation_put_object(
-    output: &crate::output::PutObjectOutput,
-) -> Result<String, aws_smithy_http::operation::SerializationError> {
-    let mut out = String::new();
-    {
-        let mut writer = aws_smithy_xml::encode::XmlWriter::new(&mut out);
-        #[allow(unused_mut)]
-        let mut root = writer
-            .start_el("PutObjectOutput")
-            .write_ns("http://s3.amazonaws.com/doc/2006-03-01/", None);
-        crate::xml_ser::serialize_structure_crate_output_put_object_output(output, root)?
-    }
-    Ok(out)
-}
-
-pub fn serialize_operation_crate_operation_put_object_acl(
-    output: &crate::output::PutObjectAclOutput,
-) -> Result<String, aws_smithy_http::operation::SerializationError> {
-    let mut out = String::new();
-    {
-        let mut writer = aws_smithy_xml::encode::XmlWriter::new(&mut out);
-        #[allow(unused_mut)]
-        let mut root = writer
-            .start_el("PutObjectAclOutput")
-            .write_ns("http://s3.amazonaws.com/doc/2006-03-01/", None);
-        crate::xml_ser::serialize_structure_crate_output_put_object_acl_output(output, root)?
-    }
-    Ok(out)
-}
-
-pub fn serialize_operation_crate_operation_put_object_legal_hold(
-    output: &crate::output::PutObjectLegalHoldOutput,
-) -> Result<String, aws_smithy_http::operation::SerializationError> {
-    let mut out = String::new();
-    {
-        let mut writer = aws_smithy_xml::encode::XmlWriter::new(&mut out);
-        #[allow(unused_mut)]
-        let mut root = writer
-            .start_el("PutObjectLegalHoldOutput")
-            .write_ns("http://s3.amazonaws.com/doc/2006-03-01/", None);
-        crate::xml_ser::serialize_structure_crate_output_put_object_legal_hold_output(output, root)?
-    }
-    Ok(out)
-}
-
-pub fn serialize_operation_crate_operation_put_object_lock_configuration(
-    output: &crate::output::PutObjectLockConfigurationOutput,
-) -> Result<String, aws_smithy_http::operation::SerializationError> {
-    let mut out = String::new();
-    {
-        let mut writer = aws_smithy_xml::encode::XmlWriter::new(&mut out);
-        #[allow(unused_mut)]
-        let mut root = writer
-            .start_el("PutObjectLockConfigurationOutput")
-            .write_ns("http://s3.amazonaws.com/doc/2006-03-01/", None);
-        crate::xml_ser::serialize_structure_crate_output_put_object_lock_configuration_output(
-            output, root,
-        )?
-    }
-    Ok(out)
-}
-
-pub fn serialize_operation_crate_operation_put_object_retention(
-    output: &crate::output::PutObjectRetentionOutput,
-) -> Result<String, aws_smithy_http::operation::SerializationError> {
-    let mut out = String::new();
-    {
-        let mut writer = aws_smithy_xml::encode::XmlWriter::new(&mut out);
-        #[allow(unused_mut)]
-        let mut root = writer
-            .start_el("PutObjectRetentionOutput")
-            .write_ns("http://s3.amazonaws.com/doc/2006-03-01/", None);
-        crate::xml_ser::serialize_structure_crate_output_put_object_retention_output(output, root)?
-    }
-    Ok(out)
-}
-
-pub fn serialize_operation_crate_operation_put_object_tagging(
-    output: &crate::output::PutObjectTaggingOutput,
-) -> Result<String, aws_smithy_http::operation::SerializationError> {
-    let mut out = String::new();
-    {
-        let mut writer = aws_smithy_xml::encode::XmlWriter::new(&mut out);
-        #[allow(unused_mut)]
-        let mut root = writer
-            .start_el("PutObjectTaggingOutput")
-            .write_ns("http://s3.amazonaws.com/doc/2006-03-01/", None);
-        crate::xml_ser::serialize_structure_crate_output_put_object_tagging_output(output, root)?
-    }
-    Ok(out)
-}
-
-pub fn serialize_operation_crate_operation_put_public_access_block(
-    output: &crate::output::PutPublicAccessBlockOutput,
-) -> Result<String, aws_smithy_http::operation::SerializationError> {
-    let mut out = String::new();
-    {
-        let mut writer = aws_smithy_xml::encode::XmlWriter::new(&mut out);
-        #[allow(unused_mut)]
-        let mut root = writer
-            .start_el("PutPublicAccessBlockOutput")
-            .write_ns("http://s3.amazonaws.com/doc/2006-03-01/", None);
-        crate::xml_ser::serialize_structure_crate_output_put_public_access_block_output(
-            output, root,
-        )?
-    }
-    Ok(out)
-}
-
-pub fn serialize_operation_crate_operation_restore_object(
-    output: &crate::output::RestoreObjectOutput,
-) -> Result<String, aws_smithy_http::operation::SerializationError> {
-    let mut out = String::new();
-    {
-        let mut writer = aws_smithy_xml::encode::XmlWriter::new(&mut out);
-        #[allow(unused_mut)]
-        let mut root = writer
-            .start_el("RestoreObjectOutput")
-            .write_ns("http://s3.amazonaws.com/doc/2006-03-01/", None);
-        crate::xml_ser::serialize_structure_crate_output_restore_object_output(output, root)?
-    }
-    Ok(out)
-}
-
 pub fn serialize_structure_crate_error_object_already_in_active_tier_error(
     error: &crate::error::ObjectAlreadyInActiveTierError,
 ) -> Result<String, aws_smithy_http::operation::SerializationError> {
@@ -5593,53 +4554,6 @@ pub fn serialize_structure_crate_error_object_already_in_active_tier_error(
             .write_ns("http://s3.amazonaws.com/doc/2006-03-01/", None);
         crate::xml_ser::serialize_structure_crate_error_object_already_in_active_tier_error(
             error, root,
-        )?
-    }
-    Ok(out)
-}
-
-pub fn serialize_operation_crate_operation_upload_part(
-    output: &crate::output::UploadPartOutput,
-) -> Result<String, aws_smithy_http::operation::SerializationError> {
-    let mut out = String::new();
-    {
-        let mut writer = aws_smithy_xml::encode::XmlWriter::new(&mut out);
-        #[allow(unused_mut)]
-        let mut root = writer
-            .start_el("UploadPartOutput")
-            .write_ns("http://s3.amazonaws.com/doc/2006-03-01/", None);
-        crate::xml_ser::serialize_structure_crate_output_upload_part_output(output, root)?
-    }
-    Ok(out)
-}
-
-pub fn serialize_operation_crate_operation_upload_part_copy(
-    output: &crate::output::UploadPartCopyOutput,
-) -> Result<String, aws_smithy_http::operation::SerializationError> {
-    let mut out = String::new();
-    {
-        let mut writer = aws_smithy_xml::encode::XmlWriter::new(&mut out);
-        #[allow(unused_mut)]
-        let mut root = writer
-            .start_el("UploadPartCopyOutput")
-            .write_ns("http://s3.amazonaws.com/doc/2006-03-01/", None);
-        crate::xml_ser::serialize_structure_crate_output_upload_part_copy_output(output, root)?
-    }
-    Ok(out)
-}
-
-pub fn serialize_operation_crate_operation_write_get_object_response(
-    output: &crate::output::WriteGetObjectResponseOutput,
-) -> Result<String, aws_smithy_http::operation::SerializationError> {
-    let mut out = String::new();
-    {
-        let mut writer = aws_smithy_xml::encode::XmlWriter::new(&mut out);
-        #[allow(unused_mut)]
-        let mut root = writer
-            .start_el("WriteGetObjectResponseOutput")
-            .write_ns("http://s3.amazonaws.com/doc/2006-03-01/", None);
-        crate::xml_ser::serialize_structure_crate_output_write_get_object_response_output(
-            output, root,
         )?
     }
     Ok(out)
