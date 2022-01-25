@@ -22,7 +22,6 @@ pub type HttpResponse = hyper::Response<Body>;
 
 pub type S3InnerError = aws_smithy_types::Error;
 pub type S3InnerBuilder = aws_smithy_types::error::Builder;
-pub type S3ClientError = aws_sdk_s3::Error;
 pub type S3Result = Result<HttpResponse, S3Error>;
 
 pub fn responder() -> hyper::http::response::Builder {

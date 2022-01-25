@@ -1,6 +1,6 @@
 use crate::store;
 use aws_smithy_types::date_time::{DateTime, Format};
-use s3d_codegen::{error::*, input::*, model::*, operation_registry::*, output::*};
+use codegen_server_s3::{error::*, input::*, model::*, operation_registry::*, output::*};
 use std::{future::Future, time::SystemTime};
 
 pub type Router = aws_smithy_http_server::Router<hyper::Body>;
@@ -16,6 +16,73 @@ pub async fn serve() -> anyhow::Result<()> {
 
 pub fn build_router() -> Router {
     let ops = OperationRegistryBuilder::default()
+        .get_object(|i: GetObjectInput| async move {
+            info!("get_object: {:?}", i);
+            store::get_object(i).await
+        })
+        .put_object(|i: PutObjectInput| async move {
+            info!("put_object: {:?}", i);
+            store::put_object(i).await.unwrap()
+        })
+        .get_object_tagging(|i: GetObjectTaggingInput| async move {
+            info!("get_object_tagging: {:?}", i);
+            get_object_tagging_output::Builder::default().build()
+        })
+        .delete_object(|i: DeleteObjectInput| async move {
+            info!("delete_object: {:?}", i);
+            delete_object_output::Builder::default().build()
+        })
+        .delete_objects(|i: DeleteObjectsInput| async move {
+            info!("delete_objects: {:?}", i);
+            delete_objects_output::Builder::default().build()
+        })
+        .delete_object_tagging(|i: DeleteObjectTaggingInput| async move {
+            info!("delete_object_tagging: {:?}", i);
+            delete_object_tagging_output::Builder::default().build()
+        })
+        .head_bucket(|i: HeadBucketInput| async move {
+            info!("head_bucket: {:?}", i);
+            Ok(head_bucket_output::Builder::default().build())
+        })
+        .head_object(|i: HeadObjectInput| async move {
+            info!("head_object: {:?}", i);
+            Ok(head_object_output::Builder::default().build())
+        })
+        .list_buckets(|i: ListBucketsInput| async move {
+            info!("list_buckets: {:?}", i);
+            ListBucketsOutput::builder()
+                .buckets(
+                    Bucket::builder()
+                        .name("bucket1")
+                        .creation_date(SystemTime::now().into())
+                        .build(),
+                )
+                .build()
+        })
+        .list_objects(|i: ListObjectsInput| async move {
+            info!("list_objects: {:?}", i);
+            Ok(ListObjectsOutput::builder()
+                .contents(
+                    Object::builder()
+                        .key("object1")
+                        .size(1)
+                        .last_modified(SystemTime::now().into())
+                        .build(),
+                )
+                .build())
+        })
+        .list_objects_v2(|i: ListObjectsV2Input| async move {
+            info!("list_objects_v2: {:?}", i);
+            Ok(list_objects_v2_output::Builder::default().build())
+        })
+        .list_object_versions(|i: ListObjectVersionsInput| async move {
+            info!("list_object_versions: {:?}", i);
+            list_object_versions_output::Builder::default().build()
+        })
+        .list_parts(|i: ListPartsInput| async move {
+            info!("list_parts: {:?}", i);
+            list_parts_output::Builder::default().build()
+        })
         .abort_multipart_upload(|i: AbortMultipartUploadInput| async move {
             info!("abort_multipart_upload: {:?}", i);
             Ok(AbortMultipartUploadOutput::builder().build())
@@ -95,18 +162,6 @@ pub fn build_router() -> Router {
         .delete_bucket_website(|i: DeleteBucketWebsiteInput| async move {
             info!("delete_bucket_website: {:?}", i);
             delete_bucket_website_output::Builder::default().build()
-        })
-        .delete_object(|i: DeleteObjectInput| async move {
-            info!("delete_object: {:?}", i);
-            delete_object_output::Builder::default().build()
-        })
-        .delete_objects(|i: DeleteObjectsInput| async move {
-            info!("delete_objects: {:?}", i);
-            delete_objects_output::Builder::default().build()
-        })
-        .delete_object_tagging(|i: DeleteObjectTaggingInput| async move {
-            info!("delete_object_tagging: {:?}", i);
-            delete_object_tagging_output::Builder::default().build()
         })
         .delete_public_access_block(|i: DeletePublicAccessBlockInput| async move {
             info!("delete_public_access_block: {:?}", i);
@@ -198,10 +253,6 @@ pub fn build_router() -> Router {
             info!("get_bucket_website: {:?}", i);
             get_bucket_website_output::Builder::default().build()
         })
-        .get_object(|i: GetObjectInput| async move {
-            info!("get_object: {:?}", i);
-            store::get_object(i).await
-        })
         .get_object_acl(|i: GetObjectAclInput| async move {
             info!("get_object_acl: {:?}", i);
             Ok(get_object_acl_output::Builder::default().build())
@@ -218,10 +269,6 @@ pub fn build_router() -> Router {
             info!("get_object_retention: {:?}", i);
             get_object_retention_output::Builder::default().build()
         })
-        .get_object_tagging(|i: GetObjectTaggingInput| async move {
-            info!("get_object_tagging: {:?}", i);
-            get_object_tagging_output::Builder::default().build()
-        })
         .get_object_torrent(|i: GetObjectTorrentInput| async move {
             info!("get_object_torrent: {:?}", i);
             get_object_torrent_output::Builder::default().build()
@@ -229,14 +276,6 @@ pub fn build_router() -> Router {
         .get_public_access_block(|i: GetPublicAccessBlockInput| async move {
             info!("get_public_access_block: {:?}", i);
             get_public_access_block_output::Builder::default().build()
-        })
-        .head_bucket(|i: HeadBucketInput| async move {
-            info!("head_bucket: {:?}", i);
-            Ok(head_bucket_output::Builder::default().build())
-        })
-        .head_object(|i: HeadObjectInput| async move {
-            info!("head_object: {:?}", i);
-            Ok(head_object_output::Builder::default().build())
         })
         .list_bucket_analytics_configurations(
             |i: ListBucketAnalyticsConfigurationsInput| async move {
@@ -260,44 +299,9 @@ pub fn build_router() -> Router {
             info!("list_bucket_metrics_configurations: {:?}", i);
             list_bucket_metrics_configurations_output::Builder::default().build()
         })
-        .list_buckets(|i: ListBucketsInput| async move {
-            info!("list_buckets: {:?}", i);
-            ListBucketsOutput::builder()
-                .buckets(
-                    Bucket::builder()
-                        .name("bucket1")
-                        .creation_date(SystemTime::now().into())
-                        .build(),
-                )
-                .build()
-        })
         .list_multipart_uploads(|i: ListMultipartUploadsInput| async move {
             info!("list_multipart_uploads: {:?}", i);
             list_multipart_uploads_output::Builder::default().build()
-        })
-        .list_objects(|i: ListObjectsInput| async move {
-            info!("list_objects: {:?}", i);
-            Ok(ListObjectsOutput::builder()
-                .contents(
-                    Object::builder()
-                        .key("object1")
-                        .size(1)
-                        .last_modified(SystemTime::now().into())
-                        .build(),
-                )
-                .build())
-        })
-        .list_objects_v2(|i: ListObjectsV2Input| async move {
-            info!("list_objects_v2: {:?}", i);
-            Ok(list_objects_v2_output::Builder::default().build())
-        })
-        .list_object_versions(|i: ListObjectVersionsInput| async move {
-            info!("list_object_versions: {:?}", i);
-            list_object_versions_output::Builder::default().build()
-        })
-        .list_parts(|i: ListPartsInput| async move {
-            info!("list_parts: {:?}", i);
-            list_parts_output::Builder::default().build()
         })
         .put_bucket_accelerate_configuration(
             |i: PutBucketAccelerateConfigurationInput| async move {
@@ -376,10 +380,6 @@ pub fn build_router() -> Router {
         .put_bucket_website(|i: PutBucketWebsiteInput| async move {
             info!("put_bucket_website: {:?}", i);
             put_bucket_website_output::Builder::default().build()
-        })
-        .put_object(|i: PutObjectInput| async move {
-            info!("put_object: {:?}", i);
-            store::put_object(i).await.unwrap()
         })
         .put_object_acl(|i: PutObjectAclInput| async move {
             info!("put_object_acl: {:?}", i);

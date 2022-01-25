@@ -3,8 +3,8 @@
 if [ "env.sh" = "$(basename $0)" ]
 then
     echo "usage:"
-    echo "$ . hack/env.sh"
-    echo "$ . hack/env.sh clean"
+    echo "$ source hack/env.sh"
+    echo "$ source hack/env.sh clean"
     exit 1
 fi
 

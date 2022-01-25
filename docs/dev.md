@@ -24,10 +24,10 @@ cargo build
 ./target/debug/s3d <args>
 ```
 
-Additional developer scripts are in `hack/` dir, most useful is the env script:
+Additional developer scripts are in `hack/` dir, most useful is the env script loaded to your shell:
 
 ```bash
-. hack/env.sh
+source hack/env.sh
 ```
 
 In order to update and build the smithy-rs submodule, you need to have java and run:

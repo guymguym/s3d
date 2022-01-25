@@ -1,4 +1,4 @@
-use s3d_codegen::{error::*, input::*, output::*, ByteStream};
+use codegen_server_s3::{error::*, input::*, output::*, ByteStream};
 use std::path::Path;
 use tokio::{fs::File, io::AsyncWriteExt};
 use tokio_stream::StreamExt;

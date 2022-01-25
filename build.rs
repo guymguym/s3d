@@ -737,22 +737,22 @@ impl SmithyShape {
     }
     pub fn sdk_model_ident(&self) -> TokenStream {
         let ident = self.ident();
-        quote! { aws_sdk_s3::model::#ident }
+        quote! { codegen_client_s3::model::#ident }
     }
     pub fn sdk_input_ident(&self) -> TokenStream {
         let ident = format_ident!("{}Input", self.name);
-        quote! { aws_sdk_s3::input::#ident }
+        quote! { codegen_client_s3::input::#ident }
     }
     pub fn sdk_output_ident(&self) -> TokenStream {
         let ident = format_ident!("{}Output", self.name);
-        quote! { aws_sdk_s3::output::#ident }
+        quote! { codegen_client_s3::output::#ident }
     }
     pub fn sdk_ident(&self) -> TokenStream {
         self.sdk_model_ident()
     }
     pub fn sdk_error_ident(&self) -> TokenStream {
         let ident = format_ident!("{}Error", self.name);
-        quote! { aws_sdk_s3::error::#ident }
+        quote! { codegen_client_s3::error::#ident }
     }
     pub fn get_type(&self) -> &str {
         self.typ.as_ref()

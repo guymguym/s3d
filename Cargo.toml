@@ -66,32 +66,16 @@ envy = "0.4.2"
 #serde_json = "1.0.75"
 #quick-xml = "0.22.0" # seems to be more popular than other serde_xml* crates
 
-## AWS smithy-rs crates (git submodule)
+## smithy-rs crates (git submodule)
 
-[dependencies.aws-smithy-client]
-version = "0.35.2"
-path = "smithy-codegen-s3d/build/rust-runtime/aws-smithy-client"
-features = ["client-hyper"]
-[dependencies.aws-smithy-types]
-version = "0.35.2"
-path = "smithy-codegen-s3d/build/rust-runtime/aws-smithy-types"
-[dependencies.aws-smithy-xml]
-version = "0.35.2"
-path = "smithy-codegen-s3d/build/rust-runtime/aws-smithy-xml"
-[dependencies.aws-smithy-http]
-version = "0.35.2"
-path = "smithy-codegen-s3d/build/rust-runtime/aws-smithy-http"
-[dependencies.aws-smithy-http-server]
-version = "0.35.2"
-path = "smithy-codegen-s3d/build/rust-runtime/aws-smithy-http-server"
+aws-smithy-client = { path = "smithy-rs/rust-runtime/aws-smithy-client", features = ["client-hyper"] }
+aws-smithy-types = { path = "smithy-rs/rust-runtime/aws-smithy-types" }
+aws-smithy-xml = { path = "smithy-rs/rust-runtime/aws-smithy-xml" }
+aws-smithy-http = { path = "smithy-rs/rust-runtime/aws-smithy-http" }
+aws-smithy-http-server = { path = "smithy-rs/rust-runtime/aws-smithy-http-server" }
 
-[dependencies.aws-config]
-version = "0.5.2"
-path = "smithy-codegen-s3d/build/rust-runtime/aws-config"
-[dependencies.aws-sdk-s3]
-version = "0.5.2"
-path = "smithy-codegen-s3d/build/rust-runtime/aws-sdk-s3"
+#aws-config = { path = "smithy-rs/aws/rust-runtime/aws-config" }
+#aws-config = "0.5.2"
 
-[dependencies.s3d-codegen]
-version = "0.0.1"
-path = "smithy-codegen-s3d/s3d-codegen"
+codegen-server-s3 = { path = "codegen/codegen-server-s3" }
+codegen-client-s3 = { path = "codegen/codegen-client-s3" }

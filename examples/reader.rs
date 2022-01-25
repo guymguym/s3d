@@ -3,10 +3,11 @@
 //! running on an edge server (perhaps as a trigger to object upload)
 //! that reads data from s3d and processes it (AI/ML/etc).
 
-use aws_sdk_s3::{Credentials, Endpoint, Region};
 use clap::Parser;
+use codegen_client_s3::{Builder, Client, Config};
 use hyper::Uri;
 use std::str::FromStr;
+// use aws_sdk_s3::{Client, Credentials, Endpoint, Region};
 
 #[macro_use]
 extern crate log;
@@ -45,16 +46,32 @@ pub async fn main() -> anyhow::Result<()> {
     let bucket = cli.bucket.as_str();
     let prefix = cli.prefix.as_str();
 
-    let s3c = aws_sdk_s3::Client::from_conf({
-        let ep = Endpoint::immutable(Uri::from_str(endpoint).unwrap());
-        let creds = Credentials::new("s3d", "s3d", None, None, "s3d");
-        let region = Region::new("s3d");
-        aws_sdk_s3::Config::builder()
-            .endpoint_resolver(ep)
-            .credentials_provider(creds)
-            .region(region)
-            .build()
-    });
+    // let s3c = aws_sdk_s3::Client::from_conf({
+    //     let ep = Endpoint::immutable(Uri::from_str(endpoint).unwrap());
+    //     let creds = Credentials::new("s3d", "s3d", None, None, "s3d");
+    //     let region = Region::new("s3d");
+    //     aws_sdk_s3::Config::builder()
+    //         .endpoint_resolver(ep)
+    //         .credentials_provider(creds)
+    //         .region(region)
+    //         .build()
+    // });
+
+    let raw_client = Builder::dyn_https()
+        // .middleware(/* discussed below */)
+        // .middleware_fn(|r| r)
+        .middleware_fn(|r: aws_smithy_http::operation::Request| {
+            r.augment(|mut req, _props| {
+                // *r.uri_mut() = format!("{}/".path_and_query().unwrap().;
+                // r.headers_mut()
+                // .insert("x-amz-content-sha256", "UNSIGNED-PAYLOAD".parse().unwrap());
+                anyhow::Ok(req)
+            })
+            .unwrap()
+        })
+        .build();
+    let config = Config::builder().build();
+    let s3c = Client::with_config(raw_client, config);
 
     let _r = s3c.head_bucket().bucket(bucket).send().await?;
     info!("head_bucket: OK bucket {} exists", bucket);
