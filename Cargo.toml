@@ -1,11 +1,12 @@
 ## https://doc.rust-lang.org/cargo/reference/manifest.html
 
 [package]
+
 name = "s3d"
 version = "0.0.1-alpha.5"
 authors = ["guymguym"]
 edition = "2021"
-description = "s3d is a daemon for efficient data access to remote S3 API storage. The promise of s3d is simple - Applications that deploy remotely from their main S3 storage, can run it as their S3 gateway to optimize data availability, performance, and costs."
+description = "s3d is a daemon for data access using S3 API. A modern cousin of nfsd, ftpd, httpd, etc. It is designed to be simple, tiny, blazing fast, and portable in order to fit in a variety of environments from developer machines, containers, kubernetes, edge devices, etc."
 homepage = "https://s3d.rs"
 repository = "https://github.com/s3d-rs/s3d"
 license = "Apache-2.0"
@@ -13,6 +14,7 @@ keywords = ["s3", "edge", "object", "storage", "bucket"]
 categories = ["database-implementations", "filesystem", "web-programming::http-server"]
 
 [badges]
+
 maintenance = { status = "experimental" }
 
 [profile.dev]
@@ -22,10 +24,11 @@ maintenance = { status = "experimental" }
 panic = 'abort'
 
 [build-dependencies]
-quote = "1.0.14"
+
+quote = "1.0.15"
 proc-macro2 = "1.0.36"
-serde = { version = "1.0.133", features = ["derive"] }
-serde_json = "1.0.75"
+serde = { version = "1.0.135", features = ["derive"] }
+serde_json = "1.0.78"
 
 [dependencies]
 
@@ -36,15 +39,15 @@ tower = { version = "0.4.11", features = ["full"] }
 tokio = { version = "1.15.0", features = ["full"] }
 tokio-stream = "0.1.8"
 #fuser = "0.10.0"
-libc = "0.2.112"
+libc = "0.2.114"
 log = "0.4.14"
 env_logger = "0.9.0"
 
 ## Rust related crates
 
 paste = "1.0.6"
-quote = "1.0.14"
-anyhow = "1.0.52"
+quote = "1.0.15"
+anyhow = "1.0.53"
 async-trait = "0.1.52"
 proc-macro2 = "1.0.36"
 
@@ -56,14 +59,14 @@ chrono = "0.4.19"
 url = "2.2.2"
 urlencoding = "2.1.0"
 uuid = { version = "0.8.2", features = ["v4"] }
-clap = { version = "3.0.7", features = ["derive"] }
+clap = { version = "3.0.12", features = ["derive"] }
 
 ## Encoding/decoding crates
 
-serde = { version = "1.0.133", features = ["derive"] }
+serde = { version = "1.0.135", features = ["derive"] }
 serde_yaml = "0.8.23"
 envy = "0.4.2"
-#serde_json = "1.0.75"
+#serde_json = "1.0.78"
 #quick-xml = "0.22.0" # seems to be more popular than other serde_xml* crates
 
 ## smithy-rs crates (git submodule)

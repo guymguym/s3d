@@ -28,11 +28,9 @@ use crate::cli::CLI;
 pub async fn main() -> anyhow::Result<()> {
     match CLI::run().await {
         Ok(_) => {
-            info!("Done.");
             Ok(())
         }
-        Err(err) => {
-            error!("{}", err);
+        Err(_err) => {
             std::process::exit(1);
         }
     }

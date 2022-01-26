@@ -1,6 +1,6 @@
 #!/bin/bash
 
-# s3d shoule be running on localhost:33333 and then run this script.
+# s3d should be running on localhost:33333 and then run this script.
 
 export S3D_ENDPOINT='http://localhost:33333'
 

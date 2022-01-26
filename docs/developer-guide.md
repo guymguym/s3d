@@ -30,7 +30,7 @@ Additional developer scripts are in `hack/` dir, most useful is the env script l
 source hack/env.sh
 ```
 
-In order to update and build the smithy-rs submodule, you need to have java and run:
+In order to update and build the smithy-rs submodule, you need to have `java` and run:
 
 ```bash
 hack/smithy-update.sh # updates the smithy-rs submodule HEAD

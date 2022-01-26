@@ -1,8 +1,8 @@
 ---
-title: Configuration Guide
+title: User Guide
 ---
 
-# Configuration Guide 
+# User Guide 
 
 To run the daemon in foreground:
 

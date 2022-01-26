@@ -33,7 +33,7 @@
 
 `s3d` is a daemon for data access using S3 API. A modern cousin of `nfsd`, `ftpd`, `httpd`, etc. It is designed to be simple, tiny, blazing fast, and portable in order to fit in a variety of environments from developer machines, containers, kubernetes, edge devices, etc.
 
-By default, `s3d` serves the S3 API as a gateway to a main remote S3 storage (AWS/compatible), with unmatched protocol compatiblity (based on the AWS SDK and Smithy API), and adds the missing features such as (queueing, caching, synching) in order to optimizing performance, increase data availability, and service continuity for its clients.
+By default, `s3d` serves the S3 API as a gateway to a main remote S3 storage (AWS/compatible), with ultimate protocol compatiblity (based on the AWS SDK and Smithy API), it adds critical features needed by remote clients such as queueing, caching, and synching, in order to optimize performance, increase data availability, and service continuity for its clients.
 
 The need for a daemon running locally with client applications emerges in Edge computing use cases, where data is stored and processed locally at the edge as it gets collected, while some of the data gets synced to and from a main data storage (read more on [Wikipedia - Edge computing](https://en.wikipedia.org/wiki/Edge_computing)):
 
@@ -73,28 +73,27 @@ The [rust tools](https://www.rust-lang.org/tools/install) are required for insta
 
 ```bash
 cargo install s3d # install latest from crates.io
-s3d run # runs daemon in foreground ...
-s3d status # sanity
-s3d speedtest # optional
-s3d ls # list all buckets
-s3d ls bucket # list objects in bucket
-s3d put bucket/key --tag s3d.upload=false < file  # upload and keep local only
-s3d tag bucket/key s3d.upload=true s3d.cache=pin # upload and pin to cache
-s3d get bucket/key > file # download
-s3d help
+s3d run           # runs daemon in foreground ...
+s3d status        # check the daemon status
+s3d ls bucket/prefix      # list buckets or objects
+s3d get bucket/key > file # get object data to stdout (meta-data to stderr)
+s3d put bucket/key < file # put object data from stdin
+s3d set bucket/key --tag s3d.upload=true --tag s3d.cache=pin # set tags for object
+s3d status bucket/key     # get object status
+s3d help          # for more information
 ```
+
+# Usage
+
+- [User guide](docs/user-guide.md) - help on features, configurations and environment variables.
+
+# Development
+
+- [Developer guide](docs/developer-guide.md) - describes how source control, building and testing works.
 
 # Architecture
 
 - [Architecture page](docs/architecture.md) - describes key components and concepts.
-
-# Configurations
-
-- [Configuration guide](docs/config.md) - help on features, configurations and environment variables.
-
-# Development
-
-- [Developer guide](docs/dev.md) - describes how source control, building and testing works.
 
 # Roadmap
 
