@@ -75,7 +75,14 @@ aws-smithy-client = { path = "smithy-rs/rust-runtime/aws-smithy-client", feature
 aws-smithy-types = { path = "smithy-rs/rust-runtime/aws-smithy-types" }
 aws-smithy-xml = { path = "smithy-rs/rust-runtime/aws-smithy-xml" }
 aws-smithy-http = { path = "smithy-rs/rust-runtime/aws-smithy-http" }
+aws-smithy-http-tower = { path = "smithy-rs/rust-runtime/aws-smithy-http-tower" }
 aws-smithy-http-server = { path = "smithy-rs/rust-runtime/aws-smithy-http-server" }
+
+aws-http = { path = "smithy-rs/aws/rust-runtime/aws-http" }
+aws-types = { path = "smithy-rs/aws/rust-runtime/aws-types" }
+aws-sigv4 = { path = "smithy-rs/aws/rust-runtime/aws-sigv4" }
+aws-sig-auth = { path = "smithy-rs/aws/rust-runtime/aws-sig-auth" }
+aws-endpoint = { path = "smithy-rs/aws/rust-runtime/aws-endpoint" }
 
 #aws-config = { path = "smithy-rs/aws/rust-runtime/aws-config" }
 #aws-config = "0.5.2"

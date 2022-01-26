@@ -3,6 +3,9 @@ use anyhow::Context;
 use clap;
 use clap::Parser;
 use std::fmt::Debug;
+use std::io::Write;
+use tokio_stream::StreamExt;
+use tokio::{fs::File, io::AsyncWriteExt};
 
 /// s3d is an S3 daemon for the Edge written in Rust (https://s3d.rs)
 #[derive(Parser, Debug, Clone)]
@@ -32,7 +35,7 @@ enum Cmd {
     List(ListCmd),
     Get(GetCmd),
     Put(PutCmd),
-    Tag(TagCmd),
+    Set(SetCmd),
 }
 
 /// Run the daemon
@@ -41,48 +44,44 @@ struct RunCmd {}
 
 /// Status of the daemon and the data
 #[derive(Parser, Debug, Clone)]
-struct StatusCmd {}
+struct StatusCmd {
+    /// When empty checks the daemon staatus.
+    /// Otherwise checks a bucket or object status (`bucket` or `bucket/key`)
+    bucket_and_key: Option<String>,
+}
 
 /// List buckets or objects
 #[derive(Parser, Debug, Clone)]
 #[clap(aliases = &["ls"])]
 struct ListCmd {
-    /// List objects in a bucket, otherwise list all buckets
-    bucket: Option<String>,
-    /// List objects with key prefix
-    prefix: Option<String>,
+    /// When empty list all buckets.
+    /// Otherwise list objects in bucket with optional key prefix (`bucket` or `bucket/prefix`)
+    bucket_and_prefix: Option<String>,
 }
 
-/// Get object to stdout
+/// Get object data to stdout, and meta-data and tags to stderr
 #[derive(Parser, Debug, Clone)]
 struct GetCmd {
-    /// Get object from bucket
-    bucket: String,
-    /// Get object with key
-    key: String,
+    /// Get object from `bucket/key`
+    bucket_and_key: String,
 }
 
 /// Put object from stdin
 #[derive(Parser, Debug, Clone)]
 struct PutCmd {
-    /// Put object in bucket
-    bucket: String,
-    /// Put object with key
-    key: String,
+    /// Put object in `bucket/key`
+    bucket_and_key: String,
 }
 
-/// Tag bucket/object
+/// Set tags for bucket or object
 #[derive(Parser, Debug, Clone)]
-struct TagCmd {
-    /// Tag object in bucket
-    bucket: String,
-    /// Tag object with key
-    key: String,
-    /// Tag name
-    tag: String,
-    /// Tag value
-    val: String,
-    /// Reset existing tags
+struct SetCmd {
+    /// Set tags for `bucket` or `bucket/key`
+    bucket_and_key: String,
+    /// Tag `name=value`. Can be used multiple times.
+    #[clap(long, short, multiple_occurrences(true))]
+    tag: Vec<String>,
+    /// Reset previous tags instead of appending
     #[clap(long, short)]
     reset: bool,
 }
@@ -107,7 +106,7 @@ impl CLI {
             Cmd::List(cmd) => cmd.run(conf).await,
             Cmd::Get(cmd) => cmd.run(conf).await,
             Cmd::Put(cmd) => cmd.run(conf).await,
-            Cmd::Tag(cmd) => cmd.run(conf).await,
+            Cmd::Set(cmd) => cmd.run(conf).await,
             // Cmd::Init(cmd) => cmd.run(conf).await,
             // Cmd::Fetch(cmd) => cmd.run(conf).await,
             // Cmd::Pull(cmd) => cmd.run(conf).await,
@@ -144,12 +143,23 @@ impl StatusCmd {
 impl ListCmd {
     async fn run(&self, _conf: Conf) -> anyhow::Result<()> {
         debug!("{:?}", self);
+        let s3 = crate::client::new_s3d_client();
+        let res = s3.list_buckets().send().await?;
+        info!("{:?}", res);
         Ok(())
     }
 }
 impl GetCmd {
     async fn run(&self, _conf: Conf) -> anyhow::Result<()> {
         debug!("{:?}", self);
+        let (bucket, key) = parse_bucket_and_key(&self.bucket_and_key)?;
+        let s3 = crate::client::new_s3d_client();
+        let mut res = s3.get_object().bucket(bucket).key(key).send().await?;
+        info!("{:?}", res);
+        let mut out = tokio::io::stdout();
+        while let Some(buf) = res.body.next().await {
+            out.write_all_buf(&mut buf?).await?;
+        }
         Ok(())
     }
 }
@@ -159,11 +169,19 @@ impl PutCmd {
         Ok(())
     }
 }
-impl TagCmd {
+impl SetCmd {
     async fn run(&self, _conf: Conf) -> anyhow::Result<()> {
         debug!("{:?}", self);
         Ok(())
     }
+}
+
+
+pub fn parse_bucket_and_key(s: &str) -> anyhow::Result<(String, String)> {
+    let mut parts = s.splitn(2, '/');
+    let bucket = parts.next().ok_or_else(|| anyhow::anyhow!("Missing bucket"))?;
+    let key = parts.next().ok_or_else(|| anyhow::anyhow!("Missing key"))?;
+    Ok((String::from(bucket), String::from(key)))
 }
 
 // enum Cmd {

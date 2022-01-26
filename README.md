@@ -75,11 +75,11 @@ The [rust tools](https://www.rust-lang.org/tools/install) are required for insta
 cargo install s3d # install latest from crates.io
 s3d run           # runs daemon in foreground ...
 s3d status        # check the daemon status
+s3d status bucket/key     # check bucket or object status
 s3d ls bucket/prefix      # list buckets or objects
 s3d get bucket/key > file # get object data to stdout (meta-data to stderr)
 s3d put bucket/key < file # put object data from stdin
 s3d set bucket/key --tag s3d.upload=true --tag s3d.cache=pin # set tags for object
-s3d status bucket/key     # get object status
 s3d help          # for more information
 ```
 

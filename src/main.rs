@@ -3,6 +3,7 @@
 //! - https://github.com/s3d-rs/s3d
 
 pub mod cli;
+pub mod client;
 pub mod conf;
 pub mod daemon;
 pub mod gen;
@@ -27,10 +28,9 @@ use crate::cli::CLI;
 #[tokio::main]
 pub async fn main() -> anyhow::Result<()> {
     match CLI::run().await {
-        Ok(_) => {
-            Ok(())
-        }
-        Err(_err) => {
+        Ok(_) => Ok(()),
+        Err(err) => {
+            error!("{}", err);
             std::process::exit(1);
         }
     }
