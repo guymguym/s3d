@@ -21,9 +21,9 @@ impl Daemon {
         log::debug!("{:?}", self);
         #[cfg(feature = "fuse")]
         {
-            s3d::fuse::Fuse::start_fuse_mount().await?;
+            s3d::daemon::fuse::Fuse::start_fuse_mount().await?;
         }
-        s3d::s3::server::serve().await?;
+        s3d::daemon::server::serve().await?;
         Ok(())
     }
 }

@@ -1,9 +1,6 @@
 name: RELEASE
 
-on:
-  push:
-    tags:
-      - "*"
+on: release
 
 env:
   CARGO_TERM_COLOR: always
@@ -32,9 +29,20 @@ jobs:
         uses: Swatinem/rust-cache@v1
       - name: Make Build Release
         run: make build RELEASE=1
+
+
+      - name: Upload Binaries
+        uses: svenstaro/upload-release-action@v2
+        with:
+          repo_token: ${{ secrets.GITHUB_TOKEN }}
+          tag: ${{ github.ref }}
+          file: target/release/s3
+          asset_name: s3-linux
+          prerelease: true
+          overwrite: true
       - uses: "marvinpinto/action-automatic-releases@latest"
         with:
           repo_token: "${{ secrets.GITHUB_TOKEN }}"
           files: |
-            target/debug/s3
-            target/debug/s3d
+            target/release/s3
+            target/release/s3d

@@ -1,6 +1,6 @@
 use crate::config;
 use crate::utils::{staticify, to_internal_err};
-use crate::write_queue::WriteQueue;
+use crate::daemon::write_queue::WriteQueue;
 use s3d_smithy_codegen_server_s3::{input::*, operation_registry::*};
 
 pub type Router = aws_smithy_http_server::Router<hyper::Body>;
@@ -26,9 +26,7 @@ pub async fn serve() -> anyhow::Result<()> {
     let addr = std::net::SocketAddr::from(([127, 0, 0, 1], 33333));
     let router = build_router(sm_client, s3_client, write_queue);
     let server = hyper::Server::bind(&addr).serve(router.into_make_service());
-    info!("###################################");
     info!("Listening on http://{}", addr);
-    info!("###################################");
     server.await?;
     Ok(())
 }

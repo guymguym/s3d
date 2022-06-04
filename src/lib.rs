@@ -8,12 +8,8 @@
 pub mod cli;
 pub mod codegen_include;
 pub mod config;
-pub mod s3;
+pub mod daemon;
 pub mod utils;
-pub mod write_queue;
-
-#[cfg(feature = "fuse")]
-pub mod fuse;
 
 #[macro_use]
 extern crate log;
