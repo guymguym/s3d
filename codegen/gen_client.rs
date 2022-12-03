@@ -4,17 +4,17 @@ use proc_macro2::TokenStream;
 use quote::{format_ident, quote};
 use std::path::Path;
 
-/// ConvertersGenerator generates functions to convert input and output structs
+/// GenClient generates functions to convert input and output structs
 /// between smithy client and server because they are not the same.
 /// See https://github.com/awslabs/smithy-rs/issues/1099
-pub struct GenConverters<'a> {
+pub struct GenClient<'a> {
     pub model: &'a SmithyModel,
     pub writer: CodeWriter,
     pub client_crate: String,
     pub server_crate: String,
 }
 
-impl<'a> GenConverters<'a> {
+impl<'a> GenClient<'a> {
     pub fn new(model: &'a SmithyModel, out_path: &Path) -> Self {
         Self {
             model,
@@ -27,6 +27,9 @@ impl<'a> GenConverters<'a> {
     pub fn generate(mut self) {
         let client_crate = format_ident!("{}", self.client_crate);
         let server_crate = format_ident!("{}", self.server_crate);
+        self.writer.write_code(quote! {
+            use std::str::FromStr;
+        });
 
         for op in self.model.iter_ops() {
             {
@@ -215,7 +218,10 @@ impl<'a> GenConverters<'a> {
                         }
                         let convert = if s.typ.is_always_required() {
                             let c = self.gen_conv_from_client(m, quote! { v. #m_ident });
-                            quote! { Some(#c)}
+                            quote! { Some(#c) }
+                        // } else if s.has_trait(SM_ENUM) {
+                        //     let c = self.gen_conv_from_client(m, quote! { v });
+                        //     quote! { #c }
                         } else {
                             let c = self.gen_conv_from_client(m, quote! { v });
                             quote! { v. #m_ident .map(|v| #c) }
@@ -277,7 +283,7 @@ impl<'a> GenConverters<'a> {
 
             SmithyType::String => {
                 if shape.has_trait(SM_ENUM) {
-                    quote! { #server_crate::#pkg_name::#type_name::from(#from .as_str()) }
+                    quote! { #server_crate::#pkg_name::#type_name::from_str(#from .as_str()).expect("todo guy") }
                 } else {
                     quote! { #from .to_owned() }
                 }

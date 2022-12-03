@@ -3,15 +3,15 @@ use aws_smithy_types::date_time::Format;
 
 /// List buckets or objects
 #[derive(clap::Parser, Debug, Clone)]
-#[clap(aliases = &["ls"])]
-pub struct ListCmd {
+#[clap(aliases = &["list"])]
+pub struct LsCmd {
     /// When empty list all buckets.
     /// Otherwise list objects in bucket with optional key prefix (`bucket` or `bucket/prefix`)
     #[clap(name = "bucket[/prefix]", default_value = "")]
     bucket_and_prefix: String,
 }
 
-impl ListCmd {
+impl LsCmd {
     pub async fn run(&self) -> anyhow::Result<()> {
         let s3 = new_s3_client().await;
         let (bucket, prefix) = parse_bucket_and_prefix(&self.bucket_and_prefix)?;
@@ -27,7 +27,7 @@ impl ListCmd {
             }
         } else {
             let res = s3
-                .list_objects()
+                .list_objects_v2()
                 .bucket(bucket)
                 .prefix(prefix)
                 .delimiter("/")

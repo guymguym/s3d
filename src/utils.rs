@@ -1,6 +1,6 @@
 use crate::config;
 use aws_smithy_http::byte_stream::ByteStream;
-use s3d_smithy_codegen_server_s3::error::InternalServerError;
+// use s3d_smithy_codegen_server_s3::error::InternalServerError;
 use serde::Deserialize;
 use std::os::unix::io::FromRawFd;
 use std::path::Path;
@@ -8,6 +8,10 @@ use std::str::FromStr;
 use tokio::fs::{read_to_string, File};
 use tokio::io::AsyncWriteExt;
 use tokio_stream::StreamExt;
+
+struct InternalServerError {
+    message: String,
+}
 
 /// staticify uses Box::leak to make a struct with static lifetime.
 /// This is useful for async flows that require structs to live throughout the flow,

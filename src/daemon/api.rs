@@ -36,8 +36,8 @@ macro_rules! s3_op_impl {
             {
                 Box::pin(async move {
                     info!("{}: {:?}", stringify!([<$op:snake>]), i);
-                    let to_client = crate::codegen_include::[<conv_to_client_ $op:snake _input>];
-                    let from_client = crate::codegen_include::[<conv_from_client_ $op:snake _output>];
+                    let to_client = crate::codegen::s3_conv::[<conv_to_client_ $op:snake _input>];
+                    let from_client = crate::codegen::s3_conv::[<conv_from_client_ $op:snake _output>];
                     let r = self.sm_client
                         .call(to_client(i).make_operation(self.s3_client.conf()).await.unwrap())
                         .await

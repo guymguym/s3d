@@ -3,13 +3,13 @@ use crate::codegen::smithy_model::*;
 use quote::{format_ident, quote};
 use std::{collections::HashSet, path::Path};
 
-/// GenCommands generates clap commands for every operation.
-pub struct GenCommands<'a> {
+/// GenCLI generates clap commands for every operation.
+pub struct GenCLI<'a> {
     pub model: &'a SmithyModel,
     pub writer: CodeWriter,
 }
 
-impl<'a> GenCommands<'a> {
+impl<'a> GenCLI<'a> {
     pub fn new(model: &'a SmithyModel, out_path: &Path) -> Self {
         Self {
             model,
@@ -75,6 +75,7 @@ impl<'a> GenCommands<'a> {
                     SmithyType::Timestamp => quote! { String },
                     SmithyType::Blob => quote! { Vec<u8> },
                     SmithyType::Map => quote! { String },
+                    SmithyType::List => quote! { String },
                     SmithyType::Structure => {
                         let struct_name = format_ident!("{}Args", shape.name);
                         if !structs_set.contains(&shape.name) {
@@ -190,49 +191,3 @@ impl<'a> GenCommands<'a> {
         self.writer.done();
     }
 }
-
-/*
-/// Generate the basic enum of operation kinds + macros to quickly generate code for each operation.
-/// The enum is flat - meaning it defines no attached state to any of the operations.
-/// It might be interesting to consider a more complex enum if needed by the daemon,
-/// or perhaps that would instead go to it's own enum, with auto-generated-mapping to this one.
-fn gen_ops_enum(&mut self) {
-    let ops_names: Vec<_> = self.model.iter_ops().map(|op| op.ident()).collect();
-
-    self.writer.write_code(quote! {
-
-        #[derive(Debug, PartialEq, Eq, Clone, Copy)]
-        pub enum S3Ops {
-            #(#ops_names),*
-        }
-
-        /// This macro calls a provided $macro for each S3 operation to generate code per op.
-        macro_rules! generate_ops_code {
-            ($macro:ident) => {
-                #( $macro!(#ops_names); )*
-            }
-        }
-
-        /// This macro calls a provided $macro for each S3 operation to generate item per op.
-        macro_rules! generate_ops_items {
-            ($macro:ident) => {
-                #( $macro!(#ops_names), )*
-            }
-        }
-
-        /// This macro matches a variable of S3Ops type and expands the provided $macro
-        /// for each S3 operation to generate code handler per op.
-        macro_rules! generate_ops_match {
-            ($macro:ident, $op:expr) => {
-                match ($op) {
-                    #( S3Ops::#ops_names => $macro!(#ops_names), )*
-                }
-            }
-        }
-
-        pub(crate) use generate_ops_code;
-        pub(crate) use generate_ops_items;
-        pub(crate) use generate_ops_match;
-    });
-}
-*/

@@ -62,7 +62,7 @@ impl SmithyModel {
     }
     pub fn iter_ops<'a>(&'a self) -> impl Iterator<Item = &'a SmithyShape> + 'a {
         self.iter_shapes_by_type(SmithyType::Operation)
-            .filter(|op| op.name != "SelectObjectContent")
+            .filter(|op| op.name != "SelectObjectContent" && op.name != "WriteGetObject")
     }
 }
 
@@ -285,7 +285,10 @@ pub fn snake(s: &str) -> String {
     let mut out = String::new();
     let mut upper_streak = 0;
     for mut c in s.chars() {
-        if c.is_uppercase() || c.is_numeric() {
+        if c.is_numeric() {
+            out.push(c);
+            upper_streak = 0;
+        } else if c.is_uppercase() {
             if upper_streak == 0 && out.len() > 0 && out.chars().last().unwrap() != '_' {
                 out.push('_');
             }
@@ -490,3 +493,11 @@ const _SM_LENGTH: &str = "smithy.api#length";
 const _SM_HOST_LABEL: &str = "smithy.api#hostLabel";
 const _SM_ENDPOINT: &str = "smithy.api#endpoint";
 const _SM_AUTH: &str = "smithy.api#auth";
+
+#[cfg(test)]
+mod tests {
+    #[test]
+    fn snake_works_for_ChecksumCRC32C() {
+        assert_eq!(snake("ChecksumCRC32C"), "checksum_crc32_c");
+    }
+}

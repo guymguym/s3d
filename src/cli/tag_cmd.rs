@@ -1,6 +1,7 @@
 use crate::utils::{new_s3_client, parse_bucket_and_key};
 
 /// Get or set tags for bucket or object
+/// Usage: tag bucket/key key1=value1 key2=value2
 #[derive(clap::Parser, Debug, Clone)]
 pub struct TagCmd {
     /// Set tags for `bucket` or `bucket/key`
@@ -8,12 +9,11 @@ pub struct TagCmd {
     bucket_and_key: String,
 
     /// Tag `name=value`. Can be used multiple times.
-    #[clap(long, short, multiple_occurrences(true))]
-    tag: Option<Vec<String>>,
-
-    /// Reset previous tags instead of appending
     #[clap(long, short)]
-    reset: bool,
+    tag: Option<Vec<String>>,
+    // /// Reset previous tags instead of appending
+    // #[clap(long, short)]
+    // reset: bool,
 }
 
 impl TagCmd {

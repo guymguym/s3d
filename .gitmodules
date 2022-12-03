@@ -1,3 +1,5 @@
+# notice that we point the submodule to the s3d-rs org fork of smithy-rs,
+# this is the actual upstream we use for this dependency.
 [submodule "smithy-rs"]
-	path = smithy-rs
 	url = https://github.com/s3d-rs/smithy-rs.git
+	path = smithy-rs

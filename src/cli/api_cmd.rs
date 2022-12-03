@@ -1,5 +1,5 @@
 // S3OpsCommands is generated into build_gen and contain a subcommand per operation in the model.
-use crate::codegen_include::S3OpsCommands;
+use crate::codegen::s3_cli::S3OpsCommands;
 use crate::utils::{new_s3_client, staticify};
 
 /// Call S3 API operations
