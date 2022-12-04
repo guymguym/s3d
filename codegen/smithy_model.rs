@@ -465,7 +465,7 @@ const _SM_PREFIX: &str = "smithy.api#";
 pub const SM_ENUM: &str = "smithy.api#enum";
 pub const SM_REQUIRED: &str = "smithy.api#required";
 const SM_DOC: &str = "smithy.api#documentation";
-const _SM_ERROR: &str = "smithy.api#error";
+pub const SM_ERROR: &str = "smithy.api#error";
 const _SM_HTTP: &str = "smithy.api#http";
 #[allow(unused)]
 const SM_HTTP_LABEL: &str = "smithy.api#httpLabel";
@@ -484,7 +484,7 @@ const _SM_XML_FLATTENED: &str = "smithy.api#xmlFlattened";
 const _SM_SENSITIVE: &str = "smithy.api#sensitive";
 const _SM_TIMESTAMP_FORMAT: &str = "smithy.api#timestampFormat";
 const _SM_EVENT_PAYLOAD: &str = "smithy.api#eventPayload";
-const _SM_STREAMING: &str = "smithy.api#streaming";
+pub const SM_STREAMING: &str = "smithy.api#streaming";
 const _SM_PAGINATED: &str = "smithy.api#paginated";
 const _SM_DEPRECATED: &str = "smithy.api#deprecated";
 const _SM_TITLE: &str = "smithy.api#title";

@@ -31,6 +31,8 @@ impl<'a> GenClient<'a> {
             use std::str::FromStr;
         });
 
+        if 1 + 1 == 2 { return };
+
         for op in self.model.iter_ops() {
             {
                 let input_id = format_ident!("{}Input", op.name);

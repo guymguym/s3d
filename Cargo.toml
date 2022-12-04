@@ -98,34 +98,32 @@ aws-smithy-http-tower = "0.51.0"
 aws-smithy-types = "0.51.0"
 aws-smithy-xml = "0.51.0"
 aws-types = "0.51.0"
+aws-sdk-s3 = "0.21.0"
 
-## generated sdk client and server
-
-# aws-sdk-s3 = "0.21.0"
-aws-sdk-s3 = "0.0.0-local"
+# aws-sdk-s3 = "0.0.0-local"
 # s3d-smithy-codegen-server-s3 = "0.0.1"
 
 ## patching to use local overides of the smithy-rs crates
 ## can also be added in another file `.cargo/config.toml`
 ## see https://doc.rust-lang.org/cargo/reference/overriding-dependencies.html
 
-[patch.crates-io]
-aws-config = { path = "smithy-rs/s3d/build/crates/aws-config" }
-aws-endpoint = { path = "smithy-rs/s3d/build/crates/aws-endpoint" }
-aws-http = { path = "smithy-rs/s3d/build/crates/aws-http" }
-aws-sig-auth = { path = "smithy-rs/s3d/build/crates/aws-sig-auth" }
-aws-sigv4 = { path = "smithy-rs/s3d/build/crates/aws-sigv4" }
-aws-smithy-async = { path = "smithy-rs/s3d/build/crates/aws-smithy-async", features = ["rt-tokio"] }
-aws-smithy-checksums = { path = "smithy-rs/s3d/build/crates/aws-smithy-checksums" }
-aws-smithy-client = { path = "smithy-rs/s3d/build/crates/aws-smithy-client", features = ["client-hyper"] }
-aws-smithy-eventstream = { path = "smithy-rs/s3d/build/crates/aws-smithy-eventstream" }
-aws-smithy-http = { path = "smithy-rs/s3d/build/crates/aws-smithy-http" }
-aws-smithy-http-server = { path = "smithy-rs/s3d/build/crates/aws-smithy-http-server", version = "0.51.0" }
-aws-smithy-http-tower = { path = "smithy-rs/s3d/build/crates/aws-smithy-http-tower" }
-aws-smithy-json = { path = "smithy-rs/s3d/build/crates/aws-smithy-json" }
-aws-smithy-types = { path = "smithy-rs/s3d/build/crates/aws-smithy-types" }
-aws-smithy-types-convert = { path = "smithy-rs/s3d/build/crates/aws-smithy-types-convert" }
-aws-smithy-xml = { path = "smithy-rs/s3d/build/crates/aws-smithy-xml" }
-aws-types = { path = "smithy-rs/s3d/build/crates/aws-types" }
-aws-sdk-s3 = { path = "smithy-rs/s3d/build/crates/s3", version = "0.0.0-local" }
-s3d-smithy-codegen-server-s3 = { path = "smithy-rs/s3d/build/crates/s3d-smithy-codegen-server-s3", version = "0.0.1" }
+# [patch.crates-io]
+# aws-config = { path = "smithy-rs/s3d/build/crates/aws-config" }
+# aws-endpoint = { path = "smithy-rs/s3d/build/crates/aws-endpoint" }
+# aws-http = { path = "smithy-rs/s3d/build/crates/aws-http" }
+# aws-sig-auth = { path = "smithy-rs/s3d/build/crates/aws-sig-auth" }
+# aws-sigv4 = { path = "smithy-rs/s3d/build/crates/aws-sigv4" }
+# aws-smithy-async = { path = "smithy-rs/s3d/build/crates/aws-smithy-async", features = ["rt-tokio"] }
+# aws-smithy-checksums = { path = "smithy-rs/s3d/build/crates/aws-smithy-checksums" }
+# aws-smithy-client = { path = "smithy-rs/s3d/build/crates/aws-smithy-client", features = ["client-hyper"] }
+# aws-smithy-eventstream = { path = "smithy-rs/s3d/build/crates/aws-smithy-eventstream" }
+# aws-smithy-http = { path = "smithy-rs/s3d/build/crates/aws-smithy-http" }
+# aws-smithy-http-server = { path = "smithy-rs/s3d/build/crates/aws-smithy-http-server", version = "0.51.0" }
+# aws-smithy-http-tower = { path = "smithy-rs/s3d/build/crates/aws-smithy-http-tower" }
+# aws-smithy-json = { path = "smithy-rs/s3d/build/crates/aws-smithy-json" }
+# aws-smithy-types = { path = "smithy-rs/s3d/build/crates/aws-smithy-types" }
+# aws-smithy-types-convert = { path = "smithy-rs/s3d/build/crates/aws-smithy-types-convert" }
+# aws-smithy-xml = { path = "smithy-rs/s3d/build/crates/aws-smithy-xml" }
+# aws-types = { path = "smithy-rs/s3d/build/crates/aws-types" }
+# aws-sdk-s3 = { path = "smithy-rs/s3d/build/crates/s3", version = "0.0.0-local" }
+# s3d-smithy-codegen-server-s3 = { path = "smithy-rs/s3d/build/crates/s3d-smithy-codegen-server-s3", version = "0.0.1" }
