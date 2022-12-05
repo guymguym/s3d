@@ -2,7 +2,7 @@ use crate::codegen::smithy_model::*;
 use crate::codegen::utils::CodeWriter;
 use proc_macro2::TokenStream;
 use quote::{format_ident, quote, ToTokens};
-use std::{path::Path, str::FromStr};
+use std::path::Path;
 
 pub struct GenTypes<'a> {
     pub model: &'a SmithyModel,
@@ -28,6 +28,8 @@ impl<'a> GenTypes<'a> {
 
     fn write_header(&mut self) {
         self.writer.write_code(quote! {
+            #![allow(unused)]
+            #![allow(non_camel_case_types)]
             use std::str::FromStr;
             use std::collections::HashMap;
             use std::collections::HashSet;
@@ -108,7 +110,7 @@ impl<'a> GenTypes<'a> {
                 });
             }
 
-            // TODO
+            // TODO handle SmithyType::Timestamp
             SmithyType::Timestamp => {
                 self.writer.write_code(quote! {
                     pub type #ident = String;

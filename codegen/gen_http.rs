@@ -4,12 +4,12 @@ use proc_macro2::TokenStream;
 use quote::{format_ident, quote};
 use std::path::Path;
 
-pub struct GenServer<'a> {
+pub struct GenHttp<'a> {
     pub model: &'a SmithyModel,
     pub writer: CodeWriter,
 }
 
-impl<'a> GenServer<'a> {
+impl<'a> GenHttp<'a> {
     pub fn new(model: &'a SmithyModel, out_path: &Path) -> Self {
         Self {
             model,
@@ -19,6 +19,8 @@ impl<'a> GenServer<'a> {
 
     pub fn generate(mut self) {
         self.writer.write_code(quote! {
+            #![allow(unused)]
+            #![allow(non_camel_case_types)]
             use std::str::FromStr;
         });
         self.writer.done();

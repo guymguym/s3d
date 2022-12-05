@@ -465,7 +465,8 @@ const _SM_PREFIX: &str = "smithy.api#";
 pub const SM_ENUM: &str = "smithy.api#enum";
 pub const SM_REQUIRED: &str = "smithy.api#required";
 const SM_DOC: &str = "smithy.api#documentation";
-pub const SM_ERROR: &str = "smithy.api#error";
+#[allow(unused)]
+const _SM_ERROR: &str = "smithy.api#error";
 const _SM_HTTP: &str = "smithy.api#http";
 #[allow(unused)]
 const SM_HTTP_LABEL: &str = "smithy.api#httpLabel";

@@ -28,6 +28,8 @@ impl<'a> GenClient<'a> {
         let client_crate = format_ident!("{}", self.client_crate);
         let server_crate = format_ident!("{}", self.server_crate);
         self.writer.write_code(quote! {
+            #![allow(unused)]
+            #![allow(non_camel_case_types)]
             use std::str::FromStr;
         });
 

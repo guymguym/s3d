@@ -20,11 +20,11 @@ mod codegen;
 use crate::{
     codegen::gen_cli::GenCLI,
     codegen::gen_client::GenClient,
-    codegen::gen_server::GenServer,
+    codegen::gen_http::GenHttp,
     codegen::gen_types::GenTypes,
     codegen::smithy_model::{FromJson, SmithyModel},
 };
-use std::{env, path::Path};
+use std::path::Path;
 
 /// main function of the project's cargo build script
 /// See https://doc.rust-lang.org/cargo/reference/build-scripts.html
@@ -47,8 +47,8 @@ fn main() {
     // load the smithy model and invoke code generators
     let model = SmithyModel::from_json_file(&model_path);
     GenTypes::new(&model, &out_path.join("s3_types.rs")).generate();
+    GenHttp::new(&model, &out_path.join("s3_http.rs")).generate();
     GenClient::new(&model, &out_path.join("s3_client.rs")).generate();
-    GenServer::new(&model, &out_path.join("s3_server.rs")).generate();
     GenCLI::new(&model, &out_path.join("s3_cli.rs")).generate();
 
     println!("cargo:warning=build codegen done.");
