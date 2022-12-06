@@ -34,11 +34,7 @@ impl<'a> GenTypes<'a> {
             use std::collections::HashMap;
             use std::collections::HashSet;
             use std::sync::Arc;
-
-            trait Op {
-                type Input;
-                type Output;
-            }
+            use aws_smithy_http_server::operation::OperationShape;
         });
     }
 
@@ -51,12 +47,19 @@ impl<'a> GenTypes<'a> {
             SmithyType::Operation => {
                 let input = self.get_member_type(shape, "input");
                 let output = self.get_member_type(shape, "output");
+                let name = &shape.name;
                 self.writer.write_code(quote! {
-                    #[derive(Debug, Clone, Copy, Eq, PartialEq)]
-                    pub struct #ident;
-                    impl Op for #ident {
+                    #[derive(Debug, Default, Clone)]
+                    pub struct #ident {
+                        pub input: <Self as OperationShape>::Input,
+                        pub output: <Self as OperationShape>::Output,
+                        pub error: Option<<Self as OperationShape>::Error>,
+                    }
+                    impl OperationShape for #ident {
+                        const NAME: &'static str = #name;
                         type Input = #input;
                         type Output = #output;
+                        type Error = ();
                     }
                 });
             }
@@ -68,7 +71,7 @@ impl<'a> GenTypes<'a> {
                     .values()
                     .map(|m| self.model.get_shape_of(m).ident());
                 self.writer.write_code(quote! {
-                    #[derive(Debug, Clone)]
+                    #[derive(Debug, Default, Clone)]
                     pub struct #ident {
                         #(pub #members: Option<#types>,)*
                     }

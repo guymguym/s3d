@@ -47,7 +47,7 @@ hyper = { version = "0.14.23", features = ["full"] }
 tower = { version = "0.4.13", features = ["full"] }
 tokio = { version = "1.22.0", features = ["full"] }
 tokio-stream = "0.1.11"
-libc = "0.2.137"
+libc = "0.2.138"
 log = "0.4.17"
 env_logger = "0.10.0"
 
@@ -93,7 +93,7 @@ aws-sigv4 = "0.51.0"
 aws-smithy-async = { version = "0.51.0", features = ["rt-tokio"] }
 aws-smithy-client = { version = "0.51.0", features = ["client-hyper"] }
 aws-smithy-http = "0.51.0"
-aws-smithy-http-server = "0.51.0"
+aws-smithy-http-server = "0.51.1"
 aws-smithy-http-tower = "0.51.0"
 aws-smithy-types = "0.51.0"
 aws-smithy-xml = "0.51.0"

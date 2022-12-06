@@ -1,5 +1,5 @@
 extern crate s3d;
-use clap::{IntoApp, Parser};
+use clap::{CommandFactory, Parser};
 use std::fmt::Debug;
 
 #[tokio::main]
@@ -9,13 +9,13 @@ pub async fn main() -> anyhow::Result<()> {
     CLI::parse().run().await
 }
 
-#[derive(clap::Parser, Debug, Clone)]
+#[derive(Parser, Debug, Clone)]
 #[clap(name = "s3")]
 #[clap(
     about = "S3 CLI tool for applications or services that need to access S3 buckets (with/out the s3d daemon)"
 )]
 #[clap(version = clap::crate_version!())]
-#[clap(setting = clap::AppSettings::DeriveDisplayOrder)]
+#[clap(next_display_order = 0)]
 pub struct CLI {
     /// subcommand
     #[clap(subcommand)]

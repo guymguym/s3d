@@ -62,7 +62,7 @@ impl SmithyModel {
     }
     pub fn iter_ops<'a>(&'a self) -> impl Iterator<Item = &'a SmithyShape> + 'a {
         self.iter_shapes_by_type(SmithyType::Operation)
-            .filter(|op| op.name != "SelectObjectContent" && op.name != "WriteGetObject")
+            .filter(|op| op.name != "SelectObjectContent" && op.name != "WriteGetObjectResponse")
     }
 }
 

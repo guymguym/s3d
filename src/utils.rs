@@ -9,7 +9,7 @@ use tokio::fs::{read_to_string, File};
 use tokio::io::AsyncWriteExt;
 use tokio_stream::StreamExt;
 
-struct InternalServerError {
+pub struct InternalServerError {
     message: String,
 }
 
@@ -122,6 +122,9 @@ where
     Ok(serde_yaml::from_str(&read_to_string(path).await?)?)
 }
 
+/// to_internal_err uses the InternalServerError type and relies on its conversions to into specific generated error types,
+/// so that the caller code is enforced to lookup a conversion and will not need to add .into() to each call.
+/// but then it returns a generic type that 
 pub fn to_internal_err<F: ToString, T: From<InternalServerError>>(err: F) -> T {
     InternalServerError {
         message: err.to_string(),
