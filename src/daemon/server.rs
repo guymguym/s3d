@@ -1,22 +1,69 @@
-use crate::codegen::s3_types;
-use crate::utils::staticify;
+use crate::{
+    codegen::s3_types,
+    config,
+    daemon::handlers::{HttpHandler, HttpRequest, HttpResult, NoAuth, TraitFuture},
+};
 use aws_smithy_http_server::operation::OperationShape;
-use hyper::service::{make_service_fn, service_fn};
-use std::convert::Infallible;
+use hyper::{
+    server::conn::AddrStream,
+    service::{make_service_fn, service_fn},
+};
+use std::{convert::Infallible, net::SocketAddr};
 
-pub type HttpBody = hyper::Body;
-pub type HttpError = anyhow::Error;
-pub type HttpRequest = hyper::Request<HttpBody>;
-pub type HttpResponse = hyper::Response<HttpBody>;
-pub type HttpResult = Result<HttpResponse, HttpError>;
-
+/// serve runs an http rest server for a configured port.
+/// constructs an S3 handler which serves as an archtype of the server configuration,
+/// and will be cloned by every incoming request to avoid locking (rethink if it gets too big).
 pub async fn serve() -> anyhow::Result<()> {
-    let addr = std::net::SocketAddr::from(([127, 0, 0, 1], 33333));
-    let mksrv = make_service_fn(|_conn| async { Ok::<_, Infallible>(service_fn(s3_handler)) });
-    let server = hyper::Server::bind(&addr).serve(mksrv);
-    info!("Listening on http://{}", addr);
+    let addr = format!("127.0.0.1:{}", *config::PORT).parse()?;
+    let s3_handler = S3Test {
+        bucket_name: "lala".to_string(),
+    };
+    run_server(addr, s3_handler).await?;
+    Ok(())
+}
+
+pub async fn run_server<H>(addr: SocketAddr, handler: H) -> anyhow::Result<()>
+where
+    H: HttpHandler + 'static,
+{
+    let service = make_service_fn(|conn: &AddrStream| {
+        let handler = handler.clone();
+        let remote_addr = conn.remote_addr();
+        let srv = service_fn(move |req| handler.clone().handle(req, remote_addr));
+        async move { Ok::<_, Infallible>(srv) }
+    });
+    let server = hyper::Server::bind(&addr).serve(service);
+    log::info!("Serving -> http://{}", addr);
     server.await?;
     Ok(())
+}
+
+#[derive(Debug, Clone)]
+pub struct S3Test {
+    bucket_name: String,
+}
+impl NoAuth for S3Test {}
+impl S3 for S3Test {
+    fn list_buckets(
+        self,
+        input: <s3_types::ListBuckets as OperationShape>::Input,
+    ) -> TraitFuture<
+        <s3_types::ListBuckets as OperationShape>::Output,
+        <s3_types::ListBuckets as OperationShape>::Error,
+    > {
+        Box::pin(async move {
+            Ok(s3_types::ListBucketsOutput {
+                buckets: Some(vec![s3_types::Bucket {
+                    name: Some(self.bucket_name),
+                    creation_date: Some("19820608T001122Z".to_string()),
+                }]),
+                owner: Some(s3_types::Owner {
+                    id: Some("1".to_string()),
+                    display_name: Some("User1".to_string()),
+                }),
+            })
+        })
+    }
 }
 
 pub trait S3OpReceiver {
@@ -48,6 +95,16 @@ impl S3OpResponder for s3_types::ListBuckets {
     }
 }
 
+// let op = s3_types::[<$op>]::default();
+// let input = crate::gen::server::[<$op>]::decode_input(req).await?;
+// debug!("input {:?}", input);
+// let output = self.s3d_api.[<$op:snake>](input).await.map_err(|err| err.meta().clone())?;
+// debug!("output {:?}", output);
+// let response = crate::gen::server::[<$op>]::encode_output(output).await?;
+// debug!("response {:?}", response);
+// response
+// responder().body(Body::empty())?
+
 pub trait S3OpHandler<Op> {
     fn handle(self, op: &mut Op);
 }
@@ -64,21 +121,6 @@ impl S3OpHandler<s3_types::ListBuckets> for S3NullHandler {
             id: Some("1".to_string()),
             display_name: Some("User1".to_string()),
         });
-    }
-}
-
-async fn s3_handler(req: HttpRequest) -> HttpResult {
-    log::debug!("{:?}", req);
-    // aws_sigv4
-    // aws_sig_auth
-    let h = S3NullHandler {};
-    if req.uri().path() == "/" {
-        let mut op = s3_types::ListBuckets::default();
-        op.receive(req);
-        h.handle(&mut op);
-        op.respond()
-    } else {
-        Err(anyhow::format_err!("todo"))
     }
 }
 

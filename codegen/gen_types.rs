@@ -246,7 +246,7 @@ impl<'a> GenTypes<'a> {
             /// This macro calls a provided $macro for each S3 operation to generate item per op.
             macro_rules! generate_ops_items {
                 ($macro:ident) => {
-                    #( $macro!(#ops_names), )*
+                    #( $macro!(#ops_names); )*
                 }
             }
 
@@ -255,7 +255,7 @@ impl<'a> GenTypes<'a> {
             macro_rules! generate_ops_match {
                 ($macro:ident, $op:expr) => {
                     match ($op) {
-                        #( S3Ops::#ops_names => $macro!(#ops_names), )*
+                        #( S3Ops::#ops_names => { $macro!(#ops_names) }, )*
                     }
                 }
             }

@@ -2,13 +2,32 @@ extern crate s3d;
 use clap::{CommandFactory, Parser};
 use std::fmt::Debug;
 
+/// main of the s3 binary
+///
+/// logging: by default only error! level is logged but it can be changed with env 
+///     e.g RUST_LOG=trace or RUST_LOG=info,s3d=debug etc.
+///
+/// Parse the command line args using clap and run the requested subcommand.
 #[tokio::main]
 pub async fn main() -> anyhow::Result<()> {
-    // env_logger::init_from_env(env_logger::Env::default().default_filter_or("warn,s3d=info"));
-    env_logger::init();
-    CLI::parse().run().await
+    // env_logger::init();
+    env_logger::init_from_env(env_logger::Env::default().default_filter_or("s3d=info"));
+
+    let cli = CLI::parse();
+    log::trace!("parsed command line args: {:?}", cli);
+
+    match cli.cmd {
+        Cmd::Api(cmd) => cmd.run().await,
+        Cmd::Tag(cmd) => cmd.run().await,
+        Cmd::Ls(cmd) => cmd.run().await,
+        Cmd::Get(cmd) => cmd.run().await,
+        Cmd::Put(cmd) => cmd.run().await,
+        Cmd::Completion(cmd) => cmd.run(CLI::command()).await,
+    }
 }
 
+/// CLI is the root command of cli.
+/// Uses clap (derive style) to parse the program args into flags and subcommands.
 #[derive(Parser, Debug, Clone)]
 #[clap(name = "s3")]
 #[clap(
@@ -19,11 +38,11 @@ pub async fn main() -> anyhow::Result<()> {
 pub struct CLI {
     /// subcommand
     #[clap(subcommand)]
-    cmd: Cmd,
+    pub cmd: Cmd,
 }
 
 #[derive(clap::Subcommand, Debug, Clone)]
-enum Cmd {
+pub enum Cmd {
     // s3-style
     Api(s3d::cli::api_cmd::ApiCmd),
     Tag(s3d::cli::tag_cmd::TagCmd),
@@ -58,18 +77,4 @@ enum Cmd {
 
     // other
     Completion(s3d::cli::completion_cmd::CompletionCmd),
-}
-
-impl CLI {
-    pub async fn run(self) -> anyhow::Result<()> {
-        log::debug!("{:?}", self);
-        match self.cmd {
-            Cmd::Api(cmd) => cmd.run().await,
-            Cmd::Tag(cmd) => cmd.run().await,
-            Cmd::Ls(cmd) => cmd.run().await,
-            Cmd::Get(cmd) => cmd.run().await,
-            Cmd::Put(cmd) => cmd.run().await,
-            Cmd::Completion(cmd) => cmd.run(CLI::command()).await,
-        }
-    }
 }

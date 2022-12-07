@@ -42,7 +42,10 @@ impl SmithyModel {
     pub fn get_shape_of<'a>(&'a self, member: &'a SmithyMember) -> &'a SmithyShape {
         &self.shapes[&member.target]
     }
-    pub fn _get_shape_if<'a>(&'a self, member: Option<&'a SmithyMember>) -> Option<&'a SmithyShape> {
+    pub fn _get_shape_if<'a>(
+        &'a self,
+        member: Option<&'a SmithyMember>,
+    ) -> Option<&'a SmithyShape> {
         member.map(|m| self.get_shape_of(m))
     }
     pub fn _get_shape_by_key<'a>(&'a self, k: &str) -> &'a SmithyShape {
@@ -62,7 +65,7 @@ impl SmithyModel {
     }
     pub fn iter_ops<'a>(&'a self) -> impl Iterator<Item = &'a SmithyShape> + 'a {
         self.iter_shapes_by_type(SmithyType::Operation)
-            .filter(|op| op.name != "SelectObjectContent" && op.name != "WriteGetObjectResponse")
+        // .filter(|op| op.name != "SelectObjectContent" && op.name != "WriteGetObjectResponse")
     }
 }
 

@@ -22,25 +22,25 @@ pub fn staticify<T>(x: T) -> &'static T {
 
 /// new_s3_client creates a new s3 client which defaults to connect to the local daemon.
 pub async fn new_s3_client() -> aws_sdk_s3::Client {
-    if config::S3_ENDPOINT.is_none() {
-        let s3_config = aws_config::load_from_env().await;
-        return aws_sdk_s3::Client::new(&s3_config);
-    }
-
-    aws_sdk_s3::Client::from_conf({
-        let ep = aws_sdk_s3::Endpoint::immutable(
-            hyper::Uri::from_str(config::S3_ENDPOINT.as_ref().unwrap()).unwrap(),
-        );
-        let creds = aws_sdk_s3::Credentials::new("s3d", "s3d", None, None, "s3d");
-        let region = aws_sdk_s3::Region::new("s3d");
-        let sleep_impl = aws_smithy_async::rt::sleep::default_async_sleep().unwrap();
-        aws_sdk_s3::Config::builder()
-            .sleep_impl(sleep_impl)
-            .endpoint_resolver(ep)
-            .credentials_provider(creds)
-            .region(region)
-            .build()
-    })
+    // if config::S3_ENDPOINT.is_some() {
+    //     aws_sdk_s3::Client::from_conf({
+    //         let ep = aws_sdk_s3::Endpoint::immutable(
+    //             hyper::Uri::from_str(config::S3_ENDPOINT.as_ref().unwrap()).unwrap(),
+    //         );
+    //         let creds = aws_sdk_s3::Credentials::new("s3d", "s3d", None, None, "s3d");
+    //         let region = aws_sdk_s3::Region::new("s3d");
+    //         let sleep_impl = aws_smithy_async::rt::sleep::default_async_sleep().unwrap();
+    //         aws_sdk_s3::Config::builder()
+    //             .sleep_impl(sleep_impl)
+    //             .endpoint_resolver(ep)
+    //             .credentials_provider(creds)
+    //             .region(region)
+    //             .build()
+    //     })
+    // }
+    
+    let s3_config = aws_config::load_from_env().await;
+    return aws_sdk_s3::Client::new(&s3_config);
 }
 
 pub fn parse_bucket_and_key(s: &str) -> anyhow::Result<(String, String)> {
