@@ -12,127 +12,264 @@ use std::collections::HashSet;
 use std::str::FromStr;
 use std::sync::Arc;
 
-pub type DeleteMarkerVersionId = String;
+#[derive(Debug, Default, Clone)]
+pub struct GetObjectAttributesParts {
+    pub max_parts: Option<MaxParts>,
+    pub parts: Option<PartsList>,
+    pub total_parts_count: Option<PartsCount>,
+    pub is_truncated: Option<IsTruncated>,
+    pub part_number_marker: Option<PartNumberMarker>,
+    pub next_part_number_marker: Option<NextPartNumberMarker>,
+}
+impl GetObjectAttributesParts {
+    pub fn to_http_response(self) -> anyhow::Result<hyper::Response<hyper::Body>> {
+        anyhow::bail!("todo")
+    }
+}
+
+#[derive(Debug, Default, Clone)]
+pub struct PutBucketLifecycleConfiguration;
+impl OperationShape for PutBucketLifecycleConfiguration {
+    const NAME: &'static str = "PutBucketLifecycleConfiguration";
+    type Input = PutBucketLifecycleConfigurationRequest;
+    type Output = ();
+    type Error = ();
+}
+
+#[derive(Debug, Default, Clone)]
+pub struct DeleteObjectsRequest {
+    pub expected_bucket_owner: Option<AccountId>,
+    pub bucket: Option<BucketName>,
+    pub bypass_governance_retention: Option<BypassGovernanceRetention>,
+    pub delete: Option<Delete>,
+    pub mfa: Option<Mfa>,
+    pub request_payer: Option<RequestPayer>,
+    pub checksum_algorithm: Option<ChecksumAlgorithm>,
+}
+impl DeleteObjectsRequest {
+    pub fn to_http_response(self) -> anyhow::Result<hyper::Response<hyper::Body>> {
+        anyhow::bail!("todo")
+    }
+}
+
+pub type ObjectLockToken = String;
 
 pub type ChecksumCrc32 = String;
 
 #[derive(Debug, Default, Clone)]
-pub struct DeleteObject;
-impl OperationShape for DeleteObject {
-    const NAME: &'static str = "DeleteObject";
-    type Input = DeleteObjectRequest;
-    type Output = DeleteObjectOutput;
-    type Error = ();
+pub struct BucketLifecycleConfiguration {
+    pub rules: Option<LifecycleRules>,
+}
+impl BucketLifecycleConfiguration {
+    pub fn to_http_response(self) -> anyhow::Result<hyper::Response<hyper::Body>> {
+        anyhow::bail!("todo")
+    }
 }
 
 #[derive(Debug, Default, Clone)]
-pub struct GetBucketLoggingRequest {
+pub struct DeleteBucketReplicationRequest {
     pub bucket: Option<BucketName>,
     pub expected_bucket_owner: Option<AccountId>,
 }
-impl GetBucketLoggingRequest {
+impl DeleteBucketReplicationRequest {
     pub fn to_http_response(self) -> anyhow::Result<hyper::Response<hyper::Body>> {
         anyhow::bail!("todo")
     }
 }
 
+pub type TransitionList = Vec<Transition>;
+
+pub type CreationDate = String;
+
 #[derive(Debug, Default, Clone)]
-pub struct NotFound {}
-impl NotFound {
+pub struct CompletedMultipartUpload {
+    pub parts: Option<CompletedPartList>,
+}
+impl CompletedMultipartUpload {
     pub fn to_http_response(self) -> anyhow::Result<hyper::Response<hyper::Body>> {
         anyhow::bail!("todo")
     }
 }
 
+pub type CompletedPartList = Vec<CompletedPart>;
+
 #[derive(Debug, Default, Clone)]
-pub struct GetBucketAccelerateConfiguration;
-impl OperationShape for GetBucketAccelerateConfiguration {
-    const NAME: &'static str = "GetBucketAccelerateConfiguration";
-    type Input = GetBucketAccelerateConfigurationRequest;
-    type Output = GetBucketAccelerateConfigurationOutput;
+pub struct GetBucketAnalyticsConfiguration;
+impl OperationShape for GetBucketAnalyticsConfiguration {
+    const NAME: &'static str = "GetBucketAnalyticsConfiguration";
+    type Input = GetBucketAnalyticsConfigurationRequest;
+    type Output = GetBucketAnalyticsConfigurationOutput;
     type Error = ();
 }
 
 #[derive(Debug, Default, Clone)]
-pub struct LifecycleRuleAndOperator {
+pub struct GetObjectTaggingOutput {
+    pub tag_set: Option<TagSet>,
+    pub version_id: Option<ObjectVersionId>,
+}
+impl GetObjectTaggingOutput {
+    pub fn to_http_response(self) -> anyhow::Result<hyper::Response<hyper::Body>> {
+        anyhow::bail!("todo")
+    }
+}
+
+#[derive(Debug, Default, Clone)]
+pub struct IntelligentTieringAndOperator {
     pub tags: Option<TagSet>,
-    pub object_size_greater_than: Option<ObjectSizeGreaterThanBytes>,
-    pub object_size_less_than: Option<ObjectSizeLessThanBytes>,
     pub prefix: Option<Prefix>,
 }
-impl LifecycleRuleAndOperator {
+impl IntelligentTieringAndOperator {
     pub fn to_http_response(self) -> anyhow::Result<hyper::Response<hyper::Body>> {
         anyhow::bail!("todo")
     }
 }
 
 #[derive(Debug, Default, Clone)]
-pub struct InvalidObjectState {
-    pub access_tier: Option<IntelligentTieringAccessTier>,
-    pub storage_class: Option<StorageClass>,
+pub struct IntelligentTieringFilter {
+    pub and: Option<IntelligentTieringAndOperator>,
+    pub prefix: Option<Prefix>,
+    pub tag: Option<Tag>,
 }
-impl InvalidObjectState {
+impl IntelligentTieringFilter {
     pub fn to_http_response(self) -> anyhow::Result<hyper::Response<hyper::Body>> {
         anyhow::bail!("todo")
     }
 }
 
-pub type AllowedMethod = String;
+pub type EventList = Vec<Event>;
 
 #[derive(Debug, Default, Clone)]
-pub struct GetObjectRequest {
-    pub if_none_match: Option<IfNoneMatch>,
-    pub if_unmodified_since: Option<IfUnmodifiedSince>,
-    pub version_id: Option<ObjectVersionId>,
-    pub response_content_type: Option<ResponseContentType>,
-    pub sse_customer_key: Option<SseCustomerKey>,
+pub struct DeleteBucketAnalyticsConfigurationRequest {
     pub expected_bucket_owner: Option<AccountId>,
-    pub if_match: Option<IfMatch>,
-    pub sse_customer_key_md5: Option<SseCustomerKeyMd5>,
-    pub response_content_language: Option<ResponseContentLanguage>,
-    pub response_cache_control: Option<ResponseCacheControl>,
-    pub part_number: Option<PartNumber>,
-    pub request_payer: Option<RequestPayer>,
-    pub sse_customer_algorithm: Option<SseCustomerAlgorithm>,
-    pub range: Option<Range>,
-    pub response_content_disposition: Option<ResponseContentDisposition>,
-    pub response_content_encoding: Option<ResponseContentEncoding>,
-    pub key: Option<ObjectKey>,
-    pub response_expires: Option<ResponseExpires>,
+    pub id: Option<AnalyticsId>,
     pub bucket: Option<BucketName>,
-    pub if_modified_since: Option<IfModifiedSince>,
-    pub checksum_mode: Option<ChecksumMode>,
 }
-impl GetObjectRequest {
+impl DeleteBucketAnalyticsConfigurationRequest {
+    pub fn to_http_response(self) -> anyhow::Result<hyper::Response<hyper::Body>> {
+        anyhow::bail!("todo")
+    }
+}
+
+pub type InventoryId = String;
+
+#[derive(Debug, Default, Clone)]
+pub struct InventoryS3BucketDestination {
+    pub format: Option<InventoryFormat>,
+    pub bucket: Option<BucketName>,
+    pub account_id: Option<AccountId>,
+    pub encryption: Option<InventoryEncryption>,
+    pub prefix: Option<Prefix>,
+}
+impl InventoryS3BucketDestination {
     pub fn to_http_response(self) -> anyhow::Result<hyper::Response<hyper::Body>> {
         anyhow::bail!("todo")
     }
 }
 
 #[derive(Debug, Default, Clone)]
-pub struct ProgressEvent {
-    pub details: Option<Progress>,
+pub struct CommonPrefix {
+    pub prefix: Option<Prefix>,
 }
-impl ProgressEvent {
+impl CommonPrefix {
     pub fn to_http_response(self) -> anyhow::Result<hyper::Response<hyper::Body>> {
         anyhow::bail!("todo")
     }
 }
 
-pub type Mfa = String;
+#[derive(Debug, Default, Clone)]
+pub struct AbortMultipartUploadOutput {
+    pub request_charged: Option<RequestCharged>,
+}
+impl AbortMultipartUploadOutput {
+    pub fn to_http_response(self) -> anyhow::Result<hyper::Response<hyper::Body>> {
+        anyhow::bail!("todo")
+    }
+}
 
-pub type AnalyticsId = String;
+#[derive(Debug, Clone, Copy, Eq, Ord, PartialEq, PartialOrd, Hash)]
+pub enum ObjectLockMode {
+    COMPLIANCE,
+    GOVERNANCE,
+}
+impl AsRef<str> for ObjectLockMode {
+    fn as_ref(&self) -> &str {
+        match self {
+            Self::COMPLIANCE => "COMPLIANCE",
+            Self::GOVERNANCE => "GOVERNANCE",
+        }
+    }
+}
+impl TryFrom<&str> for ObjectLockMode {
+    type Error = String;
+    fn try_from(s: &str) -> Result<Self, Self::Error> {
+        match s {
+            "COMPLIANCE" => Ok(Self::COMPLIANCE),
+            "GOVERNANCE" => Ok(Self::GOVERNANCE),
+            _ => Err(format!("unknown enum value {}", s)),
+        }
+    }
+}
 
 #[derive(Debug, Default, Clone)]
-pub struct CompletedPart {
-    pub checksum_sha1: Option<ChecksumSha1>,
-    pub checksum_sha256: Option<ChecksumSha256>,
-    pub checksum_crc32: Option<ChecksumCrc32>,
-    pub checksum_crc32_c: Option<ChecksumCrc32c>,
-    pub e_tag: Option<ETag>,
-    pub part_number: Option<PartNumber>,
+pub struct ListObjectsRequest {
+    pub prefix: Option<Prefix>,
+    pub encoding_type: Option<EncodingType>,
+    pub delimiter: Option<Delimiter>,
+    pub max_keys: Option<MaxKeys>,
+    pub bucket: Option<BucketName>,
+    pub expected_bucket_owner: Option<AccountId>,
+    pub marker: Option<Marker>,
+    pub request_payer: Option<RequestPayer>,
 }
-impl CompletedPart {
+impl ListObjectsRequest {
+    pub fn to_http_response(self) -> anyhow::Result<hyper::Response<hyper::Body>> {
+        anyhow::bail!("todo")
+    }
+}
+
+pub type ObjectSize = i64;
+
+#[derive(Debug, Default, Clone)]
+pub struct GetBucketTaggingOutput {
+    pub tag_set: Option<TagSet>,
+}
+impl GetBucketTaggingOutput {
+    pub fn to_http_response(self) -> anyhow::Result<hyper::Response<hyper::Body>> {
+        anyhow::bail!("todo")
+    }
+}
+
+#[derive(Debug, Default, Clone)]
+pub struct GetObjectTorrentOutput {
+    pub body: Option<StreamingBlob>,
+    pub request_charged: Option<RequestCharged>,
+}
+impl GetObjectTorrentOutput {
+    pub fn to_http_response(self) -> anyhow::Result<hyper::Response<hyper::Body>> {
+        anyhow::bail!("todo")
+    }
+}
+
+#[derive(Debug, Default, Clone)]
+pub struct PutBucketLifecycleConfigurationRequest {
+    pub bucket: Option<BucketName>,
+    pub lifecycle_configuration: Option<BucketLifecycleConfiguration>,
+    pub expected_bucket_owner: Option<AccountId>,
+    pub checksum_algorithm: Option<ChecksumAlgorithm>,
+}
+impl PutBucketLifecycleConfigurationRequest {
+    pub fn to_http_response(self) -> anyhow::Result<hyper::Response<hyper::Body>> {
+        anyhow::bail!("todo")
+    }
+}
+
+pub type ReplaceKeyPrefixWith = String;
+
+#[derive(Debug, Default, Clone)]
+pub struct ReplicaModifications {
+    pub status: Option<ReplicaModificationsStatus>,
+}
+impl ReplicaModifications {
     pub fn to_http_response(self) -> anyhow::Result<hyper::Response<hyper::Body>> {
         anyhow::bail!("todo")
     }
@@ -140,15 +277,15 @@ impl CompletedPart {
 
 #[derive(Debug, Default, Clone)]
 pub struct ReplicationRule {
-    pub source_selection_criteria: Option<SourceSelectionCriteria>,
-    pub existing_object_replication: Option<ExistingObjectReplication>,
-    pub destination: Option<Destination>,
-    pub filter: Option<ReplicationRuleFilter>,
-    pub id: Option<Id>,
     pub prefix: Option<Prefix>,
+    pub destination: Option<Destination>,
+    pub existing_object_replication: Option<ExistingObjectReplication>,
     pub status: Option<ReplicationRuleStatus>,
     pub delete_marker_replication: Option<DeleteMarkerReplication>,
+    pub filter: Option<ReplicationRuleFilter>,
     pub priority: Option<Priority>,
+    pub source_selection_criteria: Option<SourceSelectionCriteria>,
+    pub id: Option<Id>,
 }
 impl ReplicationRule {
     pub fn to_http_response(self) -> anyhow::Result<hyper::Response<hyper::Body>> {
@@ -156,18 +293,120 @@ impl ReplicationRule {
     }
 }
 
-pub type SseCustomerKeyMd5 = String;
+pub type Description = String;
+
+pub type KeyCount = i32;
+
+pub type Location = String;
+
+pub type Message = String;
+
+#[derive(Debug, Default, Clone)]
+pub struct PublicAccessBlockConfiguration {
+    pub ignore_public_acls: Option<Setting>,
+    pub block_public_policy: Option<Setting>,
+    pub block_public_acls: Option<Setting>,
+    pub restrict_public_buckets: Option<Setting>,
+}
+impl PublicAccessBlockConfiguration {
+    pub fn to_http_response(self) -> anyhow::Result<hyper::Response<hyper::Body>> {
+        anyhow::bail!("todo")
+    }
+}
+
+pub type ContentMd5 = String;
+
+pub type Id = String;
+
+pub type Metadata = HashMap<MetadataKey, MetadataValue>;
+
+#[derive(Debug, Default, Clone)]
+pub struct ReplicationTimeValue {
+    pub minutes: Option<Minutes>,
+}
+impl ReplicationTimeValue {
+    pub fn to_http_response(self) -> anyhow::Result<hyper::Response<hyper::Body>> {
+        anyhow::bail!("todo")
+    }
+}
+
+#[derive(Debug, Default, Clone)]
+pub struct ScanRange {
+    pub end: Option<End>,
+    pub start: Option<Start>,
+}
+impl ScanRange {
+    pub fn to_http_response(self) -> anyhow::Result<hyper::Response<hyper::Body>> {
+        anyhow::bail!("todo")
+    }
+}
+
+pub type TieringList = Vec<Tiering>;
+
+#[derive(Debug, Clone, Copy, Eq, Ord, PartialEq, PartialOrd, Hash)]
+pub enum BucketLogsPermission {
+    READ,
+    WRITE,
+    FULL_CONTROL,
+}
+impl AsRef<str> for BucketLogsPermission {
+    fn as_ref(&self) -> &str {
+        match self {
+            Self::READ => "READ",
+            Self::WRITE => "WRITE",
+            Self::FULL_CONTROL => "FULL_CONTROL",
+        }
+    }
+}
+impl TryFrom<&str> for BucketLogsPermission {
+    type Error = String;
+    fn try_from(s: &str) -> Result<Self, Self::Error> {
+        match s {
+            "READ" => Ok(Self::READ),
+            "WRITE" => Ok(Self::WRITE),
+            "FULL_CONTROL" => Ok(Self::FULL_CONTROL),
+            _ => Err(format!("unknown enum value {}", s)),
+        }
+    }
+}
+
+#[derive(Debug, Default, Clone)]
+pub struct PutBucketWebsiteRequest {
+    pub website_configuration: Option<WebsiteConfiguration>,
+    pub bucket: Option<BucketName>,
+    pub checksum_algorithm: Option<ChecksumAlgorithm>,
+    pub content_md5: Option<ContentMd5>,
+    pub expected_bucket_owner: Option<AccountId>,
+}
+impl PutBucketWebsiteRequest {
+    pub fn to_http_response(self) -> anyhow::Result<hyper::Response<hyper::Body>> {
+        anyhow::bail!("todo")
+    }
+}
+
+pub type ServerSideEncryptionRules = Vec<ServerSideEncryptionRule>;
+
+pub type Expires = String;
+
+#[derive(Debug, Default, Clone)]
+pub struct PutBucketMetricsConfiguration;
+impl OperationShape for PutBucketMetricsConfiguration {
+    const NAME: &'static str = "PutBucketMetricsConfiguration";
+    type Input = PutBucketMetricsConfigurationRequest;
+    type Output = ();
+    type Error = ();
+}
 
 #[derive(Debug, Default, Clone)]
 pub struct Part {
-    pub size: Option<Size>,
-    pub checksum_sha256: Option<ChecksumSha256>,
-    pub last_modified: Option<LastModified>,
-    pub checksum_sha1: Option<ChecksumSha1>,
-    pub e_tag: Option<ETag>,
-    pub checksum_crc32_c: Option<ChecksumCrc32c>,
     pub part_number: Option<PartNumber>,
+    pub last_modified: Option<LastModified>,
+    pub checksum_sha256: Option<ChecksumSha256>,
     pub checksum_crc32: Option<ChecksumCrc32>,
+    pub checksum_sha1: Option<ChecksumSha1>,
+    pub size: Option<Size>,
+    pub checksum_crc32_c: Option<ChecksumCrc32c>,
+    pub e_tag: Option<ETag>,
 }
 impl Part {
     pub fn to_http_response(self) -> anyhow::Result<hyper::Response<hyper::Body>> {
@@ -175,143 +414,119 @@ impl Part {
     }
 }
 
-#[derive(Debug, Default, Clone)]
-pub struct RestoreRequest {
-    pub output_location: Option<OutputLocation>,
-    pub select_parameters: Option<SelectParameters>,
-    pub tier: Option<Tier>,
-    pub r#type: Option<RestoreRequestType>,
-    pub days: Option<Days>,
-    pub glacier_job_parameters: Option<GlacierJobParameters>,
-    pub description: Option<Description>,
+#[derive(Debug, Clone, Copy, Eq, Ord, PartialEq, PartialOrd, Hash)]
+pub enum BucketCannedAcl {
+    private,
+    authenticated_read,
+    public_read,
+    public_read_write,
 }
-impl RestoreRequest {
+impl AsRef<str> for BucketCannedAcl {
+    fn as_ref(&self) -> &str {
+        match self {
+            Self::private => "private",
+            Self::authenticated_read => "authenticated-read",
+            Self::public_read => "public-read",
+            Self::public_read_write => "public-read-write",
+        }
+    }
+}
+impl TryFrom<&str> for BucketCannedAcl {
+    type Error = String;
+    fn try_from(s: &str) -> Result<Self, Self::Error> {
+        match s {
+            "private" => Ok(Self::private),
+            "authenticated-read" => Ok(Self::authenticated_read),
+            "public-read" => Ok(Self::public_read),
+            "public-read-write" => Ok(Self::public_read_write),
+            _ => Err(format!("unknown enum value {}", s)),
+        }
+    }
+}
+
+#[derive(Debug, Default, Clone)]
+pub struct GetObjectRetention;
+impl OperationShape for GetObjectRetention {
+    const NAME: &'static str = "GetObjectRetention";
+    type Input = GetObjectRetentionRequest;
+    type Output = GetObjectRetentionOutput;
+    type Error = ();
+}
+
+pub type ExposeHeader = String;
+
+pub type UploadIdMarker = String;
+
+#[derive(Debug, Default, Clone)]
+pub struct PutObjectOutput {
+    pub expiration: Option<Expiration>,
+    pub checksum_crc32: Option<ChecksumCrc32>,
+    pub checksum_sha256: Option<ChecksumSha256>,
+    pub checksum_crc32_c: Option<ChecksumCrc32c>,
+    pub e_tag: Option<ETag>,
+    pub sse_customer_algorithm: Option<SseCustomerAlgorithm>,
+    pub checksum_sha1: Option<ChecksumSha1>,
+    pub sse_customer_key_md5: Option<SseCustomerKeyMd5>,
+    pub bucket_key_enabled: Option<BucketKeyEnabled>,
+    pub request_charged: Option<RequestCharged>,
+    pub ssekms_encryption_context: Option<SsekmsEncryptionContext>,
+    pub ssekms_key_id: Option<SsekmsKeyId>,
+    pub server_side_encryption: Option<ServerSideEncryption>,
+    pub version_id: Option<ObjectVersionId>,
+}
+impl PutObjectOutput {
     pub fn to_http_response(self) -> anyhow::Result<hyper::Response<hyper::Body>> {
         anyhow::bail!("todo")
     }
 }
 
-pub type SkipValidation = bool;
-
 #[derive(Debug, Default, Clone)]
-pub struct DeleteBucketInventoryConfiguration;
-impl OperationShape for DeleteBucketInventoryConfiguration {
-    const NAME: &'static str = "DeleteBucketInventoryConfiguration";
-    type Input = DeleteBucketInventoryConfigurationRequest;
+pub struct PutBucketAnalyticsConfiguration;
+impl OperationShape for PutBucketAnalyticsConfiguration {
+    const NAME: &'static str = "PutBucketAnalyticsConfiguration";
+    type Input = PutBucketAnalyticsConfigurationRequest;
     type Output = ();
     type Error = ();
 }
 
-pub type CopySourceSseCustomerKey = String;
-
 #[derive(Debug, Default, Clone)]
-pub struct DeleteBucketRequest {
-    pub expected_bucket_owner: Option<AccountId>,
-    pub bucket: Option<BucketName>,
+pub struct ObjectLockConfiguration {
+    pub object_lock_enabled: Option<ObjectLockEnabled>,
+    pub rule: Option<ObjectLockRule>,
 }
-impl DeleteBucketRequest {
+impl ObjectLockConfiguration {
     pub fn to_http_response(self) -> anyhow::Result<hyper::Response<hyper::Body>> {
         anyhow::bail!("todo")
     }
 }
 
-pub type ErrorCode = String;
+#[derive(Debug, Default, Clone)]
+pub struct PutPublicAccessBlock;
+impl OperationShape for PutPublicAccessBlock {
+    const NAME: &'static str = "PutPublicAccessBlock";
+    type Input = PutPublicAccessBlockRequest;
+    type Output = ();
+    type Error = ();
+}
 
-pub type EmailAddress = String;
-
-pub type ErrorMessage = String;
+pub type SseCustomerKeyMd5 = String;
 
 #[derive(Debug, Clone, Copy, Eq, Ord, PartialEq, PartialOrd, Hash)]
-pub enum BucketLocationConstraint {
-    me_south_1,
-    ap_northeast_3,
-    ap_east_1,
-    us_east_2,
-    ap_northeast_2,
-    af_south_1,
-    eu_central_1,
-    eu_west_2,
-    us_gov_east_1,
-    us_west_1,
-    us_west_2,
-    eu_north_1,
-    ap_southeast_2,
-    EU,
-    ap_south_1,
-    eu_south_1,
-    cn_northwest_1,
-    eu_west_1,
-    sa_east_1,
-    ap_southeast_3,
-    eu_west_3,
-    us_gov_west_1,
-    ap_southeast_1,
-    cn_north_1,
-    ap_northeast_1,
-    ca_central_1,
+pub enum ObjectLockEnabled {
+    Enabled,
 }
-impl AsRef<str> for BucketLocationConstraint {
+impl AsRef<str> for ObjectLockEnabled {
     fn as_ref(&self) -> &str {
         match self {
-            Self::me_south_1 => "me-south-1",
-            Self::ap_northeast_3 => "ap-northeast-3",
-            Self::ap_east_1 => "ap-east-1",
-            Self::us_east_2 => "us-east-2",
-            Self::ap_northeast_2 => "ap-northeast-2",
-            Self::af_south_1 => "af-south-1",
-            Self::eu_central_1 => "eu-central-1",
-            Self::eu_west_2 => "eu-west-2",
-            Self::us_gov_east_1 => "us-gov-east-1",
-            Self::us_west_1 => "us-west-1",
-            Self::us_west_2 => "us-west-2",
-            Self::eu_north_1 => "eu-north-1",
-            Self::ap_southeast_2 => "ap-southeast-2",
-            Self::EU => "EU",
-            Self::ap_south_1 => "ap-south-1",
-            Self::eu_south_1 => "eu-south-1",
-            Self::cn_northwest_1 => "cn-northwest-1",
-            Self::eu_west_1 => "eu-west-1",
-            Self::sa_east_1 => "sa-east-1",
-            Self::ap_southeast_3 => "ap-southeast-3",
-            Self::eu_west_3 => "eu-west-3",
-            Self::us_gov_west_1 => "us-gov-west-1",
-            Self::ap_southeast_1 => "ap-southeast-1",
-            Self::cn_north_1 => "cn-north-1",
-            Self::ap_northeast_1 => "ap-northeast-1",
-            Self::ca_central_1 => "ca-central-1",
+            Self::Enabled => "Enabled",
         }
     }
 }
-impl TryFrom<&str> for BucketLocationConstraint {
+impl TryFrom<&str> for ObjectLockEnabled {
     type Error = String;
     fn try_from(s: &str) -> Result<Self, Self::Error> {
         match s {
-            "me-south-1" => Ok(Self::me_south_1),
-            "ap-northeast-3" => Ok(Self::ap_northeast_3),
-            "ap-east-1" => Ok(Self::ap_east_1),
-            "us-east-2" => Ok(Self::us_east_2),
-            "ap-northeast-2" => Ok(Self::ap_northeast_2),
-            "af-south-1" => Ok(Self::af_south_1),
-            "eu-central-1" => Ok(Self::eu_central_1),
-            "eu-west-2" => Ok(Self::eu_west_2),
-            "us-gov-east-1" => Ok(Self::us_gov_east_1),
-            "us-west-1" => Ok(Self::us_west_1),
-            "us-west-2" => Ok(Self::us_west_2),
-            "eu-north-1" => Ok(Self::eu_north_1),
-            "ap-southeast-2" => Ok(Self::ap_southeast_2),
-            "EU" => Ok(Self::EU),
-            "ap-south-1" => Ok(Self::ap_south_1),
-            "eu-south-1" => Ok(Self::eu_south_1),
-            "cn-northwest-1" => Ok(Self::cn_northwest_1),
-            "eu-west-1" => Ok(Self::eu_west_1),
-            "sa-east-1" => Ok(Self::sa_east_1),
-            "ap-southeast-3" => Ok(Self::ap_southeast_3),
-            "eu-west-3" => Ok(Self::eu_west_3),
-            "us-gov-west-1" => Ok(Self::us_gov_west_1),
-            "ap-southeast-1" => Ok(Self::ap_southeast_1),
-            "cn-north-1" => Ok(Self::cn_north_1),
-            "ap-northeast-1" => Ok(Self::ap_northeast_1),
-            "ca-central-1" => Ok(Self::ca_central_1),
+            "Enabled" => Ok(Self::Enabled),
             _ => Err(format!("unknown enum value {}", s)),
         }
     }
@@ -329,611 +544,35 @@ impl GetObjectLockConfigurationRequest {
 }
 
 #[derive(Debug, Default, Clone)]
-pub struct NotificationConfiguration {
-    pub event_bridge_configuration: Option<EventBridgeConfiguration>,
-    pub queue_configurations: Option<QueueConfigurationList>,
-    pub topic_configurations: Option<TopicConfigurationList>,
-    pub lambda_function_configurations: Option<LambdaFunctionConfigurationList>,
-}
-impl NotificationConfiguration {
-    pub fn to_http_response(self) -> anyhow::Result<hyper::Response<hyper::Body>> {
-        anyhow::bail!("todo")
-    }
-}
-
-#[derive(Debug, Default, Clone)]
-pub struct GetBucketAcl;
-impl OperationShape for GetBucketAcl {
-    const NAME: &'static str = "GetBucketAcl";
-    type Input = GetBucketAclRequest;
-    type Output = GetBucketAclOutput;
-    type Error = ();
-}
-
-pub type PartsList = Vec<ObjectPart>;
-
-#[derive(Debug, Default, Clone)]
-pub struct GetObjectLegalHoldRequest {
+pub struct PutBucketPolicyRequest {
     pub bucket: Option<BucketName>,
-    pub key: Option<ObjectKey>,
-    pub expected_bucket_owner: Option<AccountId>,
-    pub request_payer: Option<RequestPayer>,
-    pub version_id: Option<ObjectVersionId>,
-}
-impl GetObjectLegalHoldRequest {
-    pub fn to_http_response(self) -> anyhow::Result<hyper::Response<hyper::Body>> {
-        anyhow::bail!("todo")
-    }
-}
-
-#[derive(Debug, Clone, Copy, Eq, Ord, PartialEq, PartialOrd, Hash)]
-pub enum ObjectLockLegalHoldStatus {
-    OFF,
-    ON,
-}
-impl AsRef<str> for ObjectLockLegalHoldStatus {
-    fn as_ref(&self) -> &str {
-        match self {
-            Self::OFF => "OFF",
-            Self::ON => "ON",
-        }
-    }
-}
-impl TryFrom<&str> for ObjectLockLegalHoldStatus {
-    type Error = String;
-    fn try_from(s: &str) -> Result<Self, Self::Error> {
-        match s {
-            "OFF" => Ok(Self::OFF),
-            "ON" => Ok(Self::ON),
-            _ => Err(format!("unknown enum value {}", s)),
-        }
-    }
-}
-
-#[derive(Debug, Clone, Copy, Eq, Ord, PartialEq, PartialOrd, Hash)]
-pub enum FilterRuleName {
-    suffix,
-    prefix,
-}
-impl AsRef<str> for FilterRuleName {
-    fn as_ref(&self) -> &str {
-        match self {
-            Self::suffix => "suffix",
-            Self::prefix => "prefix",
-        }
-    }
-}
-impl TryFrom<&str> for FilterRuleName {
-    type Error = String;
-    fn try_from(s: &str) -> Result<Self, Self::Error> {
-        match s {
-            "suffix" => Ok(Self::suffix),
-            "prefix" => Ok(Self::prefix),
-            _ => Err(format!("unknown enum value {}", s)),
-        }
-    }
-}
-
-pub type Parts = Vec<Part>;
-
-#[derive(Debug, Default, Clone)]
-pub struct Tagging {
-    pub tag_set: Option<TagSet>,
-}
-impl Tagging {
-    pub fn to_http_response(self) -> anyhow::Result<hyper::Response<hyper::Body>> {
-        anyhow::bail!("todo")
-    }
-}
-
-pub type TargetGrants = Vec<TargetGrant>;
-
-#[derive(Debug, Clone, Copy, Eq, Ord, PartialEq, PartialOrd, Hash)]
-pub enum Type {
-    Group,
-    CanonicalUser,
-    AmazonCustomerByEmail,
-}
-impl AsRef<str> for Type {
-    fn as_ref(&self) -> &str {
-        match self {
-            Self::Group => "Group",
-            Self::CanonicalUser => "CanonicalUser",
-            Self::AmazonCustomerByEmail => "AmazonCustomerByEmail",
-        }
-    }
-}
-impl TryFrom<&str> for Type {
-    type Error = String;
-    fn try_from(s: &str) -> Result<Self, Self::Error> {
-        match s {
-            "Group" => Ok(Self::Group),
-            "CanonicalUser" => Ok(Self::CanonicalUser),
-            "AmazonCustomerByEmail" => Ok(Self::AmazonCustomerByEmail),
-            _ => Err(format!("unknown enum value {}", s)),
-        }
-    }
-}
-
-#[derive(Debug, Default, Clone)]
-pub struct WebsiteConfiguration {
-    pub routing_rules: Option<RoutingRules>,
-    pub redirect_all_requests_to: Option<RedirectAllRequestsTo>,
-    pub index_document: Option<IndexDocument>,
-    pub error_document: Option<ErrorDocument>,
-}
-impl WebsiteConfiguration {
-    pub fn to_http_response(self) -> anyhow::Result<hyper::Response<hyper::Body>> {
-        anyhow::bail!("todo")
-    }
-}
-
-#[derive(Debug, Default, Clone)]
-pub struct GetBucketIntelligentTieringConfigurationOutput {
-    pub intelligent_tiering_configuration: Option<IntelligentTieringConfiguration>,
-}
-impl GetBucketIntelligentTieringConfigurationOutput {
-    pub fn to_http_response(self) -> anyhow::Result<hyper::Response<hyper::Body>> {
-        anyhow::bail!("todo")
-    }
-}
-
-pub type RecordDelimiter = String;
-
-pub type CacheControl = String;
-
-#[derive(Debug, Default, Clone)]
-pub struct RestoreObjectRequest {
-    pub key: Option<ObjectKey>,
-    pub bucket: Option<BucketName>,
+    pub confirm_remove_self_bucket_access: Option<ConfirmRemoveSelfBucketAccess>,
+    pub content_md5: Option<ContentMd5>,
+    pub policy: Option<Policy>,
     pub checksum_algorithm: Option<ChecksumAlgorithm>,
-    pub restore_request: Option<RestoreRequest>,
     pub expected_bucket_owner: Option<AccountId>,
-    pub version_id: Option<ObjectVersionId>,
-    pub request_payer: Option<RequestPayer>,
 }
-impl RestoreObjectRequest {
+impl PutBucketPolicyRequest {
     pub fn to_http_response(self) -> anyhow::Result<hyper::Response<hyper::Body>> {
         anyhow::bail!("todo")
     }
 }
 
 #[derive(Debug, Default, Clone)]
-pub struct GetBucketIntelligentTieringConfigurationRequest {
-    pub bucket: Option<BucketName>,
-    pub id: Option<IntelligentTieringId>,
-}
-impl GetBucketIntelligentTieringConfigurationRequest {
-    pub fn to_http_response(self) -> anyhow::Result<hyper::Response<hyper::Body>> {
-        anyhow::bail!("todo")
-    }
-}
-
-pub type LocationPrefix = String;
-
-pub type Prefix = String;
-
-pub type Buckets = Vec<Bucket>;
-
-#[derive(Debug, Default, Clone)]
-pub struct GetBucketCors;
-impl OperationShape for GetBucketCors {
-    const NAME: &'static str = "GetBucketCors";
-    type Input = GetBucketCorsRequest;
-    type Output = GetBucketCorsOutput;
+pub struct PutObject;
+impl OperationShape for PutObject {
+    const NAME: &'static str = "PutObject";
+    type Input = PutObjectRequest;
+    type Output = PutObjectOutput;
     type Error = ();
 }
 
 #[derive(Debug, Default, Clone)]
-pub struct ListObjectsV2Output {
-    pub name: Option<BucketName>,
-    pub start_after: Option<StartAfter>,
-    pub key_count: Option<KeyCount>,
-    pub contents: Option<ObjectList>,
-    pub common_prefixes: Option<CommonPrefixList>,
-    pub encoding_type: Option<EncodingType>,
-    pub delimiter: Option<Delimiter>,
-    pub continuation_token: Option<Token>,
-    pub is_truncated: Option<IsTruncated>,
-    pub next_continuation_token: Option<NextToken>,
-    pub max_keys: Option<MaxKeys>,
-    pub prefix: Option<Prefix>,
-}
-impl ListObjectsV2Output {
-    pub fn to_http_response(self) -> anyhow::Result<hyper::Response<hyper::Body>> {
-        anyhow::bail!("todo")
-    }
-}
-
-#[derive(Debug, Default, Clone)]
-pub struct AccessControlPolicy {
-    pub owner: Option<Owner>,
-    pub grants: Option<Grants>,
-}
-impl AccessControlPolicy {
-    pub fn to_http_response(self) -> anyhow::Result<hyper::Response<hyper::Body>> {
-        anyhow::bail!("todo")
-    }
-}
-
-#[derive(Debug, Clone, Copy, Eq, Ord, PartialEq, PartialOrd, Hash)]
-pub enum ObjectOwnership {
-    ObjectWriter,
-    BucketOwnerPreferred,
-    BucketOwnerEnforced,
-}
-impl AsRef<str> for ObjectOwnership {
-    fn as_ref(&self) -> &str {
-        match self {
-            Self::ObjectWriter => "ObjectWriter",
-            Self::BucketOwnerPreferred => "BucketOwnerPreferred",
-            Self::BucketOwnerEnforced => "BucketOwnerEnforced",
-        }
-    }
-}
-impl TryFrom<&str> for ObjectOwnership {
-    type Error = String;
-    fn try_from(s: &str) -> Result<Self, Self::Error> {
-        match s {
-            "ObjectWriter" => Ok(Self::ObjectWriter),
-            "BucketOwnerPreferred" => Ok(Self::BucketOwnerPreferred),
-            "BucketOwnerEnforced" => Ok(Self::BucketOwnerEnforced),
-            _ => Err(format!("unknown enum value {}", s)),
-        }
-    }
-}
-
-#[derive(Debug, Default, Clone)]
-pub struct PutBucketIntelligentTieringConfigurationRequest {
-    pub bucket: Option<BucketName>,
-    pub id: Option<IntelligentTieringId>,
-    pub intelligent_tiering_configuration: Option<IntelligentTieringConfiguration>,
-}
-impl PutBucketIntelligentTieringConfigurationRequest {
-    pub fn to_http_response(self) -> anyhow::Result<hyper::Response<hyper::Body>> {
-        anyhow::bail!("todo")
-    }
-}
-
-pub type RequestToken = String;
-
-#[derive(Debug, Default, Clone)]
-pub struct GetBucketWebsite;
-impl OperationShape for GetBucketWebsite {
-    const NAME: &'static str = "GetBucketWebsite";
-    type Input = GetBucketWebsiteRequest;
-    type Output = GetBucketWebsiteOutput;
-    type Error = ();
-}
-
-#[derive(Debug, Clone, Copy, Eq, Ord, PartialEq, PartialOrd, Hash)]
-pub enum ObjectVersionStorageClass {
-    STANDARD,
-}
-impl AsRef<str> for ObjectVersionStorageClass {
-    fn as_ref(&self) -> &str {
-        match self {
-            Self::STANDARD => "STANDARD",
-        }
-    }
-}
-impl TryFrom<&str> for ObjectVersionStorageClass {
-    type Error = String;
-    fn try_from(s: &str) -> Result<Self, Self::Error> {
-        match s {
-            "STANDARD" => Ok(Self::STANDARD),
-            _ => Err(format!("unknown enum value {}", s)),
-        }
-    }
-}
-
-pub type CopySourceIfNoneMatch = String;
-
-#[derive(Debug, Default, Clone)]
-pub struct Destination {
-    pub encryption_configuration: Option<EncryptionConfiguration>,
-    pub access_control_translation: Option<AccessControlTranslation>,
-    pub account: Option<AccountId>,
-    pub metrics: Option<Metrics>,
-    pub replication_time: Option<ReplicationTime>,
-    pub storage_class: Option<StorageClass>,
-    pub bucket: Option<BucketName>,
-}
-impl Destination {
-    pub fn to_http_response(self) -> anyhow::Result<hyper::Response<hyper::Body>> {
-        anyhow::bail!("todo")
-    }
-}
-
-#[derive(Debug, Default, Clone)]
-pub struct GetObjectRetentionRequest {
-    pub version_id: Option<ObjectVersionId>,
-    pub expected_bucket_owner: Option<AccountId>,
-    pub request_payer: Option<RequestPayer>,
-    pub key: Option<ObjectKey>,
-    pub bucket: Option<BucketName>,
-}
-impl GetObjectRetentionRequest {
-    pub fn to_http_response(self) -> anyhow::Result<hyper::Response<hyper::Body>> {
-        anyhow::bail!("todo")
-    }
-}
-
-pub type NextKeyMarker = String;
-
-pub type Body = Vec<u8>;
-
-#[derive(Debug, Default, Clone)]
-pub struct ObjectNotInActiveTierError {}
-impl ObjectNotInActiveTierError {
-    pub fn to_http_response(self) -> anyhow::Result<hyper::Response<hyper::Body>> {
-        anyhow::bail!("todo")
-    }
-}
-
-#[derive(Debug, Default, Clone)]
-pub struct PutBucketWebsite;
-impl OperationShape for PutBucketWebsite {
-    const NAME: &'static str = "PutBucketWebsite";
-    type Input = PutBucketWebsiteRequest;
-    type Output = ();
-    type Error = ();
-}
-
-pub type Suffix = String;
-
-#[derive(Debug, Default, Clone)]
-pub struct TopicConfiguration {
-    pub events: Option<EventList>,
-    pub topic_arn: Option<TopicArn>,
-    pub filter: Option<NotificationConfigurationFilter>,
-    pub id: Option<NotificationId>,
-}
-impl TopicConfiguration {
-    pub fn to_http_response(self) -> anyhow::Result<hyper::Response<hyper::Body>> {
-        anyhow::bail!("todo")
-    }
-}
-
-#[derive(Debug, Clone, Copy, Eq, Ord, PartialEq, PartialOrd, Hash)]
-pub enum ArchiveStatus {
-    DEEP_ARCHIVE_ACCESS,
-    ARCHIVE_ACCESS,
-}
-impl AsRef<str> for ArchiveStatus {
-    fn as_ref(&self) -> &str {
-        match self {
-            Self::DEEP_ARCHIVE_ACCESS => "DEEP_ARCHIVE_ACCESS",
-            Self::ARCHIVE_ACCESS => "ARCHIVE_ACCESS",
-        }
-    }
-}
-impl TryFrom<&str> for ArchiveStatus {
-    type Error = String;
-    fn try_from(s: &str) -> Result<Self, Self::Error> {
-        match s {
-            "DEEP_ARCHIVE_ACCESS" => Ok(Self::DEEP_ARCHIVE_ACCESS),
-            "ARCHIVE_ACCESS" => Ok(Self::ARCHIVE_ACCESS),
-            _ => Err(format!("unknown enum value {}", s)),
-        }
-    }
-}
-
-#[derive(Debug, Default, Clone)]
-pub struct DeleteBucketOwnershipControlsRequest {
-    pub expected_bucket_owner: Option<AccountId>,
-    pub bucket: Option<BucketName>,
-}
-impl DeleteBucketOwnershipControlsRequest {
-    pub fn to_http_response(self) -> anyhow::Result<hyper::Response<hyper::Body>> {
-        anyhow::bail!("todo")
-    }
-}
-
-#[derive(Debug, Default, Clone)]
-pub struct UploadPartCopy;
-impl OperationShape for UploadPartCopy {
-    const NAME: &'static str = "UploadPartCopy";
-    type Input = UploadPartCopyRequest;
-    type Output = UploadPartCopyOutput;
-    type Error = ();
-}
-
-#[derive(Debug, Default, Clone)]
-pub struct WriteGetObjectResponse;
-impl OperationShape for WriteGetObjectResponse {
-    const NAME: &'static str = "WriteGetObjectResponse";
-    type Input = WriteGetObjectResponseRequest;
-    type Output = ();
-    type Error = ();
-}
-
-#[derive(Debug, Default, Clone)]
-pub struct GetBucketEncryptionRequest {
+pub struct GetPublicAccessBlockRequest {
     pub bucket: Option<BucketName>,
     pub expected_bucket_owner: Option<AccountId>,
 }
-impl GetBucketEncryptionRequest {
-    pub fn to_http_response(self) -> anyhow::Result<hyper::Response<hyper::Body>> {
-        anyhow::bail!("todo")
-    }
-}
-
-#[derive(Debug, Clone, Copy, Eq, Ord, PartialEq, PartialOrd, Hash)]
-pub enum IntelligentTieringStatus {
-    Disabled,
-    Enabled,
-}
-impl AsRef<str> for IntelligentTieringStatus {
-    fn as_ref(&self) -> &str {
-        match self {
-            Self::Disabled => "Disabled",
-            Self::Enabled => "Enabled",
-        }
-    }
-}
-impl TryFrom<&str> for IntelligentTieringStatus {
-    type Error = String;
-    fn try_from(s: &str) -> Result<Self, Self::Error> {
-        match s {
-            "Disabled" => Ok(Self::Disabled),
-            "Enabled" => Ok(Self::Enabled),
-            _ => Err(format!("unknown enum value {}", s)),
-        }
-    }
-}
-
-#[derive(Debug, Default, Clone)]
-pub struct ListObjectVersionsRequest {
-    pub max_keys: Option<MaxKeys>,
-    pub expected_bucket_owner: Option<AccountId>,
-    pub key_marker: Option<KeyMarker>,
-    pub bucket: Option<BucketName>,
-    pub delimiter: Option<Delimiter>,
-    pub encoding_type: Option<EncodingType>,
-    pub prefix: Option<Prefix>,
-    pub version_id_marker: Option<VersionIdMarker>,
-}
-impl ListObjectVersionsRequest {
-    pub fn to_http_response(self) -> anyhow::Result<hyper::Response<hyper::Body>> {
-        anyhow::bail!("todo")
-    }
-}
-
-#[derive(Debug, Default, Clone)]
-pub struct PutBucketAccelerateConfiguration;
-impl OperationShape for PutBucketAccelerateConfiguration {
-    const NAME: &'static str = "PutBucketAccelerateConfiguration";
-    type Input = PutBucketAccelerateConfigurationRequest;
-    type Output = ();
-    type Error = ();
-}
-
-#[derive(Debug, Default, Clone)]
-pub struct DeleteBucketInventoryConfigurationRequest {
-    pub bucket: Option<BucketName>,
-    pub expected_bucket_owner: Option<AccountId>,
-    pub id: Option<InventoryId>,
-}
-impl DeleteBucketInventoryConfigurationRequest {
-    pub fn to_http_response(self) -> anyhow::Result<hyper::Response<hyper::Body>> {
-        anyhow::bail!("todo")
-    }
-}
-
-#[derive(Debug, Default, Clone)]
-pub struct StorageClassAnalysis {
-    pub data_export: Option<StorageClassAnalysisDataExport>,
-}
-impl StorageClassAnalysis {
-    pub fn to_http_response(self) -> anyhow::Result<hyper::Response<hyper::Body>> {
-        anyhow::bail!("todo")
-    }
-}
-
-pub type NextVersionIdMarker = String;
-
-pub type TopicConfigurationList = Vec<TopicConfiguration>;
-
-#[derive(Debug, Default, Clone)]
-pub struct UploadPart;
-impl OperationShape for UploadPart {
-    const NAME: &'static str = "UploadPart";
-    type Input = UploadPartRequest;
-    type Output = UploadPartOutput;
-    type Error = ();
-}
-
-#[derive(Debug, Default, Clone)]
-pub struct GetBucketTagging;
-impl OperationShape for GetBucketTagging {
-    const NAME: &'static str = "GetBucketTagging";
-    type Input = GetBucketTaggingRequest;
-    type Output = GetBucketTaggingOutput;
-    type Error = ();
-}
-
-pub type ContentRange = String;
-
-#[derive(Debug, Default, Clone)]
-pub struct PutBucketIntelligentTieringConfiguration;
-impl OperationShape for PutBucketIntelligentTieringConfiguration {
-    const NAME: &'static str = "PutBucketIntelligentTieringConfiguration";
-    type Input = PutBucketIntelligentTieringConfigurationRequest;
-    type Output = ();
-    type Error = ();
-}
-
-pub type ContentLength = i64;
-
-#[derive(Debug, Default, Clone)]
-pub struct GetBucketTaggingRequest {
-    pub bucket: Option<BucketName>,
-    pub expected_bucket_owner: Option<AccountId>,
-}
-impl GetBucketTaggingRequest {
-    pub fn to_http_response(self) -> anyhow::Result<hyper::Response<hyper::Body>> {
-        anyhow::bail!("todo")
-    }
-}
-
-#[derive(Debug, Default, Clone)]
-pub struct DeleteBucketLifecycleRequest {
-    pub bucket: Option<BucketName>,
-    pub expected_bucket_owner: Option<AccountId>,
-}
-impl DeleteBucketLifecycleRequest {
-    pub fn to_http_response(self) -> anyhow::Result<hyper::Response<hyper::Body>> {
-        anyhow::bail!("todo")
-    }
-}
-
-pub type AllowedOrigin = String;
-
-#[derive(Debug, Clone, Copy, Eq, Ord, PartialEq, PartialOrd, Hash)]
-pub enum TransitionStorageClass {
-    ONEZONE_IA,
-    DEEP_ARCHIVE,
-    GLACIER,
-    STANDARD_IA,
-    INTELLIGENT_TIERING,
-    GLACIER_IR,
-}
-impl AsRef<str> for TransitionStorageClass {
-    fn as_ref(&self) -> &str {
-        match self {
-            Self::ONEZONE_IA => "ONEZONE_IA",
-            Self::DEEP_ARCHIVE => "DEEP_ARCHIVE",
-            Self::GLACIER => "GLACIER",
-            Self::STANDARD_IA => "STANDARD_IA",
-            Self::INTELLIGENT_TIERING => "INTELLIGENT_TIERING",
-            Self::GLACIER_IR => "GLACIER_IR",
-        }
-    }
-}
-impl TryFrom<&str> for TransitionStorageClass {
-    type Error = String;
-    fn try_from(s: &str) -> Result<Self, Self::Error> {
-        match s {
-            "ONEZONE_IA" => Ok(Self::ONEZONE_IA),
-            "DEEP_ARCHIVE" => Ok(Self::DEEP_ARCHIVE),
-            "GLACIER" => Ok(Self::GLACIER),
-            "STANDARD_IA" => Ok(Self::STANDARD_IA),
-            "INTELLIGENT_TIERING" => Ok(Self::INTELLIGENT_TIERING),
-            "GLACIER_IR" => Ok(Self::GLACIER_IR),
-            _ => Err(format!("unknown enum value {}", s)),
-        }
-    }
-}
-
-#[derive(Debug, Default, Clone)]
-pub struct ListBucketAnalyticsConfigurationsOutput {
-    pub analytics_configuration_list: Option<AnalyticsConfigurationList>,
-    pub next_continuation_token: Option<NextToken>,
-    pub continuation_token: Option<Token>,
-    pub is_truncated: Option<IsTruncated>,
-}
-impl ListBucketAnalyticsConfigurationsOutput {
+impl GetPublicAccessBlockRequest {
     pub fn to_http_response(self) -> anyhow::Result<hyper::Response<hyper::Body>> {
         anyhow::bail!("todo")
     }
@@ -949,209 +588,250 @@ impl OperationShape for CreateMultipartUpload {
 }
 
 #[derive(Debug, Default, Clone)]
-pub struct CompleteMultipartUploadOutput {
-    pub expiration: Option<Expiration>,
-    pub checksum_crc32_c: Option<ChecksumCrc32c>,
-    pub version_id: Option<ObjectVersionId>,
-    pub bucket_key_enabled: Option<BucketKeyEnabled>,
-    pub checksum_sha1: Option<ChecksumSha1>,
-    pub ssekms_key_id: Option<SsekmsKeyId>,
-    pub e_tag: Option<ETag>,
-    pub bucket: Option<BucketName>,
-    pub checksum_sha256: Option<ChecksumSha256>,
-    pub location: Option<Location>,
-    pub server_side_encryption: Option<ServerSideEncryption>,
-    pub checksum_crc32: Option<ChecksumCrc32>,
+pub struct Object {
+    pub owner: Option<Owner>,
+    pub last_modified: Option<LastModified>,
     pub key: Option<ObjectKey>,
-    pub request_charged: Option<RequestCharged>,
+    pub storage_class: Option<ObjectStorageClass>,
+    pub size: Option<Size>,
+    pub e_tag: Option<ETag>,
+    pub checksum_algorithm: Option<ChecksumAlgorithmList>,
 }
-impl CompleteMultipartUploadOutput {
+impl Object {
     pub fn to_http_response(self) -> anyhow::Result<hyper::Response<hyper::Body>> {
         anyhow::bail!("todo")
     }
 }
 
-pub type KeyCount = i32;
-
-#[derive(Debug, Clone, Copy, Eq, Ord, PartialEq, PartialOrd, Hash)]
-pub enum ChecksumMode {
-    ENABLED,
-}
-impl AsRef<str> for ChecksumMode {
-    fn as_ref(&self) -> &str {
-        match self {
-            Self::ENABLED => "ENABLED",
-        }
-    }
-}
-impl TryFrom<&str> for ChecksumMode {
-    type Error = String;
-    fn try_from(s: &str) -> Result<Self, Self::Error> {
-        match s {
-            "ENABLED" => Ok(Self::ENABLED),
-            _ => Err(format!("unknown enum value {}", s)),
-        }
-    }
-}
-
 #[derive(Debug, Default, Clone)]
-pub struct SourceSelectionCriteria {
-    pub replica_modifications: Option<ReplicaModifications>,
-    pub sse_kms_encrypted_objects: Option<SseKmsEncryptedObjects>,
+pub struct Owner {
+    pub display_name: Option<DisplayName>,
+    pub id: Option<Id>,
 }
-impl SourceSelectionCriteria {
+impl Owner {
     pub fn to_http_response(self) -> anyhow::Result<hyper::Response<hyper::Body>> {
         anyhow::bail!("todo")
     }
 }
 
-#[derive(Debug, Clone, Copy, Eq, Ord, PartialEq, PartialOrd, Hash)]
-pub enum MfaDelete {
-    Enabled,
-    Disabled,
-}
-impl AsRef<str> for MfaDelete {
-    fn as_ref(&self) -> &str {
-        match self {
-            Self::Enabled => "Enabled",
-            Self::Disabled => "Disabled",
-        }
-    }
-}
-impl TryFrom<&str> for MfaDelete {
-    type Error = String;
-    fn try_from(s: &str) -> Result<Self, Self::Error> {
-        match s {
-            "Enabled" => Ok(Self::Enabled),
-            "Disabled" => Ok(Self::Disabled),
-            _ => Err(format!("unknown enum value {}", s)),
-        }
-    }
-}
-
 #[derive(Debug, Default, Clone)]
-pub struct AbortMultipartUploadOutput {
-    pub request_charged: Option<RequestCharged>,
+pub struct DeleteObjectRequest {
+    pub bucket: Option<BucketName>,
+    pub bypass_governance_retention: Option<BypassGovernanceRetention>,
+    pub key: Option<ObjectKey>,
+    pub mfa: Option<Mfa>,
+    pub version_id: Option<ObjectVersionId>,
+    pub expected_bucket_owner: Option<AccountId>,
+    pub request_payer: Option<RequestPayer>,
 }
-impl AbortMultipartUploadOutput {
+impl DeleteObjectRequest {
     pub fn to_http_response(self) -> anyhow::Result<hyper::Response<hyper::Body>> {
         anyhow::bail!("todo")
     }
 }
 
-pub type DeletedObjects = Vec<DeletedObject>;
-
-pub type QuoteCharacter = String;
+pub type IfMatch = String;
 
 #[derive(Debug, Default, Clone)]
-pub struct DeleteBucketMetricsConfiguration;
-impl OperationShape for DeleteBucketMetricsConfiguration {
-    const NAME: &'static str = "DeleteBucketMetricsConfiguration";
-    type Input = DeleteBucketMetricsConfigurationRequest;
+pub struct IndexDocument {
+    pub suffix: Option<Suffix>,
+}
+impl IndexDocument {
+    pub fn to_http_response(self) -> anyhow::Result<hyper::Response<hyper::Body>> {
+        anyhow::bail!("todo")
+    }
+}
+
+pub type SseCustomerKey = String;
+
+#[derive(Debug, Default, Clone)]
+pub struct SelectObjectContentOutput {
+    pub payload: Option<SelectObjectContentEventStream>,
+}
+impl SelectObjectContentOutput {
+    pub fn to_http_response(self) -> anyhow::Result<hyper::Response<hyper::Body>> {
+        anyhow::bail!("todo")
+    }
+}
+
+#[derive(Debug, Default, Clone)]
+pub struct ListBucketInventoryConfigurationsRequest {
+    pub bucket: Option<BucketName>,
+    pub expected_bucket_owner: Option<AccountId>,
+    pub continuation_token: Option<Token>,
+}
+impl ListBucketInventoryConfigurationsRequest {
+    pub fn to_http_response(self) -> anyhow::Result<hyper::Response<hyper::Body>> {
+        anyhow::bail!("todo")
+    }
+}
+
+#[derive(Debug, Default, Clone)]
+pub struct GetBucketLifecycleConfigurationRequest {
+    pub bucket: Option<BucketName>,
+    pub expected_bucket_owner: Option<AccountId>,
+}
+impl GetBucketLifecycleConfigurationRequest {
+    pub fn to_http_response(self) -> anyhow::Result<hyper::Response<hyper::Body>> {
+        anyhow::bail!("todo")
+    }
+}
+
+#[derive(Debug, Default, Clone)]
+pub struct CorsRule {
+    pub allowed_headers: Option<AllowedHeaders>,
+    pub allowed_origins: Option<AllowedOrigins>,
+    pub allowed_methods: Option<AllowedMethods>,
+    pub id: Option<Id>,
+    pub max_age_seconds: Option<MaxAgeSeconds>,
+    pub expose_headers: Option<ExposeHeaders>,
+}
+impl CorsRule {
+    pub fn to_http_response(self) -> anyhow::Result<hyper::Response<hyper::Body>> {
+        anyhow::bail!("todo")
+    }
+}
+
+#[derive(Debug, Default, Clone)]
+pub struct WriteGetObjectResponse;
+impl OperationShape for WriteGetObjectResponse {
+    const NAME: &'static str = "WriteGetObjectResponse";
+    type Input = WriteGetObjectResponseRequest;
     type Output = ();
     type Error = ();
 }
 
-pub type StreamingBlob = Arc<hyper::Body>;
-
-pub type BucketKeyEnabled = bool;
-
-pub type ExposeHeaders = Vec<ExposeHeader>;
-
-pub type GrantRead = String;
-
-pub type ExposeHeader = String;
-
-pub type HttpRedirectCode = String;
+#[derive(Debug, Default, Clone)]
+pub struct MetadataEntry {
+    pub name: Option<MetadataKey>,
+    pub value: Option<MetadataValue>,
+}
+impl MetadataEntry {
+    pub fn to_http_response(self) -> anyhow::Result<hyper::Response<hyper::Body>> {
+        anyhow::bail!("todo")
+    }
+}
 
 #[derive(Debug, Default, Clone)]
-pub struct PutBucketLifecycleConfigurationRequest {
-    pub expected_bucket_owner: Option<AccountId>,
+pub struct PutBucketVersioning;
+impl OperationShape for PutBucketVersioning {
+    const NAME: &'static str = "PutBucketVersioning";
+    type Input = PutBucketVersioningRequest;
+    type Output = ();
+    type Error = ();
+}
+
+#[derive(Debug, Default, Clone)]
+pub struct ReplicationRuleAndOperator {
+    pub prefix: Option<Prefix>,
+    pub tags: Option<TagSet>,
+}
+impl ReplicationRuleAndOperator {
+    pub fn to_http_response(self) -> anyhow::Result<hyper::Response<hyper::Body>> {
+        anyhow::bail!("todo")
+    }
+}
+
+#[derive(Debug, Default, Clone)]
+pub struct GetBucketWebsite;
+impl OperationShape for GetBucketWebsite {
+    const NAME: &'static str = "GetBucketWebsite";
+    type Input = GetBucketWebsiteRequest;
+    type Output = GetBucketWebsiteOutput;
+    type Error = ();
+}
+
+#[derive(Debug, Default, Clone)]
+pub struct GetBucketOwnershipControls;
+impl OperationShape for GetBucketOwnershipControls {
+    const NAME: &'static str = "GetBucketOwnershipControls";
+    type Input = GetBucketOwnershipControlsRequest;
+    type Output = GetBucketOwnershipControlsOutput;
+    type Error = ();
+}
+
+#[derive(Debug, Clone, Copy, Eq, Ord, PartialEq, PartialOrd, Hash)]
+pub enum JsonType {
+    DOCUMENT,
+    LINES,
+}
+impl AsRef<str> for JsonType {
+    fn as_ref(&self) -> &str {
+        match self {
+            Self::DOCUMENT => "DOCUMENT",
+            Self::LINES => "LINES",
+        }
+    }
+}
+impl TryFrom<&str> for JsonType {
+    type Error = String;
+    fn try_from(s: &str) -> Result<Self, Self::Error> {
+        match s {
+            "DOCUMENT" => Ok(Self::DOCUMENT),
+            "LINES" => Ok(Self::LINES),
+            _ => Err(format!("unknown enum value {}", s)),
+        }
+    }
+}
+
+pub type TagSet = Vec<Tag>;
+
+#[derive(Debug, Default, Clone)]
+pub struct ListBucketIntelligentTieringConfigurationsRequest {
     pub bucket: Option<BucketName>,
-    pub checksum_algorithm: Option<ChecksumAlgorithm>,
-    pub lifecycle_configuration: Option<BucketLifecycleConfiguration>,
-}
-impl PutBucketLifecycleConfigurationRequest {
-    pub fn to_http_response(self) -> anyhow::Result<hyper::Response<hyper::Body>> {
-        anyhow::bail!("todo")
-    }
-}
-
-pub type Token = String;
-
-#[derive(Debug, Default, Clone)]
-pub struct CsvOutput {
-    pub quote_fields: Option<QuoteFields>,
-    pub record_delimiter: Option<RecordDelimiter>,
-    pub field_delimiter: Option<FieldDelimiter>,
-    pub quote_escape_character: Option<QuoteEscapeCharacter>,
-    pub quote_character: Option<QuoteCharacter>,
-}
-impl CsvOutput {
-    pub fn to_http_response(self) -> anyhow::Result<hyper::Response<hyper::Body>> {
-        anyhow::bail!("todo")
-    }
-}
-
-#[derive(Debug, Default, Clone)]
-pub struct ScanRange {
-    pub end: Option<End>,
-    pub start: Option<Start>,
-}
-impl ScanRange {
-    pub fn to_http_response(self) -> anyhow::Result<hyper::Response<hyper::Body>> {
-        anyhow::bail!("todo")
-    }
-}
-
-#[derive(Debug, Default, Clone)]
-pub struct ListBucketInventoryConfigurationsOutput {
-    pub next_continuation_token: Option<NextToken>,
     pub continuation_token: Option<Token>,
-    pub is_truncated: Option<IsTruncated>,
-    pub inventory_configuration_list: Option<InventoryConfigurationList>,
 }
-impl ListBucketInventoryConfigurationsOutput {
+impl ListBucketIntelligentTieringConfigurationsRequest {
     pub fn to_http_response(self) -> anyhow::Result<hyper::Response<hyper::Body>> {
         anyhow::bail!("todo")
     }
 }
 
 #[derive(Debug, Default, Clone)]
-pub struct GetPublicAccessBlockOutput {
-    pub public_access_block_configuration: Option<PublicAccessBlockConfiguration>,
+pub struct ReplicationTime {
+    pub status: Option<ReplicationTimeStatus>,
+    pub time: Option<ReplicationTimeValue>,
 }
-impl GetPublicAccessBlockOutput {
+impl ReplicationTime {
     pub fn to_http_response(self) -> anyhow::Result<hyper::Response<hyper::Body>> {
         anyhow::bail!("todo")
     }
 }
 
-#[derive(Debug, Default, Clone)]
-pub struct LoggingEnabled {
-    pub target_bucket: Option<TargetBucket>,
-    pub target_grants: Option<TargetGrants>,
-    pub target_prefix: Option<TargetPrefix>,
+#[derive(Debug, Clone, Copy, Eq, Ord, PartialEq, PartialOrd, Hash)]
+pub enum Permission {
+    READ_ACP,
+    WRITE_ACP,
+    FULL_CONTROL,
+    READ,
+    WRITE,
 }
-impl LoggingEnabled {
-    pub fn to_http_response(self) -> anyhow::Result<hyper::Response<hyper::Body>> {
-        anyhow::bail!("todo")
+impl AsRef<str> for Permission {
+    fn as_ref(&self) -> &str {
+        match self {
+            Self::READ_ACP => "READ_ACP",
+            Self::WRITE_ACP => "WRITE_ACP",
+            Self::FULL_CONTROL => "FULL_CONTROL",
+            Self::READ => "READ",
+            Self::WRITE => "WRITE",
+        }
+    }
+}
+impl TryFrom<&str> for Permission {
+    type Error = String;
+    fn try_from(s: &str) -> Result<Self, Self::Error> {
+        match s {
+            "READ_ACP" => Ok(Self::READ_ACP),
+            "WRITE_ACP" => Ok(Self::WRITE_ACP),
+            "FULL_CONTROL" => Ok(Self::FULL_CONTROL),
+            "READ" => Ok(Self::READ),
+            "WRITE" => Ok(Self::WRITE),
+            _ => Err(format!("unknown enum value {}", s)),
+        }
     }
 }
 
-#[derive(Debug, Default, Clone)]
-pub struct PutBucketTaggingRequest {
-    pub bucket: Option<BucketName>,
-    pub checksum_algorithm: Option<ChecksumAlgorithm>,
-    pub expected_bucket_owner: Option<AccountId>,
-    pub tagging: Option<Tagging>,
-    pub content_md5: Option<ContentMd5>,
-}
-impl PutBucketTaggingRequest {
-    pub fn to_http_response(self) -> anyhow::Result<hyper::Response<hyper::Body>> {
-        anyhow::bail!("todo")
-    }
-}
+pub type AllowedHeaders = Vec<AllowedHeader>;
 
 #[derive(Debug, Clone, Copy, Eq, Ord, PartialEq, PartialOrd, Hash)]
 pub enum ReplicationTimeStatus {
@@ -1178,487 +858,113 @@ impl TryFrom<&str> for ReplicationTimeStatus {
 }
 
 #[derive(Debug, Default, Clone)]
-pub struct DeleteBucketPolicyRequest {
-    pub expected_bucket_owner: Option<AccountId>,
-    pub bucket: Option<BucketName>,
-}
-impl DeleteBucketPolicyRequest {
-    pub fn to_http_response(self) -> anyhow::Result<hyper::Response<hyper::Body>> {
-        anyhow::bail!("todo")
-    }
-}
-
-#[derive(Debug, Default, Clone)]
-pub struct EndEvent {}
-impl EndEvent {
-    pub fn to_http_response(self) -> anyhow::Result<hyper::Response<hyper::Body>> {
-        anyhow::bail!("todo")
-    }
-}
-
-#[derive(Debug, Default, Clone)]
-pub struct IntelligentTieringFilter {
-    pub prefix: Option<Prefix>,
-    pub tag: Option<Tag>,
-    pub and: Option<IntelligentTieringAndOperator>,
-}
-impl IntelligentTieringFilter {
-    pub fn to_http_response(self) -> anyhow::Result<hyper::Response<hyper::Body>> {
-        anyhow::bail!("todo")
-    }
-}
-
-pub type DisplayName = String;
-
-pub type Code = String;
-
-pub type Location = String;
-
-#[derive(Debug, Default, Clone)]
-pub struct PutBucketCorsRequest {
-    pub checksum_algorithm: Option<ChecksumAlgorithm>,
-    pub expected_bucket_owner: Option<AccountId>,
-    pub content_md5: Option<ContentMd5>,
-    pub cors_configuration: Option<CorsConfiguration>,
-    pub bucket: Option<BucketName>,
-}
-impl PutBucketCorsRequest {
-    pub fn to_http_response(self) -> anyhow::Result<hyper::Response<hyper::Body>> {
-        anyhow::bail!("todo")
-    }
-}
-
-#[derive(Debug, Default, Clone)]
-pub struct PutObjectRetentionOutput {
-    pub request_charged: Option<RequestCharged>,
-}
-impl PutObjectRetentionOutput {
-    pub fn to_http_response(self) -> anyhow::Result<hyper::Response<hyper::Body>> {
-        anyhow::bail!("todo")
-    }
-}
-
-#[derive(Debug, Default, Clone)]
-pub struct CreateMultipartUploadOutput {
-    pub request_charged: Option<RequestCharged>,
-    pub ssekms_encryption_context: Option<SsekmsEncryptionContext>,
-    pub sse_customer_algorithm: Option<SseCustomerAlgorithm>,
-    pub abort_rule_id: Option<AbortRuleId>,
-    pub checksum_algorithm: Option<ChecksumAlgorithm>,
-    pub server_side_encryption: Option<ServerSideEncryption>,
-    pub bucket_key_enabled: Option<BucketKeyEnabled>,
-    pub abort_date: Option<AbortDate>,
-    pub upload_id: Option<MultipartUploadId>,
-    pub sse_customer_key_md5: Option<SseCustomerKeyMd5>,
-    pub key: Option<ObjectKey>,
-    pub ssekms_key_id: Option<SsekmsKeyId>,
-    pub bucket: Option<BucketName>,
-}
-impl CreateMultipartUploadOutput {
-    pub fn to_http_response(self) -> anyhow::Result<hyper::Response<hyper::Body>> {
-        anyhow::bail!("todo")
-    }
-}
-
-#[derive(Debug, Clone, Copy, Eq, Ord, PartialEq, PartialOrd, Hash)]
-pub enum InventoryFrequency {
-    Daily,
-    Weekly,
-}
-impl AsRef<str> for InventoryFrequency {
-    fn as_ref(&self) -> &str {
-        match self {
-            Self::Daily => "Daily",
-            Self::Weekly => "Weekly",
-        }
-    }
-}
-impl TryFrom<&str> for InventoryFrequency {
-    type Error = String;
-    fn try_from(s: &str) -> Result<Self, Self::Error> {
-        match s {
-            "Daily" => Ok(Self::Daily),
-            "Weekly" => Ok(Self::Weekly),
-            _ => Err(format!("unknown enum value {}", s)),
-        }
-    }
-}
-
-#[derive(Debug, Default, Clone)]
-pub struct PutBucketVersioning;
-impl OperationShape for PutBucketVersioning {
-    const NAME: &'static str = "PutBucketVersioning";
-    type Input = PutBucketVersioningRequest;
-    type Output = ();
+pub struct GetObjectLockConfiguration;
+impl OperationShape for GetObjectLockConfiguration {
+    const NAME: &'static str = "GetObjectLockConfiguration";
+    type Input = GetObjectLockConfigurationRequest;
+    type Output = GetObjectLockConfigurationOutput;
     type Error = ();
 }
 
 #[derive(Debug, Default, Clone)]
-pub struct ServerSideEncryptionConfiguration {
-    pub rules: Option<ServerSideEncryptionRules>,
-}
-impl ServerSideEncryptionConfiguration {
-    pub fn to_http_response(self) -> anyhow::Result<hyper::Response<hyper::Body>> {
-        anyhow::bail!("todo")
-    }
-}
-
-#[derive(Debug, Default, Clone)]
-pub struct ListBucketAnalyticsConfigurationsRequest {
+pub struct ListBucketIntelligentTieringConfigurationsOutput {
     pub continuation_token: Option<Token>,
-    pub expected_bucket_owner: Option<AccountId>,
-    pub bucket: Option<BucketName>,
+    pub next_continuation_token: Option<NextToken>,
+    pub is_truncated: Option<IsTruncated>,
+    pub intelligent_tiering_configuration_list: Option<IntelligentTieringConfigurationList>,
 }
-impl ListBucketAnalyticsConfigurationsRequest {
-    pub fn to_http_response(self) -> anyhow::Result<hyper::Response<hyper::Body>> {
-        anyhow::bail!("todo")
-    }
-}
-
-pub type MetricsConfigurationList = Vec<MetricsConfiguration>;
-
-#[derive(Debug, Default, Clone)]
-pub struct DeleteMarkerEntry {
-    pub owner: Option<Owner>,
-    pub key: Option<ObjectKey>,
-    pub last_modified: Option<LastModified>,
-    pub version_id: Option<ObjectVersionId>,
-    pub is_latest: Option<IsLatest>,
-}
-impl DeleteMarkerEntry {
+impl ListBucketIntelligentTieringConfigurationsOutput {
     pub fn to_http_response(self) -> anyhow::Result<hyper::Response<hyper::Body>> {
         anyhow::bail!("todo")
     }
 }
 
 #[derive(Debug, Default, Clone)]
-pub struct ReplicaModifications {
-    pub status: Option<ReplicaModificationsStatus>,
-}
-impl ReplicaModifications {
-    pub fn to_http_response(self) -> anyhow::Result<hyper::Response<hyper::Body>> {
-        anyhow::bail!("todo")
-    }
-}
-
-pub type ObjectLockEnabledForBucket = bool;
-
-#[derive(Debug, Default, Clone)]
-pub struct GetBucketNotificationConfigurationRequest {
-    pub bucket: Option<BucketName>,
-    pub expected_bucket_owner: Option<AccountId>,
-}
-impl GetBucketNotificationConfigurationRequest {
-    pub fn to_http_response(self) -> anyhow::Result<hyper::Response<hyper::Body>> {
-        anyhow::bail!("todo")
-    }
-}
-
-pub type ExpiredObjectDeleteMarker = bool;
-
-#[derive(Debug, Default, Clone)]
-pub struct GetBucketAccelerateConfigurationOutput {
-    pub status: Option<BucketAccelerateStatus>,
-}
-impl GetBucketAccelerateConfigurationOutput {
-    pub fn to_http_response(self) -> anyhow::Result<hyper::Response<hyper::Body>> {
-        anyhow::bail!("todo")
-    }
-}
-
-#[derive(Debug, Default, Clone)]
-pub struct Grant {
-    pub grantee: Option<Grantee>,
-    pub permission: Option<Permission>,
-}
-impl Grant {
-    pub fn to_http_response(self) -> anyhow::Result<hyper::Response<hyper::Body>> {
-        anyhow::bail!("todo")
-    }
-}
-
-#[derive(Debug, Default, Clone)]
-pub struct BucketAlreadyOwnedByYou {}
-impl BucketAlreadyOwnedByYou {
-    pub fn to_http_response(self) -> anyhow::Result<hyper::Response<hyper::Body>> {
-        anyhow::bail!("todo")
-    }
-}
-
-#[derive(Debug, Default, Clone)]
-pub struct ContinuationEvent {}
-impl ContinuationEvent {
-    pub fn to_http_response(self) -> anyhow::Result<hyper::Response<hyper::Body>> {
-        anyhow::bail!("todo")
-    }
-}
-
-#[derive(Debug, Default, Clone)]
-pub struct DeleteBucketReplication;
-impl OperationShape for DeleteBucketReplication {
-    const NAME: &'static str = "DeleteBucketReplication";
-    type Input = DeleteBucketReplicationRequest;
-    type Output = ();
+pub struct ListObjectsV2;
+impl OperationShape for ListObjectsV2 {
+    const NAME: &'static str = "ListObjectsV2";
+    type Input = ListObjectsV2Request;
+    type Output = ListObjectsV2Output;
     type Error = ();
 }
 
-pub type Role = String;
+#[derive(Debug, Default, Clone)]
+pub struct CopyPartResult {
+    pub e_tag: Option<ETag>,
+    pub checksum_crc32: Option<ChecksumCrc32>,
+    pub checksum_sha1: Option<ChecksumSha1>,
+    pub checksum_sha256: Option<ChecksumSha256>,
+    pub last_modified: Option<LastModified>,
+    pub checksum_crc32_c: Option<ChecksumCrc32c>,
+}
+impl CopyPartResult {
+    pub fn to_http_response(self) -> anyhow::Result<hyper::Response<hyper::Body>> {
+        anyhow::bail!("todo")
+    }
+}
 
-pub type RoutingRules = Vec<RoutingRule>;
+pub type CorsRules = Vec<CorsRule>;
+
+pub type LocationPrefix = String;
+
+#[derive(Debug, Default, Clone)]
+pub struct NoSuchBucket {}
+impl NoSuchBucket {
+    pub fn to_http_response(self) -> anyhow::Result<hyper::Response<hyper::Body>> {
+        anyhow::bail!("todo")
+    }
+}
 
 #[derive(Debug, Clone, Copy, Eq, Ord, PartialEq, PartialOrd, Hash)]
-pub enum ObjectLockEnabled {
-    Enabled,
+pub enum InventoryFormat {
+    CSV,
+    ORC,
+    Parquet,
 }
-impl AsRef<str> for ObjectLockEnabled {
+impl AsRef<str> for InventoryFormat {
     fn as_ref(&self) -> &str {
         match self {
-            Self::Enabled => "Enabled",
+            Self::CSV => "CSV",
+            Self::ORC => "ORC",
+            Self::Parquet => "Parquet",
         }
     }
 }
-impl TryFrom<&str> for ObjectLockEnabled {
+impl TryFrom<&str> for InventoryFormat {
     type Error = String;
     fn try_from(s: &str) -> Result<Self, Self::Error> {
         match s {
-            "Enabled" => Ok(Self::Enabled),
+            "CSV" => Ok(Self::CSV),
+            "ORC" => Ok(Self::ORC),
+            "Parquet" => Ok(Self::Parquet),
             _ => Err(format!("unknown enum value {}", s)),
         }
     }
 }
 
-pub type Message = String;
+pub type HostName = String;
+
+#[derive(Debug, Default, Clone)]
+pub struct GetBucketNotificationConfiguration;
+impl OperationShape for GetBucketNotificationConfiguration {
+    const NAME: &'static str = "GetBucketNotificationConfiguration";
+    type Input = GetBucketNotificationConfigurationRequest;
+    type Output = NotificationConfiguration;
+    type Error = ();
+}
+
+#[derive(Debug, Default, Clone)]
+pub struct Initiator {
+    pub id: Option<Id>,
+    pub display_name: Option<DisplayName>,
+}
+impl Initiator {
+    pub fn to_http_response(self) -> anyhow::Result<hyper::Response<hyper::Body>> {
+        anyhow::bail!("todo")
+    }
+}
 
 pub type Initiated = String;
-
-#[derive(Debug, Default, Clone)]
-pub struct GetBucketRequestPayment;
-impl OperationShape for GetBucketRequestPayment {
-    const NAME: &'static str = "GetBucketRequestPayment";
-    type Input = GetBucketRequestPaymentRequest;
-    type Output = GetBucketRequestPaymentOutput;
-    type Error = ();
-}
-
-#[derive(Debug, Default, Clone)]
-pub struct ListBucketsOutput {
-    pub buckets: Option<Buckets>,
-    pub owner: Option<Owner>,
-}
-impl ListBucketsOutput {
-    pub fn to_http_response(self) -> anyhow::Result<hyper::Response<hyper::Body>> {
-        anyhow::bail!("todo")
-    }
-}
-
-pub type IntelligentTieringConfigurationList = Vec<IntelligentTieringConfiguration>;
-
-#[derive(Debug, Default, Clone)]
-pub struct OwnershipControlsRule {
-    pub object_ownership: Option<ObjectOwnership>,
-}
-impl OwnershipControlsRule {
-    pub fn to_http_response(self) -> anyhow::Result<hyper::Response<hyper::Body>> {
-        anyhow::bail!("todo")
-    }
-}
-
-pub type ConfirmRemoveSelfBucketAccess = bool;
-
-pub type UploadIdMarker = String;
-
-pub type Errors = Vec<Error>;
-
-#[derive(Debug, Default, Clone)]
-pub struct S3Location {
-    pub canned_acl: Option<ObjectCannedAcl>,
-    pub access_control_list: Option<Grants>,
-    pub encryption: Option<Encryption>,
-    pub tagging: Option<Tagging>,
-    pub prefix: Option<LocationPrefix>,
-    pub bucket_name: Option<BucketName>,
-    pub storage_class: Option<StorageClass>,
-    pub user_metadata: Option<UserMetadata>,
-}
-impl S3Location {
-    pub fn to_http_response(self) -> anyhow::Result<hyper::Response<hyper::Body>> {
-        anyhow::bail!("todo")
-    }
-}
-
-#[derive(Debug, Clone)]
-pub enum MetricsFilter {
-    And(MetricsAndOperator),
-    Prefix(Prefix),
-    AccessPointArn(AccessPointArn),
-    Tag(Tag),
-}
-
-pub type ChecksumAlgorithmList = Vec<ChecksumAlgorithm>;
-
-pub type MissingMeta = i32;
-
-pub type VersionIdMarker = String;
-
-pub type Date = String;
-
-pub type NextPartNumberMarker = String;
-
-#[derive(Debug, Default, Clone)]
-pub struct CreateMultipartUploadRequest {
-    pub content_language: Option<ContentLanguage>,
-    pub tagging: Option<TaggingHeader>,
-    pub ssekms_encryption_context: Option<SsekmsEncryptionContext>,
-    pub bucket_key_enabled: Option<BucketKeyEnabled>,
-    pub bucket: Option<BucketName>,
-    pub ssekms_key_id: Option<SsekmsKeyId>,
-    pub grant_write_acp: Option<GrantWriteAcp>,
-    pub sse_customer_key: Option<SseCustomerKey>,
-    pub grant_full_control: Option<GrantFullControl>,
-    pub checksum_algorithm: Option<ChecksumAlgorithm>,
-    pub storage_class: Option<StorageClass>,
-    pub object_lock_mode: Option<ObjectLockMode>,
-    pub acl: Option<ObjectCannedAcl>,
-    pub key: Option<ObjectKey>,
-    pub object_lock_legal_hold_status: Option<ObjectLockLegalHoldStatus>,
-    pub object_lock_retain_until_date: Option<ObjectLockRetainUntilDate>,
-    pub sse_customer_algorithm: Option<SseCustomerAlgorithm>,
-    pub server_side_encryption: Option<ServerSideEncryption>,
-    pub content_disposition: Option<ContentDisposition>,
-    pub grant_read: Option<GrantRead>,
-    pub grant_read_acp: Option<GrantReadAcp>,
-    pub cache_control: Option<CacheControl>,
-    pub request_payer: Option<RequestPayer>,
-    pub expires: Option<Expires>,
-    pub content_type: Option<ContentType>,
-    pub metadata: Option<Metadata>,
-    pub content_encoding: Option<ContentEncoding>,
-    pub expected_bucket_owner: Option<AccountId>,
-    pub sse_customer_key_md5: Option<SseCustomerKeyMd5>,
-    pub website_redirect_location: Option<WebsiteRedirectLocation>,
-}
-impl CreateMultipartUploadRequest {
-    pub fn to_http_response(self) -> anyhow::Result<hyper::Response<hyper::Body>> {
-        anyhow::bail!("todo")
-    }
-}
-
-#[derive(Debug, Default, Clone)]
-pub struct GetBucketLogging;
-impl OperationShape for GetBucketLogging {
-    const NAME: &'static str = "GetBucketLogging";
-    type Input = GetBucketLoggingRequest;
-    type Output = GetBucketLoggingOutput;
-    type Error = ();
-}
-
-pub type Marker = String;
-
-#[derive(Debug, Default, Clone)]
-pub struct GetBucketLocationRequest {
-    pub expected_bucket_owner: Option<AccountId>,
-    pub bucket: Option<BucketName>,
-}
-impl GetBucketLocationRequest {
-    pub fn to_http_response(self) -> anyhow::Result<hyper::Response<hyper::Body>> {
-        anyhow::bail!("todo")
-    }
-}
-
-#[derive(Debug, Default, Clone)]
-pub struct GetBucketLocationOutput {
-    pub location_constraint: Option<BucketLocationConstraint>,
-}
-impl GetBucketLocationOutput {
-    pub fn to_http_response(self) -> anyhow::Result<hyper::Response<hyper::Body>> {
-        anyhow::bail!("todo")
-    }
-}
-
-#[derive(Debug, Default, Clone)]
-pub struct DeleteObjects;
-impl OperationShape for DeleteObjects {
-    const NAME: &'static str = "DeleteObjects";
-    type Input = DeleteObjectsRequest;
-    type Output = DeleteObjectsOutput;
-    type Error = ();
-}
-
-#[derive(Debug, Default, Clone)]
-pub struct PutBucketWebsiteRequest {
-    pub expected_bucket_owner: Option<AccountId>,
-    pub content_md5: Option<ContentMd5>,
-    pub website_configuration: Option<WebsiteConfiguration>,
-    pub bucket: Option<BucketName>,
-    pub checksum_algorithm: Option<ChecksumAlgorithm>,
-}
-impl PutBucketWebsiteRequest {
-    pub fn to_http_response(self) -> anyhow::Result<hyper::Response<hyper::Body>> {
-        anyhow::bail!("todo")
-    }
-}
-
-#[derive(Debug, Clone, Copy, Eq, Ord, PartialEq, PartialOrd, Hash)]
-pub enum ObjectLockRetentionMode {
-    COMPLIANCE,
-    GOVERNANCE,
-}
-impl AsRef<str> for ObjectLockRetentionMode {
-    fn as_ref(&self) -> &str {
-        match self {
-            Self::COMPLIANCE => "COMPLIANCE",
-            Self::GOVERNANCE => "GOVERNANCE",
-        }
-    }
-}
-impl TryFrom<&str> for ObjectLockRetentionMode {
-    type Error = String;
-    fn try_from(s: &str) -> Result<Self, Self::Error> {
-        match s {
-            "COMPLIANCE" => Ok(Self::COMPLIANCE),
-            "GOVERNANCE" => Ok(Self::GOVERNANCE),
-            _ => Err(format!("unknown enum value {}", s)),
-        }
-    }
-}
-
-#[derive(Debug, Default, Clone)]
-pub struct ListBucketInventoryConfigurationsRequest {
-    pub continuation_token: Option<Token>,
-    pub expected_bucket_owner: Option<AccountId>,
-    pub bucket: Option<BucketName>,
-}
-impl ListBucketInventoryConfigurationsRequest {
-    pub fn to_http_response(self) -> anyhow::Result<hyper::Response<hyper::Body>> {
-        anyhow::bail!("todo")
-    }
-}
-
-#[derive(Debug, Clone, Copy, Eq, Ord, PartialEq, PartialOrd, Hash)]
-pub enum SseKmsEncryptedObjectsStatus {
-    Disabled,
-    Enabled,
-}
-impl AsRef<str> for SseKmsEncryptedObjectsStatus {
-    fn as_ref(&self) -> &str {
-        match self {
-            Self::Disabled => "Disabled",
-            Self::Enabled => "Enabled",
-        }
-    }
-}
-impl TryFrom<&str> for SseKmsEncryptedObjectsStatus {
-    type Error = String;
-    fn try_from(s: &str) -> Result<Self, Self::Error> {
-        match s {
-            "Disabled" => Ok(Self::Disabled),
-            "Enabled" => Ok(Self::Enabled),
-            _ => Err(format!("unknown enum value {}", s)),
-        }
-    }
-}
-
-pub type Years = i32;
 
 #[derive(Debug, Default, Clone)]
 pub struct InventoryFilter {
@@ -1671,21 +977,847 @@ impl InventoryFilter {
 }
 
 #[derive(Debug, Default, Clone)]
-pub struct GetBucketMetricsConfigurationOutput {
-    pub metrics_configuration: Option<MetricsConfiguration>,
+pub struct SelectParameters {
+    pub expression_type: Option<ExpressionType>,
+    pub output_serialization: Option<OutputSerialization>,
+    pub expression: Option<Expression>,
+    pub input_serialization: Option<InputSerialization>,
 }
-impl GetBucketMetricsConfigurationOutput {
+impl SelectParameters {
+    pub fn to_http_response(self) -> anyhow::Result<hyper::Response<hyper::Body>> {
+        anyhow::bail!("todo")
+    }
+}
+
+#[derive(Debug, Default, Clone)]
+pub struct ListParts;
+impl OperationShape for ListParts {
+    const NAME: &'static str = "ListParts";
+    type Input = ListPartsRequest;
+    type Output = ListPartsOutput;
+    type Error = ();
+}
+
+#[derive(Debug, Default, Clone)]
+pub struct Delete {
+    pub quiet: Option<Quiet>,
+    pub objects: Option<ObjectIdentifierList>,
+}
+impl Delete {
+    pub fn to_http_response(self) -> anyhow::Result<hyper::Response<hyper::Body>> {
+        anyhow::bail!("todo")
+    }
+}
+
+pub type CopySourceSseCustomerAlgorithm = String;
+
+pub type IsTruncated = bool;
+
+#[derive(Debug, Default, Clone)]
+pub struct DeleteBucket;
+impl OperationShape for DeleteBucket {
+    const NAME: &'static str = "DeleteBucket";
+    type Input = DeleteBucketRequest;
+    type Output = ();
+    type Error = ();
+}
+
+#[derive(Debug, Default, Clone)]
+pub struct PutObjectRequest {
+    pub cache_control: Option<CacheControl>,
+    pub grant_read_acp: Option<GrantReadAcp>,
+    pub object_lock_retain_until_date: Option<ObjectLockRetainUntilDate>,
+    pub expected_bucket_owner: Option<AccountId>,
+    pub body: Option<StreamingBlob>,
+    pub checksum_crc32_c: Option<ChecksumCrc32c>,
+    pub bucket: Option<BucketName>,
+    pub content_language: Option<ContentLanguage>,
+    pub storage_class: Option<StorageClass>,
+    pub content_encoding: Option<ContentEncoding>,
+    pub content_length: Option<ContentLength>,
+    pub expires: Option<Expires>,
+    pub object_lock_mode: Option<ObjectLockMode>,
+    pub checksum_algorithm: Option<ChecksumAlgorithm>,
+    pub checksum_sha256: Option<ChecksumSha256>,
+    pub bucket_key_enabled: Option<BucketKeyEnabled>,
+    pub content_md5: Option<ContentMd5>,
+    pub request_payer: Option<RequestPayer>,
+    pub checksum_sha1: Option<ChecksumSha1>,
+    pub sse_customer_key_md5: Option<SseCustomerKeyMd5>,
+    pub ssekms_encryption_context: Option<SsekmsEncryptionContext>,
+    pub object_lock_legal_hold_status: Option<ObjectLockLegalHoldStatus>,
+    pub sse_customer_key: Option<SseCustomerKey>,
+    pub content_disposition: Option<ContentDisposition>,
+    pub tagging: Option<TaggingHeader>,
+    pub checksum_crc32: Option<ChecksumCrc32>,
+    pub ssekms_key_id: Option<SsekmsKeyId>,
+    pub server_side_encryption: Option<ServerSideEncryption>,
+    pub grant_full_control: Option<GrantFullControl>,
+    pub acl: Option<ObjectCannedAcl>,
+    pub grant_read: Option<GrantRead>,
+    pub key: Option<ObjectKey>,
+    pub content_type: Option<ContentType>,
+    pub grant_write_acp: Option<GrantWriteAcp>,
+    pub metadata: Option<Metadata>,
+    pub sse_customer_algorithm: Option<SseCustomerAlgorithm>,
+    pub website_redirect_location: Option<WebsiteRedirectLocation>,
+}
+impl PutObjectRequest {
+    pub fn to_http_response(self) -> anyhow::Result<hyper::Response<hyper::Body>> {
+        anyhow::bail!("todo")
+    }
+}
+
+pub type StartAfter = String;
+
+#[derive(Debug, Default, Clone)]
+pub struct ListObjectsV2Output {
+    pub delimiter: Option<Delimiter>,
+    pub prefix: Option<Prefix>,
+    pub start_after: Option<StartAfter>,
+    pub contents: Option<ObjectList>,
+    pub is_truncated: Option<IsTruncated>,
+    pub max_keys: Option<MaxKeys>,
+    pub encoding_type: Option<EncodingType>,
+    pub next_continuation_token: Option<NextToken>,
+    pub continuation_token: Option<Token>,
+    pub common_prefixes: Option<CommonPrefixList>,
+    pub name: Option<BucketName>,
+    pub key_count: Option<KeyCount>,
+}
+impl ListObjectsV2Output {
+    pub fn to_http_response(self) -> anyhow::Result<hyper::Response<hyper::Body>> {
+        anyhow::bail!("todo")
+    }
+}
+
+pub type InventoryConfigurationList = Vec<InventoryConfiguration>;
+
+#[derive(Debug, Default, Clone)]
+pub struct DeleteMarkerEntry {
+    pub key: Option<ObjectKey>,
+    pub owner: Option<Owner>,
+    pub is_latest: Option<IsLatest>,
+    pub last_modified: Option<LastModified>,
+    pub version_id: Option<ObjectVersionId>,
+}
+impl DeleteMarkerEntry {
+    pub fn to_http_response(self) -> anyhow::Result<hyper::Response<hyper::Body>> {
+        anyhow::bail!("todo")
+    }
+}
+
+#[derive(Debug, Default, Clone)]
+pub struct WriteGetObjectResponseRequest {
+    pub content_range: Option<ContentRange>,
+    pub storage_class: Option<StorageClass>,
+    pub checksum_sha1: Option<ChecksumSha1>,
+    pub object_lock_legal_hold_status: Option<ObjectLockLegalHoldStatus>,
+    pub ssekms_key_id: Option<SsekmsKeyId>,
+    pub tag_count: Option<TagCount>,
+    pub status_code: Option<GetObjectResponseStatusCode>,
+    pub expiration: Option<Expiration>,
+    pub error_message: Option<ErrorMessage>,
+    pub error_code: Option<ErrorCode>,
+    pub sse_customer_key_md5: Option<SseCustomerKeyMd5>,
+    pub server_side_encryption: Option<ServerSideEncryption>,
+    pub checksum_crc32_c: Option<ChecksumCrc32c>,
+    pub metadata: Option<Metadata>,
+    pub parts_count: Option<PartsCount>,
+    pub e_tag: Option<ETag>,
+    pub restore: Option<Restore>,
+    pub request_route: Option<RequestRoute>,
+    pub missing_meta: Option<MissingMeta>,
+    pub content_encoding: Option<ContentEncoding>,
+    pub object_lock_mode: Option<ObjectLockMode>,
+    pub accept_ranges: Option<AcceptRanges>,
+    pub checksum_crc32: Option<ChecksumCrc32>,
+    pub checksum_sha256: Option<ChecksumSha256>,
+    pub content_type: Option<ContentType>,
+    pub delete_marker: Option<DeleteMarker>,
+    pub version_id: Option<ObjectVersionId>,
+    pub request_token: Option<RequestToken>,
+    pub content_length: Option<ContentLength>,
+    pub body: Option<StreamingBlob>,
+    pub bucket_key_enabled: Option<BucketKeyEnabled>,
+    pub expires: Option<Expires>,
+    pub content_language: Option<ContentLanguage>,
+    pub object_lock_retain_until_date: Option<ObjectLockRetainUntilDate>,
+    pub replication_status: Option<ReplicationStatus>,
+    pub sse_customer_algorithm: Option<SseCustomerAlgorithm>,
+    pub content_disposition: Option<ContentDisposition>,
+    pub last_modified: Option<LastModified>,
+    pub request_charged: Option<RequestCharged>,
+    pub cache_control: Option<CacheControl>,
+}
+impl WriteGetObjectResponseRequest {
+    pub fn to_http_response(self) -> anyhow::Result<hyper::Response<hyper::Body>> {
+        anyhow::bail!("todo")
+    }
+}
+
+#[derive(Debug, Default, Clone)]
+pub struct UploadPartRequest {
+    pub part_number: Option<PartNumber>,
+    pub expected_bucket_owner: Option<AccountId>,
+    pub sse_customer_key_md5: Option<SseCustomerKeyMd5>,
+    pub key: Option<ObjectKey>,
+    pub checksum_crc32: Option<ChecksumCrc32>,
+    pub sse_customer_algorithm: Option<SseCustomerAlgorithm>,
+    pub upload_id: Option<MultipartUploadId>,
+    pub checksum_sha1: Option<ChecksumSha1>,
+    pub request_payer: Option<RequestPayer>,
+    pub sse_customer_key: Option<SseCustomerKey>,
+    pub checksum_algorithm: Option<ChecksumAlgorithm>,
+    pub checksum_sha256: Option<ChecksumSha256>,
+    pub bucket: Option<BucketName>,
+    pub content_length: Option<ContentLength>,
+    pub body: Option<StreamingBlob>,
+    pub content_md5: Option<ContentMd5>,
+    pub checksum_crc32_c: Option<ChecksumCrc32c>,
+}
+impl UploadPartRequest {
+    pub fn to_http_response(self) -> anyhow::Result<hyper::Response<hyper::Body>> {
+        anyhow::bail!("todo")
+    }
+}
+
+#[derive(Debug, Default, Clone)]
+pub struct Stats {
+    pub bytes_returned: Option<BytesReturned>,
+    pub bytes_processed: Option<BytesProcessed>,
+    pub bytes_scanned: Option<BytesScanned>,
+}
+impl Stats {
+    pub fn to_http_response(self) -> anyhow::Result<hyper::Response<hyper::Body>> {
+        anyhow::bail!("todo")
+    }
+}
+
+#[derive(Debug, Default, Clone)]
+pub struct NotificationConfiguration {
+    pub lambda_function_configurations: Option<LambdaFunctionConfigurationList>,
+    pub event_bridge_configuration: Option<EventBridgeConfiguration>,
+    pub queue_configurations: Option<QueueConfigurationList>,
+    pub topic_configurations: Option<TopicConfigurationList>,
+}
+impl NotificationConfiguration {
+    pub fn to_http_response(self) -> anyhow::Result<hyper::Response<hyper::Body>> {
+        anyhow::bail!("todo")
+    }
+}
+
+pub type AccessPointArn = String;
+
+#[derive(Debug, Clone, Copy, Eq, Ord, PartialEq, PartialOrd, Hash)]
+pub enum MetricsStatus {
+    Disabled,
+    Enabled,
+}
+impl AsRef<str> for MetricsStatus {
+    fn as_ref(&self) -> &str {
+        match self {
+            Self::Disabled => "Disabled",
+            Self::Enabled => "Enabled",
+        }
+    }
+}
+impl TryFrom<&str> for MetricsStatus {
+    type Error = String;
+    fn try_from(s: &str) -> Result<Self, Self::Error> {
+        match s {
+            "Disabled" => Ok(Self::Disabled),
+            "Enabled" => Ok(Self::Enabled),
+            _ => Err(format!("unknown enum value {}", s)),
+        }
+    }
+}
+
+#[derive(Debug, Default, Clone)]
+pub struct GetBucketVersioningRequest {
+    pub bucket: Option<BucketName>,
+    pub expected_bucket_owner: Option<AccountId>,
+}
+impl GetBucketVersioningRequest {
+    pub fn to_http_response(self) -> anyhow::Result<hyper::Response<hyper::Body>> {
+        anyhow::bail!("todo")
+    }
+}
+
+#[derive(Debug, Default, Clone)]
+pub struct Tiering {
+    pub days: Option<IntelligentTieringDays>,
+    pub access_tier: Option<IntelligentTieringAccessTier>,
+}
+impl Tiering {
+    pub fn to_http_response(self) -> anyhow::Result<hyper::Response<hyper::Body>> {
+        anyhow::bail!("todo")
+    }
+}
+
+#[derive(Debug, Default, Clone)]
+pub struct ListPartsOutput {
+    pub next_part_number_marker: Option<NextPartNumberMarker>,
+    pub is_truncated: Option<IsTruncated>,
+    pub abort_date: Option<AbortDate>,
+    pub parts: Option<Parts>,
+    pub upload_id: Option<MultipartUploadId>,
+    pub checksum_algorithm: Option<ChecksumAlgorithm>,
+    pub abort_rule_id: Option<AbortRuleId>,
+    pub storage_class: Option<StorageClass>,
+    pub initiator: Option<Initiator>,
+    pub part_number_marker: Option<PartNumberMarker>,
+    pub max_parts: Option<MaxParts>,
+    pub key: Option<ObjectKey>,
+    pub request_charged: Option<RequestCharged>,
+    pub owner: Option<Owner>,
+    pub bucket: Option<BucketName>,
+}
+impl ListPartsOutput {
+    pub fn to_http_response(self) -> anyhow::Result<hyper::Response<hyper::Body>> {
+        anyhow::bail!("todo")
+    }
+}
+
+#[derive(Debug, Default, Clone)]
+pub struct GetObjectRetentionRequest {
+    pub request_payer: Option<RequestPayer>,
+    pub version_id: Option<ObjectVersionId>,
+    pub key: Option<ObjectKey>,
+    pub expected_bucket_owner: Option<AccountId>,
+    pub bucket: Option<BucketName>,
+}
+impl GetObjectRetentionRequest {
+    pub fn to_http_response(self) -> anyhow::Result<hyper::Response<hyper::Body>> {
+        anyhow::bail!("todo")
+    }
+}
+
+#[derive(Debug, Default, Clone)]
+pub struct AccessControlPolicy {
+    pub grants: Option<Grants>,
+    pub owner: Option<Owner>,
+}
+impl AccessControlPolicy {
+    pub fn to_http_response(self) -> anyhow::Result<hyper::Response<hyper::Body>> {
+        anyhow::bail!("todo")
+    }
+}
+
+#[derive(Debug, Default, Clone)]
+pub struct DeleteBucketMetricsConfiguration;
+impl OperationShape for DeleteBucketMetricsConfiguration {
+    const NAME: &'static str = "DeleteBucketMetricsConfiguration";
+    type Input = DeleteBucketMetricsConfigurationRequest;
+    type Output = ();
+    type Error = ();
+}
+
+pub type ErrorCode = String;
+
+#[derive(Debug, Default, Clone)]
+pub struct GetObjectLockConfigurationOutput {
+    pub object_lock_configuration: Option<ObjectLockConfiguration>,
+}
+impl GetObjectLockConfigurationOutput {
+    pub fn to_http_response(self) -> anyhow::Result<hyper::Response<hyper::Body>> {
+        anyhow::bail!("todo")
+    }
+}
+
+#[derive(Debug, Default, Clone)]
+pub struct RestoreObjectRequest {
+    pub restore_request: Option<RestoreRequest>,
+    pub version_id: Option<ObjectVersionId>,
+    pub expected_bucket_owner: Option<AccountId>,
+    pub bucket: Option<BucketName>,
+    pub checksum_algorithm: Option<ChecksumAlgorithm>,
+    pub key: Option<ObjectKey>,
+    pub request_payer: Option<RequestPayer>,
+}
+impl RestoreObjectRequest {
+    pub fn to_http_response(self) -> anyhow::Result<hyper::Response<hyper::Body>> {
+        anyhow::bail!("todo")
+    }
+}
+
+#[derive(Debug, Default, Clone)]
+pub struct CopyObjectResult {
+    pub last_modified: Option<LastModified>,
+    pub checksum_sha1: Option<ChecksumSha1>,
+    pub checksum_crc32_c: Option<ChecksumCrc32c>,
+    pub checksum_crc32: Option<ChecksumCrc32>,
+    pub checksum_sha256: Option<ChecksumSha256>,
+    pub e_tag: Option<ETag>,
+}
+impl CopyObjectResult {
+    pub fn to_http_response(self) -> anyhow::Result<hyper::Response<hyper::Body>> {
+        anyhow::bail!("todo")
+    }
+}
+
+#[derive(Debug, Default, Clone)]
+pub struct DeleteBucketPolicy;
+impl OperationShape for DeleteBucketPolicy {
+    const NAME: &'static str = "DeleteBucketPolicy";
+    type Input = DeleteBucketPolicyRequest;
+    type Output = ();
+    type Error = ();
+}
+
+#[derive(Debug, Default, Clone)]
+pub struct GetBucketPolicyRequest {
+    pub expected_bucket_owner: Option<AccountId>,
+    pub bucket: Option<BucketName>,
+}
+impl GetBucketPolicyRequest {
+    pub fn to_http_response(self) -> anyhow::Result<hyper::Response<hyper::Body>> {
+        anyhow::bail!("todo")
+    }
+}
+
+pub type RecordDelimiter = String;
+
+#[derive(Debug, Default, Clone)]
+pub struct Redirect {
+    pub replace_key_with: Option<ReplaceKeyWith>,
+    pub host_name: Option<HostName>,
+    pub protocol: Option<Protocol>,
+    pub http_redirect_code: Option<HttpRedirectCode>,
+    pub replace_key_prefix_with: Option<ReplaceKeyPrefixWith>,
+}
+impl Redirect {
+    pub fn to_http_response(self) -> anyhow::Result<hyper::Response<hyper::Body>> {
+        anyhow::bail!("todo")
+    }
+}
+
+pub type AllowedMethod = String;
+
+#[derive(Debug, Default, Clone)]
+pub struct GetBucketInventoryConfigurationRequest {
+    pub bucket: Option<BucketName>,
+    pub id: Option<InventoryId>,
+    pub expected_bucket_owner: Option<AccountId>,
+}
+impl GetBucketInventoryConfigurationRequest {
+    pub fn to_http_response(self) -> anyhow::Result<hyper::Response<hyper::Body>> {
+        anyhow::bail!("todo")
+    }
+}
+
+#[derive(Debug, Default, Clone)]
+pub struct PutBucketInventoryConfigurationRequest {
+    pub inventory_configuration: Option<InventoryConfiguration>,
+    pub id: Option<InventoryId>,
+    pub bucket: Option<BucketName>,
+    pub expected_bucket_owner: Option<AccountId>,
+}
+impl PutBucketInventoryConfigurationRequest {
+    pub fn to_http_response(self) -> anyhow::Result<hyper::Response<hyper::Body>> {
+        anyhow::bail!("todo")
+    }
+}
+
+#[derive(Debug, Default, Clone)]
+pub struct PutObjectLockConfigurationRequest {
+    pub content_md5: Option<ContentMd5>,
+    pub object_lock_configuration: Option<ObjectLockConfiguration>,
+    pub request_payer: Option<RequestPayer>,
+    pub token: Option<ObjectLockToken>,
+    pub bucket: Option<BucketName>,
+    pub checksum_algorithm: Option<ChecksumAlgorithm>,
+    pub expected_bucket_owner: Option<AccountId>,
+}
+impl PutObjectLockConfigurationRequest {
+    pub fn to_http_response(self) -> anyhow::Result<hyper::Response<hyper::Body>> {
+        anyhow::bail!("todo")
+    }
+}
+
+#[derive(Debug, Default, Clone)]
+pub struct DeleteBucketPolicyRequest {
+    pub bucket: Option<BucketName>,
+    pub expected_bucket_owner: Option<AccountId>,
+}
+impl DeleteBucketPolicyRequest {
     pub fn to_http_response(self) -> anyhow::Result<hyper::Response<hyper::Body>> {
         anyhow::bail!("todo")
     }
 }
 
 #[derive(Debug, Clone, Copy, Eq, Ord, PartialEq, PartialOrd, Hash)]
-pub enum ReplicaModificationsStatus {
+pub enum OwnerOverride {
+    Destination,
+}
+impl AsRef<str> for OwnerOverride {
+    fn as_ref(&self) -> &str {
+        match self {
+            Self::Destination => "Destination",
+        }
+    }
+}
+impl TryFrom<&str> for OwnerOverride {
+    type Error = String;
+    fn try_from(s: &str) -> Result<Self, Self::Error> {
+        match s {
+            "Destination" => Ok(Self::Destination),
+            _ => Err(format!("unknown enum value {}", s)),
+        }
+    }
+}
+
+#[derive(Debug, Default, Clone)]
+pub struct GetObject;
+impl OperationShape for GetObject {
+    const NAME: &'static str = "GetObject";
+    type Input = GetObjectRequest;
+    type Output = GetObjectOutput;
+    type Error = ();
+}
+
+pub type ErrorMessage = String;
+
+pub type AnalyticsId = String;
+
+#[derive(Debug, Default, Clone)]
+pub struct GetBucketAccelerateConfiguration;
+impl OperationShape for GetBucketAccelerateConfiguration {
+    const NAME: &'static str = "GetBucketAccelerateConfiguration";
+    type Input = GetBucketAccelerateConfigurationRequest;
+    type Output = GetBucketAccelerateConfigurationOutput;
+    type Error = ();
+}
+
+#[derive(Debug, Default, Clone)]
+pub struct DeleteBucketTaggingRequest {
+    pub bucket: Option<BucketName>,
+    pub expected_bucket_owner: Option<AccountId>,
+}
+impl DeleteBucketTaggingRequest {
+    pub fn to_http_response(self) -> anyhow::Result<hyper::Response<hyper::Body>> {
+        anyhow::bail!("todo")
+    }
+}
+
+pub type ReplicaKmsKeyId = String;
+
+#[derive(Debug, Default, Clone)]
+pub struct SelectObjectContent;
+impl OperationShape for SelectObjectContent {
+    const NAME: &'static str = "SelectObjectContent";
+    type Input = SelectObjectContentRequest;
+    type Output = SelectObjectContentOutput;
+    type Error = ();
+}
+
+#[derive(Debug, Default, Clone)]
+pub struct NoSuchKey {}
+impl NoSuchKey {
+    pub fn to_http_response(self) -> anyhow::Result<hyper::Response<hyper::Body>> {
+        anyhow::bail!("todo")
+    }
+}
+
+pub type KmsContext = String;
+
+#[derive(Debug, Default, Clone)]
+pub struct LifecycleRuleAndOperator {
+    pub prefix: Option<Prefix>,
+    pub object_size_less_than: Option<ObjectSizeLessThanBytes>,
+    pub object_size_greater_than: Option<ObjectSizeGreaterThanBytes>,
+    pub tags: Option<TagSet>,
+}
+impl LifecycleRuleAndOperator {
+    pub fn to_http_response(self) -> anyhow::Result<hyper::Response<hyper::Body>> {
+        anyhow::bail!("todo")
+    }
+}
+
+pub type Uri = String;
+
+#[derive(Debug, Default, Clone)]
+pub struct AnalyticsS3BucketDestination {
+    pub bucket: Option<BucketName>,
+    pub bucket_account_id: Option<AccountId>,
+    pub format: Option<AnalyticsS3ExportFileFormat>,
+    pub prefix: Option<Prefix>,
+}
+impl AnalyticsS3BucketDestination {
+    pub fn to_http_response(self) -> anyhow::Result<hyper::Response<hyper::Body>> {
+        anyhow::bail!("todo")
+    }
+}
+
+pub type BucketName = String;
+
+pub type Start = i64;
+
+#[derive(Debug, Default, Clone)]
+pub struct DefaultRetention {
+    pub mode: Option<ObjectLockRetentionMode>,
+    pub years: Option<Years>,
+    pub days: Option<Days>,
+}
+impl DefaultRetention {
+    pub fn to_http_response(self) -> anyhow::Result<hyper::Response<hyper::Body>> {
+        anyhow::bail!("todo")
+    }
+}
+
+pub type RequestRoute = String;
+
+pub type Date = String;
+
+pub type LambdaFunctionArn = String;
+
+#[derive(Debug, Default, Clone)]
+pub struct NotFound {}
+impl NotFound {
+    pub fn to_http_response(self) -> anyhow::Result<hyper::Response<hyper::Body>> {
+        anyhow::bail!("todo")
+    }
+}
+
+#[derive(Debug, Clone, Copy, Eq, Ord, PartialEq, PartialOrd, Hash)]
+pub enum StorageClassAnalysisSchemaVersion {
+    V_1,
+}
+impl AsRef<str> for StorageClassAnalysisSchemaVersion {
+    fn as_ref(&self) -> &str {
+        match self {
+            Self::V_1 => "V_1",
+        }
+    }
+}
+impl TryFrom<&str> for StorageClassAnalysisSchemaVersion {
+    type Error = String;
+    fn try_from(s: &str) -> Result<Self, Self::Error> {
+        match s {
+            "V_1" => Ok(Self::V_1),
+            _ => Err(format!("unknown enum value {}", s)),
+        }
+    }
+}
+
+#[derive(Debug, Clone, Copy, Eq, Ord, PartialEq, PartialOrd, Hash)]
+pub enum QuoteFields {
+    ASNEEDED,
+    ALWAYS,
+}
+impl AsRef<str> for QuoteFields {
+    fn as_ref(&self) -> &str {
+        match self {
+            Self::ASNEEDED => "ASNEEDED",
+            Self::ALWAYS => "ALWAYS",
+        }
+    }
+}
+impl TryFrom<&str> for QuoteFields {
+    type Error = String;
+    fn try_from(s: &str) -> Result<Self, Self::Error> {
+        match s {
+            "ASNEEDED" => Ok(Self::ASNEEDED),
+            "ALWAYS" => Ok(Self::ALWAYS),
+            _ => Err(format!("unknown enum value {}", s)),
+        }
+    }
+}
+
+#[derive(Debug, Clone, Copy, Eq, Ord, PartialEq, PartialOrd, Hash)]
+pub enum RequestCharged {
+    requester,
+}
+impl AsRef<str> for RequestCharged {
+    fn as_ref(&self) -> &str {
+        match self {
+            Self::requester => "requester",
+        }
+    }
+}
+impl TryFrom<&str> for RequestCharged {
+    type Error = String;
+    fn try_from(s: &str) -> Result<Self, Self::Error> {
+        match s {
+            "requester" => Ok(Self::requester),
+            _ => Err(format!("unknown enum value {}", s)),
+        }
+    }
+}
+
+pub type Mfa = String;
+
+#[derive(Debug, Clone)]
+pub enum ReplicationRuleFilter {
+    Prefix(Prefix),
+    And(ReplicationRuleAndOperator),
+    Tag(Tag),
+}
+
+pub type BucketKeyEnabled = bool;
+
+pub type Delimiter = String;
+
+#[derive(Debug, Default, Clone)]
+pub struct NoncurrentVersionTransition {
+    pub noncurrent_days: Option<Days>,
+    pub storage_class: Option<TransitionStorageClass>,
+    pub newer_noncurrent_versions: Option<VersionCount>,
+}
+impl NoncurrentVersionTransition {
+    pub fn to_http_response(self) -> anyhow::Result<hyper::Response<hyper::Body>> {
+        anyhow::bail!("todo")
+    }
+}
+
+#[derive(Debug, Default, Clone)]
+pub struct PutPublicAccessBlockRequest {
+    pub bucket: Option<BucketName>,
+    pub checksum_algorithm: Option<ChecksumAlgorithm>,
+    pub expected_bucket_owner: Option<AccountId>,
+    pub content_md5: Option<ContentMd5>,
+    pub public_access_block_configuration: Option<PublicAccessBlockConfiguration>,
+}
+impl PutPublicAccessBlockRequest {
+    pub fn to_http_response(self) -> anyhow::Result<hyper::Response<hyper::Body>> {
+        anyhow::bail!("todo")
+    }
+}
+
+#[derive(Debug, Default, Clone)]
+pub struct UploadPartCopy;
+impl OperationShape for UploadPartCopy {
+    const NAME: &'static str = "UploadPartCopy";
+    type Input = UploadPartCopyRequest;
+    type Output = UploadPartCopyOutput;
+    type Error = ();
+}
+
+#[derive(Debug, Default, Clone)]
+pub struct ListObjectsV2Request {
+    pub continuation_token: Option<Token>,
+    pub expected_bucket_owner: Option<AccountId>,
+    pub bucket: Option<BucketName>,
+    pub start_after: Option<StartAfter>,
+    pub encoding_type: Option<EncodingType>,
+    pub max_keys: Option<MaxKeys>,
+    pub request_payer: Option<RequestPayer>,
+    pub delimiter: Option<Delimiter>,
+    pub fetch_owner: Option<FetchOwner>,
+    pub prefix: Option<Prefix>,
+}
+impl ListObjectsV2Request {
+    pub fn to_http_response(self) -> anyhow::Result<hyper::Response<hyper::Body>> {
+        anyhow::bail!("todo")
+    }
+}
+
+pub type NextUploadIdMarker = String;
+
+#[derive(Debug, Default, Clone)]
+pub struct ObjectPart {
+    pub checksum_sha256: Option<ChecksumSha256>,
+    pub size: Option<Size>,
+    pub part_number: Option<PartNumber>,
+    pub checksum_crc32_c: Option<ChecksumCrc32c>,
+    pub checksum_sha1: Option<ChecksumSha1>,
+    pub checksum_crc32: Option<ChecksumCrc32>,
+}
+impl ObjectPart {
+    pub fn to_http_response(self) -> anyhow::Result<hyper::Response<hyper::Body>> {
+        anyhow::bail!("todo")
+    }
+}
+
+pub type Suffix = String;
+
+#[derive(Debug, Default, Clone)]
+pub struct DeleteBucketEncryptionRequest {
+    pub bucket: Option<BucketName>,
+    pub expected_bucket_owner: Option<AccountId>,
+}
+impl DeleteBucketEncryptionRequest {
+    pub fn to_http_response(self) -> anyhow::Result<hyper::Response<hyper::Body>> {
+        anyhow::bail!("todo")
+    }
+}
+
+#[derive(Debug, Default, Clone)]
+pub struct AbortMultipartUploadRequest {
+    pub bucket: Option<BucketName>,
+    pub request_payer: Option<RequestPayer>,
+    pub upload_id: Option<MultipartUploadId>,
+    pub expected_bucket_owner: Option<AccountId>,
+    pub key: Option<ObjectKey>,
+}
+impl AbortMultipartUploadRequest {
+    pub fn to_http_response(self) -> anyhow::Result<hyper::Response<hyper::Body>> {
+        anyhow::bail!("todo")
+    }
+}
+
+#[derive(Debug, Default, Clone)]
+pub struct DeleteBucketInventoryConfigurationRequest {
+    pub id: Option<InventoryId>,
+    pub bucket: Option<BucketName>,
+    pub expected_bucket_owner: Option<AccountId>,
+}
+impl DeleteBucketInventoryConfigurationRequest {
+    pub fn to_http_response(self) -> anyhow::Result<hyper::Response<hyper::Body>> {
+        anyhow::bail!("todo")
+    }
+}
+
+#[derive(Debug, Default, Clone)]
+pub struct AbortIncompleteMultipartUpload {
+    pub days_after_initiation: Option<DaysAfterInitiation>,
+}
+impl AbortIncompleteMultipartUpload {
+    pub fn to_http_response(self) -> anyhow::Result<hyper::Response<hyper::Body>> {
+        anyhow::bail!("todo")
+    }
+}
+
+pub type ResponseExpires = String;
+
+#[derive(Debug, Default, Clone)]
+pub struct GetBucketCorsRequest {
+    pub bucket: Option<BucketName>,
+    pub expected_bucket_owner: Option<AccountId>,
+}
+impl GetBucketCorsRequest {
+    pub fn to_http_response(self) -> anyhow::Result<hyper::Response<hyper::Body>> {
+        anyhow::bail!("todo")
+    }
+}
+
+#[derive(Debug, Default, Clone)]
+pub struct ErrorDocument {
+    pub key: Option<ObjectKey>,
+}
+impl ErrorDocument {
+    pub fn to_http_response(self) -> anyhow::Result<hyper::Response<hyper::Body>> {
+        anyhow::bail!("todo")
+    }
+}
+
+#[derive(Debug, Default, Clone)]
+pub struct GetBucketNotificationConfigurationRequest {
+    pub bucket: Option<BucketName>,
+    pub expected_bucket_owner: Option<AccountId>,
+}
+impl GetBucketNotificationConfigurationRequest {
+    pub fn to_http_response(self) -> anyhow::Result<hyper::Response<hyper::Body>> {
+        anyhow::bail!("todo")
+    }
+}
+
+#[derive(Debug, Clone, Copy, Eq, Ord, PartialEq, PartialOrd, Hash)]
+pub enum MfaDeleteStatus {
     Enabled,
     Disabled,
 }
-impl AsRef<str> for ReplicaModificationsStatus {
+impl AsRef<str> for MfaDeleteStatus {
     fn as_ref(&self) -> &str {
         match self {
             Self::Enabled => "Enabled",
@@ -1693,7 +1825,7 @@ impl AsRef<str> for ReplicaModificationsStatus {
         }
     }
 }
-impl TryFrom<&str> for ReplicaModificationsStatus {
+impl TryFrom<&str> for MfaDeleteStatus {
     type Error = String;
     fn try_from(s: &str) -> Result<Self, Self::Error> {
         match s {
@@ -1704,110 +1836,17 @@ impl TryFrom<&str> for ReplicaModificationsStatus {
     }
 }
 
-#[derive(Debug, Default, Clone)]
-pub struct Ssekms {
-    pub key_id: Option<SsekmsKeyId>,
-}
-impl Ssekms {
-    pub fn to_http_response(self) -> anyhow::Result<hyper::Response<hyper::Body>> {
-        anyhow::bail!("todo")
-    }
-}
+pub type Policy = String;
+
+pub type ETag = String;
 
 #[derive(Debug, Default, Clone)]
-pub struct GetBucketLifecycleConfigurationOutput {
-    pub rules: Option<LifecycleRules>,
-}
-impl GetBucketLifecycleConfigurationOutput {
-    pub fn to_http_response(self) -> anyhow::Result<hyper::Response<hyper::Body>> {
-        anyhow::bail!("todo")
-    }
-}
-
-pub type TaggingHeader = String;
-
-pub type Quiet = bool;
-
-#[derive(Debug, Clone, Copy, Eq, Ord, PartialEq, PartialOrd, Hash)]
-pub enum AnalyticsS3ExportFileFormat {
-    CSV,
-}
-impl AsRef<str> for AnalyticsS3ExportFileFormat {
-    fn as_ref(&self) -> &str {
-        match self {
-            Self::CSV => "CSV",
-        }
-    }
-}
-impl TryFrom<&str> for AnalyticsS3ExportFileFormat {
-    type Error = String;
-    fn try_from(s: &str) -> Result<Self, Self::Error> {
-        match s {
-            "CSV" => Ok(Self::CSV),
-            _ => Err(format!("unknown enum value {}", s)),
-        }
-    }
-}
-
-#[derive(Debug, Clone, Copy, Eq, Ord, PartialEq, PartialOrd, Hash)]
-pub enum EncodingType {
-    url,
-}
-impl AsRef<str> for EncodingType {
-    fn as_ref(&self) -> &str {
-        match self {
-            Self::url => "url",
-        }
-    }
-}
-impl TryFrom<&str> for EncodingType {
-    type Error = String;
-    fn try_from(s: &str) -> Result<Self, Self::Error> {
-        match s {
-            "url" => Ok(Self::url),
-            _ => Err(format!("unknown enum value {}", s)),
-        }
-    }
-}
-
-pub type ContentEncoding = String;
-
-#[derive(Debug, Default, Clone)]
-pub struct GetObjectRetentionOutput {
-    pub retention: Option<ObjectLockRetention>,
-}
-impl GetObjectRetentionOutput {
-    pub fn to_http_response(self) -> anyhow::Result<hyper::Response<hyper::Body>> {
-        anyhow::bail!("todo")
-    }
-}
-
-pub type IfNoneMatch = String;
-
-#[derive(Debug, Default, Clone)]
-pub struct Metrics {
-    pub event_threshold: Option<ReplicationTimeValue>,
-    pub status: Option<MetricsStatus>,
-}
-impl Metrics {
-    pub fn to_http_response(self) -> anyhow::Result<hyper::Response<hyper::Body>> {
-        anyhow::bail!("todo")
-    }
-}
-
-#[derive(Debug, Default, Clone)]
-pub struct ObjectPart {
-    pub part_number: Option<PartNumber>,
-    pub size: Option<Size>,
-    pub checksum_sha256: Option<ChecksumSha256>,
-    pub checksum_sha1: Option<ChecksumSha1>,
-    pub checksum_crc32_c: Option<ChecksumCrc32c>,
-    pub checksum_crc32: Option<ChecksumCrc32>,
-}
-impl ObjectPart {
-    pub fn to_http_response(self) -> anyhow::Result<hyper::Response<hyper::Body>> {
-        anyhow::bail!("todo")
-    }
+pub struct PutObjectLegalHold;
+impl OperationShape for PutObjectLegalHold {
+    const NAME: &'static str = "PutObjectLegalHold";
+    type Input = PutObjectLegalHoldRequest;
+    type Output = PutObjectLegalHoldOutput;
+    type Error = ();
 }
 
 #[derive(Debug, Clone, Copy, Eq, Ord, PartialEq, PartialOrd, Hash)]
@@ -1835,117 +1874,11 @@ impl TryFrom<&str> for Payer {
 }
 
 #[derive(Debug, Default, Clone)]
-pub struct ListBucketMetricsConfigurations;
-impl OperationShape for ListBucketMetricsConfigurations {
-    const NAME: &'static str = "ListBucketMetricsConfigurations";
-    type Input = ListBucketMetricsConfigurationsRequest;
-    type Output = ListBucketMetricsConfigurationsOutput;
-    type Error = ();
-}
-
-#[derive(Debug, Default, Clone)]
-pub struct ObjectLockLegalHold {
-    pub status: Option<ObjectLockLegalHoldStatus>,
-}
-impl ObjectLockLegalHold {
-    pub fn to_http_response(self) -> anyhow::Result<hyper::Response<hyper::Body>> {
-        anyhow::bail!("todo")
-    }
-}
-
-pub type HttpErrorCodeReturnedEquals = String;
-
-#[derive(Debug, Clone, Copy, Eq, Ord, PartialEq, PartialOrd, Hash)]
-pub enum RequestPayer {
-    requester,
-}
-impl AsRef<str> for RequestPayer {
-    fn as_ref(&self) -> &str {
-        match self {
-            Self::requester => "requester",
-        }
-    }
-}
-impl TryFrom<&str> for RequestPayer {
-    type Error = String;
-    fn try_from(s: &str) -> Result<Self, Self::Error> {
-        match s {
-            "requester" => Ok(Self::requester),
-            _ => Err(format!("unknown enum value {}", s)),
-        }
-    }
-}
-
-#[derive(Debug, Default, Clone)]
-pub struct ObjectIdentifier {
-    pub key: Option<ObjectKey>,
-    pub version_id: Option<ObjectVersionId>,
-}
-impl ObjectIdentifier {
-    pub fn to_http_response(self) -> anyhow::Result<hyper::Response<hyper::Body>> {
-        anyhow::bail!("todo")
-    }
-}
-
-#[derive(Debug, Default, Clone)]
-pub struct PutBucketReplication;
-impl OperationShape for PutBucketReplication {
-    const NAME: &'static str = "PutBucketReplication";
-    type Input = PutBucketReplicationRequest;
-    type Output = ();
-    type Error = ();
-}
-
-#[derive(Debug, Default, Clone)]
-pub struct PutBucketLoggingRequest {
-    pub bucket_logging_status: Option<BucketLoggingStatus>,
-    pub bucket: Option<BucketName>,
-    pub checksum_algorithm: Option<ChecksumAlgorithm>,
-    pub expected_bucket_owner: Option<AccountId>,
-    pub content_md5: Option<ContentMd5>,
-}
-impl PutBucketLoggingRequest {
-    pub fn to_http_response(self) -> anyhow::Result<hyper::Response<hyper::Body>> {
-        anyhow::bail!("todo")
-    }
-}
-
-pub type ResponseContentLanguage = String;
-
-#[derive(Debug, Default, Clone)]
-pub struct PutBucketAcl;
-impl OperationShape for PutBucketAcl {
-    const NAME: &'static str = "PutBucketAcl";
-    type Input = PutBucketAclRequest;
-    type Output = ();
-    type Error = ();
-}
-
-#[derive(Debug, Default, Clone)]
-pub struct GetBucketLoggingOutput {
-    pub logging_enabled: Option<LoggingEnabled>,
-}
-impl GetBucketLoggingOutput {
-    pub fn to_http_response(self) -> anyhow::Result<hyper::Response<hyper::Body>> {
-        anyhow::bail!("todo")
-    }
-}
-
-#[derive(Debug, Default, Clone)]
-pub struct GetBucketOwnershipControls;
-impl OperationShape for GetBucketOwnershipControls {
-    const NAME: &'static str = "GetBucketOwnershipControls";
-    type Input = GetBucketOwnershipControlsRequest;
-    type Output = GetBucketOwnershipControlsOutput;
-    type Error = ();
-}
-
-#[derive(Debug, Default, Clone)]
 pub struct PutBucketMetricsConfigurationRequest {
+    pub metrics_configuration: Option<MetricsConfiguration>,
+    pub expected_bucket_owner: Option<AccountId>,
     pub bucket: Option<BucketName>,
     pub id: Option<MetricsId>,
-    pub expected_bucket_owner: Option<AccountId>,
-    pub metrics_configuration: Option<MetricsConfiguration>,
 }
 impl PutBucketMetricsConfigurationRequest {
     pub fn to_http_response(self) -> anyhow::Result<hyper::Response<hyper::Body>> {
@@ -1953,120 +1886,565 @@ impl PutBucketMetricsConfigurationRequest {
     }
 }
 
-pub type TopicArn = String;
+#[derive(Debug, Default, Clone)]
+pub struct PutObjectRetention;
+impl OperationShape for PutObjectRetention {
+    const NAME: &'static str = "PutObjectRetention";
+    type Input = PutObjectRetentionRequest;
+    type Output = PutObjectRetentionOutput;
+    type Error = ();
+}
 
-pub type KeyPrefixEquals = String;
+pub type FilterRuleValue = String;
 
 #[derive(Debug, Default, Clone)]
-pub struct PutObjectRetentionRequest {
-    pub content_md5: Option<ContentMd5>,
-    pub bucket: Option<BucketName>,
-    pub retention: Option<ObjectLockRetention>,
-    pub request_payer: Option<RequestPayer>,
-    pub checksum_algorithm: Option<ChecksumAlgorithm>,
-    pub version_id: Option<ObjectVersionId>,
-    pub expected_bucket_owner: Option<AccountId>,
-    pub key: Option<ObjectKey>,
-    pub bypass_governance_retention: Option<BypassGovernanceRetention>,
+pub struct ServerSideEncryptionByDefault {
+    pub sse_algorithm: Option<ServerSideEncryption>,
+    pub kms_master_key_id: Option<SsekmsKeyId>,
 }
-impl PutObjectRetentionRequest {
+impl ServerSideEncryptionByDefault {
     pub fn to_http_response(self) -> anyhow::Result<hyper::Response<hyper::Body>> {
         anyhow::bail!("todo")
     }
 }
 
-pub type BytesProcessed = i64;
+pub type VersionCount = i32;
 
 #[derive(Debug, Default, Clone)]
-pub struct PutObjectOutput {
-    pub checksum_sha1: Option<ChecksumSha1>,
-    pub sse_customer_algorithm: Option<SseCustomerAlgorithm>,
-    pub ssekms_encryption_context: Option<SsekmsEncryptionContext>,
-    pub ssekms_key_id: Option<SsekmsKeyId>,
-    pub bucket_key_enabled: Option<BucketKeyEnabled>,
-    pub request_charged: Option<RequestCharged>,
-    pub checksum_crc32_c: Option<ChecksumCrc32c>,
-    pub server_side_encryption: Option<ServerSideEncryption>,
-    pub version_id: Option<ObjectVersionId>,
-    pub sse_customer_key_md5: Option<SseCustomerKeyMd5>,
-    pub checksum_sha256: Option<ChecksumSha256>,
-    pub expiration: Option<Expiration>,
-    pub e_tag: Option<ETag>,
-    pub checksum_crc32: Option<ChecksumCrc32>,
+pub struct GetBucketReplication;
+impl OperationShape for GetBucketReplication {
+    const NAME: &'static str = "GetBucketReplication";
+    type Input = GetBucketReplicationRequest;
+    type Output = GetBucketReplicationOutput;
+    type Error = ();
 }
-impl PutObjectOutput {
-    pub fn to_http_response(self) -> anyhow::Result<hyper::Response<hyper::Body>> {
-        anyhow::bail!("todo")
-    }
-}
-
-#[derive(Debug, Default, Clone)]
-pub struct GetBucketRequestPaymentOutput {
-    pub payer: Option<Payer>,
-}
-impl GetBucketRequestPaymentOutput {
-    pub fn to_http_response(self) -> anyhow::Result<hyper::Response<hyper::Body>> {
-        anyhow::bail!("todo")
-    }
-}
-
-pub type CopySourceSseCustomerAlgorithm = String;
 
 #[derive(Debug, Clone, Copy, Eq, Ord, PartialEq, PartialOrd, Hash)]
-pub enum JsonType {
-    DOCUMENT,
-    LINES,
+pub enum TaggingDirective {
+    COPY,
+    REPLACE,
 }
-impl AsRef<str> for JsonType {
+impl AsRef<str> for TaggingDirective {
     fn as_ref(&self) -> &str {
         match self {
-            Self::DOCUMENT => "DOCUMENT",
-            Self::LINES => "LINES",
+            Self::COPY => "COPY",
+            Self::REPLACE => "REPLACE",
         }
     }
 }
-impl TryFrom<&str> for JsonType {
+impl TryFrom<&str> for TaggingDirective {
     type Error = String;
     fn try_from(s: &str) -> Result<Self, Self::Error> {
         match s {
-            "DOCUMENT" => Ok(Self::DOCUMENT),
-            "LINES" => Ok(Self::LINES),
+            "COPY" => Ok(Self::COPY),
+            "REPLACE" => Ok(Self::REPLACE),
+            _ => Err(format!("unknown enum value {}", s)),
+        }
+    }
+}
+
+pub type ChecksumSha1 = String;
+
+#[derive(Debug, Default, Clone)]
+pub struct GetBucketTagging;
+impl OperationShape for GetBucketTagging {
+    const NAME: &'static str = "GetBucketTagging";
+    type Input = GetBucketTaggingRequest;
+    type Output = GetBucketTaggingOutput;
+    type Error = ();
+}
+
+pub type Expiration = String;
+
+#[derive(Debug, Default, Clone)]
+pub struct GetObjectAttributesOutput {
+    pub version_id: Option<ObjectVersionId>,
+    pub e_tag: Option<ETag>,
+    pub checksum: Option<Checksum>,
+    pub object_parts: Option<GetObjectAttributesParts>,
+    pub object_size: Option<ObjectSize>,
+    pub request_charged: Option<RequestCharged>,
+    pub last_modified: Option<LastModified>,
+    pub delete_marker: Option<DeleteMarker>,
+    pub storage_class: Option<StorageClass>,
+}
+impl GetObjectAttributesOutput {
+    pub fn to_http_response(self) -> anyhow::Result<hyper::Response<hyper::Body>> {
+        anyhow::bail!("todo")
+    }
+}
+
+#[derive(Debug, Clone, Copy, Eq, Ord, PartialEq, PartialOrd, Hash)]
+pub enum BucketLocationConstraint {
+    sa_east_1,
+    ap_northeast_2,
+    ca_central_1,
+    cn_north_1,
+    eu_north_1,
+    ap_south_1,
+    ap_southeast_1,
+    eu_west_1,
+    eu_west_2,
+    us_west_2,
+    af_south_1,
+    ap_southeast_3,
+    ap_east_1,
+    EU,
+    ap_northeast_3,
+    ap_southeast_2,
+    me_south_1,
+    eu_west_3,
+    us_east_2,
+    us_gov_east_1,
+    us_gov_west_1,
+    eu_central_1,
+    cn_northwest_1,
+    us_west_1,
+    ap_northeast_1,
+    eu_south_1,
+}
+impl AsRef<str> for BucketLocationConstraint {
+    fn as_ref(&self) -> &str {
+        match self {
+            Self::sa_east_1 => "sa-east-1",
+            Self::ap_northeast_2 => "ap-northeast-2",
+            Self::ca_central_1 => "ca-central-1",
+            Self::cn_north_1 => "cn-north-1",
+            Self::eu_north_1 => "eu-north-1",
+            Self::ap_south_1 => "ap-south-1",
+            Self::ap_southeast_1 => "ap-southeast-1",
+            Self::eu_west_1 => "eu-west-1",
+            Self::eu_west_2 => "eu-west-2",
+            Self::us_west_2 => "us-west-2",
+            Self::af_south_1 => "af-south-1",
+            Self::ap_southeast_3 => "ap-southeast-3",
+            Self::ap_east_1 => "ap-east-1",
+            Self::EU => "EU",
+            Self::ap_northeast_3 => "ap-northeast-3",
+            Self::ap_southeast_2 => "ap-southeast-2",
+            Self::me_south_1 => "me-south-1",
+            Self::eu_west_3 => "eu-west-3",
+            Self::us_east_2 => "us-east-2",
+            Self::us_gov_east_1 => "us-gov-east-1",
+            Self::us_gov_west_1 => "us-gov-west-1",
+            Self::eu_central_1 => "eu-central-1",
+            Self::cn_northwest_1 => "cn-northwest-1",
+            Self::us_west_1 => "us-west-1",
+            Self::ap_northeast_1 => "ap-northeast-1",
+            Self::eu_south_1 => "eu-south-1",
+        }
+    }
+}
+impl TryFrom<&str> for BucketLocationConstraint {
+    type Error = String;
+    fn try_from(s: &str) -> Result<Self, Self::Error> {
+        match s {
+            "sa-east-1" => Ok(Self::sa_east_1),
+            "ap-northeast-2" => Ok(Self::ap_northeast_2),
+            "ca-central-1" => Ok(Self::ca_central_1),
+            "cn-north-1" => Ok(Self::cn_north_1),
+            "eu-north-1" => Ok(Self::eu_north_1),
+            "ap-south-1" => Ok(Self::ap_south_1),
+            "ap-southeast-1" => Ok(Self::ap_southeast_1),
+            "eu-west-1" => Ok(Self::eu_west_1),
+            "eu-west-2" => Ok(Self::eu_west_2),
+            "us-west-2" => Ok(Self::us_west_2),
+            "af-south-1" => Ok(Self::af_south_1),
+            "ap-southeast-3" => Ok(Self::ap_southeast_3),
+            "ap-east-1" => Ok(Self::ap_east_1),
+            "EU" => Ok(Self::EU),
+            "ap-northeast-3" => Ok(Self::ap_northeast_3),
+            "ap-southeast-2" => Ok(Self::ap_southeast_2),
+            "me-south-1" => Ok(Self::me_south_1),
+            "eu-west-3" => Ok(Self::eu_west_3),
+            "us-east-2" => Ok(Self::us_east_2),
+            "us-gov-east-1" => Ok(Self::us_gov_east_1),
+            "us-gov-west-1" => Ok(Self::us_gov_west_1),
+            "eu-central-1" => Ok(Self::eu_central_1),
+            "cn-northwest-1" => Ok(Self::cn_northwest_1),
+            "us-west-1" => Ok(Self::us_west_1),
+            "ap-northeast-1" => Ok(Self::ap_northeast_1),
+            "eu-south-1" => Ok(Self::eu_south_1),
+            _ => Err(format!("unknown enum value {}", s)),
+        }
+    }
+}
+
+pub type Priority = i32;
+
+#[derive(Debug, Default, Clone)]
+pub struct PutObjectLockConfiguration;
+impl OperationShape for PutObjectLockConfiguration {
+    const NAME: &'static str = "PutObjectLockConfiguration";
+    type Input = PutObjectLockConfigurationRequest;
+    type Output = PutObjectLockConfigurationOutput;
+    type Error = ();
+}
+
+#[derive(Debug, Default, Clone)]
+pub struct PutObjectTaggingOutput {
+    pub version_id: Option<ObjectVersionId>,
+}
+impl PutObjectTaggingOutput {
+    pub fn to_http_response(self) -> anyhow::Result<hyper::Response<hyper::Body>> {
+        anyhow::bail!("todo")
+    }
+}
+
+#[derive(Debug, Default, Clone)]
+pub struct GetBucketIntelligentTieringConfigurationOutput {
+    pub intelligent_tiering_configuration: Option<IntelligentTieringConfiguration>,
+}
+impl GetBucketIntelligentTieringConfigurationOutput {
+    pub fn to_http_response(self) -> anyhow::Result<hyper::Response<hyper::Body>> {
+        anyhow::bail!("todo")
+    }
+}
+
+#[derive(Debug, Default, Clone)]
+pub struct GetBucketPolicyStatus;
+impl OperationShape for GetBucketPolicyStatus {
+    const NAME: &'static str = "GetBucketPolicyStatus";
+    type Input = GetBucketPolicyStatusRequest;
+    type Output = GetBucketPolicyStatusOutput;
+    type Error = ();
+}
+
+pub type QueueConfigurationList = Vec<QueueConfiguration>;
+
+#[derive(Debug, Default, Clone)]
+pub struct DeleteBucketWebsiteRequest {
+    pub expected_bucket_owner: Option<AccountId>,
+    pub bucket: Option<BucketName>,
+}
+impl DeleteBucketWebsiteRequest {
+    pub fn to_http_response(self) -> anyhow::Result<hyper::Response<hyper::Body>> {
+        anyhow::bail!("todo")
+    }
+}
+
+#[derive(Debug, Default, Clone)]
+pub struct TopicConfiguration {
+    pub id: Option<NotificationId>,
+    pub events: Option<EventList>,
+    pub topic_arn: Option<TopicArn>,
+    pub filter: Option<NotificationConfigurationFilter>,
+}
+impl TopicConfiguration {
+    pub fn to_http_response(self) -> anyhow::Result<hyper::Response<hyper::Body>> {
+        anyhow::bail!("todo")
+    }
+}
+
+#[derive(Debug, Default, Clone)]
+pub struct GetObjectAclRequest {
+    pub bucket: Option<BucketName>,
+    pub expected_bucket_owner: Option<AccountId>,
+    pub key: Option<ObjectKey>,
+    pub request_payer: Option<RequestPayer>,
+    pub version_id: Option<ObjectVersionId>,
+}
+impl GetObjectAclRequest {
+    pub fn to_http_response(self) -> anyhow::Result<hyper::Response<hyper::Body>> {
+        anyhow::bail!("todo")
+    }
+}
+
+#[derive(Debug, Default, Clone)]
+pub struct GetBucketEncryptionOutput {
+    pub server_side_encryption_configuration: Option<ServerSideEncryptionConfiguration>,
+}
+impl GetBucketEncryptionOutput {
+    pub fn to_http_response(self) -> anyhow::Result<hyper::Response<hyper::Body>> {
+        anyhow::bail!("todo")
+    }
+}
+
+#[derive(Debug, Default, Clone)]
+pub struct PutBucketReplicationRequest {
+    pub content_md5: Option<ContentMd5>,
+    pub token: Option<ObjectLockToken>,
+    pub checksum_algorithm: Option<ChecksumAlgorithm>,
+    pub expected_bucket_owner: Option<AccountId>,
+    pub replication_configuration: Option<ReplicationConfiguration>,
+    pub bucket: Option<BucketName>,
+}
+impl PutBucketReplicationRequest {
+    pub fn to_http_response(self) -> anyhow::Result<hyper::Response<hyper::Body>> {
+        anyhow::bail!("todo")
+    }
+}
+
+#[derive(Debug, Default, Clone)]
+pub struct GetBucketPolicy;
+impl OperationShape for GetBucketPolicy {
+    const NAME: &'static str = "GetBucketPolicy";
+    type Input = GetBucketPolicyRequest;
+    type Output = GetBucketPolicyOutput;
+    type Error = ();
+}
+
+#[derive(Debug, Default, Clone)]
+pub struct GetObjectAcl;
+impl OperationShape for GetObjectAcl {
+    const NAME: &'static str = "GetObjectAcl";
+    type Input = GetObjectAclRequest;
+    type Output = GetObjectAclOutput;
+    type Error = ();
+}
+
+#[derive(Debug, Default, Clone)]
+pub struct GetObjectAttributes;
+impl OperationShape for GetObjectAttributes {
+    const NAME: &'static str = "GetObjectAttributes";
+    type Input = GetObjectAttributesRequest;
+    type Output = GetObjectAttributesOutput;
+    type Error = ();
+}
+
+#[derive(Debug, Clone, Copy, Eq, Ord, PartialEq, PartialOrd, Hash)]
+pub enum RestoreRequestType {
+    SELECT,
+}
+impl AsRef<str> for RestoreRequestType {
+    fn as_ref(&self) -> &str {
+        match self {
+            Self::SELECT => "SELECT",
+        }
+    }
+}
+impl TryFrom<&str> for RestoreRequestType {
+    type Error = String;
+    fn try_from(s: &str) -> Result<Self, Self::Error> {
+        match s {
+            "SELECT" => Ok(Self::SELECT),
             _ => Err(format!("unknown enum value {}", s)),
         }
     }
 }
 
 #[derive(Debug, Default, Clone)]
-pub struct PutObjectLegalHoldRequest {
-    pub checksum_algorithm: Option<ChecksumAlgorithm>,
-    pub version_id: Option<ObjectVersionId>,
-    pub legal_hold: Option<ObjectLockLegalHold>,
-    pub key: Option<ObjectKey>,
+pub struct PutBucketTagging;
+impl OperationShape for PutBucketTagging {
+    const NAME: &'static str = "PutBucketTagging";
+    type Input = PutBucketTaggingRequest;
+    type Output = ();
+    type Error = ();
+}
+
+pub type VersionIdMarker = String;
+
+#[derive(Debug, Default, Clone)]
+pub struct CopyObject;
+impl OperationShape for CopyObject {
+    const NAME: &'static str = "CopyObject";
+    type Input = CopyObjectRequest;
+    type Output = CopyObjectOutput;
+    type Error = ();
+}
+
+pub type MaxAgeSeconds = i32;
+
+#[derive(Debug, Default, Clone)]
+pub struct DeleteBucketLifecycleRequest {
     pub expected_bucket_owner: Option<AccountId>,
     pub bucket: Option<BucketName>,
-    pub content_md5: Option<ContentMd5>,
-    pub request_payer: Option<RequestPayer>,
 }
-impl PutObjectLegalHoldRequest {
+impl DeleteBucketLifecycleRequest {
     pub fn to_http_response(self) -> anyhow::Result<hyper::Response<hyper::Body>> {
         anyhow::bail!("todo")
     }
 }
 
 #[derive(Debug, Default, Clone)]
-pub struct OutputSerialization {
-    pub json: Option<JsonOutput>,
-    pub csv: Option<CsvOutput>,
+pub struct GetPublicAccessBlockOutput {
+    pub public_access_block_configuration: Option<PublicAccessBlockConfiguration>,
 }
-impl OutputSerialization {
+impl GetPublicAccessBlockOutput {
     pub fn to_http_response(self) -> anyhow::Result<hyper::Response<hyper::Body>> {
         anyhow::bail!("todo")
     }
 }
 
-pub type SseCustomerAlgorithm = String;
+pub type ResponseContentEncoding = String;
+
+#[derive(Debug, Default, Clone)]
+pub struct ParquetInput {}
+impl ParquetInput {
+    pub fn to_http_response(self) -> anyhow::Result<hyper::Response<hyper::Body>> {
+        anyhow::bail!("todo")
+    }
+}
+
+pub type ResponseCacheControl = String;
+
+#[derive(Debug, Default, Clone)]
+pub struct GetObjectRetentionOutput {
+    pub retention: Option<ObjectLockRetention>,
+}
+impl GetObjectRetentionOutput {
+    pub fn to_http_response(self) -> anyhow::Result<hyper::Response<hyper::Body>> {
+        anyhow::bail!("todo")
+    }
+}
+
+pub type UserMetadata = Vec<MetadataEntry>;
+
+#[derive(Debug, Default, Clone)]
+pub struct InventoryDestination {
+    pub s3_bucket_destination: Option<InventoryS3BucketDestination>,
+}
+impl InventoryDestination {
+    pub fn to_http_response(self) -> anyhow::Result<hyper::Response<hyper::Body>> {
+        anyhow::bail!("todo")
+    }
+}
+
+#[derive(Debug, Default, Clone)]
+pub struct DeleteBucketMetricsConfigurationRequest {
+    pub expected_bucket_owner: Option<AccountId>,
+    pub bucket: Option<BucketName>,
+    pub id: Option<MetricsId>,
+}
+impl DeleteBucketMetricsConfigurationRequest {
+    pub fn to_http_response(self) -> anyhow::Result<hyper::Response<hyper::Body>> {
+        anyhow::bail!("todo")
+    }
+}
+
+pub type RestoreOutputPath = String;
+
+pub type CopySourceRange = String;
+
+#[derive(Debug, Default, Clone)]
+pub struct GetBucketOwnershipControlsRequest {
+    pub expected_bucket_owner: Option<AccountId>,
+    pub bucket: Option<BucketName>,
+}
+impl GetBucketOwnershipControlsRequest {
+    pub fn to_http_response(self) -> anyhow::Result<hyper::Response<hyper::Body>> {
+        anyhow::bail!("todo")
+    }
+}
+
+pub type IntelligentTieringId = String;
+
+pub type ResponseContentType = String;
+
+#[derive(Debug, Default, Clone)]
+pub struct ListObjects;
+impl OperationShape for ListObjects {
+    const NAME: &'static str = "ListObjects";
+    type Input = ListObjectsRequest;
+    type Output = ListObjectsOutput;
+    type Error = ();
+}
+
+pub type ExpiredObjectDeleteMarker = bool;
+
+#[derive(Debug, Default, Clone)]
+pub struct OutputLocation {
+    pub s3: Option<S3Location>,
+}
+impl OutputLocation {
+    pub fn to_http_response(self) -> anyhow::Result<hyper::Response<hyper::Body>> {
+        anyhow::bail!("todo")
+    }
+}
+
+#[derive(Debug, Default, Clone)]
+pub struct DeleteBucketAnalyticsConfiguration;
+impl OperationShape for DeleteBucketAnalyticsConfiguration {
+    const NAME: &'static str = "DeleteBucketAnalyticsConfiguration";
+    type Input = DeleteBucketAnalyticsConfigurationRequest;
+    type Output = ();
+    type Error = ();
+}
+
+pub type MaxParts = i32;
+
+pub type TargetPrefix = String;
+
+#[derive(Debug, Default, Clone)]
+pub struct DeleteObjects;
+impl OperationShape for DeleteObjects {
+    const NAME: &'static str = "DeleteObjects";
+    type Input = DeleteObjectsRequest;
+    type Output = DeleteObjectsOutput;
+    type Error = ();
+}
+
+pub type ObjectSizeGreaterThanBytes = i64;
 
 pub type End = i64;
+
+#[derive(Debug, Clone, Copy, Eq, Ord, PartialEq, PartialOrd, Hash)]
+pub enum MfaDelete {
+    Enabled,
+    Disabled,
+}
+impl AsRef<str> for MfaDelete {
+    fn as_ref(&self) -> &str {
+        match self {
+            Self::Enabled => "Enabled",
+            Self::Disabled => "Disabled",
+        }
+    }
+}
+impl TryFrom<&str> for MfaDelete {
+    type Error = String;
+    fn try_from(s: &str) -> Result<Self, Self::Error> {
+        match s {
+            "Enabled" => Ok(Self::Enabled),
+            "Disabled" => Ok(Self::Disabled),
+            _ => Err(format!("unknown enum value {}", s)),
+        }
+    }
+}
+
+#[derive(Debug, Default, Clone)]
+pub struct UploadPartOutput {
+    pub sse_customer_algorithm: Option<SseCustomerAlgorithm>,
+    pub checksum_sha256: Option<ChecksumSha256>,
+    pub e_tag: Option<ETag>,
+    pub checksum_sha1: Option<ChecksumSha1>,
+    pub sse_customer_key_md5: Option<SseCustomerKeyMd5>,
+    pub checksum_crc32: Option<ChecksumCrc32>,
+    pub request_charged: Option<RequestCharged>,
+    pub bucket_key_enabled: Option<BucketKeyEnabled>,
+    pub checksum_crc32_c: Option<ChecksumCrc32c>,
+    pub ssekms_key_id: Option<SsekmsKeyId>,
+    pub server_side_encryption: Option<ServerSideEncryption>,
+}
+impl UploadPartOutput {
+    pub fn to_http_response(self) -> anyhow::Result<hyper::Response<hyper::Body>> {
+        anyhow::bail!("todo")
+    }
+}
+
+#[derive(Debug, Clone, Copy, Eq, Ord, PartialEq, PartialOrd, Hash)]
+pub enum ObjectLockRetentionMode {
+    GOVERNANCE,
+    COMPLIANCE,
+}
+impl AsRef<str> for ObjectLockRetentionMode {
+    fn as_ref(&self) -> &str {
+        match self {
+            Self::GOVERNANCE => "GOVERNANCE",
+            Self::COMPLIANCE => "COMPLIANCE",
+        }
+    }
+}
+impl TryFrom<&str> for ObjectLockRetentionMode {
+    type Error = String;
+    fn try_from(s: &str) -> Result<Self, Self::Error> {
+        match s {
+            "GOVERNANCE" => Ok(Self::GOVERNANCE),
+            "COMPLIANCE" => Ok(Self::COMPLIANCE),
+            _ => Err(format!("unknown enum value {}", s)),
+        }
+    }
+}
 
 #[derive(Debug, Default, Clone)]
 pub struct GetBucketWebsiteRequest {
@@ -2079,145 +2457,154 @@ impl GetBucketWebsiteRequest {
     }
 }
 
-pub type Delimiter = String;
+pub type MissingMeta = i32;
+
+pub type AnalyticsConfigurationList = Vec<AnalyticsConfiguration>;
 
 #[derive(Debug, Default, Clone)]
-pub struct Grantee {
-    pub display_name: Option<DisplayName>,
-    pub id: Option<Id>,
-    pub uri: Option<Uri>,
-    pub email_address: Option<EmailAddress>,
-    pub r#type: Option<Type>,
+pub struct CompleteMultipartUploadOutput {
+    pub bucket: Option<BucketName>,
+    pub checksum_crc32_c: Option<ChecksumCrc32c>,
+    pub checksum_crc32: Option<ChecksumCrc32>,
+    pub location: Option<Location>,
+    pub request_charged: Option<RequestCharged>,
+    pub version_id: Option<ObjectVersionId>,
+    pub checksum_sha1: Option<ChecksumSha1>,
+    pub checksum_sha256: Option<ChecksumSha256>,
+    pub bucket_key_enabled: Option<BucketKeyEnabled>,
+    pub e_tag: Option<ETag>,
+    pub key: Option<ObjectKey>,
+    pub expiration: Option<Expiration>,
+    pub ssekms_key_id: Option<SsekmsKeyId>,
+    pub server_side_encryption: Option<ServerSideEncryption>,
 }
-impl Grantee {
+impl CompleteMultipartUploadOutput {
     pub fn to_http_response(self) -> anyhow::Result<hyper::Response<hyper::Body>> {
         anyhow::bail!("todo")
     }
 }
 
-#[derive(Debug, Clone)]
-pub enum LifecycleRuleFilter {
-    Prefix(Prefix),
-    ObjectSizeGreaterThan(ObjectSizeGreaterThanBytes),
-    Tag(Tag),
-    And(LifecycleRuleAndOperator),
-    ObjectSizeLessThan(ObjectSizeLessThanBytes),
+#[derive(Debug, Default, Clone)]
+pub struct GetBucketAclRequest {
+    pub bucket: Option<BucketName>,
+    pub expected_bucket_owner: Option<AccountId>,
 }
-
-#[derive(Debug, Clone, Copy, Eq, Ord, PartialEq, PartialOrd, Hash)]
-pub enum StorageClassAnalysisSchemaVersion {
-    V_1,
-}
-impl AsRef<str> for StorageClassAnalysisSchemaVersion {
-    fn as_ref(&self) -> &str {
-        match self {
-            Self::V_1 => "V_1",
-        }
+impl GetBucketAclRequest {
+    pub fn to_http_response(self) -> anyhow::Result<hyper::Response<hyper::Body>> {
+        anyhow::bail!("todo")
     }
-}
-impl TryFrom<&str> for StorageClassAnalysisSchemaVersion {
-    type Error = String;
-    fn try_from(s: &str) -> Result<Self, Self::Error> {
-        match s {
-            "V_1" => Ok(Self::V_1),
-            _ => Err(format!("unknown enum value {}", s)),
-        }
-    }
-}
-
-pub type Value = String;
-
-pub type CompletedPartList = Vec<CompletedPart>;
-
-#[derive(Debug, Clone, Copy, Eq, Ord, PartialEq, PartialOrd, Hash)]
-pub enum QuoteFields {
-    ALWAYS,
-    ASNEEDED,
-}
-impl AsRef<str> for QuoteFields {
-    fn as_ref(&self) -> &str {
-        match self {
-            Self::ALWAYS => "ALWAYS",
-            Self::ASNEEDED => "ASNEEDED",
-        }
-    }
-}
-impl TryFrom<&str> for QuoteFields {
-    type Error = String;
-    fn try_from(s: &str) -> Result<Self, Self::Error> {
-        match s {
-            "ALWAYS" => Ok(Self::ALWAYS),
-            "ASNEEDED" => Ok(Self::ASNEEDED),
-            _ => Err(format!("unknown enum value {}", s)),
-        }
-    }
-}
-
-#[derive(Debug, Clone)]
-pub enum AnalyticsFilter {
-    Prefix(Prefix),
-    Tag(Tag),
-    And(AnalyticsAndOperator),
 }
 
 #[derive(Debug, Default, Clone)]
-pub struct ListBucketMetricsConfigurationsOutput {
-    pub is_truncated: Option<IsTruncated>,
-    pub next_continuation_token: Option<NextToken>,
-    pub metrics_configuration_list: Option<MetricsConfigurationList>,
-    pub continuation_token: Option<Token>,
+pub struct GetBucketLifecycleConfigurationOutput {
+    pub rules: Option<LifecycleRules>,
 }
-impl ListBucketMetricsConfigurationsOutput {
+impl GetBucketLifecycleConfigurationOutput {
     pub fn to_http_response(self) -> anyhow::Result<hyper::Response<hyper::Body>> {
         anyhow::bail!("todo")
     }
 }
 
 #[derive(Debug, Clone, Copy, Eq, Ord, PartialEq, PartialOrd, Hash)]
-pub enum ObjectCannedAcl {
-    public_read,
-    bucket_owner_read,
-    public_read_write,
-    bucket_owner_full_control,
-    aws_exec_read,
-    authenticated_read,
-    private,
+pub enum ServerSideEncryption {
+    AES256,
+    aws_kms,
 }
-impl AsRef<str> for ObjectCannedAcl {
+impl AsRef<str> for ServerSideEncryption {
     fn as_ref(&self) -> &str {
         match self {
-            Self::public_read => "public-read",
-            Self::bucket_owner_read => "bucket-owner-read",
-            Self::public_read_write => "public-read-write",
-            Self::bucket_owner_full_control => "bucket-owner-full-control",
-            Self::aws_exec_read => "aws-exec-read",
-            Self::authenticated_read => "authenticated-read",
-            Self::private => "private",
+            Self::AES256 => "AES256",
+            Self::aws_kms => "aws:kms",
         }
     }
 }
-impl TryFrom<&str> for ObjectCannedAcl {
+impl TryFrom<&str> for ServerSideEncryption {
     type Error = String;
     fn try_from(s: &str) -> Result<Self, Self::Error> {
         match s {
-            "public-read" => Ok(Self::public_read),
-            "bucket-owner-read" => Ok(Self::bucket_owner_read),
-            "public-read-write" => Ok(Self::public_read_write),
-            "bucket-owner-full-control" => Ok(Self::bucket_owner_full_control),
-            "aws-exec-read" => Ok(Self::aws_exec_read),
-            "authenticated-read" => Ok(Self::authenticated_read),
-            "private" => Ok(Self::private),
+            "AES256" => Ok(Self::AES256),
+            "aws:kms" => Ok(Self::aws_kms),
             _ => Err(format!("unknown enum value {}", s)),
         }
     }
 }
 
+pub type EnableRequestProgress = bool;
+
+pub type Years = i32;
+
 #[derive(Debug, Default, Clone)]
-pub struct ObjectLockConfiguration {
-    pub object_lock_enabled: Option<ObjectLockEnabled>,
-    pub rule: Option<ObjectLockRule>,
+pub struct LoggingEnabled {
+    pub target_grants: Option<TargetGrants>,
+    pub target_prefix: Option<TargetPrefix>,
+    pub target_bucket: Option<TargetBucket>,
 }
-impl ObjectLockConfiguration {
+impl LoggingEnabled {
+    pub fn to_http_response(self) -> anyhow::Result<hyper::Response<hyper::Body>> {
+        anyhow::bail!("todo")
+    }
+}
+
+pub type Range = String;
+
+#[derive(Debug, Default, Clone)]
+pub struct AccessControlTranslation {
+    pub owner: Option<OwnerOverride>,
+}
+impl AccessControlTranslation {
+    pub fn to_http_response(self) -> anyhow::Result<hyper::Response<hyper::Body>> {
+        anyhow::bail!("todo")
+    }
+}
+
+#[derive(Debug, Default, Clone)]
+pub struct ListBucketMetricsConfigurations;
+impl OperationShape for ListBucketMetricsConfigurations {
+    const NAME: &'static str = "ListBucketMetricsConfigurations";
+    type Input = ListBucketMetricsConfigurationsRequest;
+    type Output = ListBucketMetricsConfigurationsOutput;
+    type Error = ();
+}
+
+pub type MultipartUploadId = String;
+
+#[derive(Debug, Default, Clone)]
+pub struct DeleteBucketEncryption;
+impl OperationShape for DeleteBucketEncryption {
+    const NAME: &'static str = "DeleteBucketEncryption";
+    type Input = DeleteBucketEncryptionRequest;
+    type Output = ();
+    type Error = ();
+}
+
+pub type IntelligentTieringDays = i32;
+
+#[derive(Debug, Default, Clone)]
+pub struct FilterRule {
+    pub name: Option<FilterRuleName>,
+    pub value: Option<FilterRuleValue>,
+}
+impl FilterRule {
+    pub fn to_http_response(self) -> anyhow::Result<hyper::Response<hyper::Body>> {
+        anyhow::bail!("todo")
+    }
+}
+
+#[derive(Debug, Default, Clone)]
+pub struct PutBucketLogging;
+impl OperationShape for PutBucketLogging {
+    const NAME: &'static str = "PutBucketLogging";
+    type Input = PutBucketLoggingRequest;
+    type Output = ();
+    type Error = ();
+}
+
+#[derive(Debug, Default, Clone)]
+pub struct GetBucketRequestPaymentRequest {
+    pub bucket: Option<BucketName>,
+    pub expected_bucket_owner: Option<AccountId>,
+}
+impl GetBucketRequestPaymentRequest {
     pub fn to_http_response(self) -> anyhow::Result<hyper::Response<hyper::Body>> {
         anyhow::bail!("todo")
     }
@@ -2226,239 +2613,151 @@ impl ObjectLockConfiguration {
 pub type SsekmsKeyId = String;
 
 #[derive(Debug, Default, Clone)]
-pub struct DeleteObjectsRequest {
-    pub bucket: Option<BucketName>,
-    pub delete: Option<Delete>,
-    pub expected_bucket_owner: Option<AccountId>,
-    pub mfa: Option<Mfa>,
-    pub request_payer: Option<RequestPayer>,
-    pub bypass_governance_retention: Option<BypassGovernanceRetention>,
-    pub checksum_algorithm: Option<ChecksumAlgorithm>,
+pub struct Condition {
+    pub http_error_code_returned_equals: Option<HttpErrorCodeReturnedEquals>,
+    pub key_prefix_equals: Option<KeyPrefixEquals>,
 }
-impl DeleteObjectsRequest {
+impl Condition {
     pub fn to_http_response(self) -> anyhow::Result<hyper::Response<hyper::Body>> {
         anyhow::bail!("todo")
     }
 }
 
 #[derive(Debug, Default, Clone)]
-pub struct PutObjectLockConfiguration;
-impl OperationShape for PutObjectLockConfiguration {
-    const NAME: &'static str = "PutObjectLockConfiguration";
-    type Input = PutObjectLockConfigurationRequest;
-    type Output = PutObjectLockConfigurationOutput;
-    type Error = ();
+pub struct ExistingObjectReplication {
+    pub status: Option<ExistingObjectReplicationStatus>,
 }
-
-#[derive(Debug, Default, Clone)]
-pub struct ListBucketIntelligentTieringConfigurationsOutput {
-    pub continuation_token: Option<Token>,
-    pub intelligent_tiering_configuration_list: Option<IntelligentTieringConfigurationList>,
-    pub is_truncated: Option<IsTruncated>,
-    pub next_continuation_token: Option<NextToken>,
-}
-impl ListBucketIntelligentTieringConfigurationsOutput {
+impl ExistingObjectReplication {
     pub fn to_http_response(self) -> anyhow::Result<hyper::Response<hyper::Body>> {
         anyhow::bail!("todo")
     }
 }
 
-pub type AllowedMethods = Vec<AllowedMethod>;
+pub type HttpErrorCodeReturnedEquals = String;
 
-pub type Start = i64;
-
-#[derive(Debug, Default, Clone)]
-pub struct AnalyticsConfiguration {
-    pub storage_class_analysis: Option<StorageClassAnalysis>,
-    pub filter: Option<AnalyticsFilter>,
-    pub id: Option<AnalyticsId>,
-}
-impl AnalyticsConfiguration {
-    pub fn to_http_response(self) -> anyhow::Result<hyper::Response<hyper::Body>> {
-        anyhow::bail!("todo")
-    }
-}
-
-pub type ContentType = String;
+pub type MetadataValue = String;
 
 #[derive(Debug, Default, Clone)]
-pub struct DeleteBucketReplicationRequest {
+pub struct UploadPartCopyRequest {
+    pub copy_source_range: Option<CopySourceRange>,
+    pub copy_source_if_match: Option<CopySourceIfMatch>,
+    pub copy_source_if_none_match: Option<CopySourceIfNoneMatch>,
     pub bucket: Option<BucketName>,
     pub expected_bucket_owner: Option<AccountId>,
-}
-impl DeleteBucketReplicationRequest {
-    pub fn to_http_response(self) -> anyhow::Result<hyper::Response<hyper::Body>> {
-        anyhow::bail!("todo")
-    }
-}
-
-#[derive(Debug, Default, Clone)]
-pub struct GetBucketAclOutput {
-    pub owner: Option<Owner>,
-    pub grants: Option<Grants>,
-}
-impl GetBucketAclOutput {
-    pub fn to_http_response(self) -> anyhow::Result<hyper::Response<hyper::Body>> {
-        anyhow::bail!("todo")
-    }
-}
-
-#[derive(Debug, Default, Clone)]
-pub struct CsvInput {
-    pub field_delimiter: Option<FieldDelimiter>,
-    pub file_header_info: Option<FileHeaderInfo>,
-    pub quote_escape_character: Option<QuoteEscapeCharacter>,
-    pub record_delimiter: Option<RecordDelimiter>,
-    pub quote_character: Option<QuoteCharacter>,
-    pub allow_quoted_record_delimiter: Option<AllowQuotedRecordDelimiter>,
-    pub comments: Option<Comments>,
-}
-impl CsvInput {
-    pub fn to_http_response(self) -> anyhow::Result<hyper::Response<hyper::Body>> {
-        anyhow::bail!("todo")
-    }
-}
-
-pub type DaysAfterInitiation = i32;
-
-#[derive(Debug, Default, Clone)]
-pub struct GetObjectAttributesParts {
-    pub total_parts_count: Option<PartsCount>,
-    pub next_part_number_marker: Option<NextPartNumberMarker>,
-    pub parts: Option<PartsList>,
-    pub part_number_marker: Option<PartNumberMarker>,
-    pub is_truncated: Option<IsTruncated>,
-    pub max_parts: Option<MaxParts>,
-}
-impl GetObjectAttributesParts {
-    pub fn to_http_response(self) -> anyhow::Result<hyper::Response<hyper::Body>> {
-        anyhow::bail!("todo")
-    }
-}
-
-#[derive(Debug, Default, Clone)]
-pub struct GetObjectTorrentRequest {
+    pub copy_source_sse_customer_key_md5: Option<CopySourceSseCustomerKeyMd5>,
     pub key: Option<ObjectKey>,
-    pub bucket: Option<BucketName>,
+    pub upload_id: Option<MultipartUploadId>,
+    pub copy_source_sse_customer_key: Option<CopySourceSseCustomerKey>,
+    pub expected_source_bucket_owner: Option<AccountId>,
+    pub part_number: Option<PartNumber>,
+    pub sse_customer_key: Option<SseCustomerKey>,
     pub request_payer: Option<RequestPayer>,
-    pub expected_bucket_owner: Option<AccountId>,
+    pub sse_customer_algorithm: Option<SseCustomerAlgorithm>,
+    pub copy_source_if_unmodified_since: Option<CopySourceIfUnmodifiedSince>,
+    pub copy_source_sse_customer_algorithm: Option<CopySourceSseCustomerAlgorithm>,
+    pub copy_source_if_modified_since: Option<CopySourceIfModifiedSince>,
+    pub sse_customer_key_md5: Option<SseCustomerKeyMd5>,
+    pub copy_source: Option<CopySource>,
 }
-impl GetObjectTorrentRequest {
+impl UploadPartCopyRequest {
+    pub fn to_http_response(self) -> anyhow::Result<hyper::Response<hyper::Body>> {
+        anyhow::bail!("todo")
+    }
+}
+
+pub type GrantWriteAcp = String;
+
+pub type ObjectLockEnabledForBucket = bool;
+
+pub type BypassGovernanceRetention = bool;
+
+#[derive(Debug, Default, Clone)]
+pub struct LifecycleRule {
+    pub abort_incomplete_multipart_upload: Option<AbortIncompleteMultipartUpload>,
+    pub expiration: Option<LifecycleExpiration>,
+    pub prefix: Option<Prefix>,
+    pub noncurrent_version_expiration: Option<NoncurrentVersionExpiration>,
+    pub status: Option<ExpirationStatus>,
+    pub transitions: Option<TransitionList>,
+    pub id: Option<Id>,
+    pub noncurrent_version_transitions: Option<NoncurrentVersionTransitionList>,
+    pub filter: Option<LifecycleRuleFilter>,
+}
+impl LifecycleRule {
     pub fn to_http_response(self) -> anyhow::Result<hyper::Response<hyper::Body>> {
         anyhow::bail!("todo")
     }
 }
 
 #[derive(Debug, Clone, Copy, Eq, Ord, PartialEq, PartialOrd, Hash)]
-pub enum ObjectStorageClass {
-    STANDARD,
-    OUTPOSTS,
-    INTELLIGENT_TIERING,
-    GLACIER_IR,
-    STANDARD_IA,
-    DEEP_ARCHIVE,
-    REDUCED_REDUNDANCY,
-    ONEZONE_IA,
-    GLACIER,
+pub enum FileHeaderInfo {
+    IGNORE,
+    USE,
+    NONE,
 }
-impl AsRef<str> for ObjectStorageClass {
+impl AsRef<str> for FileHeaderInfo {
     fn as_ref(&self) -> &str {
         match self {
-            Self::STANDARD => "STANDARD",
-            Self::OUTPOSTS => "OUTPOSTS",
-            Self::INTELLIGENT_TIERING => "INTELLIGENT_TIERING",
-            Self::GLACIER_IR => "GLACIER_IR",
-            Self::STANDARD_IA => "STANDARD_IA",
-            Self::DEEP_ARCHIVE => "DEEP_ARCHIVE",
-            Self::REDUCED_REDUNDANCY => "REDUCED_REDUNDANCY",
-            Self::ONEZONE_IA => "ONEZONE_IA",
-            Self::GLACIER => "GLACIER",
+            Self::IGNORE => "IGNORE",
+            Self::USE => "USE",
+            Self::NONE => "NONE",
         }
     }
 }
-impl TryFrom<&str> for ObjectStorageClass {
+impl TryFrom<&str> for FileHeaderInfo {
     type Error = String;
     fn try_from(s: &str) -> Result<Self, Self::Error> {
         match s {
-            "STANDARD" => Ok(Self::STANDARD),
-            "OUTPOSTS" => Ok(Self::OUTPOSTS),
-            "INTELLIGENT_TIERING" => Ok(Self::INTELLIGENT_TIERING),
-            "GLACIER_IR" => Ok(Self::GLACIER_IR),
-            "STANDARD_IA" => Ok(Self::STANDARD_IA),
-            "DEEP_ARCHIVE" => Ok(Self::DEEP_ARCHIVE),
-            "REDUCED_REDUNDANCY" => Ok(Self::REDUCED_REDUNDANCY),
-            "ONEZONE_IA" => Ok(Self::ONEZONE_IA),
-            "GLACIER" => Ok(Self::GLACIER),
+            "IGNORE" => Ok(Self::IGNORE),
+            "USE" => Ok(Self::USE),
+            "NONE" => Ok(Self::NONE),
             _ => Err(format!("unknown enum value {}", s)),
         }
     }
 }
 
-pub type FetchOwner = bool;
+pub type FilterRuleList = Vec<FilterRule>;
+
+pub type NoncurrentVersionTransitionList = Vec<NoncurrentVersionTransition>;
 
 #[derive(Debug, Default, Clone)]
-pub struct DeleteBucketPolicy;
-impl OperationShape for DeleteBucketPolicy {
-    const NAME: &'static str = "DeleteBucketPolicy";
-    type Input = DeleteBucketPolicyRequest;
+pub struct ListBucketAnalyticsConfigurations;
+impl OperationShape for ListBucketAnalyticsConfigurations {
+    const NAME: &'static str = "ListBucketAnalyticsConfigurations";
+    type Input = ListBucketAnalyticsConfigurationsRequest;
+    type Output = ListBucketAnalyticsConfigurationsOutput;
+    type Error = ();
+}
+
+pub type Marker = String;
+
+#[derive(Debug, Default, Clone)]
+pub struct PutBucketWebsite;
+impl OperationShape for PutBucketWebsite {
+    const NAME: &'static str = "PutBucketWebsite";
+    type Input = PutBucketWebsiteRequest;
     type Output = ();
     type Error = ();
 }
 
 #[derive(Debug, Default, Clone)]
-pub struct ListMultipartUploads;
-impl OperationShape for ListMultipartUploads {
-    const NAME: &'static str = "ListMultipartUploads";
-    type Input = ListMultipartUploadsRequest;
-    type Output = ListMultipartUploadsOutput;
-    type Error = ();
-}
-
-#[derive(Debug, Default, Clone)]
-pub struct NotificationConfigurationFilter {
-    pub key: Option<S3KeyFilter>,
-}
-impl NotificationConfigurationFilter {
+pub struct BucketAlreadyOwnedByYou {}
+impl BucketAlreadyOwnedByYou {
     pub fn to_http_response(self) -> anyhow::Result<hyper::Response<hyper::Body>> {
         anyhow::bail!("todo")
     }
 }
-
-pub type MetadataValue = String;
-
-#[derive(Debug, Default, Clone)]
-pub struct PutObjectTaggingRequest {
-    pub content_md5: Option<ContentMd5>,
-    pub key: Option<ObjectKey>,
-    pub tagging: Option<Tagging>,
-    pub bucket: Option<BucketName>,
-    pub checksum_algorithm: Option<ChecksumAlgorithm>,
-    pub expected_bucket_owner: Option<AccountId>,
-    pub version_id: Option<ObjectVersionId>,
-    pub request_payer: Option<RequestPayer>,
-}
-impl PutObjectTaggingRequest {
-    pub fn to_http_response(self) -> anyhow::Result<hyper::Response<hyper::Body>> {
-        anyhow::bail!("todo")
-    }
-}
-
-pub type ChecksumCrc32c = String;
-
-pub type PartNumberMarker = String;
-
-pub type ResponseContentDisposition = String;
 
 #[derive(Debug, Clone, Copy, Eq, Ord, PartialEq, PartialOrd, Hash)]
 pub enum MetadataDirective {
-    COPY,
     REPLACE,
+    COPY,
 }
 impl AsRef<str> for MetadataDirective {
     fn as_ref(&self) -> &str {
         match self {
-            Self::COPY => "COPY",
             Self::REPLACE => "REPLACE",
+            Self::COPY => "COPY",
         }
     }
 }
@@ -2466,10 +2765,18 @@ impl TryFrom<&str> for MetadataDirective {
     type Error = String;
     fn try_from(s: &str) -> Result<Self, Self::Error> {
         match s {
-            "COPY" => Ok(Self::COPY),
             "REPLACE" => Ok(Self::REPLACE),
+            "COPY" => Ok(Self::COPY),
             _ => Err(format!("unknown enum value {}", s)),
         }
+    }
+}
+
+#[derive(Debug, Default, Clone)]
+pub struct Sses3 {}
+impl Sses3 {
+    pub fn to_http_response(self) -> anyhow::Result<hyper::Response<hyper::Body>> {
+        anyhow::bail!("todo")
     }
 }
 
@@ -2495,22 +2802,136 @@ impl TryFrom<&str> for ExpressionType {
 }
 
 #[derive(Debug, Default, Clone)]
-pub struct DeleteBucketOwnershipControls;
-impl OperationShape for DeleteBucketOwnershipControls {
-    const NAME: &'static str = "DeleteBucketOwnershipControls";
-    type Input = DeleteBucketOwnershipControlsRequest;
+pub struct DeleteObjectsOutput {
+    pub request_charged: Option<RequestCharged>,
+    pub errors: Option<Errors>,
+    pub deleted: Option<DeletedObjects>,
+}
+impl DeleteObjectsOutput {
+    pub fn to_http_response(self) -> anyhow::Result<hyper::Response<hyper::Body>> {
+        anyhow::bail!("todo")
+    }
+}
+
+#[derive(Debug, Default, Clone)]
+pub struct GetBucketLoggingRequest {
+    pub expected_bucket_owner: Option<AccountId>,
+    pub bucket: Option<BucketName>,
+}
+impl GetBucketLoggingRequest {
+    pub fn to_http_response(self) -> anyhow::Result<hyper::Response<hyper::Body>> {
+        anyhow::bail!("todo")
+    }
+}
+
+#[derive(Debug, Default, Clone)]
+pub struct GetBucketWebsiteOutput {
+    pub index_document: Option<IndexDocument>,
+    pub redirect_all_requests_to: Option<RedirectAllRequestsTo>,
+    pub routing_rules: Option<RoutingRules>,
+    pub error_document: Option<ErrorDocument>,
+}
+impl GetBucketWebsiteOutput {
+    pub fn to_http_response(self) -> anyhow::Result<hyper::Response<hyper::Body>> {
+        anyhow::bail!("todo")
+    }
+}
+
+#[derive(Debug, Default, Clone)]
+pub struct OwnershipControls {
+    pub rules: Option<OwnershipControlsRules>,
+}
+impl OwnershipControls {
+    pub fn to_http_response(self) -> anyhow::Result<hyper::Response<hyper::Body>> {
+        anyhow::bail!("todo")
+    }
+}
+
+#[derive(Debug, Default, Clone)]
+pub struct GetObjectAttributesRequest {
+    pub key: Option<ObjectKey>,
+    pub sse_customer_key: Option<SseCustomerKey>,
+    pub bucket: Option<BucketName>,
+    pub expected_bucket_owner: Option<AccountId>,
+    pub max_parts: Option<MaxParts>,
+    pub request_payer: Option<RequestPayer>,
+    pub version_id: Option<ObjectVersionId>,
+    pub sse_customer_algorithm: Option<SseCustomerAlgorithm>,
+    pub sse_customer_key_md5: Option<SseCustomerKeyMd5>,
+    pub part_number_marker: Option<PartNumberMarker>,
+    pub object_attributes: Option<ObjectAttributesList>,
+}
+impl GetObjectAttributesRequest {
+    pub fn to_http_response(self) -> anyhow::Result<hyper::Response<hyper::Body>> {
+        anyhow::bail!("todo")
+    }
+}
+
+#[derive(Debug, Default, Clone)]
+pub struct PutBucketNotificationConfiguration;
+impl OperationShape for PutBucketNotificationConfiguration {
+    const NAME: &'static str = "PutBucketNotificationConfiguration";
+    type Input = PutBucketNotificationConfigurationRequest;
     type Output = ();
     type Error = ();
 }
 
 #[derive(Debug, Default, Clone)]
-pub struct GetBucketPolicyStatusOutput {
-    pub policy_status: Option<PolicyStatus>,
+pub struct GetBucketRequestPayment;
+impl OperationShape for GetBucketRequestPayment {
+    const NAME: &'static str = "GetBucketRequestPayment";
+    type Input = GetBucketRequestPaymentRequest;
+    type Output = GetBucketRequestPaymentOutput;
+    type Error = ();
 }
-impl GetBucketPolicyStatusOutput {
+
+pub type QuoteEscapeCharacter = String;
+
+pub type SkipValidation = bool;
+
+pub type CopySourceVersionId = String;
+
+#[derive(Debug, Default, Clone)]
+pub struct ListObjectsOutput {
+    pub contents: Option<ObjectList>,
+    pub delimiter: Option<Delimiter>,
+    pub common_prefixes: Option<CommonPrefixList>,
+    pub prefix: Option<Prefix>,
+    pub max_keys: Option<MaxKeys>,
+    pub next_marker: Option<NextMarker>,
+    pub is_truncated: Option<IsTruncated>,
+    pub encoding_type: Option<EncodingType>,
+    pub marker: Option<Marker>,
+    pub name: Option<BucketName>,
+}
+impl ListObjectsOutput {
     pub fn to_http_response(self) -> anyhow::Result<hyper::Response<hyper::Body>> {
         anyhow::bail!("todo")
     }
+}
+
+#[derive(Debug, Default, Clone)]
+pub struct ServerSideEncryptionRule {
+    pub bucket_key_enabled: Option<BucketKeyEnabled>,
+    pub apply_server_side_encryption_by_default: Option<ServerSideEncryptionByDefault>,
+}
+impl ServerSideEncryptionRule {
+    pub fn to_http_response(self) -> anyhow::Result<hyper::Response<hyper::Body>> {
+        anyhow::bail!("todo")
+    }
+}
+
+pub type Role = String;
+
+pub type WebsiteRedirectLocation = String;
+
+#[derive(Debug, Default, Clone)]
+pub struct PutBucketIntelligentTieringConfiguration;
+impl OperationShape for PutBucketIntelligentTieringConfiguration {
+    const NAME: &'static str = "PutBucketIntelligentTieringConfiguration";
+    type Input = PutBucketIntelligentTieringConfigurationRequest;
+    type Output = ();
+    type Error = ();
 }
 
 #[derive(Debug, Default, Clone)]
@@ -2522,1510 +2943,192 @@ impl EventBridgeConfiguration {
 }
 
 #[derive(Debug, Default, Clone)]
-pub struct GetObjectAcl;
-impl OperationShape for GetObjectAcl {
-    const NAME: &'static str = "GetObjectAcl";
-    type Input = GetObjectAclRequest;
-    type Output = GetObjectAclOutput;
-    type Error = ();
+pub struct SourceSelectionCriteria {
+    pub replica_modifications: Option<ReplicaModifications>,
+    pub sse_kms_encrypted_objects: Option<SseKmsEncryptedObjects>,
 }
-
-#[derive(Debug, Default, Clone)]
-pub struct ListBucketIntelligentTieringConfigurationsRequest {
-    pub continuation_token: Option<Token>,
-    pub bucket: Option<BucketName>,
-}
-impl ListBucketIntelligentTieringConfigurationsRequest {
+impl SourceSelectionCriteria {
     pub fn to_http_response(self) -> anyhow::Result<hyper::Response<hyper::Body>> {
         anyhow::bail!("todo")
     }
 }
 
-#[derive(Debug, Default, Clone)]
-pub struct Object {
-    pub owner: Option<Owner>,
-    pub key: Option<ObjectKey>,
-    pub storage_class: Option<ObjectStorageClass>,
-    pub e_tag: Option<ETag>,
-    pub checksum_algorithm: Option<ChecksumAlgorithmList>,
-    pub last_modified: Option<LastModified>,
-    pub size: Option<Size>,
-}
-impl Object {
-    pub fn to_http_response(self) -> anyhow::Result<hyper::Response<hyper::Body>> {
-        anyhow::bail!("todo")
-    }
-}
-
-#[derive(Debug, Default, Clone)]
-pub struct EncryptionConfiguration {
-    pub replica_kms_key_id: Option<ReplicaKmsKeyId>,
-}
-impl EncryptionConfiguration {
-    pub fn to_http_response(self) -> anyhow::Result<hyper::Response<hyper::Body>> {
-        anyhow::bail!("todo")
-    }
-}
-
-#[derive(Debug, Default, Clone)]
-pub struct Encryption {
-    pub kms_context: Option<KmsContext>,
-    pub kms_key_id: Option<SsekmsKeyId>,
-    pub encryption_type: Option<ServerSideEncryption>,
-}
-impl Encryption {
-    pub fn to_http_response(self) -> anyhow::Result<hyper::Response<hyper::Body>> {
-        anyhow::bail!("todo")
-    }
-}
-
-#[derive(Debug, Default, Clone)]
-pub struct CompletedMultipartUpload {
-    pub parts: Option<CompletedPartList>,
-}
-impl CompletedMultipartUpload {
-    pub fn to_http_response(self) -> anyhow::Result<hyper::Response<hyper::Body>> {
-        anyhow::bail!("todo")
-    }
-}
-
-#[derive(Debug, Default, Clone)]
-pub struct GetBucketAccelerateConfigurationRequest {
-    pub expected_bucket_owner: Option<AccountId>,
-    pub bucket: Option<BucketName>,
-}
-impl GetBucketAccelerateConfigurationRequest {
-    pub fn to_http_response(self) -> anyhow::Result<hyper::Response<hyper::Body>> {
-        anyhow::bail!("todo")
-    }
-}
-
-pub type Policy = String;
-
-#[derive(Debug, Default, Clone)]
-pub struct PutBucketLifecycleConfiguration;
-impl OperationShape for PutBucketLifecycleConfiguration {
-    const NAME: &'static str = "PutBucketLifecycleConfiguration";
-    type Input = PutBucketLifecycleConfigurationRequest;
-    type Output = ();
-    type Error = ();
-}
-
-pub type AllowQuotedRecordDelimiter = bool;
-
-pub type AllowedHeaders = Vec<AllowedHeader>;
-
-#[derive(Debug, Default, Clone)]
-pub struct WriteGetObjectResponseRequest {
-    pub content_range: Option<ContentRange>,
-    pub sse_customer_key_md5: Option<SseCustomerKeyMd5>,
-    pub object_lock_mode: Option<ObjectLockMode>,
-    pub content_language: Option<ContentLanguage>,
-    pub accept_ranges: Option<AcceptRanges>,
-    pub request_charged: Option<RequestCharged>,
-    pub storage_class: Option<StorageClass>,
-    pub parts_count: Option<PartsCount>,
-    pub checksum_sha256: Option<ChecksumSha256>,
-    pub checksum_crc32: Option<ChecksumCrc32>,
-    pub content_encoding: Option<ContentEncoding>,
-    pub content_type: Option<ContentType>,
-    pub delete_marker: Option<DeleteMarker>,
-    pub e_tag: Option<ETag>,
-    pub error_message: Option<ErrorMessage>,
-    pub ssekms_key_id: Option<SsekmsKeyId>,
-    pub body: Option<StreamingBlob>,
-    pub replication_status: Option<ReplicationStatus>,
-    pub error_code: Option<ErrorCode>,
-    pub tag_count: Option<TagCount>,
-    pub content_disposition: Option<ContentDisposition>,
-    pub request_token: Option<RequestToken>,
-    pub sse_customer_algorithm: Option<SseCustomerAlgorithm>,
-    pub last_modified: Option<LastModified>,
-    pub object_lock_legal_hold_status: Option<ObjectLockLegalHoldStatus>,
-    pub expires: Option<Expires>,
-    pub checksum_sha1: Option<ChecksumSha1>,
-    pub expiration: Option<Expiration>,
-    pub cache_control: Option<CacheControl>,
-    pub checksum_crc32_c: Option<ChecksumCrc32c>,
-    pub bucket_key_enabled: Option<BucketKeyEnabled>,
-    pub restore: Option<Restore>,
-    pub content_length: Option<ContentLength>,
-    pub object_lock_retain_until_date: Option<ObjectLockRetainUntilDate>,
-    pub status_code: Option<GetObjectResponseStatusCode>,
-    pub request_route: Option<RequestRoute>,
-    pub server_side_encryption: Option<ServerSideEncryption>,
-    pub version_id: Option<ObjectVersionId>,
-    pub missing_meta: Option<MissingMeta>,
-    pub metadata: Option<Metadata>,
-}
-impl WriteGetObjectResponseRequest {
-    pub fn to_http_response(self) -> anyhow::Result<hyper::Response<hyper::Body>> {
-        anyhow::bail!("todo")
-    }
-}
-
-pub type FieldDelimiter = String;
-
-#[derive(Debug, Default, Clone)]
-pub struct DeleteObjectTaggingRequest {
-    pub key: Option<ObjectKey>,
-    pub version_id: Option<ObjectVersionId>,
-    pub bucket: Option<BucketName>,
-    pub expected_bucket_owner: Option<AccountId>,
-}
-impl DeleteObjectTaggingRequest {
-    pub fn to_http_response(self) -> anyhow::Result<hyper::Response<hyper::Body>> {
-        anyhow::bail!("todo")
-    }
-}
-
-#[derive(Debug, Default, Clone)]
-pub struct IntelligentTieringConfiguration {
-    pub tierings: Option<TieringList>,
-    pub id: Option<IntelligentTieringId>,
-    pub status: Option<IntelligentTieringStatus>,
-    pub filter: Option<IntelligentTieringFilter>,
-}
-impl IntelligentTieringConfiguration {
-    pub fn to_http_response(self) -> anyhow::Result<hyper::Response<hyper::Body>> {
-        anyhow::bail!("todo")
-    }
-}
-
-pub type GrantWrite = String;
-
-#[derive(Debug, Default, Clone)]
-pub struct GetBucketVersioning;
-impl OperationShape for GetBucketVersioning {
-    const NAME: &'static str = "GetBucketVersioning";
-    type Input = GetBucketVersioningRequest;
-    type Output = GetBucketVersioningOutput;
-    type Error = ();
-}
-
-#[derive(Debug, Default, Clone)]
-pub struct ListMultipartUploadsRequest {
-    pub upload_id_marker: Option<UploadIdMarker>,
-    pub bucket: Option<BucketName>,
-    pub max_uploads: Option<MaxUploads>,
-    pub delimiter: Option<Delimiter>,
-    pub prefix: Option<Prefix>,
-    pub expected_bucket_owner: Option<AccountId>,
-    pub key_marker: Option<KeyMarker>,
-    pub encoding_type: Option<EncodingType>,
-}
-impl ListMultipartUploadsRequest {
-    pub fn to_http_response(self) -> anyhow::Result<hyper::Response<hyper::Body>> {
-        anyhow::bail!("todo")
-    }
-}
-
-#[derive(Debug, Default, Clone)]
-pub struct NoSuchBucket {}
-impl NoSuchBucket {
-    pub fn to_http_response(self) -> anyhow::Result<hyper::Response<hyper::Body>> {
-        anyhow::bail!("todo")
-    }
-}
-
-#[derive(Debug, Default, Clone)]
-pub struct PutPublicAccessBlockRequest {
-    pub expected_bucket_owner: Option<AccountId>,
-    pub public_access_block_configuration: Option<PublicAccessBlockConfiguration>,
-    pub bucket: Option<BucketName>,
-    pub checksum_algorithm: Option<ChecksumAlgorithm>,
-    pub content_md5: Option<ContentMd5>,
-}
-impl PutPublicAccessBlockRequest {
-    pub fn to_http_response(self) -> anyhow::Result<hyper::Response<hyper::Body>> {
-        anyhow::bail!("todo")
-    }
-}
-
-pub type IntelligentTieringDays = i32;
-
-pub type CopySourceIfUnmodifiedSince = String;
-
-#[derive(Debug, Default, Clone)]
-pub struct CorsConfiguration {
-    pub cors_rules: Option<CorsRules>,
-}
-impl CorsConfiguration {
-    pub fn to_http_response(self) -> anyhow::Result<hyper::Response<hyper::Body>> {
-        anyhow::bail!("todo")
-    }
-}
-
-pub type NotificationId = String;
-
-#[derive(Debug, Default, Clone)]
-pub struct HeadBucketRequest {
-    pub expected_bucket_owner: Option<AccountId>,
-    pub bucket: Option<BucketName>,
-}
-impl HeadBucketRequest {
-    pub fn to_http_response(self) -> anyhow::Result<hyper::Response<hyper::Body>> {
-        anyhow::bail!("todo")
-    }
-}
-
-#[derive(Debug, Default, Clone)]
-pub struct NoSuchKey {}
-impl NoSuchKey {
-    pub fn to_http_response(self) -> anyhow::Result<hyper::Response<hyper::Body>> {
-        anyhow::bail!("todo")
-    }
-}
-
-#[derive(Debug, Default, Clone)]
-pub struct ObjectLockRule {
-    pub default_retention: Option<DefaultRetention>,
-}
-impl ObjectLockRule {
-    pub fn to_http_response(self) -> anyhow::Result<hyper::Response<hyper::Body>> {
-        anyhow::bail!("todo")
-    }
-}
+pub type AllowedOrigin = String;
 
 #[derive(Debug, Clone, Copy, Eq, Ord, PartialEq, PartialOrd, Hash)]
-pub enum BucketLogsPermission {
-    READ,
-    FULL_CONTROL,
-    WRITE,
+pub enum EncodingType {
+    url,
 }
-impl AsRef<str> for BucketLogsPermission {
+impl AsRef<str> for EncodingType {
     fn as_ref(&self) -> &str {
         match self {
-            Self::READ => "READ",
-            Self::FULL_CONTROL => "FULL_CONTROL",
-            Self::WRITE => "WRITE",
+            Self::url => "url",
         }
     }
 }
-impl TryFrom<&str> for BucketLogsPermission {
+impl TryFrom<&str> for EncodingType {
     type Error = String;
     fn try_from(s: &str) -> Result<Self, Self::Error> {
         match s {
-            "READ" => Ok(Self::READ),
-            "FULL_CONTROL" => Ok(Self::FULL_CONTROL),
-            "WRITE" => Ok(Self::WRITE),
-            _ => Err(format!("unknown enum value {}", s)),
-        }
-    }
-}
-
-pub type BytesScanned = i64;
-
-#[derive(Debug, Default, Clone)]
-pub struct GetObjectTaggingRequest {
-    pub expected_bucket_owner: Option<AccountId>,
-    pub key: Option<ObjectKey>,
-    pub version_id: Option<ObjectVersionId>,
-    pub request_payer: Option<RequestPayer>,
-    pub bucket: Option<BucketName>,
-}
-impl GetObjectTaggingRequest {
-    pub fn to_http_response(self) -> anyhow::Result<hyper::Response<hyper::Body>> {
-        anyhow::bail!("todo")
-    }
-}
-
-#[derive(Debug, Default, Clone)]
-pub struct GetBucketMetricsConfigurationRequest {
-    pub bucket: Option<BucketName>,
-    pub expected_bucket_owner: Option<AccountId>,
-    pub id: Option<MetricsId>,
-}
-impl GetBucketMetricsConfigurationRequest {
-    pub fn to_http_response(self) -> anyhow::Result<hyper::Response<hyper::Body>> {
-        anyhow::bail!("todo")
-    }
-}
-
-#[derive(Debug, Default, Clone)]
-pub struct GetPublicAccessBlock;
-impl OperationShape for GetPublicAccessBlock {
-    const NAME: &'static str = "GetPublicAccessBlock";
-    type Input = GetPublicAccessBlockRequest;
-    type Output = GetPublicAccessBlockOutput;
-    type Error = ();
-}
-
-pub type MetadataKey = String;
-
-pub type MultipartUploadId = String;
-
-#[derive(Debug, Clone, Copy, Eq, Ord, PartialEq, PartialOrd, Hash)]
-pub enum ObjectAttributes {
-    ETAG,
-    STORAGE_CLASS,
-    OBJECT_SIZE,
-    OBJECT_PARTS,
-    CHECKSUM,
-}
-impl AsRef<str> for ObjectAttributes {
-    fn as_ref(&self) -> &str {
-        match self {
-            Self::ETAG => "ETag",
-            Self::STORAGE_CLASS => "StorageClass",
-            Self::OBJECT_SIZE => "ObjectSize",
-            Self::OBJECT_PARTS => "ObjectParts",
-            Self::CHECKSUM => "Checksum",
-        }
-    }
-}
-impl TryFrom<&str> for ObjectAttributes {
-    type Error = String;
-    fn try_from(s: &str) -> Result<Self, Self::Error> {
-        match s {
-            "ETag" => Ok(Self::ETAG),
-            "StorageClass" => Ok(Self::STORAGE_CLASS),
-            "ObjectSize" => Ok(Self::OBJECT_SIZE),
-            "ObjectParts" => Ok(Self::OBJECT_PARTS),
-            "Checksum" => Ok(Self::CHECKSUM),
+            "url" => Ok(Self::url),
             _ => Err(format!("unknown enum value {}", s)),
         }
     }
 }
 
 #[derive(Debug, Default, Clone)]
-pub struct RequestProgress {
-    pub enabled: Option<EnableRequestProgress>,
-}
-impl RequestProgress {
-    pub fn to_http_response(self) -> anyhow::Result<hyper::Response<hyper::Body>> {
-        anyhow::bail!("todo")
-    }
-}
-
-pub type TransitionList = Vec<Transition>;
-
-#[derive(Debug, Default, Clone)]
-pub struct LifecycleRule {
-    pub noncurrent_version_expiration: Option<NoncurrentVersionExpiration>,
-    pub abort_incomplete_multipart_upload: Option<AbortIncompleteMultipartUpload>,
-    pub expiration: Option<LifecycleExpiration>,
-    pub filter: Option<LifecycleRuleFilter>,
-    pub noncurrent_version_transitions: Option<NoncurrentVersionTransitionList>,
-    pub status: Option<ExpirationStatus>,
-    pub transitions: Option<TransitionList>,
-    pub id: Option<Id>,
-    pub prefix: Option<Prefix>,
-}
-impl LifecycleRule {
-    pub fn to_http_response(self) -> anyhow::Result<hyper::Response<hyper::Body>> {
-        anyhow::bail!("todo")
-    }
-}
-
-#[derive(Debug, Default, Clone)]
-pub struct CreateBucketConfiguration {
-    pub location_constraint: Option<BucketLocationConstraint>,
-}
-impl CreateBucketConfiguration {
-    pub fn to_http_response(self) -> anyhow::Result<hyper::Response<hyper::Body>> {
-        anyhow::bail!("todo")
-    }
-}
-
-pub type Expression = String;
-
-#[derive(Debug, Clone, Copy, Eq, Ord, PartialEq, PartialOrd, Hash)]
-pub enum MfaDeleteStatus {
-    Enabled,
-    Disabled,
-}
-impl AsRef<str> for MfaDeleteStatus {
-    fn as_ref(&self) -> &str {
-        match self {
-            Self::Enabled => "Enabled",
-            Self::Disabled => "Disabled",
-        }
-    }
-}
-impl TryFrom<&str> for MfaDeleteStatus {
-    type Error = String;
-    fn try_from(s: &str) -> Result<Self, Self::Error> {
-        match s {
-            "Enabled" => Ok(Self::Enabled),
-            "Disabled" => Ok(Self::Disabled),
-            _ => Err(format!("unknown enum value {}", s)),
-        }
-    }
-}
-
-#[derive(Debug, Default, Clone)]
-pub struct GetObjectRetention;
-impl OperationShape for GetObjectRetention {
-    const NAME: &'static str = "GetObjectRetention";
-    type Input = GetObjectRetentionRequest;
-    type Output = GetObjectRetentionOutput;
-    type Error = ();
-}
-
-#[derive(Debug, Default, Clone)]
-pub struct DeletePublicAccessBlockRequest {
-    pub bucket: Option<BucketName>,
-    pub expected_bucket_owner: Option<AccountId>,
-}
-impl DeletePublicAccessBlockRequest {
-    pub fn to_http_response(self) -> anyhow::Result<hyper::Response<hyper::Body>> {
-        anyhow::bail!("todo")
-    }
-}
-
-#[derive(Debug, Default, Clone)]
-pub struct ListPartsOutput {
-    pub checksum_algorithm: Option<ChecksumAlgorithm>,
-    pub owner: Option<Owner>,
-    pub part_number_marker: Option<PartNumberMarker>,
-    pub bucket: Option<BucketName>,
-    pub key: Option<ObjectKey>,
-    pub max_parts: Option<MaxParts>,
-    pub abort_date: Option<AbortDate>,
-    pub request_charged: Option<RequestCharged>,
-    pub upload_id: Option<MultipartUploadId>,
-    pub next_part_number_marker: Option<NextPartNumberMarker>,
-    pub abort_rule_id: Option<AbortRuleId>,
-    pub initiator: Option<Initiator>,
-    pub is_truncated: Option<IsTruncated>,
-    pub storage_class: Option<StorageClass>,
-    pub parts: Option<Parts>,
-}
-impl ListPartsOutput {
-    pub fn to_http_response(self) -> anyhow::Result<hyper::Response<hyper::Body>> {
-        anyhow::bail!("todo")
-    }
-}
-
-pub type ResponseCacheControl = String;
-
-pub type FilterRuleValue = String;
-
-#[derive(Debug, Default, Clone)]
-pub struct GetBucketCorsRequest {
-    pub expected_bucket_owner: Option<AccountId>,
-    pub bucket: Option<BucketName>,
-}
-impl GetBucketCorsRequest {
-    pub fn to_http_response(self) -> anyhow::Result<hyper::Response<hyper::Body>> {
-        anyhow::bail!("todo")
-    }
-}
-
-#[derive(Debug, Default, Clone)]
-pub struct ObjectLockRetention {
-    pub retain_until_date: Option<Date>,
-    pub mode: Option<ObjectLockRetentionMode>,
-}
-impl ObjectLockRetention {
-    pub fn to_http_response(self) -> anyhow::Result<hyper::Response<hyper::Body>> {
-        anyhow::bail!("todo")
-    }
-}
-
-#[derive(Debug, Default, Clone)]
-pub struct GetBucketPolicyStatus;
-impl OperationShape for GetBucketPolicyStatus {
-    const NAME: &'static str = "GetBucketPolicyStatus";
-    type Input = GetBucketPolicyStatusRequest;
-    type Output = GetBucketPolicyStatusOutput;
-    type Error = ();
-}
-
-#[derive(Debug, Default, Clone)]
-pub struct SelectParameters {
-    pub expression_type: Option<ExpressionType>,
-    pub expression: Option<Expression>,
-    pub output_serialization: Option<OutputSerialization>,
-    pub input_serialization: Option<InputSerialization>,
-}
-impl SelectParameters {
-    pub fn to_http_response(self) -> anyhow::Result<hyper::Response<hyper::Body>> {
-        anyhow::bail!("todo")
-    }
-}
-
-#[derive(Debug, Default, Clone)]
-pub struct InputSerialization {
-    pub compression_type: Option<CompressionType>,
-    pub csv: Option<CsvInput>,
-    pub parquet: Option<ParquetInput>,
-    pub json: Option<JsonInput>,
-}
-impl InputSerialization {
-    pub fn to_http_response(self) -> anyhow::Result<hyper::Response<hyper::Body>> {
-        anyhow::bail!("todo")
-    }
-}
-
-#[derive(Debug, Default, Clone)]
-pub struct Initiator {
-    pub display_name: Option<DisplayName>,
-    pub id: Option<Id>,
-}
-impl Initiator {
-    pub fn to_http_response(self) -> anyhow::Result<hyper::Response<hyper::Body>> {
-        anyhow::bail!("todo")
-    }
-}
-
-#[derive(Debug, Default, Clone)]
-pub struct PutBucketLogging;
-impl OperationShape for PutBucketLogging {
-    const NAME: &'static str = "PutBucketLogging";
-    type Input = PutBucketLoggingRequest;
-    type Output = ();
-    type Error = ();
-}
-
-#[derive(Debug, Default, Clone)]
-pub struct PutBucketEncryption;
-impl OperationShape for PutBucketEncryption {
-    const NAME: &'static str = "PutBucketEncryption";
-    type Input = PutBucketEncryptionRequest;
-    type Output = ();
-    type Error = ();
-}
-
-pub type Expiration = String;
-
-pub type MetricsId = String;
-
-#[derive(Debug, Default, Clone)]
-pub struct PutBucketTagging;
-impl OperationShape for PutBucketTagging {
-    const NAME: &'static str = "PutBucketTagging";
-    type Input = PutBucketTaggingRequest;
-    type Output = ();
-    type Error = ();
-}
-
-#[derive(Debug, Default, Clone)]
-pub struct InventoryEncryption {
-    pub ssekms: Option<Ssekms>,
-    pub sses3: Option<Sses3>,
-}
-impl InventoryEncryption {
-    pub fn to_http_response(self) -> anyhow::Result<hyper::Response<hyper::Body>> {
-        anyhow::bail!("todo")
-    }
-}
-
-#[derive(Debug, Default, Clone)]
-pub struct Owner {
-    pub display_name: Option<DisplayName>,
-    pub id: Option<Id>,
-}
-impl Owner {
-    pub fn to_http_response(self) -> anyhow::Result<hyper::Response<hyper::Body>> {
-        anyhow::bail!("todo")
-    }
-}
-
-#[derive(Debug, Default, Clone)]
-pub struct DeleteBucket;
-impl OperationShape for DeleteBucket {
-    const NAME: &'static str = "DeleteBucket";
-    type Input = DeleteBucketRequest;
-    type Output = ();
-    type Error = ();
-}
-
-pub type UserMetadata = Vec<MetadataEntry>;
-
-pub type KmsContext = String;
-
-pub type StartAfter = String;
-
-#[derive(Debug, Default, Clone)]
-pub struct ListBucketIntelligentTieringConfigurations;
-impl OperationShape for ListBucketIntelligentTieringConfigurations {
-    const NAME: &'static str = "ListBucketIntelligentTieringConfigurations";
-    type Input = ListBucketIntelligentTieringConfigurationsRequest;
-    type Output = ListBucketIntelligentTieringConfigurationsOutput;
-    type Error = ();
-}
-
-pub type ReplaceKeyPrefixWith = String;
-
-#[derive(Debug, Default, Clone)]
-pub struct IntelligentTieringAndOperator {
-    pub tags: Option<TagSet>,
-    pub prefix: Option<Prefix>,
-}
-impl IntelligentTieringAndOperator {
-    pub fn to_http_response(self) -> anyhow::Result<hyper::Response<hyper::Body>> {
-        anyhow::bail!("todo")
-    }
-}
-
-#[derive(Debug, Clone, Copy, Eq, Ord, PartialEq, PartialOrd, Hash)]
-pub enum BucketCannedAcl {
-    public_read,
-    public_read_write,
-    authenticated_read,
-    private,
-}
-impl AsRef<str> for BucketCannedAcl {
-    fn as_ref(&self) -> &str {
-        match self {
-            Self::public_read => "public-read",
-            Self::public_read_write => "public-read-write",
-            Self::authenticated_read => "authenticated-read",
-            Self::private => "private",
-        }
-    }
-}
-impl TryFrom<&str> for BucketCannedAcl {
-    type Error = String;
-    fn try_from(s: &str) -> Result<Self, Self::Error> {
-        match s {
-            "public-read" => Ok(Self::public_read),
-            "public-read-write" => Ok(Self::public_read_write),
-            "authenticated-read" => Ok(Self::authenticated_read),
-            "private" => Ok(Self::private),
-            _ => Err(format!("unknown enum value {}", s)),
-        }
-    }
-}
-
-pub type FilterRuleList = Vec<FilterRule>;
-
-pub type GrantFullControl = String;
-
-pub type IsPublic = bool;
-
-#[derive(Debug, Default, Clone)]
-pub struct GetObjectOutput {
-    pub checksum_sha1: Option<ChecksumSha1>,
-    pub checksum_crc32_c: Option<ChecksumCrc32c>,
-    pub delete_marker: Option<DeleteMarker>,
-    pub website_redirect_location: Option<WebsiteRedirectLocation>,
-    pub missing_meta: Option<MissingMeta>,
-    pub storage_class: Option<StorageClass>,
-    pub version_id: Option<ObjectVersionId>,
-    pub last_modified: Option<LastModified>,
-    pub object_lock_legal_hold_status: Option<ObjectLockLegalHoldStatus>,
-    pub checksum_sha256: Option<ChecksumSha256>,
-    pub object_lock_mode: Option<ObjectLockMode>,
-    pub object_lock_retain_until_date: Option<ObjectLockRetainUntilDate>,
-    pub accept_ranges: Option<AcceptRanges>,
-    pub tag_count: Option<TagCount>,
-    pub checksum_crc32: Option<ChecksumCrc32>,
-    pub sse_customer_key_md5: Option<SseCustomerKeyMd5>,
-    pub parts_count: Option<PartsCount>,
-    pub ssekms_key_id: Option<SsekmsKeyId>,
-    pub replication_status: Option<ReplicationStatus>,
-    pub content_language: Option<ContentLanguage>,
-    pub e_tag: Option<ETag>,
-    pub restore: Option<Restore>,
-    pub metadata: Option<Metadata>,
-    pub request_charged: Option<RequestCharged>,
-    pub content_encoding: Option<ContentEncoding>,
-    pub expiration: Option<Expiration>,
-    pub content_length: Option<ContentLength>,
-    pub cache_control: Option<CacheControl>,
-    pub content_range: Option<ContentRange>,
-    pub content_type: Option<ContentType>,
-    pub content_disposition: Option<ContentDisposition>,
-    pub bucket_key_enabled: Option<BucketKeyEnabled>,
-    pub expires: Option<Expires>,
-    pub sse_customer_algorithm: Option<SseCustomerAlgorithm>,
-    pub body: Option<StreamingBlob>,
-    pub server_side_encryption: Option<ServerSideEncryption>,
-}
-impl GetObjectOutput {
-    pub fn to_http_response(self) -> anyhow::Result<hyper::Response<hyper::Body>> {
-        anyhow::bail!("todo")
-    }
-}
-
-pub type ContentDisposition = String;
-
-#[derive(Debug, Default, Clone)]
-pub struct BucketLifecycleConfiguration {
-    pub rules: Option<LifecycleRules>,
-}
-impl BucketLifecycleConfiguration {
-    pub fn to_http_response(self) -> anyhow::Result<hyper::Response<hyper::Body>> {
-        anyhow::bail!("todo")
-    }
-}
-
-#[derive(Debug, Default, Clone)]
-pub struct Progress {
-    pub bytes_scanned: Option<BytesScanned>,
-    pub bytes_processed: Option<BytesProcessed>,
-    pub bytes_returned: Option<BytesReturned>,
-}
-impl Progress {
-    pub fn to_http_response(self) -> anyhow::Result<hyper::Response<hyper::Body>> {
-        anyhow::bail!("todo")
-    }
-}
-
-#[derive(Debug, Default, Clone)]
-pub struct DefaultRetention {
-    pub mode: Option<ObjectLockRetentionMode>,
-    pub days: Option<Days>,
-    pub years: Option<Years>,
-}
-impl DefaultRetention {
-    pub fn to_http_response(self) -> anyhow::Result<hyper::Response<hyper::Body>> {
-        anyhow::bail!("todo")
-    }
-}
-
-pub type RestoreOutputPath = String;
-
-#[derive(Debug, Default, Clone)]
-pub struct GetObjectLegalHoldOutput {
-    pub legal_hold: Option<ObjectLockLegalHold>,
-}
-impl GetObjectLegalHoldOutput {
-    pub fn to_http_response(self) -> anyhow::Result<hyper::Response<hyper::Body>> {
-        anyhow::bail!("todo")
-    }
-}
-
-pub type NextToken = String;
-
-#[derive(Debug, Default, Clone)]
-pub struct PutBucketOwnershipControlsRequest {
-    pub ownership_controls: Option<OwnershipControls>,
-    pub bucket: Option<BucketName>,
-    pub content_md5: Option<ContentMd5>,
-    pub expected_bucket_owner: Option<AccountId>,
-}
-impl PutBucketOwnershipControlsRequest {
-    pub fn to_http_response(self) -> anyhow::Result<hyper::Response<hyper::Body>> {
-        anyhow::bail!("todo")
-    }
-}
-
-pub type IsLatest = bool;
-
-#[derive(Debug, Default, Clone)]
-pub struct ListObjectsOutput {
-    pub next_marker: Option<NextMarker>,
-    pub name: Option<BucketName>,
-    pub contents: Option<ObjectList>,
-    pub marker: Option<Marker>,
-    pub is_truncated: Option<IsTruncated>,
-    pub max_keys: Option<MaxKeys>,
-    pub encoding_type: Option<EncodingType>,
-    pub delimiter: Option<Delimiter>,
-    pub prefix: Option<Prefix>,
-    pub common_prefixes: Option<CommonPrefixList>,
-}
-impl ListObjectsOutput {
-    pub fn to_http_response(self) -> anyhow::Result<hyper::Response<hyper::Body>> {
-        anyhow::bail!("todo")
-    }
-}
-
-#[derive(Debug, Default, Clone)]
-pub struct PutBucketPolicyRequest {
-    pub bucket: Option<BucketName>,
-    pub content_md5: Option<ContentMd5>,
-    pub confirm_remove_self_bucket_access: Option<ConfirmRemoveSelfBucketAccess>,
-    pub expected_bucket_owner: Option<AccountId>,
-    pub policy: Option<Policy>,
-    pub checksum_algorithm: Option<ChecksumAlgorithm>,
-}
-impl PutBucketPolicyRequest {
-    pub fn to_http_response(self) -> anyhow::Result<hyper::Response<hyper::Body>> {
-        anyhow::bail!("todo")
-    }
-}
-
-pub type ObjectVersionList = Vec<ObjectVersion>;
-
-#[derive(Debug, Default, Clone)]
-pub struct SseKmsEncryptedObjects {
-    pub status: Option<SseKmsEncryptedObjectsStatus>,
-}
-impl SseKmsEncryptedObjects {
-    pub fn to_http_response(self) -> anyhow::Result<hyper::Response<hyper::Body>> {
-        anyhow::bail!("todo")
-    }
-}
-
-#[derive(Debug, Default, Clone)]
-pub struct UploadPartRequest {
-    pub request_payer: Option<RequestPayer>,
-    pub upload_id: Option<MultipartUploadId>,
-    pub checksum_crc32_c: Option<ChecksumCrc32c>,
-    pub key: Option<ObjectKey>,
-    pub content_length: Option<ContentLength>,
-    pub checksum_sha1: Option<ChecksumSha1>,
-    pub checksum_algorithm: Option<ChecksumAlgorithm>,
-    pub checksum_crc32: Option<ChecksumCrc32>,
-    pub sse_customer_algorithm: Option<SseCustomerAlgorithm>,
+pub struct CompleteMultipartUploadRequest {
     pub sse_customer_key: Option<SseCustomerKey>,
-    pub sse_customer_key_md5: Option<SseCustomerKeyMd5>,
-    pub bucket: Option<BucketName>,
-    pub body: Option<StreamingBlob>,
-    pub checksum_sha256: Option<ChecksumSha256>,
-    pub content_md5: Option<ContentMd5>,
     pub expected_bucket_owner: Option<AccountId>,
-    pub part_number: Option<PartNumber>,
-}
-impl UploadPartRequest {
-    pub fn to_http_response(self) -> anyhow::Result<hyper::Response<hyper::Body>> {
-        anyhow::bail!("todo")
-    }
-}
-
-#[derive(Debug, Default, Clone)]
-pub struct DeleteBucketWebsite;
-impl OperationShape for DeleteBucketWebsite {
-    const NAME: &'static str = "DeleteBucketWebsite";
-    type Input = DeleteBucketWebsiteRequest;
-    type Output = ();
-    type Error = ();
-}
-
-pub type CopySourceIfModifiedSince = String;
-
-pub type SsekmsEncryptionContext = String;
-
-#[derive(Debug, Default, Clone)]
-pub struct GetObject;
-impl OperationShape for GetObject {
-    const NAME: &'static str = "GetObject";
-    type Input = GetObjectRequest;
-    type Output = GetObjectOutput;
-    type Error = ();
-}
-
-pub type ObjectLockRetainUntilDate = String;
-
-#[derive(Debug, Default, Clone)]
-pub struct CreateBucketOutput {
-    pub location: Option<Location>,
-}
-impl CreateBucketOutput {
-    pub fn to_http_response(self) -> anyhow::Result<hyper::Response<hyper::Body>> {
-        anyhow::bail!("todo")
-    }
-}
-
-#[derive(Debug, Default, Clone)]
-pub struct CopyObjectOutput {
-    pub copy_object_result: Option<CopyObjectResult>,
-    pub sse_customer_key_md5: Option<SseCustomerKeyMd5>,
-    pub request_charged: Option<RequestCharged>,
-    pub ssekms_encryption_context: Option<SsekmsEncryptionContext>,
-    pub server_side_encryption: Option<ServerSideEncryption>,
-    pub expiration: Option<Expiration>,
-    pub bucket_key_enabled: Option<BucketKeyEnabled>,
-    pub copy_source_version_id: Option<CopySourceVersionId>,
     pub sse_customer_algorithm: Option<SseCustomerAlgorithm>,
-    pub ssekms_key_id: Option<SsekmsKeyId>,
-    pub version_id: Option<ObjectVersionId>,
-}
-impl CopyObjectOutput {
-    pub fn to_http_response(self) -> anyhow::Result<hyper::Response<hyper::Body>> {
-        anyhow::bail!("todo")
-    }
-}
-
-#[derive(Debug, Clone, Copy, Eq, Ord, PartialEq, PartialOrd, Hash)]
-pub enum Tier {
-    Expedited,
-    Bulk,
-    Standard,
-}
-impl AsRef<str> for Tier {
-    fn as_ref(&self) -> &str {
-        match self {
-            Self::Expedited => "Expedited",
-            Self::Bulk => "Bulk",
-            Self::Standard => "Standard",
-        }
-    }
-}
-impl TryFrom<&str> for Tier {
-    type Error = String;
-    fn try_from(s: &str) -> Result<Self, Self::Error> {
-        match s {
-            "Expedited" => Ok(Self::Expedited),
-            "Bulk" => Ok(Self::Bulk),
-            "Standard" => Ok(Self::Standard),
-            _ => Err(format!("unknown enum value {}", s)),
-        }
-    }
-}
-
-pub type ETag = String;
-
-#[derive(Debug, Default, Clone)]
-pub struct FilterRule {
-    pub name: Option<FilterRuleName>,
-    pub value: Option<FilterRuleValue>,
-}
-impl FilterRule {
-    pub fn to_http_response(self) -> anyhow::Result<hyper::Response<hyper::Body>> {
-        anyhow::bail!("todo")
-    }
-}
-
-#[derive(Debug, Default, Clone)]
-pub struct JsonInput {
-    pub r#type: Option<JsonType>,
-}
-impl JsonInput {
-    pub fn to_http_response(self) -> anyhow::Result<hyper::Response<hyper::Body>> {
-        anyhow::bail!("todo")
-    }
-}
-
-#[derive(Debug, Default, Clone)]
-pub struct PutBucketCors;
-impl OperationShape for PutBucketCors {
-    const NAME: &'static str = "PutBucketCors";
-    type Input = PutBucketCorsRequest;
-    type Output = ();
-    type Error = ();
-}
-
-pub type ObjectSize = i64;
-
-#[derive(Debug, Clone, Copy, Eq, Ord, PartialEq, PartialOrd, Hash)]
-pub enum StorageClass {
-    STANDARD_IA,
-    ONEZONE_IA,
-    REDUCED_REDUNDANCY,
-    STANDARD,
-    DEEP_ARCHIVE,
-    GLACIER_IR,
-    GLACIER,
-    INTELLIGENT_TIERING,
-    OUTPOSTS,
-}
-impl AsRef<str> for StorageClass {
-    fn as_ref(&self) -> &str {
-        match self {
-            Self::STANDARD_IA => "STANDARD_IA",
-            Self::ONEZONE_IA => "ONEZONE_IA",
-            Self::REDUCED_REDUNDANCY => "REDUCED_REDUNDANCY",
-            Self::STANDARD => "STANDARD",
-            Self::DEEP_ARCHIVE => "DEEP_ARCHIVE",
-            Self::GLACIER_IR => "GLACIER_IR",
-            Self::GLACIER => "GLACIER",
-            Self::INTELLIGENT_TIERING => "INTELLIGENT_TIERING",
-            Self::OUTPOSTS => "OUTPOSTS",
-        }
-    }
-}
-impl TryFrom<&str> for StorageClass {
-    type Error = String;
-    fn try_from(s: &str) -> Result<Self, Self::Error> {
-        match s {
-            "STANDARD_IA" => Ok(Self::STANDARD_IA),
-            "ONEZONE_IA" => Ok(Self::ONEZONE_IA),
-            "REDUCED_REDUNDANCY" => Ok(Self::REDUCED_REDUNDANCY),
-            "STANDARD" => Ok(Self::STANDARD),
-            "DEEP_ARCHIVE" => Ok(Self::DEEP_ARCHIVE),
-            "GLACIER_IR" => Ok(Self::GLACIER_IR),
-            "GLACIER" => Ok(Self::GLACIER),
-            "INTELLIGENT_TIERING" => Ok(Self::INTELLIGENT_TIERING),
-            "OUTPOSTS" => Ok(Self::OUTPOSTS),
-            _ => Err(format!("unknown enum value {}", s)),
-        }
-    }
-}
-
-#[derive(Debug, Default, Clone)]
-pub struct PutBucketInventoryConfigurationRequest {
-    pub inventory_configuration: Option<InventoryConfiguration>,
-    pub id: Option<InventoryId>,
-    pub bucket: Option<BucketName>,
-    pub expected_bucket_owner: Option<AccountId>,
-}
-impl PutBucketInventoryConfigurationRequest {
-    pub fn to_http_response(self) -> anyhow::Result<hyper::Response<hyper::Body>> {
-        anyhow::bail!("todo")
-    }
-}
-
-#[derive(Debug, Default, Clone)]
-pub struct PutObject;
-impl OperationShape for PutObject {
-    const NAME: &'static str = "PutObject";
-    type Input = PutObjectRequest;
-    type Output = PutObjectOutput;
-    type Error = ();
-}
-
-#[derive(Debug, Default, Clone)]
-pub struct ServerSideEncryptionRule {
-    pub apply_server_side_encryption_by_default: Option<ServerSideEncryptionByDefault>,
-    pub bucket_key_enabled: Option<BucketKeyEnabled>,
-}
-impl ServerSideEncryptionRule {
-    pub fn to_http_response(self) -> anyhow::Result<hyper::Response<hyper::Body>> {
-        anyhow::bail!("todo")
-    }
-}
-
-#[derive(Debug, Default, Clone)]
-pub struct DeleteBucketCorsRequest {
-    pub bucket: Option<BucketName>,
-    pub expected_bucket_owner: Option<AccountId>,
-}
-impl DeleteBucketCorsRequest {
-    pub fn to_http_response(self) -> anyhow::Result<hyper::Response<hyper::Body>> {
-        anyhow::bail!("todo")
-    }
-}
-
-#[derive(Debug, Default, Clone)]
-pub struct PutObjectRequest {
-    pub storage_class: Option<StorageClass>,
-    pub content_disposition: Option<ContentDisposition>,
-    pub object_lock_legal_hold_status: Option<ObjectLockLegalHoldStatus>,
-    pub body: Option<StreamingBlob>,
-    pub bucket: Option<BucketName>,
+    pub checksum_crc32: Option<ChecksumCrc32>,
     pub checksum_sha256: Option<ChecksumSha256>,
+    pub multipart_upload: Option<CompletedMultipartUpload>,
+    pub bucket: Option<BucketName>,
+    pub checksum_crc32_c: Option<ChecksumCrc32c>,
+    pub checksum_sha1: Option<ChecksumSha1>,
+    pub key: Option<ObjectKey>,
+    pub request_payer: Option<RequestPayer>,
+    pub sse_customer_key_md5: Option<SseCustomerKeyMd5>,
+    pub upload_id: Option<MultipartUploadId>,
+}
+impl CompleteMultipartUploadRequest {
+    pub fn to_http_response(self) -> anyhow::Result<hyper::Response<hyper::Body>> {
+        anyhow::bail!("todo")
+    }
+}
+
+pub type InventoryOptionalFields = Vec<InventoryOptionalField>;
+
+pub type LastModified = String;
+
+#[derive(Debug, Default, Clone)]
+pub struct Checksum {
+    pub checksum_crc32_c: Option<ChecksumCrc32c>,
+    pub checksum_crc32: Option<ChecksumCrc32>,
+    pub checksum_sha1: Option<ChecksumSha1>,
+    pub checksum_sha256: Option<ChecksumSha256>,
+}
+impl Checksum {
+    pub fn to_http_response(self) -> anyhow::Result<hyper::Response<hyper::Body>> {
+        anyhow::bail!("todo")
+    }
+}
+
+#[derive(Debug, Clone, Copy, Eq, Ord, PartialEq, PartialOrd, Hash)]
+pub enum FilterRuleName {
+    suffix,
+    prefix,
+}
+impl AsRef<str> for FilterRuleName {
+    fn as_ref(&self) -> &str {
+        match self {
+            Self::suffix => "suffix",
+            Self::prefix => "prefix",
+        }
+    }
+}
+impl TryFrom<&str> for FilterRuleName {
+    type Error = String;
+    fn try_from(s: &str) -> Result<Self, Self::Error> {
+        match s {
+            "suffix" => Ok(Self::suffix),
+            "prefix" => Ok(Self::prefix),
+            _ => Err(format!("unknown enum value {}", s)),
+        }
+    }
+}
+
+pub type ContentType = String;
+
+#[derive(Debug, Default, Clone)]
+pub struct Ssekms {
+    pub key_id: Option<SsekmsKeyId>,
+}
+impl Ssekms {
+    pub fn to_http_response(self) -> anyhow::Result<hyper::Response<hyper::Body>> {
+        anyhow::bail!("todo")
+    }
+}
+
+#[derive(Debug, Default, Clone)]
+pub struct CreateMultipartUploadRequest {
+    pub object_lock_legal_hold_status: Option<ObjectLockLegalHoldStatus>,
+    pub storage_class: Option<StorageClass>,
+    pub request_payer: Option<RequestPayer>,
+    pub content_type: Option<ContentType>,
+    pub expires: Option<Expires>,
+    pub object_lock_mode: Option<ObjectLockMode>,
+    pub cache_control: Option<CacheControl>,
+    pub checksum_algorithm: Option<ChecksumAlgorithm>,
+    pub server_side_encryption: Option<ServerSideEncryption>,
+    pub grant_read: Option<GrantRead>,
+    pub object_lock_retain_until_date: Option<ObjectLockRetainUntilDate>,
+    pub ssekms_encryption_context: Option<SsekmsEncryptionContext>,
+    pub expected_bucket_owner: Option<AccountId>,
+    pub grant_read_acp: Option<GrantReadAcp>,
+    pub bucket_key_enabled: Option<BucketKeyEnabled>,
+    pub ssekms_key_id: Option<SsekmsKeyId>,
+    pub acl: Option<ObjectCannedAcl>,
     pub tagging: Option<TaggingHeader>,
-    pub metadata: Option<Metadata>,
-    pub checksum_algorithm: Option<ChecksumAlgorithm>,
-    pub sse_customer_algorithm: Option<SseCustomerAlgorithm>,
-    pub ssekms_key_id: Option<SsekmsKeyId>,
-    pub object_lock_mode: Option<ObjectLockMode>,
-    pub server_side_encryption: Option<ServerSideEncryption>,
-    pub acl: Option<ObjectCannedAcl>,
-    pub checksum_sha1: Option<ChecksumSha1>,
-    pub grant_full_control: Option<GrantFullControl>,
-    pub bucket_key_enabled: Option<BucketKeyEnabled>,
-    pub content_length: Option<ContentLength>,
-    pub expires: Option<Expires>,
-    pub checksum_crc32_c: Option<ChecksumCrc32c>,
-    pub grant_write_acp: Option<GrantWriteAcp>,
-    pub content_encoding: Option<ContentEncoding>,
-    pub ssekms_encryption_context: Option<SsekmsEncryptionContext>,
     pub website_redirect_location: Option<WebsiteRedirectLocation>,
-    pub key: Option<ObjectKey>,
-    pub grant_read: Option<GrantRead>,
-    pub sse_customer_key_md5: Option<SseCustomerKeyMd5>,
-    pub content_language: Option<ContentLanguage>,
-    pub expected_bucket_owner: Option<AccountId>,
-    pub cache_control: Option<CacheControl>,
-    pub sse_customer_key: Option<SseCustomerKey>,
-    pub content_type: Option<ContentType>,
-    pub content_md5: Option<ContentMd5>,
-    pub checksum_crc32: Option<ChecksumCrc32>,
-    pub grant_read_acp: Option<GrantReadAcp>,
-    pub object_lock_retain_until_date: Option<ObjectLockRetainUntilDate>,
-    pub request_payer: Option<RequestPayer>,
-}
-impl PutObjectRequest {
-    pub fn to_http_response(self) -> anyhow::Result<hyper::Response<hyper::Body>> {
-        anyhow::bail!("todo")
-    }
-}
-
-#[derive(Debug, Default, Clone)]
-pub struct GetBucketOwnershipControlsOutput {
-    pub ownership_controls: Option<OwnershipControls>,
-}
-impl GetBucketOwnershipControlsOutput {
-    pub fn to_http_response(self) -> anyhow::Result<hyper::Response<hyper::Body>> {
-        anyhow::bail!("todo")
-    }
-}
-
-#[derive(Debug, Clone, Copy, Eq, Ord, PartialEq, PartialOrd, Hash)]
-pub enum RequestCharged {
-    requester,
-}
-impl AsRef<str> for RequestCharged {
-    fn as_ref(&self) -> &str {
-        match self {
-            Self::requester => "requester",
-        }
-    }
-}
-impl TryFrom<&str> for RequestCharged {
-    type Error = String;
-    fn try_from(s: &str) -> Result<Self, Self::Error> {
-        match s {
-            "requester" => Ok(Self::requester),
-            _ => Err(format!("unknown enum value {}", s)),
-        }
-    }
-}
-
-#[derive(Debug, Default, Clone)]
-pub struct DeleteBucketWebsiteRequest {
-    pub expected_bucket_owner: Option<AccountId>,
-    pub bucket: Option<BucketName>,
-}
-impl DeleteBucketWebsiteRequest {
-    pub fn to_http_response(self) -> anyhow::Result<hyper::Response<hyper::Body>> {
-        anyhow::bail!("todo")
-    }
-}
-
-#[derive(Debug, Default, Clone)]
-pub struct CopyObjectRequest {
-    pub acl: Option<ObjectCannedAcl>,
-    pub expected_source_bucket_owner: Option<AccountId>,
-    pub sse_customer_key_md5: Option<SseCustomerKeyMd5>,
-    pub bucket_key_enabled: Option<BucketKeyEnabled>,
-    pub metadata: Option<Metadata>,
-    pub storage_class: Option<StorageClass>,
-    pub grant_read_acp: Option<GrantReadAcp>,
-    pub copy_source_if_match: Option<CopySourceIfMatch>,
-    pub copy_source_sse_customer_key: Option<CopySourceSseCustomerKey>,
-    pub tagging_directive: Option<TaggingDirective>,
-    pub request_payer: Option<RequestPayer>,
-    pub copy_source_sse_customer_algorithm: Option<CopySourceSseCustomerAlgorithm>,
-    pub content_encoding: Option<ContentEncoding>,
-    pub sse_customer_key: Option<SseCustomerKey>,
-    pub copy_source_if_unmodified_since: Option<CopySourceIfUnmodifiedSince>,
-    pub content_language: Option<ContentLanguage>,
-    pub expires: Option<Expires>,
-    pub server_side_encryption: Option<ServerSideEncryption>,
-    pub expected_bucket_owner: Option<AccountId>,
-    pub cache_control: Option<CacheControl>,
-    pub checksum_algorithm: Option<ChecksumAlgorithm>,
-    pub copy_source_if_none_match: Option<CopySourceIfNoneMatch>,
-    pub copy_source_sse_customer_key_md5: Option<CopySourceSseCustomerKeyMd5>,
-    pub grant_full_control: Option<GrantFullControl>,
-    pub grant_read: Option<GrantRead>,
-    pub object_lock_mode: Option<ObjectLockMode>,
-    pub object_lock_retain_until_date: Option<ObjectLockRetainUntilDate>,
-    pub ssekms_encryption_context: Option<SsekmsEncryptionContext>,
-    pub content_type: Option<ContentType>,
-    pub tagging: Option<TaggingHeader>,
     pub sse_customer_algorithm: Option<SseCustomerAlgorithm>,
-    pub copy_source: Option<CopySource>,
-    pub copy_source_if_modified_since: Option<CopySourceIfModifiedSince>,
-    pub website_redirect_location: Option<WebsiteRedirectLocation>,
-    pub object_lock_legal_hold_status: Option<ObjectLockLegalHoldStatus>,
-    pub key: Option<ObjectKey>,
-    pub bucket: Option<BucketName>,
-    pub grant_write_acp: Option<GrantWriteAcp>,
+    pub content_language: Option<ContentLanguage>,
     pub content_disposition: Option<ContentDisposition>,
-    pub metadata_directive: Option<MetadataDirective>,
-    pub ssekms_key_id: Option<SsekmsKeyId>,
-}
-impl CopyObjectRequest {
-    pub fn to_http_response(self) -> anyhow::Result<hyper::Response<hyper::Body>> {
-        anyhow::bail!("todo")
-    }
-}
-
-#[derive(Debug, Default, Clone)]
-pub struct DeleteObjectRequest {
-    pub version_id: Option<ObjectVersionId>,
-    pub bucket: Option<BucketName>,
-    pub bypass_governance_retention: Option<BypassGovernanceRetention>,
-    pub expected_bucket_owner: Option<AccountId>,
-    pub mfa: Option<Mfa>,
-    pub request_payer: Option<RequestPayer>,
-    pub key: Option<ObjectKey>,
-}
-impl DeleteObjectRequest {
-    pub fn to_http_response(self) -> anyhow::Result<hyper::Response<hyper::Body>> {
-        anyhow::bail!("todo")
-    }
-}
-
-#[derive(Debug, Default, Clone)]
-pub struct GetObjectLockConfigurationOutput {
-    pub object_lock_configuration: Option<ObjectLockConfiguration>,
-}
-impl GetObjectLockConfigurationOutput {
-    pub fn to_http_response(self) -> anyhow::Result<hyper::Response<hyper::Body>> {
-        anyhow::bail!("todo")
-    }
-}
-
-#[derive(Debug, Default, Clone)]
-pub struct LifecycleExpiration {
-    pub expired_object_delete_marker: Option<ExpiredObjectDeleteMarker>,
-    pub date: Option<Date>,
-    pub days: Option<Days>,
-}
-impl LifecycleExpiration {
-    pub fn to_http_response(self) -> anyhow::Result<hyper::Response<hyper::Body>> {
-        anyhow::bail!("todo")
-    }
-}
-
-#[derive(Debug, Default, Clone)]
-pub struct Sses3 {}
-impl Sses3 {
-    pub fn to_http_response(self) -> anyhow::Result<hyper::Response<hyper::Body>> {
-        anyhow::bail!("todo")
-    }
-}
-
-pub type ContentMd5 = String;
-
-pub type CopySourceIfMatch = String;
-
-#[derive(Debug, Default, Clone)]
-pub struct InventoryS3BucketDestination {
-    pub encryption: Option<InventoryEncryption>,
-    pub format: Option<InventoryFormat>,
-    pub account_id: Option<AccountId>,
-    pub prefix: Option<Prefix>,
-    pub bucket: Option<BucketName>,
-}
-impl InventoryS3BucketDestination {
-    pub fn to_http_response(self) -> anyhow::Result<hyper::Response<hyper::Body>> {
-        anyhow::bail!("todo")
-    }
-}
-
-#[derive(Debug, Default, Clone)]
-pub struct ListBucketAnalyticsConfigurations;
-impl OperationShape for ListBucketAnalyticsConfigurations {
-    const NAME: &'static str = "ListBucketAnalyticsConfigurations";
-    type Input = ListBucketAnalyticsConfigurationsRequest;
-    type Output = ListBucketAnalyticsConfigurationsOutput;
-    type Error = ();
-}
-
-#[derive(Debug, Default, Clone)]
-pub struct CopyPartResult {
-    pub checksum_sha256: Option<ChecksumSha256>,
-    pub last_modified: Option<LastModified>,
-    pub e_tag: Option<ETag>,
-    pub checksum_sha1: Option<ChecksumSha1>,
-    pub checksum_crc32: Option<ChecksumCrc32>,
-    pub checksum_crc32_c: Option<ChecksumCrc32c>,
-}
-impl CopyPartResult {
-    pub fn to_http_response(self) -> anyhow::Result<hyper::Response<hyper::Body>> {
-        anyhow::bail!("todo")
-    }
-}
-
-pub type MaxUploads = i32;
-
-#[derive(Debug, Default, Clone)]
-pub struct AccelerateConfiguration {
-    pub status: Option<BucketAccelerateStatus>,
-}
-impl AccelerateConfiguration {
-    pub fn to_http_response(self) -> anyhow::Result<hyper::Response<hyper::Body>> {
-        anyhow::bail!("todo")
-    }
-}
-
-#[derive(Debug, Default, Clone)]
-pub struct MetricsAndOperator {
-    pub prefix: Option<Prefix>,
-    pub access_point_arn: Option<AccessPointArn>,
-    pub tags: Option<TagSet>,
-}
-impl MetricsAndOperator {
-    pub fn to_http_response(self) -> anyhow::Result<hyper::Response<hyper::Body>> {
-        anyhow::bail!("todo")
-    }
-}
-
-#[derive(Debug, Default, Clone)]
-pub struct PutBucketAnalyticsConfiguration;
-impl OperationShape for PutBucketAnalyticsConfiguration {
-    const NAME: &'static str = "PutBucketAnalyticsConfiguration";
-    type Input = PutBucketAnalyticsConfigurationRequest;
-    type Output = ();
-    type Error = ();
-}
-
-#[derive(Debug, Default, Clone)]
-pub struct StorageClassAnalysisDataExport {
-    pub destination: Option<AnalyticsExportDestination>,
-    pub output_schema_version: Option<StorageClassAnalysisSchemaVersion>,
-}
-impl StorageClassAnalysisDataExport {
-    pub fn to_http_response(self) -> anyhow::Result<hyper::Response<hyper::Body>> {
-        anyhow::bail!("todo")
-    }
-}
-
-pub type ReplaceKeyWith = String;
-
-#[derive(Debug, Default, Clone)]
-pub struct ListPartsRequest {
-    pub bucket: Option<BucketName>,
-    pub upload_id: Option<MultipartUploadId>,
-    pub sse_customer_algorithm: Option<SseCustomerAlgorithm>,
-    pub sse_customer_key_md5: Option<SseCustomerKeyMd5>,
-    pub request_payer: Option<RequestPayer>,
-    pub key: Option<ObjectKey>,
-    pub max_parts: Option<MaxParts>,
-    pub expected_bucket_owner: Option<AccountId>,
-    pub part_number_marker: Option<PartNumberMarker>,
     pub sse_customer_key: Option<SseCustomerKey>,
-}
-impl ListPartsRequest {
-    pub fn to_http_response(self) -> anyhow::Result<hyper::Response<hyper::Body>> {
-        anyhow::bail!("todo")
-    }
-}
-
-pub type DeleteMarkers = Vec<DeleteMarkerEntry>;
-
-#[derive(Debug, Default, Clone)]
-pub struct PutObjectAclRequest {
-    pub checksum_algorithm: Option<ChecksumAlgorithm>,
-    pub expected_bucket_owner: Option<AccountId>,
-    pub grant_full_control: Option<GrantFullControl>,
-    pub grant_write: Option<GrantWrite>,
-    pub bucket: Option<BucketName>,
-    pub request_payer: Option<RequestPayer>,
-    pub grant_read: Option<GrantRead>,
-    pub grant_write_acp: Option<GrantWriteAcp>,
-    pub access_control_policy: Option<AccessControlPolicy>,
-    pub content_md5: Option<ContentMd5>,
-    pub version_id: Option<ObjectVersionId>,
-    pub acl: Option<ObjectCannedAcl>,
-    pub grant_read_acp: Option<GrantReadAcp>,
+    pub sse_customer_key_md5: Option<SseCustomerKeyMd5>,
     pub key: Option<ObjectKey>,
-}
-impl PutObjectAclRequest {
-    pub fn to_http_response(self) -> anyhow::Result<hyper::Response<hyper::Body>> {
-        anyhow::bail!("todo")
-    }
-}
-
-#[derive(Debug, Default, Clone)]
-pub struct PutBucketMetricsConfiguration;
-impl OperationShape for PutBucketMetricsConfiguration {
-    const NAME: &'static str = "PutBucketMetricsConfiguration";
-    type Input = PutBucketMetricsConfigurationRequest;
-    type Output = ();
-    type Error = ();
-}
-
-pub type Range = String;
-
-pub type CommonPrefixList = Vec<CommonPrefix>;
-
-#[derive(Debug, Default, Clone)]
-pub struct GetBucketAnalyticsConfigurationOutput {
-    pub analytics_configuration: Option<AnalyticsConfiguration>,
-}
-impl GetBucketAnalyticsConfigurationOutput {
-    pub fn to_http_response(self) -> anyhow::Result<hyper::Response<hyper::Body>> {
-        anyhow::bail!("todo")
-    }
-}
-
-pub type CopySourceVersionId = String;
-
-#[derive(Debug, Default, Clone)]
-pub struct CommonPrefix {
-    pub prefix: Option<Prefix>,
-}
-impl CommonPrefix {
-    pub fn to_http_response(self) -> anyhow::Result<hyper::Response<hyper::Body>> {
-        anyhow::bail!("todo")
-    }
-}
-
-#[derive(Debug, Default, Clone)]
-pub struct GetObjectTagging;
-impl OperationShape for GetObjectTagging {
-    const NAME: &'static str = "GetObjectTagging";
-    type Input = GetObjectTaggingRequest;
-    type Output = GetObjectTaggingOutput;
-    type Error = ();
-}
-
-pub type CopySource = String;
-
-pub type IntelligentTieringId = String;
-
-pub type MultipartUploadList = Vec<MultipartUpload>;
-
-#[derive(Debug, Default, Clone)]
-pub struct Delete {
-    pub quiet: Option<Quiet>,
-    pub objects: Option<ObjectIdentifierList>,
-}
-impl Delete {
-    pub fn to_http_response(self) -> anyhow::Result<hyper::Response<hyper::Body>> {
-        anyhow::bail!("todo")
-    }
-}
-
-#[derive(Debug, Default, Clone)]
-pub struct PutBucketAclRequest {
-    pub checksum_algorithm: Option<ChecksumAlgorithm>,
-    pub content_md5: Option<ContentMd5>,
-    pub grant_read: Option<GrantRead>,
-    pub bucket: Option<BucketName>,
-    pub acl: Option<BucketCannedAcl>,
-    pub access_control_policy: Option<AccessControlPolicy>,
-    pub expected_bucket_owner: Option<AccountId>,
-    pub grant_full_control: Option<GrantFullControl>,
-    pub grant_read_acp: Option<GrantReadAcp>,
-    pub grant_write: Option<GrantWrite>,
+    pub content_encoding: Option<ContentEncoding>,
     pub grant_write_acp: Option<GrantWriteAcp>,
+    pub metadata: Option<Metadata>,
+    pub bucket: Option<BucketName>,
+    pub grant_full_control: Option<GrantFullControl>,
 }
-impl PutBucketAclRequest {
+impl CreateMultipartUploadRequest {
     pub fn to_http_response(self) -> anyhow::Result<hyper::Response<hyper::Body>> {
         anyhow::bail!("todo")
     }
 }
 
 #[derive(Debug, Default, Clone)]
-pub struct ListObjectVersionsOutput {
-    pub delimiter: Option<Delimiter>,
-    pub prefix: Option<Prefix>,
-    pub version_id_marker: Option<VersionIdMarker>,
-    pub next_key_marker: Option<NextKeyMarker>,
-    pub encoding_type: Option<EncodingType>,
-    pub name: Option<BucketName>,
-    pub is_truncated: Option<IsTruncated>,
-    pub max_keys: Option<MaxKeys>,
-    pub delete_markers: Option<DeleteMarkers>,
-    pub key_marker: Option<KeyMarker>,
-    pub next_version_id_marker: Option<NextVersionIdMarker>,
-    pub versions: Option<ObjectVersionList>,
-    pub common_prefixes: Option<CommonPrefixList>,
+pub struct GetBucketRequestPaymentOutput {
+    pub payer: Option<Payer>,
 }
-impl ListObjectVersionsOutput {
+impl GetBucketRequestPaymentOutput {
     pub fn to_http_response(self) -> anyhow::Result<hyper::Response<hyper::Body>> {
         anyhow::bail!("todo")
     }
 }
 
 #[derive(Debug, Clone)]
-pub enum SelectObjectContentEventStream {
-    Stats(StatsEvent),
-    Records(RecordsEvent),
-    Cont(ContinuationEvent),
-    End(EndEvent),
-    Progress(ProgressEvent),
+pub enum LifecycleRuleFilter {
+    And(LifecycleRuleAndOperator),
+    Tag(Tag),
+    ObjectSizeGreaterThan(ObjectSizeGreaterThanBytes),
+    ObjectSizeLessThan(ObjectSizeLessThanBytes),
+    Prefix(Prefix),
+}
+
+pub type PartsList = Vec<ObjectPart>;
+
+pub type ObjectVersionList = Vec<ObjectVersion>;
+
+#[derive(Debug, Default, Clone)]
+pub struct DeleteBucketIntelligentTieringConfigurationRequest {
+    pub bucket: Option<BucketName>,
+    pub id: Option<IntelligentTieringId>,
+}
+impl DeleteBucketIntelligentTieringConfigurationRequest {
+    pub fn to_http_response(self) -> anyhow::Result<hyper::Response<hyper::Body>> {
+        anyhow::bail!("todo")
+    }
 }
 
 #[derive(Debug, Default, Clone)]
-pub struct SelectObjectContentRequest {
-    pub sse_customer_key_md5: Option<SseCustomerKeyMd5>,
-    pub expected_bucket_owner: Option<AccountId>,
-    pub key: Option<ObjectKey>,
-    pub input_serialization: Option<InputSerialization>,
-    pub bucket: Option<BucketName>,
-    pub expression: Option<Expression>,
-    pub output_serialization: Option<OutputSerialization>,
-    pub request_progress: Option<RequestProgress>,
-    pub sse_customer_algorithm: Option<SseCustomerAlgorithm>,
-    pub sse_customer_key: Option<SseCustomerKey>,
-    pub scan_range: Option<ScanRange>,
-    pub expression_type: Option<ExpressionType>,
+pub struct PutObjectAclOutput {
+    pub request_charged: Option<RequestCharged>,
 }
-impl SelectObjectContentRequest {
+impl PutObjectAclOutput {
     pub fn to_http_response(self) -> anyhow::Result<hyper::Response<hyper::Body>> {
         anyhow::bail!("todo")
     }
@@ -4040,68 +3143,92 @@ impl OperationShape for GetBucketIntelligentTieringConfiguration {
     type Error = ();
 }
 
-pub type InventoryOptionalFields = Vec<InventoryOptionalField>;
-
 #[derive(Debug, Default, Clone)]
-pub struct CopyObject;
-impl OperationShape for CopyObject {
-    const NAME: &'static str = "CopyObject";
-    type Input = CopyObjectRequest;
-    type Output = CopyObjectOutput;
-    type Error = ();
-}
-
-#[derive(Debug, Default, Clone)]
-pub struct Error {
-    pub key: Option<ObjectKey>,
-    pub message: Option<Message>,
-    pub version_id: Option<ObjectVersionId>,
-    pub code: Option<Code>,
-}
-impl Error {
-    pub fn to_http_response(self) -> anyhow::Result<hyper::Response<hyper::Body>> {
-        anyhow::bail!("todo")
-    }
-}
-
-#[derive(Debug, Default, Clone)]
-pub struct PutBucketAccelerateConfigurationRequest {
-    pub checksum_algorithm: Option<ChecksumAlgorithm>,
-    pub bucket: Option<BucketName>,
+pub struct GetBucketTaggingRequest {
     pub expected_bucket_owner: Option<AccountId>,
-    pub accelerate_configuration: Option<AccelerateConfiguration>,
+    pub bucket: Option<BucketName>,
 }
-impl PutBucketAccelerateConfigurationRequest {
+impl GetBucketTaggingRequest {
     pub fn to_http_response(self) -> anyhow::Result<hyper::Response<hyper::Body>> {
         anyhow::bail!("todo")
     }
 }
 
 #[derive(Debug, Default, Clone)]
-pub struct UploadPartCopyOutput {
-    pub server_side_encryption: Option<ServerSideEncryption>,
-    pub request_charged: Option<RequestCharged>,
+pub struct ListPartsRequest {
+    pub request_payer: Option<RequestPayer>,
+    pub expected_bucket_owner: Option<AccountId>,
     pub sse_customer_algorithm: Option<SseCustomerAlgorithm>,
-    pub copy_part_result: Option<CopyPartResult>,
+    pub sse_customer_key: Option<SseCustomerKey>,
+    pub part_number_marker: Option<PartNumberMarker>,
+    pub bucket: Option<BucketName>,
+    pub upload_id: Option<MultipartUploadId>,
+    pub max_parts: Option<MaxParts>,
+    pub key: Option<ObjectKey>,
     pub sse_customer_key_md5: Option<SseCustomerKeyMd5>,
-    pub ssekms_key_id: Option<SsekmsKeyId>,
-    pub bucket_key_enabled: Option<BucketKeyEnabled>,
-    pub copy_source_version_id: Option<CopySourceVersionId>,
 }
-impl UploadPartCopyOutput {
+impl ListPartsRequest {
     pub fn to_http_response(self) -> anyhow::Result<hyper::Response<hyper::Body>> {
         anyhow::bail!("todo")
     }
 }
 
 #[derive(Debug, Default, Clone)]
-pub struct PutBucketInventoryConfiguration;
-impl OperationShape for PutBucketInventoryConfiguration {
-    const NAME: &'static str = "PutBucketInventoryConfiguration";
-    type Input = PutBucketInventoryConfigurationRequest;
-    type Output = ();
-    type Error = ();
+pub struct AnalyticsExportDestination {
+    pub s3_bucket_destination: Option<AnalyticsS3BucketDestination>,
 }
+impl AnalyticsExportDestination {
+    pub fn to_http_response(self) -> anyhow::Result<hyper::Response<hyper::Body>> {
+        anyhow::bail!("todo")
+    }
+}
+
+#[derive(Debug, Default, Clone)]
+pub struct MetricsAndOperator {
+    pub access_point_arn: Option<AccessPointArn>,
+    pub prefix: Option<Prefix>,
+    pub tags: Option<TagSet>,
+}
+impl MetricsAndOperator {
+    pub fn to_http_response(self) -> anyhow::Result<hyper::Response<hyper::Body>> {
+        anyhow::bail!("todo")
+    }
+}
+
+#[derive(Debug, Default, Clone)]
+pub struct ListMultipartUploadsOutput {
+    pub upload_id_marker: Option<UploadIdMarker>,
+    pub is_truncated: Option<IsTruncated>,
+    pub key_marker: Option<KeyMarker>,
+    pub bucket: Option<BucketName>,
+    pub max_uploads: Option<MaxUploads>,
+    pub next_upload_id_marker: Option<NextUploadIdMarker>,
+    pub uploads: Option<MultipartUploadList>,
+    pub encoding_type: Option<EncodingType>,
+    pub common_prefixes: Option<CommonPrefixList>,
+    pub prefix: Option<Prefix>,
+    pub delimiter: Option<Delimiter>,
+    pub next_key_marker: Option<NextKeyMarker>,
+}
+impl ListMultipartUploadsOutput {
+    pub fn to_http_response(self) -> anyhow::Result<hyper::Response<hyper::Body>> {
+        anyhow::bail!("todo")
+    }
+}
+
+#[derive(Debug, Default, Clone)]
+pub struct NoSuchUpload {}
+impl NoSuchUpload {
+    pub fn to_http_response(self) -> anyhow::Result<hyper::Response<hyper::Body>> {
+        anyhow::bail!("todo")
+    }
+}
+
+pub type OwnershipControlsRules = Vec<OwnershipControlsRule>;
+
+pub type TargetGrants = Vec<TargetGrant>;
+
+pub type DeletedObjects = Vec<DeletedObject>;
 
 #[derive(Debug, Default, Clone)]
 pub struct AnalyticsAndOperator {
@@ -4114,87 +3241,141 @@ impl AnalyticsAndOperator {
     }
 }
 
-#[derive(Debug, Default, Clone)]
-pub struct PolicyStatus {
-    pub is_public: Option<IsPublic>,
-}
-impl PolicyStatus {
-    pub fn to_http_response(self) -> anyhow::Result<hyper::Response<hyper::Body>> {
-        anyhow::bail!("todo")
-    }
-}
+pub type IfNoneMatch = String;
+
+pub type Days = i32;
 
 #[derive(Debug, Default, Clone)]
-pub struct DeleteBucketIntelligentTieringConfiguration;
-impl OperationShape for DeleteBucketIntelligentTieringConfiguration {
-    const NAME: &'static str = "DeleteBucketIntelligentTieringConfiguration";
-    type Input = DeleteBucketIntelligentTieringConfigurationRequest;
-    type Output = ();
-    type Error = ();
-}
-
-pub type Setting = bool;
-
-#[derive(Debug, Default, Clone)]
-pub struct PutBucketReplicationRequest {
+pub struct GetObjectTaggingRequest {
+    pub request_payer: Option<RequestPayer>,
     pub expected_bucket_owner: Option<AccountId>,
-    pub replication_configuration: Option<ReplicationConfiguration>,
-    pub checksum_algorithm: Option<ChecksumAlgorithm>,
-    pub token: Option<ObjectLockToken>,
-    pub content_md5: Option<ContentMd5>,
+    pub version_id: Option<ObjectVersionId>,
+    pub key: Option<ObjectKey>,
     pub bucket: Option<BucketName>,
 }
-impl PutBucketReplicationRequest {
+impl GetObjectTaggingRequest {
+    pub fn to_http_response(self) -> anyhow::Result<hyper::Response<hyper::Body>> {
+        anyhow::bail!("todo")
+    }
+}
+
+#[derive(Debug, Clone, Copy, Eq, Ord, PartialEq, PartialOrd, Hash)]
+pub enum RequestPayer {
+    requester,
+}
+impl AsRef<str> for RequestPayer {
+    fn as_ref(&self) -> &str {
+        match self {
+            Self::requester => "requester",
+        }
+    }
+}
+impl TryFrom<&str> for RequestPayer {
+    type Error = String;
+    fn try_from(s: &str) -> Result<Self, Self::Error> {
+        match s {
+            "requester" => Ok(Self::requester),
+            _ => Err(format!("unknown enum value {}", s)),
+        }
+    }
+}
+
+pub type GrantReadAcp = String;
+
+#[derive(Debug, Default, Clone)]
+pub struct GetObjectOutput {
+    pub replication_status: Option<ReplicationStatus>,
+    pub tag_count: Option<TagCount>,
+    pub body: Option<StreamingBlob>,
+    pub parts_count: Option<PartsCount>,
+    pub delete_marker: Option<DeleteMarker>,
+    pub e_tag: Option<ETag>,
+    pub expires: Option<Expires>,
+    pub object_lock_retain_until_date: Option<ObjectLockRetainUntilDate>,
+    pub content_disposition: Option<ContentDisposition>,
+    pub server_side_encryption: Option<ServerSideEncryption>,
+    pub expiration: Option<Expiration>,
+    pub sse_customer_key_md5: Option<SseCustomerKeyMd5>,
+    pub storage_class: Option<StorageClass>,
+    pub content_language: Option<ContentLanguage>,
+    pub object_lock_legal_hold_status: Option<ObjectLockLegalHoldStatus>,
+    pub version_id: Option<ObjectVersionId>,
+    pub ssekms_key_id: Option<SsekmsKeyId>,
+    pub request_charged: Option<RequestCharged>,
+    pub cache_control: Option<CacheControl>,
+    pub last_modified: Option<LastModified>,
+    pub checksum_sha1: Option<ChecksumSha1>,
+    pub metadata: Option<Metadata>,
+    pub missing_meta: Option<MissingMeta>,
+    pub restore: Option<Restore>,
+    pub checksum_crc32_c: Option<ChecksumCrc32c>,
+    pub content_length: Option<ContentLength>,
+    pub bucket_key_enabled: Option<BucketKeyEnabled>,
+    pub content_encoding: Option<ContentEncoding>,
+    pub accept_ranges: Option<AcceptRanges>,
+    pub content_type: Option<ContentType>,
+    pub object_lock_mode: Option<ObjectLockMode>,
+    pub sse_customer_algorithm: Option<SseCustomerAlgorithm>,
+    pub checksum_crc32: Option<ChecksumCrc32>,
+    pub content_range: Option<ContentRange>,
+    pub website_redirect_location: Option<WebsiteRedirectLocation>,
+    pub checksum_sha256: Option<ChecksumSha256>,
+}
+impl GetObjectOutput {
+    pub fn to_http_response(self) -> anyhow::Result<hyper::Response<hyper::Body>> {
+        anyhow::bail!("todo")
+    }
+}
+
+pub type DeleteMarkers = Vec<DeleteMarkerEntry>;
+
+#[derive(Debug, Clone)]
+pub enum AnalyticsFilter {
+    Tag(Tag),
+    And(AnalyticsAndOperator),
+    Prefix(Prefix),
+}
+
+#[derive(Debug, Default, Clone)]
+pub struct RestoreRequest {
+    pub days: Option<Days>,
+    pub description: Option<Description>,
+    pub glacier_job_parameters: Option<GlacierJobParameters>,
+    pub output_location: Option<OutputLocation>,
+    pub tier: Option<Tier>,
+    pub select_parameters: Option<SelectParameters>,
+    pub r#type: Option<RestoreRequestType>,
+}
+impl RestoreRequest {
     pub fn to_http_response(self) -> anyhow::Result<hyper::Response<hyper::Body>> {
         anyhow::bail!("todo")
     }
 }
 
 #[derive(Debug, Default, Clone)]
-pub struct GetBucketOwnershipControlsRequest {
-    pub expected_bucket_owner: Option<AccountId>,
-    pub bucket: Option<BucketName>,
+pub struct Grant {
+    pub grantee: Option<Grantee>,
+    pub permission: Option<Permission>,
 }
-impl GetBucketOwnershipControlsRequest {
-    pub fn to_http_response(self) -> anyhow::Result<hyper::Response<hyper::Body>> {
-        anyhow::bail!("todo")
-    }
-}
-
-pub type ObjectLockToken = String;
-
-pub type ObjectList = Vec<Object>;
-
-#[derive(Debug, Default, Clone)]
-pub struct GetBucketWebsiteOutput {
-    pub error_document: Option<ErrorDocument>,
-    pub index_document: Option<IndexDocument>,
-    pub routing_rules: Option<RoutingRules>,
-    pub redirect_all_requests_to: Option<RedirectAllRequestsTo>,
-}
-impl GetBucketWebsiteOutput {
+impl Grant {
     pub fn to_http_response(self) -> anyhow::Result<hyper::Response<hyper::Body>> {
         anyhow::bail!("todo")
     }
 }
 
 #[derive(Debug, Default, Clone)]
-pub struct PutBucketOwnershipControls;
-impl OperationShape for PutBucketOwnershipControls {
-    const NAME: &'static str = "PutBucketOwnershipControls";
-    type Input = PutBucketOwnershipControlsRequest;
-    type Output = ();
-    type Error = ();
+pub struct DeleteObjectTaggingOutput {
+    pub version_id: Option<ObjectVersionId>,
+}
+impl DeleteObjectTaggingOutput {
+    pub fn to_http_response(self) -> anyhow::Result<hyper::Response<hyper::Body>> {
+        anyhow::bail!("todo")
+    }
 }
 
-#[derive(Debug, Default, Clone)]
-pub struct SelectObjectContent;
-impl OperationShape for SelectObjectContent {
-    const NAME: &'static str = "SelectObjectContent";
-    type Input = SelectObjectContentRequest;
-    type Output = SelectObjectContentOutput;
-    type Error = ();
-}
+pub type MetricsId = String;
+
+pub type Code = String;
 
 #[derive(Debug, Default, Clone)]
 pub struct PutObjectLegalHoldOutput {
@@ -4206,12 +3387,885 @@ impl PutObjectLegalHoldOutput {
     }
 }
 
+pub type AllowedOrigins = Vec<AllowedOrigin>;
+
 #[derive(Debug, Default, Clone)]
-pub struct GetBucketEncryption;
-impl OperationShape for GetBucketEncryption {
-    const NAME: &'static str = "GetBucketEncryption";
-    type Input = GetBucketEncryptionRequest;
-    type Output = GetBucketEncryptionOutput;
+pub struct GetBucketAnalyticsConfigurationRequest {
+    pub expected_bucket_owner: Option<AccountId>,
+    pub bucket: Option<BucketName>,
+    pub id: Option<AnalyticsId>,
+}
+impl GetBucketAnalyticsConfigurationRequest {
+    pub fn to_http_response(self) -> anyhow::Result<hyper::Response<hyper::Body>> {
+        anyhow::bail!("todo")
+    }
+}
+
+#[derive(Debug, Default, Clone)]
+pub struct PutBucketLoggingRequest {
+    pub expected_bucket_owner: Option<AccountId>,
+    pub bucket: Option<BucketName>,
+    pub bucket_logging_status: Option<BucketLoggingStatus>,
+    pub checksum_algorithm: Option<ChecksumAlgorithm>,
+    pub content_md5: Option<ContentMd5>,
+}
+impl PutBucketLoggingRequest {
+    pub fn to_http_response(self) -> anyhow::Result<hyper::Response<hyper::Body>> {
+        anyhow::bail!("todo")
+    }
+}
+
+pub type AllowedHeader = String;
+
+#[derive(Debug, Default, Clone)]
+pub struct PutObjectRetentionRequest {
+    pub version_id: Option<ObjectVersionId>,
+    pub bypass_governance_retention: Option<BypassGovernanceRetention>,
+    pub request_payer: Option<RequestPayer>,
+    pub content_md5: Option<ContentMd5>,
+    pub checksum_algorithm: Option<ChecksumAlgorithm>,
+    pub expected_bucket_owner: Option<AccountId>,
+    pub retention: Option<ObjectLockRetention>,
+    pub key: Option<ObjectKey>,
+    pub bucket: Option<BucketName>,
+}
+impl PutObjectRetentionRequest {
+    pub fn to_http_response(self) -> anyhow::Result<hyper::Response<hyper::Body>> {
+        anyhow::bail!("todo")
+    }
+}
+
+#[derive(Debug, Default, Clone)]
+pub struct BucketLoggingStatus {
+    pub logging_enabled: Option<LoggingEnabled>,
+}
+impl BucketLoggingStatus {
+    pub fn to_http_response(self) -> anyhow::Result<hyper::Response<hyper::Body>> {
+        anyhow::bail!("todo")
+    }
+}
+
+#[derive(Debug, Default, Clone)]
+pub struct DeleteBucketWebsite;
+impl OperationShape for DeleteBucketWebsite {
+    const NAME: &'static str = "DeleteBucketWebsite";
+    type Input = DeleteBucketWebsiteRequest;
+    type Output = ();
+    type Error = ();
+}
+
+#[derive(Debug, Default, Clone)]
+pub struct DeleteObject;
+impl OperationShape for DeleteObject {
+    const NAME: &'static str = "DeleteObject";
+    type Input = DeleteObjectRequest;
+    type Output = DeleteObjectOutput;
+    type Error = ();
+}
+
+pub type MetricsConfigurationList = Vec<MetricsConfiguration>;
+
+#[derive(Debug, Default, Clone)]
+pub struct ListBucketIntelligentTieringConfigurations;
+impl OperationShape for ListBucketIntelligentTieringConfigurations {
+    const NAME: &'static str = "ListBucketIntelligentTieringConfigurations";
+    type Input = ListBucketIntelligentTieringConfigurationsRequest;
+    type Output = ListBucketIntelligentTieringConfigurationsOutput;
+    type Error = ();
+}
+
+#[derive(Debug, Clone, Copy, Eq, Ord, PartialEq, PartialOrd, Hash)]
+pub enum TransitionStorageClass {
+    DEEP_ARCHIVE,
+    GLACIER_IR,
+    INTELLIGENT_TIERING,
+    ONEZONE_IA,
+    GLACIER,
+    STANDARD_IA,
+}
+impl AsRef<str> for TransitionStorageClass {
+    fn as_ref(&self) -> &str {
+        match self {
+            Self::DEEP_ARCHIVE => "DEEP_ARCHIVE",
+            Self::GLACIER_IR => "GLACIER_IR",
+            Self::INTELLIGENT_TIERING => "INTELLIGENT_TIERING",
+            Self::ONEZONE_IA => "ONEZONE_IA",
+            Self::GLACIER => "GLACIER",
+            Self::STANDARD_IA => "STANDARD_IA",
+        }
+    }
+}
+impl TryFrom<&str> for TransitionStorageClass {
+    type Error = String;
+    fn try_from(s: &str) -> Result<Self, Self::Error> {
+        match s {
+            "DEEP_ARCHIVE" => Ok(Self::DEEP_ARCHIVE),
+            "GLACIER_IR" => Ok(Self::GLACIER_IR),
+            "INTELLIGENT_TIERING" => Ok(Self::INTELLIGENT_TIERING),
+            "ONEZONE_IA" => Ok(Self::ONEZONE_IA),
+            "GLACIER" => Ok(Self::GLACIER),
+            "STANDARD_IA" => Ok(Self::STANDARD_IA),
+            _ => Err(format!("unknown enum value {}", s)),
+        }
+    }
+}
+
+#[derive(Debug, Default, Clone)]
+pub struct NotificationConfigurationFilter {
+    pub key: Option<S3KeyFilter>,
+}
+impl NotificationConfigurationFilter {
+    pub fn to_http_response(self) -> anyhow::Result<hyper::Response<hyper::Body>> {
+        anyhow::bail!("todo")
+    }
+}
+
+pub type AllowedMethods = Vec<AllowedMethod>;
+
+#[derive(Debug, Default, Clone)]
+pub struct PutBucketNotificationConfigurationRequest {
+    pub skip_destination_validation: Option<SkipValidation>,
+    pub expected_bucket_owner: Option<AccountId>,
+    pub notification_configuration: Option<NotificationConfiguration>,
+    pub bucket: Option<BucketName>,
+}
+impl PutBucketNotificationConfigurationRequest {
+    pub fn to_http_response(self) -> anyhow::Result<hyper::Response<hyper::Body>> {
+        anyhow::bail!("todo")
+    }
+}
+
+pub type ContentDisposition = String;
+
+pub type Restore = String;
+
+pub type AllowQuotedRecordDelimiter = bool;
+
+#[derive(Debug, Default, Clone)]
+pub struct Bucket {
+    pub creation_date: Option<CreationDate>,
+    pub name: Option<BucketName>,
+}
+impl Bucket {
+    pub fn to_http_response(self) -> anyhow::Result<hyper::Response<hyper::Body>> {
+        anyhow::bail!("todo")
+    }
+}
+
+pub type ConfirmRemoveSelfBucketAccess = bool;
+
+pub type ExposeHeaders = Vec<ExposeHeader>;
+
+#[derive(Debug, Default, Clone)]
+pub struct GlacierJobParameters {
+    pub tier: Option<Tier>,
+}
+impl GlacierJobParameters {
+    pub fn to_http_response(self) -> anyhow::Result<hyper::Response<hyper::Body>> {
+        anyhow::bail!("todo")
+    }
+}
+
+#[derive(Debug, Default, Clone)]
+pub struct ObjectIdentifier {
+    pub version_id: Option<ObjectVersionId>,
+    pub key: Option<ObjectKey>,
+}
+impl ObjectIdentifier {
+    pub fn to_http_response(self) -> anyhow::Result<hyper::Response<hyper::Body>> {
+        anyhow::bail!("todo")
+    }
+}
+
+#[derive(Debug, Default, Clone)]
+pub struct GetObjectLegalHoldOutput {
+    pub legal_hold: Option<ObjectLockLegalHold>,
+}
+impl GetObjectLegalHoldOutput {
+    pub fn to_http_response(self) -> anyhow::Result<hyper::Response<hyper::Body>> {
+        anyhow::bail!("todo")
+    }
+}
+
+#[derive(Debug, Default, Clone)]
+pub struct Grantee {
+    pub id: Option<Id>,
+    pub uri: Option<Uri>,
+    pub display_name: Option<DisplayName>,
+    pub r#type: Option<Type>,
+    pub email_address: Option<EmailAddress>,
+}
+impl Grantee {
+    pub fn to_http_response(self) -> anyhow::Result<hyper::Response<hyper::Body>> {
+        anyhow::bail!("todo")
+    }
+}
+
+pub type MultipartUploadList = Vec<MultipartUpload>;
+
+pub type QuoteCharacter = String;
+
+#[derive(Debug, Default, Clone)]
+pub struct PutBucketReplication;
+impl OperationShape for PutBucketReplication {
+    const NAME: &'static str = "PutBucketReplication";
+    type Input = PutBucketReplicationRequest;
+    type Output = ();
+    type Error = ();
+}
+
+pub type ReplicationRules = Vec<ReplicationRule>;
+
+pub type AccountId = String;
+
+#[derive(Debug, Default, Clone)]
+pub struct GetBucketAccelerateConfigurationRequest {
+    pub bucket: Option<BucketName>,
+    pub expected_bucket_owner: Option<AccountId>,
+}
+impl GetBucketAccelerateConfigurationRequest {
+    pub fn to_http_response(self) -> anyhow::Result<hyper::Response<hyper::Body>> {
+        anyhow::bail!("todo")
+    }
+}
+
+pub type ObjectAttributesList = Vec<ObjectAttributes>;
+
+#[derive(Debug, Default, Clone)]
+pub struct GetObjectRequest {
+    pub response_content_language: Option<ResponseContentLanguage>,
+    pub if_none_match: Option<IfNoneMatch>,
+    pub part_number: Option<PartNumber>,
+    pub sse_customer_key: Option<SseCustomerKey>,
+    pub sse_customer_algorithm: Option<SseCustomerAlgorithm>,
+    pub checksum_mode: Option<ChecksumMode>,
+    pub request_payer: Option<RequestPayer>,
+    pub bucket: Option<BucketName>,
+    pub range: Option<Range>,
+    pub key: Option<ObjectKey>,
+    pub response_expires: Option<ResponseExpires>,
+    pub if_match: Option<IfMatch>,
+    pub response_content_disposition: Option<ResponseContentDisposition>,
+    pub response_content_encoding: Option<ResponseContentEncoding>,
+    pub sse_customer_key_md5: Option<SseCustomerKeyMd5>,
+    pub version_id: Option<ObjectVersionId>,
+    pub expected_bucket_owner: Option<AccountId>,
+    pub if_modified_since: Option<IfModifiedSince>,
+    pub response_cache_control: Option<ResponseCacheControl>,
+    pub response_content_type: Option<ResponseContentType>,
+    pub if_unmodified_since: Option<IfUnmodifiedSince>,
+}
+impl GetObjectRequest {
+    pub fn to_http_response(self) -> anyhow::Result<hyper::Response<hyper::Body>> {
+        anyhow::bail!("todo")
+    }
+}
+
+#[derive(Debug, Default, Clone)]
+pub struct GetObjectTorrentRequest {
+    pub bucket: Option<BucketName>,
+    pub expected_bucket_owner: Option<AccountId>,
+    pub key: Option<ObjectKey>,
+    pub request_payer: Option<RequestPayer>,
+}
+impl GetObjectTorrentRequest {
+    pub fn to_http_response(self) -> anyhow::Result<hyper::Response<hyper::Body>> {
+        anyhow::bail!("todo")
+    }
+}
+
+pub type ObjectSizeLessThanBytes = i64;
+
+#[derive(Debug, Default, Clone)]
+pub struct Metrics {
+    pub event_threshold: Option<ReplicationTimeValue>,
+    pub status: Option<MetricsStatus>,
+}
+impl Metrics {
+    pub fn to_http_response(self) -> anyhow::Result<hyper::Response<hyper::Body>> {
+        anyhow::bail!("todo")
+    }
+}
+
+pub type ContentLength = i64;
+
+#[derive(Debug, Default, Clone)]
+pub struct CreateMultipartUploadOutput {
+    pub ssekms_key_id: Option<SsekmsKeyId>,
+    pub abort_date: Option<AbortDate>,
+    pub request_charged: Option<RequestCharged>,
+    pub abort_rule_id: Option<AbortRuleId>,
+    pub sse_customer_key_md5: Option<SseCustomerKeyMd5>,
+    pub bucket: Option<BucketName>,
+    pub key: Option<ObjectKey>,
+    pub bucket_key_enabled: Option<BucketKeyEnabled>,
+    pub checksum_algorithm: Option<ChecksumAlgorithm>,
+    pub sse_customer_algorithm: Option<SseCustomerAlgorithm>,
+    pub ssekms_encryption_context: Option<SsekmsEncryptionContext>,
+    pub server_side_encryption: Option<ServerSideEncryption>,
+    pub upload_id: Option<MultipartUploadId>,
+}
+impl CreateMultipartUploadOutput {
+    pub fn to_http_response(self) -> anyhow::Result<hyper::Response<hyper::Body>> {
+        anyhow::bail!("todo")
+    }
+}
+
+pub type PartNumberMarker = String;
+
+#[derive(Debug, Default, Clone)]
+pub struct PutBucketTaggingRequest {
+    pub checksum_algorithm: Option<ChecksumAlgorithm>,
+    pub content_md5: Option<ContentMd5>,
+    pub tagging: Option<Tagging>,
+    pub bucket: Option<BucketName>,
+    pub expected_bucket_owner: Option<AccountId>,
+}
+impl PutBucketTaggingRequest {
+    pub fn to_http_response(self) -> anyhow::Result<hyper::Response<hyper::Body>> {
+        anyhow::bail!("todo")
+    }
+}
+
+pub type BytesReturned = i64;
+
+pub type Expression = String;
+
+#[derive(Debug, Default, Clone)]
+pub struct GetPublicAccessBlock;
+impl OperationShape for GetPublicAccessBlock {
+    const NAME: &'static str = "GetPublicAccessBlock";
+    type Input = GetPublicAccessBlockRequest;
+    type Output = GetPublicAccessBlockOutput;
+    type Error = ();
+}
+
+#[derive(Debug, Default, Clone)]
+pub struct InvalidObjectState {
+    pub storage_class: Option<StorageClass>,
+    pub access_tier: Option<IntelligentTieringAccessTier>,
+}
+impl InvalidObjectState {
+    pub fn to_http_response(self) -> anyhow::Result<hyper::Response<hyper::Body>> {
+        anyhow::bail!("todo")
+    }
+}
+
+#[derive(Debug, Clone, Copy, Eq, Ord, PartialEq, PartialOrd, Hash)]
+pub enum ChecksumMode {
+    ENABLED,
+}
+impl AsRef<str> for ChecksumMode {
+    fn as_ref(&self) -> &str {
+        match self {
+            Self::ENABLED => "ENABLED",
+        }
+    }
+}
+impl TryFrom<&str> for ChecksumMode {
+    type Error = String;
+    fn try_from(s: &str) -> Result<Self, Self::Error> {
+        match s {
+            "ENABLED" => Ok(Self::ENABLED),
+            _ => Err(format!("unknown enum value {}", s)),
+        }
+    }
+}
+
+#[derive(Debug, Default, Clone)]
+pub struct MetricsConfiguration {
+    pub filter: Option<MetricsFilter>,
+    pub id: Option<MetricsId>,
+}
+impl MetricsConfiguration {
+    pub fn to_http_response(self) -> anyhow::Result<hyper::Response<hyper::Body>> {
+        anyhow::bail!("todo")
+    }
+}
+
+#[derive(Debug, Default, Clone)]
+pub struct SseKmsEncryptedObjects {
+    pub status: Option<SseKmsEncryptedObjectsStatus>,
+}
+impl SseKmsEncryptedObjects {
+    pub fn to_http_response(self) -> anyhow::Result<hyper::Response<hyper::Body>> {
+        anyhow::bail!("todo")
+    }
+}
+
+#[derive(Debug, Default, Clone)]
+pub struct IntelligentTieringConfiguration {
+    pub tierings: Option<TieringList>,
+    pub filter: Option<IntelligentTieringFilter>,
+    pub id: Option<IntelligentTieringId>,
+    pub status: Option<IntelligentTieringStatus>,
+}
+impl IntelligentTieringConfiguration {
+    pub fn to_http_response(self) -> anyhow::Result<hyper::Response<hyper::Body>> {
+        anyhow::bail!("todo")
+    }
+}
+
+pub type CopySource = String;
+
+#[derive(Debug, Default, Clone)]
+pub struct Destination {
+    pub metrics: Option<Metrics>,
+    pub replication_time: Option<ReplicationTime>,
+    pub access_control_translation: Option<AccessControlTranslation>,
+    pub bucket: Option<BucketName>,
+    pub encryption_configuration: Option<EncryptionConfiguration>,
+    pub storage_class: Option<StorageClass>,
+    pub account: Option<AccountId>,
+}
+impl Destination {
+    pub fn to_http_response(self) -> anyhow::Result<hyper::Response<hyper::Body>> {
+        anyhow::bail!("todo")
+    }
+}
+
+#[derive(Debug, Clone, Copy, Eq, Ord, PartialEq, PartialOrd, Hash)]
+pub enum InventoryFrequency {
+    Weekly,
+    Daily,
+}
+impl AsRef<str> for InventoryFrequency {
+    fn as_ref(&self) -> &str {
+        match self {
+            Self::Weekly => "Weekly",
+            Self::Daily => "Daily",
+        }
+    }
+}
+impl TryFrom<&str> for InventoryFrequency {
+    type Error = String;
+    fn try_from(s: &str) -> Result<Self, Self::Error> {
+        match s {
+            "Weekly" => Ok(Self::Weekly),
+            "Daily" => Ok(Self::Daily),
+            _ => Err(format!("unknown enum value {}", s)),
+        }
+    }
+}
+
+#[derive(Debug, Clone, Copy, Eq, Ord, PartialEq, PartialOrd, Hash)]
+pub enum InventoryOptionalField {
+    EncryptionStatus,
+    IsMultipartUploaded,
+    ObjectLockLegalHoldStatus,
+    ChecksumAlgorithm,
+    Size,
+    ETag,
+    BucketKeyStatus,
+    ReplicationStatus,
+    IntelligentTieringAccessTier,
+    LastModifiedDate,
+    ObjectLockRetainUntilDate,
+    ObjectLockMode,
+    StorageClass,
+}
+impl AsRef<str> for InventoryOptionalField {
+    fn as_ref(&self) -> &str {
+        match self {
+            Self::EncryptionStatus => "EncryptionStatus",
+            Self::IsMultipartUploaded => "IsMultipartUploaded",
+            Self::ObjectLockLegalHoldStatus => "ObjectLockLegalHoldStatus",
+            Self::ChecksumAlgorithm => "ChecksumAlgorithm",
+            Self::Size => "Size",
+            Self::ETag => "ETag",
+            Self::BucketKeyStatus => "BucketKeyStatus",
+            Self::ReplicationStatus => "ReplicationStatus",
+            Self::IntelligentTieringAccessTier => "IntelligentTieringAccessTier",
+            Self::LastModifiedDate => "LastModifiedDate",
+            Self::ObjectLockRetainUntilDate => "ObjectLockRetainUntilDate",
+            Self::ObjectLockMode => "ObjectLockMode",
+            Self::StorageClass => "StorageClass",
+        }
+    }
+}
+impl TryFrom<&str> for InventoryOptionalField {
+    type Error = String;
+    fn try_from(s: &str) -> Result<Self, Self::Error> {
+        match s {
+            "EncryptionStatus" => Ok(Self::EncryptionStatus),
+            "IsMultipartUploaded" => Ok(Self::IsMultipartUploaded),
+            "ObjectLockLegalHoldStatus" => Ok(Self::ObjectLockLegalHoldStatus),
+            "ChecksumAlgorithm" => Ok(Self::ChecksumAlgorithm),
+            "Size" => Ok(Self::Size),
+            "ETag" => Ok(Self::ETag),
+            "BucketKeyStatus" => Ok(Self::BucketKeyStatus),
+            "ReplicationStatus" => Ok(Self::ReplicationStatus),
+            "IntelligentTieringAccessTier" => Ok(Self::IntelligentTieringAccessTier),
+            "LastModifiedDate" => Ok(Self::LastModifiedDate),
+            "ObjectLockRetainUntilDate" => Ok(Self::ObjectLockRetainUntilDate),
+            "ObjectLockMode" => Ok(Self::ObjectLockMode),
+            "StorageClass" => Ok(Self::StorageClass),
+            _ => Err(format!("unknown enum value {}", s)),
+        }
+    }
+}
+
+#[derive(Debug, Default, Clone)]
+pub struct JsonInput {
+    pub r#type: Option<JsonType>,
+}
+impl JsonInput {
+    pub fn to_http_response(self) -> anyhow::Result<hyper::Response<hyper::Body>> {
+        anyhow::bail!("todo")
+    }
+}
+
+#[derive(Debug, Default, Clone)]
+pub struct Tagging {
+    pub tag_set: Option<TagSet>,
+}
+impl Tagging {
+    pub fn to_http_response(self) -> anyhow::Result<hyper::Response<hyper::Body>> {
+        anyhow::bail!("todo")
+    }
+}
+
+pub type Quiet = bool;
+
+pub type DaysAfterInitiation = i32;
+
+#[derive(Debug, Default, Clone)]
+pub struct PutBucketOwnershipControlsRequest {
+    pub ownership_controls: Option<OwnershipControls>,
+    pub content_md5: Option<ContentMd5>,
+    pub bucket: Option<BucketName>,
+    pub expected_bucket_owner: Option<AccountId>,
+}
+impl PutBucketOwnershipControlsRequest {
+    pub fn to_http_response(self) -> anyhow::Result<hyper::Response<hyper::Body>> {
+        anyhow::bail!("todo")
+    }
+}
+
+#[derive(Debug, Default, Clone)]
+pub struct GetBucketAclOutput {
+    pub grants: Option<Grants>,
+    pub owner: Option<Owner>,
+}
+impl GetBucketAclOutput {
+    pub fn to_http_response(self) -> anyhow::Result<hyper::Response<hyper::Body>> {
+        anyhow::bail!("todo")
+    }
+}
+
+pub type CopySourceIfMatch = String;
+
+#[derive(Debug, Clone, Copy, Eq, Ord, PartialEq, PartialOrd, Hash)]
+pub enum SseKmsEncryptedObjectsStatus {
+    Enabled,
+    Disabled,
+}
+impl AsRef<str> for SseKmsEncryptedObjectsStatus {
+    fn as_ref(&self) -> &str {
+        match self {
+            Self::Enabled => "Enabled",
+            Self::Disabled => "Disabled",
+        }
+    }
+}
+impl TryFrom<&str> for SseKmsEncryptedObjectsStatus {
+    type Error = String;
+    fn try_from(s: &str) -> Result<Self, Self::Error> {
+        match s {
+            "Enabled" => Ok(Self::Enabled),
+            "Disabled" => Ok(Self::Disabled),
+            _ => Err(format!("unknown enum value {}", s)),
+        }
+    }
+}
+
+#[derive(Debug, Default, Clone)]
+pub struct StorageClassAnalysisDataExport {
+    pub output_schema_version: Option<StorageClassAnalysisSchemaVersion>,
+    pub destination: Option<AnalyticsExportDestination>,
+}
+impl StorageClassAnalysisDataExport {
+    pub fn to_http_response(self) -> anyhow::Result<hyper::Response<hyper::Body>> {
+        anyhow::bail!("todo")
+    }
+}
+
+pub type LifecycleRules = Vec<LifecycleRule>;
+
+pub type Size = i64;
+
+#[derive(Debug, Default, Clone)]
+pub struct GetBucketPolicyOutput {
+    pub policy: Option<Policy>,
+}
+impl GetBucketPolicyOutput {
+    pub fn to_http_response(self) -> anyhow::Result<hyper::Response<hyper::Body>> {
+        anyhow::bail!("todo")
+    }
+}
+
+pub type IntelligentTieringConfigurationList = Vec<IntelligentTieringConfiguration>;
+
+pub type NextKeyMarker = String;
+
+pub type ChecksumAlgorithmList = Vec<ChecksumAlgorithm>;
+
+pub type NextVersionIdMarker = String;
+
+#[derive(Debug, Default, Clone)]
+pub struct PutBucketAccelerateConfigurationRequest {
+    pub expected_bucket_owner: Option<AccountId>,
+    pub checksum_algorithm: Option<ChecksumAlgorithm>,
+    pub bucket: Option<BucketName>,
+    pub accelerate_configuration: Option<AccelerateConfiguration>,
+}
+impl PutBucketAccelerateConfigurationRequest {
+    pub fn to_http_response(self) -> anyhow::Result<hyper::Response<hyper::Body>> {
+        anyhow::bail!("todo")
+    }
+}
+
+#[derive(Debug, Default, Clone)]
+pub struct DeleteBucketLifecycle;
+impl OperationShape for DeleteBucketLifecycle {
+    const NAME: &'static str = "DeleteBucketLifecycle";
+    type Input = DeleteBucketLifecycleRequest;
+    type Output = ();
+    type Error = ();
+}
+
+#[derive(Debug, Default, Clone)]
+pub struct Error {
+    pub message: Option<Message>,
+    pub code: Option<Code>,
+    pub version_id: Option<ObjectVersionId>,
+    pub key: Option<ObjectKey>,
+}
+impl Error {
+    pub fn to_http_response(self) -> anyhow::Result<hyper::Response<hyper::Body>> {
+        anyhow::bail!("todo")
+    }
+}
+
+pub type LambdaFunctionConfigurationList = Vec<LambdaFunctionConfiguration>;
+
+#[derive(Debug, Clone)]
+pub enum MetricsFilter {
+    AccessPointArn(AccessPointArn),
+    Tag(Tag),
+    And(MetricsAndOperator),
+    Prefix(Prefix),
+}
+
+#[derive(Debug, Default, Clone)]
+pub struct PutObjectTaggingRequest {
+    pub bucket: Option<BucketName>,
+    pub checksum_algorithm: Option<ChecksumAlgorithm>,
+    pub request_payer: Option<RequestPayer>,
+    pub expected_bucket_owner: Option<AccountId>,
+    pub tagging: Option<Tagging>,
+    pub content_md5: Option<ContentMd5>,
+    pub key: Option<ObjectKey>,
+    pub version_id: Option<ObjectVersionId>,
+}
+impl PutObjectTaggingRequest {
+    pub fn to_http_response(self) -> anyhow::Result<hyper::Response<hyper::Body>> {
+        anyhow::bail!("todo")
+    }
+}
+
+#[derive(Debug, Default, Clone)]
+pub struct AmazonS3 {
+    pub delete_bucket_policy: Option<OpService<DeleteBucketPolicy>>,
+    pub get_bucket_intelligent_tiering_configuration:
+        Option<OpService<GetBucketIntelligentTieringConfiguration>>,
+    pub put_bucket_replication: Option<OpService<PutBucketReplication>>,
+    pub get_bucket_accelerate_configuration: Option<OpService<GetBucketAccelerateConfiguration>>,
+    pub delete_bucket_ownership_controls: Option<OpService<DeleteBucketOwnershipControls>>,
+    pub delete_bucket_tagging: Option<OpService<DeleteBucketTagging>>,
+    pub delete_objects: Option<OpService<DeleteObjects>>,
+    pub get_bucket_encryption: Option<OpService<GetBucketEncryption>>,
+    pub get_object_retention: Option<OpService<GetObjectRetention>>,
+    pub get_bucket_policy_status: Option<OpService<GetBucketPolicyStatus>>,
+    pub list_bucket_intelligent_tiering_configurations:
+        Option<OpService<ListBucketIntelligentTieringConfigurations>>,
+    pub copy_object: Option<OpService<CopyObject>>,
+    pub delete_bucket_analytics_configuration:
+        Option<OpService<DeleteBucketAnalyticsConfiguration>>,
+    pub get_bucket_metrics_configuration: Option<OpService<GetBucketMetricsConfiguration>>,
+    pub delete_bucket_encryption: Option<OpService<DeleteBucketEncryption>>,
+    pub get_bucket_notification_configuration:
+        Option<OpService<GetBucketNotificationConfiguration>>,
+    pub get_object_tagging: Option<OpService<GetObjectTagging>>,
+    pub get_bucket_ownership_controls: Option<OpService<GetBucketOwnershipControls>>,
+    pub put_bucket_cors: Option<OpService<PutBucketCors>>,
+    pub put_bucket_request_payment: Option<OpService<PutBucketRequestPayment>>,
+    pub head_bucket: Option<OpService<HeadBucket>>,
+    pub delete_bucket_replication: Option<OpService<DeleteBucketReplication>>,
+    pub delete_object: Option<OpService<DeleteObject>>,
+    pub put_bucket_tagging: Option<OpService<PutBucketTagging>>,
+    pub put_object: Option<OpService<PutObject>>,
+    pub put_object_retention: Option<OpService<PutObjectRetention>>,
+    pub head_object: Option<OpService<HeadObject>>,
+    pub get_object_lock_configuration: Option<OpService<GetObjectLockConfiguration>>,
+    pub list_parts: Option<OpService<ListParts>>,
+    pub delete_bucket_lifecycle: Option<OpService<DeleteBucketLifecycle>>,
+    pub delete_bucket_metrics_configuration: Option<OpService<DeleteBucketMetricsConfiguration>>,
+    pub get_bucket_location: Option<OpService<GetBucketLocation>>,
+    pub list_bucket_inventory_configurations: Option<OpService<ListBucketInventoryConfigurations>>,
+    pub delete_public_access_block: Option<OpService<DeletePublicAccessBlock>>,
+    pub get_bucket_inventory_configuration: Option<OpService<GetBucketInventoryConfiguration>>,
+    pub get_bucket_versioning: Option<OpService<GetBucketVersioning>>,
+    pub get_bucket_website: Option<OpService<GetBucketWebsite>>,
+    pub get_bucket_policy: Option<OpService<GetBucketPolicy>>,
+    pub put_bucket_policy: Option<OpService<PutBucketPolicy>>,
+    pub delete_bucket_website: Option<OpService<DeleteBucketWebsite>>,
+    pub delete_bucket_intelligent_tiering_configuration:
+        Option<OpService<DeleteBucketIntelligentTieringConfiguration>>,
+    pub put_object_lock_configuration: Option<OpService<PutObjectLockConfiguration>>,
+    pub delete_object_tagging: Option<OpService<DeleteObjectTagging>>,
+    pub put_bucket_ownership_controls: Option<OpService<PutBucketOwnershipControls>>,
+    pub get_public_access_block: Option<OpService<GetPublicAccessBlock>>,
+    pub upload_part: Option<OpService<UploadPart>>,
+    pub list_bucket_analytics_configurations: Option<OpService<ListBucketAnalyticsConfigurations>>,
+    pub list_multipart_uploads: Option<OpService<ListMultipartUploads>>,
+    pub upload_part_copy: Option<OpService<UploadPartCopy>>,
+    pub write_get_object_response: Option<OpService<WriteGetObjectResponse>>,
+    pub put_bucket_analytics_configuration: Option<OpService<PutBucketAnalyticsConfiguration>>,
+    pub get_bucket_analytics_configuration: Option<OpService<GetBucketAnalyticsConfiguration>>,
+    pub put_object_legal_hold: Option<OpService<PutObjectLegalHold>>,
+    pub list_bucket_metrics_configurations: Option<OpService<ListBucketMetricsConfigurations>>,
+    pub put_bucket_acl: Option<OpService<PutBucketAcl>>,
+    pub put_bucket_encryption: Option<OpService<PutBucketEncryption>>,
+    pub list_objects: Option<OpService<ListObjects>>,
+    pub put_bucket_metrics_configuration: Option<OpService<PutBucketMetricsConfiguration>>,
+    pub delete_bucket_cors: Option<OpService<DeleteBucketCors>>,
+    pub put_bucket_versioning: Option<OpService<PutBucketVersioning>>,
+    pub put_public_access_block: Option<OpService<PutPublicAccessBlock>>,
+    pub put_bucket_website: Option<OpService<PutBucketWebsite>>,
+    pub put_bucket_lifecycle_configuration: Option<OpService<PutBucketLifecycleConfiguration>>,
+    pub get_bucket_tagging: Option<OpService<GetBucketTagging>>,
+    pub get_bucket_lifecycle_configuration: Option<OpService<GetBucketLifecycleConfiguration>>,
+    pub delete_bucket: Option<OpService<DeleteBucket>>,
+    pub get_bucket_replication: Option<OpService<GetBucketReplication>>,
+    pub put_bucket_notification_configuration:
+        Option<OpService<PutBucketNotificationConfiguration>>,
+    pub put_bucket_intelligent_tiering_configuration:
+        Option<OpService<PutBucketIntelligentTieringConfiguration>>,
+    pub create_multipart_upload: Option<OpService<CreateMultipartUpload>>,
+    pub put_bucket_inventory_configuration: Option<OpService<PutBucketInventoryConfiguration>>,
+    pub get_bucket_request_payment: Option<OpService<GetBucketRequestPayment>>,
+    pub get_object: Option<OpService<GetObject>>,
+    pub get_object_acl: Option<OpService<GetObjectAcl>>,
+    pub get_object_legal_hold: Option<OpService<GetObjectLegalHold>>,
+    pub complete_multipart_upload: Option<OpService<CompleteMultipartUpload>>,
+    pub get_object_torrent: Option<OpService<GetObjectTorrent>>,
+    pub get_bucket_cors: Option<OpService<GetBucketCors>>,
+    pub create_bucket: Option<OpService<CreateBucket>>,
+    pub list_object_versions: Option<OpService<ListObjectVersions>>,
+    pub put_bucket_logging: Option<OpService<PutBucketLogging>>,
+    pub put_object_tagging: Option<OpService<PutObjectTagging>>,
+    pub get_object_attributes: Option<OpService<GetObjectAttributes>>,
+    pub list_buckets: Option<OpService<ListBuckets>>,
+    pub put_object_acl: Option<OpService<PutObjectAcl>>,
+    pub get_bucket_logging: Option<OpService<GetBucketLogging>>,
+    pub get_bucket_acl: Option<OpService<GetBucketAcl>>,
+    pub put_bucket_accelerate_configuration: Option<OpService<PutBucketAccelerateConfiguration>>,
+    pub restore_object: Option<OpService<RestoreObject>>,
+    pub select_object_content: Option<OpService<SelectObjectContent>>,
+    pub delete_bucket_inventory_configuration:
+        Option<OpService<DeleteBucketInventoryConfiguration>>,
+    pub list_objects_v2: Option<OpService<ListObjectsV2>>,
+    pub abort_multipart_upload: Option<OpService<AbortMultipartUpload>>,
+}
+
+#[derive(Debug, Clone, Copy, Eq, Ord, PartialEq, PartialOrd, Hash)]
+pub enum ReplicaModificationsStatus {
+    Disabled,
+    Enabled,
+}
+impl AsRef<str> for ReplicaModificationsStatus {
+    fn as_ref(&self) -> &str {
+        match self {
+            Self::Disabled => "Disabled",
+            Self::Enabled => "Enabled",
+        }
+    }
+}
+impl TryFrom<&str> for ReplicaModificationsStatus {
+    type Error = String;
+    fn try_from(s: &str) -> Result<Self, Self::Error> {
+        match s {
+            "Disabled" => Ok(Self::Disabled),
+            "Enabled" => Ok(Self::Enabled),
+            _ => Err(format!("unknown enum value {}", s)),
+        }
+    }
+}
+
+pub type GetObjectResponseStatusCode = i32;
+
+pub type NextPartNumberMarker = String;
+
+#[derive(Debug, Clone, Copy, Eq, Ord, PartialEq, PartialOrd, Hash)]
+pub enum StorageClass {
+    ONEZONE_IA,
+    INTELLIGENT_TIERING,
+    REDUCED_REDUNDANCY,
+    DEEP_ARCHIVE,
+    STANDARD,
+    OUTPOSTS,
+    GLACIER_IR,
+    STANDARD_IA,
+    GLACIER,
+}
+impl AsRef<str> for StorageClass {
+    fn as_ref(&self) -> &str {
+        match self {
+            Self::ONEZONE_IA => "ONEZONE_IA",
+            Self::INTELLIGENT_TIERING => "INTELLIGENT_TIERING",
+            Self::REDUCED_REDUNDANCY => "REDUCED_REDUNDANCY",
+            Self::DEEP_ARCHIVE => "DEEP_ARCHIVE",
+            Self::STANDARD => "STANDARD",
+            Self::OUTPOSTS => "OUTPOSTS",
+            Self::GLACIER_IR => "GLACIER_IR",
+            Self::STANDARD_IA => "STANDARD_IA",
+            Self::GLACIER => "GLACIER",
+        }
+    }
+}
+impl TryFrom<&str> for StorageClass {
+    type Error = String;
+    fn try_from(s: &str) -> Result<Self, Self::Error> {
+        match s {
+            "ONEZONE_IA" => Ok(Self::ONEZONE_IA),
+            "INTELLIGENT_TIERING" => Ok(Self::INTELLIGENT_TIERING),
+            "REDUCED_REDUNDANCY" => Ok(Self::REDUCED_REDUNDANCY),
+            "DEEP_ARCHIVE" => Ok(Self::DEEP_ARCHIVE),
+            "STANDARD" => Ok(Self::STANDARD),
+            "OUTPOSTS" => Ok(Self::OUTPOSTS),
+            "GLACIER_IR" => Ok(Self::GLACIER_IR),
+            "STANDARD_IA" => Ok(Self::STANDARD_IA),
+            "GLACIER" => Ok(Self::GLACIER),
+            _ => Err(format!("unknown enum value {}", s)),
+        }
+    }
+}
+
+#[derive(Debug, Default, Clone)]
+pub struct BucketAlreadyExists {}
+impl BucketAlreadyExists {
+    pub fn to_http_response(self) -> anyhow::Result<hyper::Response<hyper::Body>> {
+        anyhow::bail!("todo")
+    }
+}
+
+#[derive(Debug, Default, Clone)]
+pub struct PutObjectAcl;
+impl OperationShape for PutObjectAcl {
+    const NAME: &'static str = "PutObjectAcl";
+    type Input = PutObjectAclRequest;
+    type Output = PutObjectAclOutput;
     type Error = ();
 }
 
@@ -4225,218 +4279,24 @@ impl GetBucketInventoryConfigurationOutput {
     }
 }
 
+pub type Minutes = i32;
+
 #[derive(Debug, Default, Clone)]
-pub struct AnalyticsS3BucketDestination {
-    pub bucket_account_id: Option<AccountId>,
-    pub format: Option<AnalyticsS3ExportFileFormat>,
-    pub bucket: Option<BucketName>,
-    pub prefix: Option<Prefix>,
+pub struct GetBucketLoggingOutput {
+    pub logging_enabled: Option<LoggingEnabled>,
 }
-impl AnalyticsS3BucketDestination {
+impl GetBucketLoggingOutput {
     pub fn to_http_response(self) -> anyhow::Result<hyper::Response<hyper::Body>> {
         anyhow::bail!("todo")
     }
 }
 
 #[derive(Debug, Default, Clone)]
-pub struct GetBucketPolicyRequest {
-    pub bucket: Option<BucketName>,
-    pub expected_bucket_owner: Option<AccountId>,
-}
-impl GetBucketPolicyRequest {
-    pub fn to_http_response(self) -> anyhow::Result<hyper::Response<hyper::Body>> {
-        anyhow::bail!("todo")
-    }
-}
-
-#[derive(Debug, Default, Clone)]
-pub struct GetObjectTorrentOutput {
-    pub body: Option<StreamingBlob>,
-    pub request_charged: Option<RequestCharged>,
-}
-impl GetObjectTorrentOutput {
-    pub fn to_http_response(self) -> anyhow::Result<hyper::Response<hyper::Body>> {
-        anyhow::bail!("todo")
-    }
-}
-
-pub type GrantWriteAcp = String;
-
-#[derive(Debug, Clone, Copy, Eq, Ord, PartialEq, PartialOrd, Hash)]
-pub enum Protocol {
-    http,
-    https,
-}
-impl AsRef<str> for Protocol {
-    fn as_ref(&self) -> &str {
-        match self {
-            Self::http => "http",
-            Self::https => "https",
-        }
-    }
-}
-impl TryFrom<&str> for Protocol {
-    type Error = String;
-    fn try_from(s: &str) -> Result<Self, Self::Error> {
-        match s {
-            "http" => Ok(Self::http),
-            "https" => Ok(Self::https),
-            _ => Err(format!("unknown enum value {}", s)),
-        }
-    }
-}
-
-pub type OwnershipControlsRules = Vec<OwnershipControlsRule>;
-
-#[derive(Debug, Default, Clone)]
-pub struct PutBucketRequestPayment;
-impl OperationShape for PutBucketRequestPayment {
-    const NAME: &'static str = "PutBucketRequestPayment";
-    type Input = PutBucketRequestPaymentRequest;
-    type Output = ();
-    type Error = ();
-}
-
-pub type Id = String;
-
-#[derive(Debug, Clone, Copy, Eq, Ord, PartialEq, PartialOrd, Hash)]
-pub enum FileHeaderInfo {
-    NONE,
-    USE,
-    IGNORE,
-}
-impl AsRef<str> for FileHeaderInfo {
-    fn as_ref(&self) -> &str {
-        match self {
-            Self::NONE => "NONE",
-            Self::USE => "USE",
-            Self::IGNORE => "IGNORE",
-        }
-    }
-}
-impl TryFrom<&str> for FileHeaderInfo {
-    type Error = String;
-    fn try_from(s: &str) -> Result<Self, Self::Error> {
-        match s {
-            "NONE" => Ok(Self::NONE),
-            "USE" => Ok(Self::USE),
-            "IGNORE" => Ok(Self::IGNORE),
-            _ => Err(format!("unknown enum value {}", s)),
-        }
-    }
-}
-
-#[derive(Debug, Default, Clone)]
-pub struct SelectObjectContentOutput {
-    pub payload: Option<SelectObjectContentEventStream>,
-}
-impl SelectObjectContentOutput {
-    pub fn to_http_response(self) -> anyhow::Result<hyper::Response<hyper::Body>> {
-        anyhow::bail!("todo")
-    }
-}
-
-pub type ResponseContentType = String;
-
-pub type WebsiteRedirectLocation = String;
-
-#[derive(Debug, Default, Clone)]
-pub struct ListObjects;
-impl OperationShape for ListObjects {
-    const NAME: &'static str = "ListObjects";
-    type Input = ListObjectsRequest;
-    type Output = ListObjectsOutput;
-    type Error = ();
-}
-
-#[derive(Debug, Default, Clone)]
-pub struct DeleteObjectsOutput {
-    pub request_charged: Option<RequestCharged>,
-    pub errors: Option<Errors>,
-    pub deleted: Option<DeletedObjects>,
-}
-impl DeleteObjectsOutput {
-    pub fn to_http_response(self) -> anyhow::Result<hyper::Response<hyper::Body>> {
-        anyhow::bail!("todo")
-    }
-}
-
-#[derive(Debug, Default, Clone)]
-pub struct UploadPartCopyRequest {
-    pub copy_source: Option<CopySource>,
-    pub upload_id: Option<MultipartUploadId>,
-    pub sse_customer_key: Option<SseCustomerKey>,
-    pub expected_source_bucket_owner: Option<AccountId>,
-    pub key: Option<ObjectKey>,
-    pub sse_customer_algorithm: Option<SseCustomerAlgorithm>,
-    pub copy_source_range: Option<CopySourceRange>,
-    pub expected_bucket_owner: Option<AccountId>,
-    pub part_number: Option<PartNumber>,
-    pub copy_source_if_match: Option<CopySourceIfMatch>,
-    pub copy_source_if_none_match: Option<CopySourceIfNoneMatch>,
-    pub copy_source_sse_customer_key: Option<CopySourceSseCustomerKey>,
-    pub copy_source_sse_customer_algorithm: Option<CopySourceSseCustomerAlgorithm>,
-    pub copy_source_sse_customer_key_md5: Option<CopySourceSseCustomerKeyMd5>,
-    pub request_payer: Option<RequestPayer>,
-    pub sse_customer_key_md5: Option<SseCustomerKeyMd5>,
-    pub copy_source_if_modified_since: Option<CopySourceIfModifiedSince>,
-    pub copy_source_if_unmodified_since: Option<CopySourceIfUnmodifiedSince>,
-    pub bucket: Option<BucketName>,
-}
-impl UploadPartCopyRequest {
-    pub fn to_http_response(self) -> anyhow::Result<hyper::Response<hyper::Body>> {
-        anyhow::bail!("todo")
-    }
-}
-
-#[derive(Debug, Default, Clone)]
-pub struct HeadObjectRequest {
-    pub bucket: Option<BucketName>,
-    pub if_modified_since: Option<IfModifiedSince>,
-    pub if_none_match: Option<IfNoneMatch>,
-    pub request_payer: Option<RequestPayer>,
-    pub sse_customer_key: Option<SseCustomerKey>,
-    pub part_number: Option<PartNumber>,
-    pub range: Option<Range>,
-    pub if_match: Option<IfMatch>,
-    pub key: Option<ObjectKey>,
-    pub sse_customer_key_md5: Option<SseCustomerKeyMd5>,
-    pub version_id: Option<ObjectVersionId>,
-    pub sse_customer_algorithm: Option<SseCustomerAlgorithm>,
-    pub expected_bucket_owner: Option<AccountId>,
-    pub if_unmodified_since: Option<IfUnmodifiedSince>,
-    pub checksum_mode: Option<ChecksumMode>,
-}
-impl HeadObjectRequest {
-    pub fn to_http_response(self) -> anyhow::Result<hyper::Response<hyper::Body>> {
-        anyhow::bail!("todo")
-    }
-}
-
-#[derive(Debug, Default, Clone)]
-pub struct ObjectVersion {
-    pub size: Option<Size>,
-    pub version_id: Option<ObjectVersionId>,
-    pub e_tag: Option<ETag>,
-    pub is_latest: Option<IsLatest>,
-    pub checksum_algorithm: Option<ChecksumAlgorithmList>,
-    pub owner: Option<Owner>,
-    pub key: Option<ObjectKey>,
-    pub storage_class: Option<ObjectVersionStorageClass>,
-    pub last_modified: Option<LastModified>,
-}
-impl ObjectVersion {
-    pub fn to_http_response(self) -> anyhow::Result<hyper::Response<hyper::Body>> {
-        anyhow::bail!("todo")
-    }
-}
-
-#[derive(Debug, Default, Clone)]
-pub struct DeleteBucketLifecycle;
-impl OperationShape for DeleteBucketLifecycle {
-    const NAME: &'static str = "DeleteBucketLifecycle";
-    type Input = DeleteBucketLifecycleRequest;
-    type Output = ();
+pub struct DeleteObjectTagging;
+impl OperationShape for DeleteObjectTagging {
+    const NAME: &'static str = "DeleteObjectTagging";
+    type Input = DeleteObjectTaggingRequest;
+    type Output = DeleteObjectTaggingOutput;
     type Error = ();
 }
 
@@ -4464,330 +4324,84 @@ impl TryFrom<&str> for ExistingObjectReplicationStatus {
     }
 }
 
-pub type GetObjectResponseStatusCode = i32;
+pub type AbortRuleId = String;
 
 #[derive(Debug, Default, Clone)]
-pub struct GlacierJobParameters {
-    pub tier: Option<Tier>,
-}
-impl GlacierJobParameters {
-    pub fn to_http_response(self) -> anyhow::Result<hyper::Response<hyper::Body>> {
-        anyhow::bail!("todo")
-    }
-}
-
-#[derive(Debug, Default, Clone)]
-pub struct ObjectAlreadyInActiveTierError {}
-impl ObjectAlreadyInActiveTierError {
-    pub fn to_http_response(self) -> anyhow::Result<hyper::Response<hyper::Body>> {
-        anyhow::bail!("todo")
-    }
-}
-
-pub type ObjectKey = String;
-
-#[derive(Debug, Default, Clone)]
-pub struct RestoreObject;
-impl OperationShape for RestoreObject {
-    const NAME: &'static str = "RestoreObject";
-    type Input = RestoreObjectRequest;
-    type Output = RestoreObjectOutput;
+pub struct ListBucketInventoryConfigurations;
+impl OperationShape for ListBucketInventoryConfigurations {
+    const NAME: &'static str = "ListBucketInventoryConfigurations";
+    type Input = ListBucketInventoryConfigurationsRequest;
+    type Output = ListBucketInventoryConfigurationsOutput;
     type Error = ();
 }
 
-pub type CorsRules = Vec<CorsRule>;
-
 #[derive(Debug, Default, Clone)]
-pub struct CompleteMultipartUploadRequest {
-    pub sse_customer_key: Option<SseCustomerKey>,
-    pub checksum_sha256: Option<ChecksumSha256>,
-    pub checksum_sha1: Option<ChecksumSha1>,
-    pub checksum_crc32_c: Option<ChecksumCrc32c>,
-    pub key: Option<ObjectKey>,
-    pub upload_id: Option<MultipartUploadId>,
-    pub sse_customer_algorithm: Option<SseCustomerAlgorithm>,
-    pub multipart_upload: Option<CompletedMultipartUpload>,
-    pub bucket: Option<BucketName>,
-    pub checksum_crc32: Option<ChecksumCrc32>,
-    pub expected_bucket_owner: Option<AccountId>,
-    pub request_payer: Option<RequestPayer>,
-    pub sse_customer_key_md5: Option<SseCustomerKeyMd5>,
-}
-impl CompleteMultipartUploadRequest {
+pub struct ObjectNotInActiveTierError {}
+impl ObjectNotInActiveTierError {
     pub fn to_http_response(self) -> anyhow::Result<hyper::Response<hyper::Body>> {
         anyhow::bail!("todo")
     }
 }
-
-#[derive(Debug, Default, Clone)]
-pub struct MetricsConfiguration {
-    pub filter: Option<MetricsFilter>,
-    pub id: Option<MetricsId>,
-}
-impl MetricsConfiguration {
-    pub fn to_http_response(self) -> anyhow::Result<hyper::Response<hyper::Body>> {
-        anyhow::bail!("todo")
-    }
-}
-
-pub type TieringList = Vec<Tiering>;
 
 #[derive(Debug, Clone, Copy, Eq, Ord, PartialEq, PartialOrd, Hash)]
-pub enum BucketAccelerateStatus {
-    Enabled,
-    Suspended,
+pub enum ReplicationStatus {
+    PENDING,
+    REPLICA,
+    COMPLETE,
+    FAILED,
 }
-impl AsRef<str> for BucketAccelerateStatus {
+impl AsRef<str> for ReplicationStatus {
     fn as_ref(&self) -> &str {
         match self {
-            Self::Enabled => "Enabled",
-            Self::Suspended => "Suspended",
+            Self::PENDING => "PENDING",
+            Self::REPLICA => "REPLICA",
+            Self::COMPLETE => "COMPLETE",
+            Self::FAILED => "FAILED",
         }
     }
 }
-impl TryFrom<&str> for BucketAccelerateStatus {
+impl TryFrom<&str> for ReplicationStatus {
     type Error = String;
     fn try_from(s: &str) -> Result<Self, Self::Error> {
         match s {
-            "Enabled" => Ok(Self::Enabled),
-            "Suspended" => Ok(Self::Suspended),
+            "PENDING" => Ok(Self::PENDING),
+            "REPLICA" => Ok(Self::REPLICA),
+            "COMPLETE" => Ok(Self::COMPLETE),
+            "FAILED" => Ok(Self::FAILED),
             _ => Err(format!("unknown enum value {}", s)),
         }
     }
 }
 
 #[derive(Debug, Default, Clone)]
-pub struct GetObjectLegalHold;
-impl OperationShape for GetObjectLegalHold {
-    const NAME: &'static str = "GetObjectLegalHold";
-    type Input = GetObjectLegalHoldRequest;
-    type Output = GetObjectLegalHoldOutput;
-    type Error = ();
+pub struct TargetGrant {
+    pub grantee: Option<Grantee>,
+    pub permission: Option<BucketLogsPermission>,
 }
-
-#[derive(Debug, Clone, Copy, Eq, Ord, PartialEq, PartialOrd, Hash)]
-pub enum ChecksumAlgorithm {
-    SHA1,
-    SHA256,
-    CRC32C,
-    CRC32,
-}
-impl AsRef<str> for ChecksumAlgorithm {
-    fn as_ref(&self) -> &str {
-        match self {
-            Self::SHA1 => "SHA1",
-            Self::SHA256 => "SHA256",
-            Self::CRC32C => "CRC32C",
-            Self::CRC32 => "CRC32",
-        }
-    }
-}
-impl TryFrom<&str> for ChecksumAlgorithm {
-    type Error = String;
-    fn try_from(s: &str) -> Result<Self, Self::Error> {
-        match s {
-            "SHA1" => Ok(Self::SHA1),
-            "SHA256" => Ok(Self::SHA256),
-            "CRC32C" => Ok(Self::CRC32C),
-            "CRC32" => Ok(Self::CRC32),
-            _ => Err(format!("unknown enum value {}", s)),
-        }
-    }
-}
-
-#[derive(Debug, Default, Clone)]
-pub struct ListBucketMetricsConfigurationsRequest {
-    pub expected_bucket_owner: Option<AccountId>,
-    pub bucket: Option<BucketName>,
-    pub continuation_token: Option<Token>,
-}
-impl ListBucketMetricsConfigurationsRequest {
+impl TargetGrant {
     pub fn to_http_response(self) -> anyhow::Result<hyper::Response<hyper::Body>> {
         anyhow::bail!("todo")
     }
 }
 
-pub type DeleteMarker = bool;
-
 #[derive(Debug, Default, Clone)]
-pub struct DeleteBucketEncryption;
-impl OperationShape for DeleteBucketEncryption {
-    const NAME: &'static str = "DeleteBucketEncryption";
-    type Input = DeleteBucketEncryptionRequest;
-    type Output = ();
-    type Error = ();
-}
-
-pub type IsTruncated = bool;
-
-pub type LifecycleRules = Vec<LifecycleRule>;
-
-pub type Description = String;
-
-#[derive(Debug, Default, Clone)]
-pub struct AbortMultipartUpload;
-impl OperationShape for AbortMultipartUpload {
-    const NAME: &'static str = "AbortMultipartUpload";
-    type Input = AbortMultipartUploadRequest;
-    type Output = AbortMultipartUploadOutput;
+pub struct GetObjectTagging;
+impl OperationShape for GetObjectTagging {
+    const NAME: &'static str = "GetObjectTagging";
+    type Input = GetObjectTaggingRequest;
+    type Output = GetObjectTaggingOutput;
     type Error = ();
 }
 
 #[derive(Debug, Default, Clone)]
-pub struct InventorySchedule {
-    pub frequency: Option<InventoryFrequency>,
+pub struct JsonOutput {
+    pub record_delimiter: Option<RecordDelimiter>,
 }
-impl InventorySchedule {
+impl JsonOutput {
     pub fn to_http_response(self) -> anyhow::Result<hyper::Response<hyper::Body>> {
         anyhow::bail!("todo")
     }
 }
-
-#[derive(Debug, Default, Clone)]
-pub struct AnalyticsExportDestination {
-    pub s3_bucket_destination: Option<AnalyticsS3BucketDestination>,
-}
-impl AnalyticsExportDestination {
-    pub fn to_http_response(self) -> anyhow::Result<hyper::Response<hyper::Body>> {
-        anyhow::bail!("todo")
-    }
-}
-
-pub type ServerSideEncryptionRules = Vec<ServerSideEncryptionRule>;
-
-#[derive(Debug, Default, Clone)]
-pub struct CorsRule {
-    pub allowed_methods: Option<AllowedMethods>,
-    pub allowed_origins: Option<AllowedOrigins>,
-    pub expose_headers: Option<ExposeHeaders>,
-    pub max_age_seconds: Option<MaxAgeSeconds>,
-    pub id: Option<Id>,
-    pub allowed_headers: Option<AllowedHeaders>,
-}
-impl CorsRule {
-    pub fn to_http_response(self) -> anyhow::Result<hyper::Response<hyper::Body>> {
-        anyhow::bail!("todo")
-    }
-}
-
-pub type ObjectAttributesList = Vec<ObjectAttributes>;
-
-#[derive(Debug, Clone, Copy, Eq, Ord, PartialEq, PartialOrd, Hash)]
-pub enum RestoreRequestType {
-    SELECT,
-}
-impl AsRef<str> for RestoreRequestType {
-    fn as_ref(&self) -> &str {
-        match self {
-            Self::SELECT => "SELECT",
-        }
-    }
-}
-impl TryFrom<&str> for RestoreRequestType {
-    type Error = String;
-    fn try_from(s: &str) -> Result<Self, Self::Error> {
-        match s {
-            "SELECT" => Ok(Self::SELECT),
-            _ => Err(format!("unknown enum value {}", s)),
-        }
-    }
-}
-
-#[derive(Debug, Default, Clone)]
-pub struct ListMultipartUploadsOutput {
-    pub common_prefixes: Option<CommonPrefixList>,
-    pub uploads: Option<MultipartUploadList>,
-    pub next_upload_id_marker: Option<NextUploadIdMarker>,
-    pub is_truncated: Option<IsTruncated>,
-    pub key_marker: Option<KeyMarker>,
-    pub max_uploads: Option<MaxUploads>,
-    pub encoding_type: Option<EncodingType>,
-    pub delimiter: Option<Delimiter>,
-    pub prefix: Option<Prefix>,
-    pub next_key_marker: Option<NextKeyMarker>,
-    pub bucket: Option<BucketName>,
-    pub upload_id_marker: Option<UploadIdMarker>,
-}
-impl ListMultipartUploadsOutput {
-    pub fn to_http_response(self) -> anyhow::Result<hyper::Response<hyper::Body>> {
-        anyhow::bail!("todo")
-    }
-}
-
-pub type IfModifiedSince = String;
-
-#[derive(Debug, Default, Clone)]
-pub struct GetObjectLockConfiguration;
-impl OperationShape for GetObjectLockConfiguration {
-    const NAME: &'static str = "GetObjectLockConfiguration";
-    type Input = GetObjectLockConfigurationRequest;
-    type Output = GetObjectLockConfigurationOutput;
-    type Error = ();
-}
-
-pub type InventoryId = String;
-
-#[derive(Debug, Default, Clone)]
-pub struct ListParts;
-impl OperationShape for ListParts {
-    const NAME: &'static str = "ListParts";
-    type Input = ListPartsRequest;
-    type Output = ListPartsOutput;
-    type Error = ();
-}
-
-#[derive(Debug, Default, Clone)]
-pub struct GetBucketEncryptionOutput {
-    pub server_side_encryption_configuration: Option<ServerSideEncryptionConfiguration>,
-}
-impl GetBucketEncryptionOutput {
-    pub fn to_http_response(self) -> anyhow::Result<hyper::Response<hyper::Body>> {
-        anyhow::bail!("todo")
-    }
-}
-
-#[derive(Debug, Default, Clone)]
-pub struct GetBucketReplication;
-impl OperationShape for GetBucketReplication {
-    const NAME: &'static str = "GetBucketReplication";
-    type Input = GetBucketReplicationRequest;
-    type Output = GetBucketReplicationOutput;
-    type Error = ();
-}
-
-pub type MaxParts = i32;
-
-#[derive(Debug, Default, Clone)]
-pub struct GetObjectAttributesOutput {
-    pub request_charged: Option<RequestCharged>,
-    pub checksum: Option<Checksum>,
-    pub storage_class: Option<StorageClass>,
-    pub delete_marker: Option<DeleteMarker>,
-    pub object_size: Option<ObjectSize>,
-    pub e_tag: Option<ETag>,
-    pub last_modified: Option<LastModified>,
-    pub version_id: Option<ObjectVersionId>,
-    pub object_parts: Option<GetObjectAttributesParts>,
-}
-impl GetObjectAttributesOutput {
-    pub fn to_http_response(self) -> anyhow::Result<hyper::Response<hyper::Body>> {
-        anyhow::bail!("todo")
-    }
-}
-
-#[derive(Debug, Default, Clone)]
-pub struct StatsEvent {
-    pub details: Option<Stats>,
-}
-impl StatsEvent {
-    pub fn to_http_response(self) -> anyhow::Result<hyper::Response<hyper::Body>> {
-        anyhow::bail!("todo")
-    }
-}
-
-pub type KeyMarker = String;
-
-pub type BypassGovernanceRetention = bool;
 
 #[derive(Debug, Default, Clone)]
 pub struct GetBucketReplicationRequest {
@@ -4800,248 +4414,11 @@ impl GetBucketReplicationRequest {
     }
 }
 
-#[derive(Debug, Default, Clone)]
-pub struct CreateBucketRequest {
-    pub create_bucket_configuration: Option<CreateBucketConfiguration>,
-    pub acl: Option<BucketCannedAcl>,
-    pub object_lock_enabled_for_bucket: Option<ObjectLockEnabledForBucket>,
-    pub bucket: Option<BucketName>,
-    pub grant_write: Option<GrantWrite>,
-    pub grant_read_acp: Option<GrantReadAcp>,
-    pub grant_read: Option<GrantRead>,
-    pub grant_write_acp: Option<GrantWriteAcp>,
-    pub object_ownership: Option<ObjectOwnership>,
-    pub grant_full_control: Option<GrantFullControl>,
-}
-impl CreateBucketRequest {
-    pub fn to_http_response(self) -> anyhow::Result<hyper::Response<hyper::Body>> {
-        anyhow::bail!("todo")
-    }
-}
-
-pub type ObjectIdentifierList = Vec<ObjectIdentifier>;
-
-#[derive(Debug, Default, Clone)]
-pub struct PutObjectRetention;
-impl OperationShape for PutObjectRetention {
-    const NAME: &'static str = "PutObjectRetention";
-    type Input = PutObjectRetentionRequest;
-    type Output = PutObjectRetentionOutput;
-    type Error = ();
-}
-
-#[derive(Debug, Default, Clone)]
-pub struct RoutingRule {
-    pub condition: Option<Condition>,
-    pub redirect: Option<Redirect>,
-}
-impl RoutingRule {
-    pub fn to_http_response(self) -> anyhow::Result<hyper::Response<hyper::Body>> {
-        anyhow::bail!("todo")
-    }
-}
-
-#[derive(Debug, Default, Clone)]
-pub struct GetPublicAccessBlockRequest {
-    pub bucket: Option<BucketName>,
-    pub expected_bucket_owner: Option<AccountId>,
-}
-impl GetPublicAccessBlockRequest {
-    pub fn to_http_response(self) -> anyhow::Result<hyper::Response<hyper::Body>> {
-        anyhow::bail!("todo")
-    }
-}
-
-#[derive(Debug, Default, Clone)]
-pub struct DeleteObjectTagging;
-impl OperationShape for DeleteObjectTagging {
-    const NAME: &'static str = "DeleteObjectTagging";
-    type Input = DeleteObjectTaggingRequest;
-    type Output = DeleteObjectTaggingOutput;
-    type Error = ();
-}
-
-#[derive(Debug, Default, Clone)]
-pub struct AmazonS3 {
-    pub put_bucket_acl: Option<OpService<PutBucketAcl>>,
-    pub get_bucket_intelligent_tiering_configuration:
-        Option<OpService<GetBucketIntelligentTieringConfiguration>>,
-    pub delete_object: Option<OpService<DeleteObject>>,
-    pub get_bucket_accelerate_configuration: Option<OpService<GetBucketAccelerateConfiguration>>,
-    pub delete_bucket_policy: Option<OpService<DeleteBucketPolicy>>,
-    pub list_parts: Option<OpService<ListParts>>,
-    pub get_object_torrent: Option<OpService<GetObjectTorrent>>,
-    pub get_bucket_analytics_configuration: Option<OpService<GetBucketAnalyticsConfiguration>>,
-    pub create_bucket: Option<OpService<CreateBucket>>,
-    pub get_object: Option<OpService<GetObject>>,
-    pub put_bucket_encryption: Option<OpService<PutBucketEncryption>>,
-    pub put_object_lock_configuration: Option<OpService<PutObjectLockConfiguration>>,
-    pub delete_public_access_block: Option<OpService<DeletePublicAccessBlock>>,
-    pub get_bucket_lifecycle_configuration: Option<OpService<GetBucketLifecycleConfiguration>>,
-    pub put_bucket_lifecycle_configuration: Option<OpService<PutBucketLifecycleConfiguration>>,
-    pub get_bucket_replication: Option<OpService<GetBucketReplication>>,
-    pub get_object_acl: Option<OpService<GetObjectAcl>>,
-    pub put_public_access_block: Option<OpService<PutPublicAccessBlock>>,
-    pub put_bucket_logging: Option<OpService<PutBucketLogging>>,
-    pub select_object_content: Option<OpService<SelectObjectContent>>,
-    pub put_object: Option<OpService<PutObject>>,
-    pub put_bucket_website: Option<OpService<PutBucketWebsite>>,
-    pub restore_object: Option<OpService<RestoreObject>>,
-    pub get_bucket_metrics_configuration: Option<OpService<GetBucketMetricsConfiguration>>,
-    pub get_bucket_policy: Option<OpService<GetBucketPolicy>>,
-    pub head_object: Option<OpService<HeadObject>>,
-    pub upload_part_copy: Option<OpService<UploadPartCopy>>,
-    pub copy_object: Option<OpService<CopyObject>>,
-    pub put_bucket_analytics_configuration: Option<OpService<PutBucketAnalyticsConfiguration>>,
-    pub delete_bucket_metrics_configuration: Option<OpService<DeleteBucketMetricsConfiguration>>,
-    pub put_bucket_metrics_configuration: Option<OpService<PutBucketMetricsConfiguration>>,
-    pub put_bucket_tagging: Option<OpService<PutBucketTagging>>,
-    pub put_object_tagging: Option<OpService<PutObjectTagging>>,
-    pub put_bucket_notification_configuration:
-        Option<OpService<PutBucketNotificationConfiguration>>,
-    pub delete_bucket_intelligent_tiering_configuration:
-        Option<OpService<DeleteBucketIntelligentTieringConfiguration>>,
-    pub put_bucket_ownership_controls: Option<OpService<PutBucketOwnershipControls>>,
-    pub list_objects: Option<OpService<ListObjects>>,
-    pub put_bucket_policy: Option<OpService<PutBucketPolicy>>,
-    pub get_bucket_ownership_controls: Option<OpService<GetBucketOwnershipControls>>,
-    pub delete_object_tagging: Option<OpService<DeleteObjectTagging>>,
-    pub create_multipart_upload: Option<OpService<CreateMultipartUpload>>,
-    pub complete_multipart_upload: Option<OpService<CompleteMultipartUpload>>,
-    pub delete_bucket_replication: Option<OpService<DeleteBucketReplication>>,
-    pub delete_bucket_tagging: Option<OpService<DeleteBucketTagging>>,
-    pub get_bucket_inventory_configuration: Option<OpService<GetBucketInventoryConfiguration>>,
-    pub get_object_attributes: Option<OpService<GetObjectAttributes>>,
-    pub delete_bucket_website: Option<OpService<DeleteBucketWebsite>>,
-    pub get_bucket_location: Option<OpService<GetBucketLocation>>,
-    pub list_multipart_uploads: Option<OpService<ListMultipartUploads>>,
-    pub get_bucket_policy_status: Option<OpService<GetBucketPolicyStatus>>,
-    pub get_object_lock_configuration: Option<OpService<GetObjectLockConfiguration>>,
-    pub list_bucket_metrics_configurations: Option<OpService<ListBucketMetricsConfigurations>>,
-    pub get_public_access_block: Option<OpService<GetPublicAccessBlock>>,
-    pub list_object_versions: Option<OpService<ListObjectVersions>>,
-    pub get_bucket_encryption: Option<OpService<GetBucketEncryption>>,
-    pub abort_multipart_upload: Option<OpService<AbortMultipartUpload>>,
-    pub delete_bucket_ownership_controls: Option<OpService<DeleteBucketOwnershipControls>>,
-    pub get_bucket_acl: Option<OpService<GetBucketAcl>>,
-    pub list_bucket_analytics_configurations: Option<OpService<ListBucketAnalyticsConfigurations>>,
-    pub get_bucket_website: Option<OpService<GetBucketWebsite>>,
-    pub list_buckets: Option<OpService<ListBuckets>>,
-    pub put_bucket_cors: Option<OpService<PutBucketCors>>,
-    pub put_bucket_replication: Option<OpService<PutBucketReplication>>,
-    pub write_get_object_response: Option<OpService<WriteGetObjectResponse>>,
-    pub put_bucket_versioning: Option<OpService<PutBucketVersioning>>,
-    pub delete_objects: Option<OpService<DeleteObjects>>,
-    pub delete_bucket_cors: Option<OpService<DeleteBucketCors>>,
-    pub put_bucket_intelligent_tiering_configuration:
-        Option<OpService<PutBucketIntelligentTieringConfiguration>>,
-    pub put_object_legal_hold: Option<OpService<PutObjectLegalHold>>,
-    pub list_bucket_intelligent_tiering_configurations:
-        Option<OpService<ListBucketIntelligentTieringConfigurations>>,
-    pub list_bucket_inventory_configurations: Option<OpService<ListBucketInventoryConfigurations>>,
-    pub get_bucket_cors: Option<OpService<GetBucketCors>>,
-    pub head_bucket: Option<OpService<HeadBucket>>,
-    pub put_bucket_accelerate_configuration: Option<OpService<PutBucketAccelerateConfiguration>>,
-    pub put_bucket_inventory_configuration: Option<OpService<PutBucketInventoryConfiguration>>,
-    pub get_bucket_notification_configuration:
-        Option<OpService<GetBucketNotificationConfiguration>>,
-    pub delete_bucket_inventory_configuration:
-        Option<OpService<DeleteBucketInventoryConfiguration>>,
-    pub delete_bucket: Option<OpService<DeleteBucket>>,
-    pub get_bucket_tagging: Option<OpService<GetBucketTagging>>,
-    pub get_bucket_versioning: Option<OpService<GetBucketVersioning>>,
-    pub delete_bucket_analytics_configuration:
-        Option<OpService<DeleteBucketAnalyticsConfiguration>>,
-    pub get_object_tagging: Option<OpService<GetObjectTagging>>,
-    pub list_objects_v2: Option<OpService<ListObjectsV2>>,
-    pub put_bucket_request_payment: Option<OpService<PutBucketRequestPayment>>,
-    pub get_object_retention: Option<OpService<GetObjectRetention>>,
-    pub put_object_retention: Option<OpService<PutObjectRetention>>,
-    pub put_object_acl: Option<OpService<PutObjectAcl>>,
-    pub get_object_legal_hold: Option<OpService<GetObjectLegalHold>>,
-    pub upload_part: Option<OpService<UploadPart>>,
-    pub get_bucket_logging: Option<OpService<GetBucketLogging>>,
-    pub get_bucket_request_payment: Option<OpService<GetBucketRequestPayment>>,
-    pub delete_bucket_lifecycle: Option<OpService<DeleteBucketLifecycle>>,
-    pub delete_bucket_encryption: Option<OpService<DeleteBucketEncryption>>,
-}
+pub type AbortDate = String;
 
 pub type Comments = String;
 
-#[derive(Debug, Default, Clone)]
-pub struct GetBucketInventoryConfiguration;
-impl OperationShape for GetBucketInventoryConfiguration {
-    const NAME: &'static str = "GetBucketInventoryConfiguration";
-    type Input = GetBucketInventoryConfigurationRequest;
-    type Output = GetBucketInventoryConfigurationOutput;
-    type Error = ();
-}
-
-pub type TagCount = i32;
-
-#[derive(Debug, Default, Clone)]
-pub struct DeleteMarkerReplication {
-    pub status: Option<DeleteMarkerReplicationStatus>,
-}
-impl DeleteMarkerReplication {
-    pub fn to_http_response(self) -> anyhow::Result<hyper::Response<hyper::Body>> {
-        anyhow::bail!("todo")
-    }
-}
-
-#[derive(Debug, Clone, Copy, Eq, Ord, PartialEq, PartialOrd, Hash)]
-pub enum TaggingDirective {
-    COPY,
-    REPLACE,
-}
-impl AsRef<str> for TaggingDirective {
-    fn as_ref(&self) -> &str {
-        match self {
-            Self::COPY => "COPY",
-            Self::REPLACE => "REPLACE",
-        }
-    }
-}
-impl TryFrom<&str> for TaggingDirective {
-    type Error = String;
-    fn try_from(s: &str) -> Result<Self, Self::Error> {
-        match s {
-            "COPY" => Ok(Self::COPY),
-            "REPLACE" => Ok(Self::REPLACE),
-            _ => Err(format!("unknown enum value {}", s)),
-        }
-    }
-}
-
-#[derive(Debug, Default, Clone)]
-pub struct PutObjectLockConfigurationOutput {
-    pub request_charged: Option<RequestCharged>,
-}
-impl PutObjectLockConfigurationOutput {
-    pub fn to_http_response(self) -> anyhow::Result<hyper::Response<hyper::Body>> {
-        anyhow::bail!("todo")
-    }
-}
-
-#[derive(Debug, Default, Clone)]
-pub struct UploadPartOutput {
-    pub sse_customer_key_md5: Option<SseCustomerKeyMd5>,
-    pub sse_customer_algorithm: Option<SseCustomerAlgorithm>,
-    pub server_side_encryption: Option<ServerSideEncryption>,
-    pub checksum_crc32: Option<ChecksumCrc32>,
-    pub checksum_sha1: Option<ChecksumSha1>,
-    pub request_charged: Option<RequestCharged>,
-    pub ssekms_key_id: Option<SsekmsKeyId>,
-    pub e_tag: Option<ETag>,
-    pub bucket_key_enabled: Option<BucketKeyEnabled>,
-    pub checksum_crc32_c: Option<ChecksumCrc32c>,
-    pub checksum_sha256: Option<ChecksumSha256>,
-}
-impl UploadPartOutput {
-    pub fn to_http_response(self) -> anyhow::Result<hyper::Response<hyper::Body>> {
-        anyhow::bail!("todo")
-    }
-}
+pub type ResponseContentLanguage = String;
 
 #[derive(Debug, Default, Clone)]
 pub struct GetBucketPolicyStatusRequest {
@@ -5055,105 +4432,470 @@ impl GetBucketPolicyStatusRequest {
 }
 
 #[derive(Debug, Default, Clone)]
-pub struct ServerSideEncryptionByDefault {
-    pub kms_master_key_id: Option<SsekmsKeyId>,
-    pub sse_algorithm: Option<ServerSideEncryption>,
+pub struct StorageClassAnalysis {
+    pub data_export: Option<StorageClassAnalysisDataExport>,
 }
-impl ServerSideEncryptionByDefault {
+impl StorageClassAnalysis {
     pub fn to_http_response(self) -> anyhow::Result<hyper::Response<hyper::Body>> {
         anyhow::bail!("todo")
     }
 }
 
 #[derive(Debug, Default, Clone)]
-pub struct HeadObjectOutput {
-    pub replication_status: Option<ReplicationStatus>,
-    pub delete_marker: Option<DeleteMarker>,
-    pub server_side_encryption: Option<ServerSideEncryption>,
-    pub metadata: Option<Metadata>,
-    pub checksum_crc32: Option<ChecksumCrc32>,
-    pub content_encoding: Option<ContentEncoding>,
-    pub version_id: Option<ObjectVersionId>,
-    pub last_modified: Option<LastModified>,
-    pub restore: Option<Restore>,
-    pub content_length: Option<ContentLength>,
-    pub sse_customer_key_md5: Option<SseCustomerKeyMd5>,
-    pub content_type: Option<ContentType>,
-    pub checksum_sha256: Option<ChecksumSha256>,
-    pub object_lock_legal_hold_status: Option<ObjectLockLegalHoldStatus>,
-    pub archive_status: Option<ArchiveStatus>,
-    pub ssekms_key_id: Option<SsekmsKeyId>,
+pub struct PutBucketAclRequest {
+    pub content_md5: Option<ContentMd5>,
+    pub bucket: Option<BucketName>,
+    pub expected_bucket_owner: Option<AccountId>,
+    pub grant_read_acp: Option<GrantReadAcp>,
+    pub grant_read: Option<GrantRead>,
+    pub checksum_algorithm: Option<ChecksumAlgorithm>,
+    pub grant_write: Option<GrantWrite>,
+    pub access_control_policy: Option<AccessControlPolicy>,
+    pub acl: Option<BucketCannedAcl>,
+    pub grant_write_acp: Option<GrantWriteAcp>,
+    pub grant_full_control: Option<GrantFullControl>,
+}
+impl PutBucketAclRequest {
+    pub fn to_http_response(self) -> anyhow::Result<hyper::Response<hyper::Body>> {
+        anyhow::bail!("todo")
+    }
+}
+
+pub type DisplayName = String;
+
+pub type KeyMarker = String;
+
+#[derive(Debug, Clone, Copy, Eq, Ord, PartialEq, PartialOrd, Hash)]
+pub enum ObjectVersionStorageClass {
+    STANDARD,
+}
+impl AsRef<str> for ObjectVersionStorageClass {
+    fn as_ref(&self) -> &str {
+        match self {
+            Self::STANDARD => "STANDARD",
+        }
+    }
+}
+impl TryFrom<&str> for ObjectVersionStorageClass {
+    type Error = String;
+    fn try_from(s: &str) -> Result<Self, Self::Error> {
+        match s {
+            "STANDARD" => Ok(Self::STANDARD),
+            _ => Err(format!("unknown enum value {}", s)),
+        }
+    }
+}
+
+#[derive(Debug, Default, Clone)]
+pub struct HeadBucketRequest {
+    pub bucket: Option<BucketName>,
+    pub expected_bucket_owner: Option<AccountId>,
+}
+impl HeadBucketRequest {
+    pub fn to_http_response(self) -> anyhow::Result<hyper::Response<hyper::Body>> {
+        anyhow::bail!("todo")
+    }
+}
+
+#[derive(Debug, Default, Clone)]
+pub struct HeadObjectRequest {
+    pub checksum_mode: Option<ChecksumMode>,
     pub sse_customer_algorithm: Option<SseCustomerAlgorithm>,
-    pub bucket_key_enabled: Option<BucketKeyEnabled>,
-    pub checksum_sha1: Option<ChecksumSha1>,
-    pub missing_meta: Option<MissingMeta>,
-    pub object_lock_mode: Option<ObjectLockMode>,
-    pub object_lock_retain_until_date: Option<ObjectLockRetainUntilDate>,
-    pub cache_control: Option<CacheControl>,
-    pub content_disposition: Option<ContentDisposition>,
+    pub if_none_match: Option<IfNoneMatch>,
+    pub sse_customer_key: Option<SseCustomerKey>,
+    pub request_payer: Option<RequestPayer>,
+    pub expected_bucket_owner: Option<AccountId>,
+    pub if_match: Option<IfMatch>,
+    pub key: Option<ObjectKey>,
+    pub part_number: Option<PartNumber>,
+    pub if_modified_since: Option<IfModifiedSince>,
+    pub version_id: Option<ObjectVersionId>,
+    pub if_unmodified_since: Option<IfUnmodifiedSince>,
+    pub sse_customer_key_md5: Option<SseCustomerKeyMd5>,
+    pub bucket: Option<BucketName>,
+    pub range: Option<Range>,
+}
+impl HeadObjectRequest {
+    pub fn to_http_response(self) -> anyhow::Result<hyper::Response<hyper::Body>> {
+        anyhow::bail!("todo")
+    }
+}
+
+pub type NextMarker = String;
+
+#[derive(Debug, Default, Clone)]
+pub struct S3Location {
+    pub tagging: Option<Tagging>,
+    pub bucket_name: Option<BucketName>,
+    pub user_metadata: Option<UserMetadata>,
+    pub canned_acl: Option<ObjectCannedAcl>,
+    pub prefix: Option<LocationPrefix>,
+    pub access_control_list: Option<Grants>,
+    pub encryption: Option<Encryption>,
     pub storage_class: Option<StorageClass>,
-    pub website_redirect_location: Option<WebsiteRedirectLocation>,
-    pub request_charged: Option<RequestCharged>,
-    pub expires: Option<Expires>,
-    pub checksum_crc32_c: Option<ChecksumCrc32c>,
-    pub parts_count: Option<PartsCount>,
-    pub expiration: Option<Expiration>,
-    pub content_language: Option<ContentLanguage>,
+}
+impl S3Location {
+    pub fn to_http_response(self) -> anyhow::Result<hyper::Response<hyper::Body>> {
+        anyhow::bail!("todo")
+    }
+}
+
+#[derive(Debug, Default, Clone)]
+pub struct ObjectLockRule {
+    pub default_retention: Option<DefaultRetention>,
+}
+impl ObjectLockRule {
+    pub fn to_http_response(self) -> anyhow::Result<hyper::Response<hyper::Body>> {
+        anyhow::bail!("todo")
+    }
+}
+
+pub type ChecksumCrc32c = String;
+
+#[derive(Debug, Default, Clone)]
+pub struct ReplicationConfiguration {
+    pub rules: Option<ReplicationRules>,
+    pub role: Option<Role>,
+}
+impl ReplicationConfiguration {
+    pub fn to_http_response(self) -> anyhow::Result<hyper::Response<hyper::Body>> {
+        anyhow::bail!("todo")
+    }
+}
+
+#[derive(Debug, Clone, Copy, Eq, Ord, PartialEq, PartialOrd, Hash)]
+pub enum BucketVersioningStatus {
+    Suspended,
+    Enabled,
+}
+impl AsRef<str> for BucketVersioningStatus {
+    fn as_ref(&self) -> &str {
+        match self {
+            Self::Suspended => "Suspended",
+            Self::Enabled => "Enabled",
+        }
+    }
+}
+impl TryFrom<&str> for BucketVersioningStatus {
+    type Error = String;
+    fn try_from(s: &str) -> Result<Self, Self::Error> {
+        match s {
+            "Suspended" => Ok(Self::Suspended),
+            "Enabled" => Ok(Self::Enabled),
+            _ => Err(format!("unknown enum value {}", s)),
+        }
+    }
+}
+
+pub type FetchOwner = bool;
+
+#[derive(Debug, Default, Clone)]
+pub struct CompletedPart {
+    pub checksum_sha1: Option<ChecksumSha1>,
+    pub checksum_crc32: Option<ChecksumCrc32>,
+    pub checksum_sha256: Option<ChecksumSha256>,
     pub e_tag: Option<ETag>,
-    pub accept_ranges: Option<AcceptRanges>,
+    pub checksum_crc32_c: Option<ChecksumCrc32c>,
+    pub part_number: Option<PartNumber>,
 }
-impl HeadObjectOutput {
+impl CompletedPart {
     pub fn to_http_response(self) -> anyhow::Result<hyper::Response<hyper::Body>> {
         anyhow::bail!("todo")
     }
 }
 
 #[derive(Debug, Default, Clone)]
-pub struct Condition {
-    pub key_prefix_equals: Option<KeyPrefixEquals>,
-    pub http_error_code_returned_equals: Option<HttpErrorCodeReturnedEquals>,
+pub struct GetBucketVersioningOutput {
+    pub status: Option<BucketVersioningStatus>,
+    pub mfa_delete: Option<MfaDeleteStatus>,
 }
-impl Condition {
+impl GetBucketVersioningOutput {
     pub fn to_http_response(self) -> anyhow::Result<hyper::Response<hyper::Body>> {
         anyhow::bail!("todo")
     }
 }
 
 #[derive(Debug, Default, Clone)]
-pub struct HeadObject;
-impl OperationShape for HeadObject {
-    const NAME: &'static str = "HeadObject";
-    type Input = HeadObjectRequest;
-    type Output = HeadObjectOutput;
+pub struct DeleteBucketCors;
+impl OperationShape for DeleteBucketCors {
+    const NAME: &'static str = "DeleteBucketCors";
+    type Input = DeleteBucketCorsRequest;
+    type Output = ();
+    type Error = ();
+}
+
+pub type KeyPrefixEquals = String;
+
+pub type ObjectVersionId = String;
+
+#[derive(Debug, Default, Clone)]
+pub struct PutBucketRequestPayment;
+impl OperationShape for PutBucketRequestPayment {
+    const NAME: &'static str = "PutBucketRequestPayment";
+    type Input = PutBucketRequestPaymentRequest;
+    type Output = ();
     type Error = ();
 }
 
 #[derive(Debug, Default, Clone)]
-pub struct PutBucketNotificationConfigurationRequest {
-    pub skip_destination_validation: Option<SkipValidation>,
-    pub notification_configuration: Option<NotificationConfiguration>,
-    pub bucket: Option<BucketName>,
-    pub expected_bucket_owner: Option<AccountId>,
+pub struct ListBucketMetricsConfigurationsOutput {
+    pub is_truncated: Option<IsTruncated>,
+    pub continuation_token: Option<Token>,
+    pub metrics_configuration_list: Option<MetricsConfigurationList>,
+    pub next_continuation_token: Option<NextToken>,
 }
-impl PutBucketNotificationConfigurationRequest {
+impl ListBucketMetricsConfigurationsOutput {
     pub fn to_http_response(self) -> anyhow::Result<hyper::Response<hyper::Body>> {
         anyhow::bail!("todo")
     }
 }
 
-pub type Metadata = HashMap<MetadataKey, MetadataValue>;
-
-pub type Uri = String;
+#[derive(Debug, Clone)]
+pub enum SelectObjectContentEventStream {
+    Cont(ContinuationEvent),
+    Records(RecordsEvent),
+    Progress(ProgressEvent),
+    Stats(StatsEvent),
+    End(EndEvent),
+}
 
 #[derive(Debug, Default, Clone)]
-pub struct AbortMultipartUploadRequest {
-    pub upload_id: Option<MultipartUploadId>,
+pub struct PutObjectRetentionOutput {
+    pub request_charged: Option<RequestCharged>,
+}
+impl PutObjectRetentionOutput {
+    pub fn to_http_response(self) -> anyhow::Result<hyper::Response<hyper::Body>> {
+        anyhow::bail!("todo")
+    }
+}
+
+pub type ReplaceKeyWith = String;
+
+#[derive(Debug, Default, Clone)]
+pub struct InventoryEncryption {
+    pub ssekms: Option<Ssekms>,
+    pub sses3: Option<Sses3>,
+}
+impl InventoryEncryption {
+    pub fn to_http_response(self) -> anyhow::Result<hyper::Response<hyper::Body>> {
+        anyhow::bail!("todo")
+    }
+}
+
+#[derive(Debug, Default, Clone)]
+pub struct CreateBucketRequest {
+    pub acl: Option<BucketCannedAcl>,
+    pub grant_read: Option<GrantRead>,
+    pub bucket: Option<BucketName>,
+    pub grant_full_control: Option<GrantFullControl>,
+    pub grant_write_acp: Option<GrantWriteAcp>,
+    pub create_bucket_configuration: Option<CreateBucketConfiguration>,
+    pub object_ownership: Option<ObjectOwnership>,
+    pub object_lock_enabled_for_bucket: Option<ObjectLockEnabledForBucket>,
+    pub grant_write: Option<GrantWrite>,
+    pub grant_read_acp: Option<GrantReadAcp>,
+}
+impl CreateBucketRequest {
+    pub fn to_http_response(self) -> anyhow::Result<hyper::Response<hyper::Body>> {
+        anyhow::bail!("todo")
+    }
+}
+
+#[derive(Debug, Default, Clone)]
+pub struct PutBucketVersioningRequest {
+    pub expected_bucket_owner: Option<AccountId>,
+    pub versioning_configuration: Option<VersioningConfiguration>,
+    pub mfa: Option<Mfa>,
+    pub bucket: Option<BucketName>,
+    pub checksum_algorithm: Option<ChecksumAlgorithm>,
+    pub content_md5: Option<ContentMd5>,
+}
+impl PutBucketVersioningRequest {
+    pub fn to_http_response(self) -> anyhow::Result<hyper::Response<hyper::Body>> {
+        anyhow::bail!("todo")
+    }
+}
+
+pub type Token = String;
+
+#[derive(Debug, Default, Clone)]
+pub struct GetBucketPolicyStatusOutput {
+    pub policy_status: Option<PolicyStatus>,
+}
+impl GetBucketPolicyStatusOutput {
+    pub fn to_http_response(self) -> anyhow::Result<hyper::Response<hyper::Body>> {
+        anyhow::bail!("todo")
+    }
+}
+
+pub type CopySourceSseCustomerKey = String;
+
+#[derive(Debug, Default, Clone)]
+pub struct WebsiteConfiguration {
+    pub redirect_all_requests_to: Option<RedirectAllRequestsTo>,
+    pub error_document: Option<ErrorDocument>,
+    pub routing_rules: Option<RoutingRules>,
+    pub index_document: Option<IndexDocument>,
+}
+impl WebsiteConfiguration {
+    pub fn to_http_response(self) -> anyhow::Result<hyper::Response<hyper::Body>> {
+        anyhow::bail!("todo")
+    }
+}
+
+#[derive(Debug, Default, Clone)]
+pub struct ObjectVersion {
+    pub storage_class: Option<ObjectVersionStorageClass>,
+    pub version_id: Option<ObjectVersionId>,
+    pub last_modified: Option<LastModified>,
+    pub owner: Option<Owner>,
+    pub is_latest: Option<IsLatest>,
+    pub e_tag: Option<ETag>,
+    pub checksum_algorithm: Option<ChecksumAlgorithmList>,
+    pub key: Option<ObjectKey>,
+    pub size: Option<Size>,
+}
+impl ObjectVersion {
+    pub fn to_http_response(self) -> anyhow::Result<hyper::Response<hyper::Body>> {
+        anyhow::bail!("todo")
+    }
+}
+
+#[derive(Debug, Default, Clone)]
+pub struct OutputSerialization {
+    pub csv: Option<CsvOutput>,
+    pub json: Option<JsonOutput>,
+}
+impl OutputSerialization {
+    pub fn to_http_response(self) -> anyhow::Result<hyper::Response<hyper::Body>> {
+        anyhow::bail!("todo")
+    }
+}
+
+#[derive(Debug, Default, Clone)]
+pub struct GetBucketLocation;
+impl OperationShape for GetBucketLocation {
+    const NAME: &'static str = "GetBucketLocation";
+    type Input = GetBucketLocationRequest;
+    type Output = GetBucketLocationOutput;
+    type Error = ();
+}
+
+#[derive(Debug, Clone, Copy, Eq, Ord, PartialEq, PartialOrd, Hash)]
+pub enum ArchiveStatus {
+    DEEP_ARCHIVE_ACCESS,
+    ARCHIVE_ACCESS,
+}
+impl AsRef<str> for ArchiveStatus {
+    fn as_ref(&self) -> &str {
+        match self {
+            Self::DEEP_ARCHIVE_ACCESS => "DEEP_ARCHIVE_ACCESS",
+            Self::ARCHIVE_ACCESS => "ARCHIVE_ACCESS",
+        }
+    }
+}
+impl TryFrom<&str> for ArchiveStatus {
+    type Error = String;
+    fn try_from(s: &str) -> Result<Self, Self::Error> {
+        match s {
+            "DEEP_ARCHIVE_ACCESS" => Ok(Self::DEEP_ARCHIVE_ACCESS),
+            "ARCHIVE_ACCESS" => Ok(Self::ARCHIVE_ACCESS),
+            _ => Err(format!("unknown enum value {}", s)),
+        }
+    }
+}
+
+pub type CopySourceIfNoneMatch = String;
+
+pub type HttpRedirectCode = String;
+
+#[derive(Debug, Clone, Copy, Eq, Ord, PartialEq, PartialOrd, Hash)]
+pub enum Type {
+    AmazonCustomerByEmail,
+    CanonicalUser,
+    Group,
+}
+impl AsRef<str> for Type {
+    fn as_ref(&self) -> &str {
+        match self {
+            Self::AmazonCustomerByEmail => "AmazonCustomerByEmail",
+            Self::CanonicalUser => "CanonicalUser",
+            Self::Group => "Group",
+        }
+    }
+}
+impl TryFrom<&str> for Type {
+    type Error = String;
+    fn try_from(s: &str) -> Result<Self, Self::Error> {
+        match s {
+            "AmazonCustomerByEmail" => Ok(Self::AmazonCustomerByEmail),
+            "CanonicalUser" => Ok(Self::CanonicalUser),
+            "Group" => Ok(Self::Group),
+            _ => Err(format!("unknown enum value {}", s)),
+        }
+    }
+}
+
+pub type MetadataKey = String;
+
+#[derive(Debug, Default, Clone)]
+pub struct DeleteBucketCorsRequest {
+    pub expected_bucket_owner: Option<AccountId>,
+    pub bucket: Option<BucketName>,
+}
+impl DeleteBucketCorsRequest {
+    pub fn to_http_response(self) -> anyhow::Result<hyper::Response<hyper::Body>> {
+        anyhow::bail!("todo")
+    }
+}
+
+#[derive(Debug, Clone, Copy, Eq, Ord, PartialEq, PartialOrd, Hash)]
+pub enum Tier {
+    Standard,
+    Bulk,
+    Expedited,
+}
+impl AsRef<str> for Tier {
+    fn as_ref(&self) -> &str {
+        match self {
+            Self::Standard => "Standard",
+            Self::Bulk => "Bulk",
+            Self::Expedited => "Expedited",
+        }
+    }
+}
+impl TryFrom<&str> for Tier {
+    type Error = String;
+    fn try_from(s: &str) -> Result<Self, Self::Error> {
+        match s {
+            "Standard" => Ok(Self::Standard),
+            "Bulk" => Ok(Self::Bulk),
+            "Expedited" => Ok(Self::Expedited),
+            _ => Err(format!("unknown enum value {}", s)),
+        }
+    }
+}
+
+pub type NotificationId = String;
+
+pub type Errors = Vec<Error>;
+
+#[derive(Debug, Default, Clone)]
+pub struct DeleteBucketOwnershipControlsRequest {
     pub bucket: Option<BucketName>,
     pub expected_bucket_owner: Option<AccountId>,
-    pub key: Option<ObjectKey>,
-    pub request_payer: Option<RequestPayer>,
 }
-impl AbortMultipartUploadRequest {
+impl DeleteBucketOwnershipControlsRequest {
+    pub fn to_http_response(self) -> anyhow::Result<hyper::Response<hyper::Body>> {
+        anyhow::bail!("todo")
+    }
+}
+
+#[derive(Debug, Default, Clone)]
+pub struct GetBucketCorsOutput {
+    pub cors_rules: Option<CorsRules>,
+}
+impl GetBucketCorsOutput {
     pub fn to_http_response(self) -> anyhow::Result<hyper::Response<hyper::Body>> {
         anyhow::bail!("todo")
     }
@@ -5168,109 +4910,765 @@ impl OperationShape for ListBuckets {
     type Error = ();
 }
 
-pub type BucketName = String;
+#[derive(Debug, Default, Clone)]
+pub struct Progress {
+    pub bytes_processed: Option<BytesProcessed>,
+    pub bytes_scanned: Option<BytesScanned>,
+    pub bytes_returned: Option<BytesReturned>,
+}
+impl Progress {
+    pub fn to_http_response(self) -> anyhow::Result<hyper::Response<hyper::Body>> {
+        anyhow::bail!("todo")
+    }
+}
+
+pub type RequestToken = String;
 
 #[derive(Debug, Default, Clone)]
-pub struct CreateBucket;
-impl OperationShape for CreateBucket {
-    const NAME: &'static str = "CreateBucket";
-    type Input = CreateBucketRequest;
-    type Output = CreateBucketOutput;
-    type Error = ();
+pub struct GetBucketAccelerateConfigurationOutput {
+    pub status: Option<BucketAccelerateStatus>,
+}
+impl GetBucketAccelerateConfigurationOutput {
+    pub fn to_http_response(self) -> anyhow::Result<hyper::Response<hyper::Body>> {
+        anyhow::bail!("todo")
+    }
 }
 
 #[derive(Debug, Default, Clone)]
-pub struct ListObjectVersions;
-impl OperationShape for ListObjectVersions {
-    const NAME: &'static str = "ListObjectVersions";
-    type Input = ListObjectVersionsRequest;
-    type Output = ListObjectVersionsOutput;
-    type Error = ();
+pub struct SelectObjectContentRequest {
+    pub expression: Option<Expression>,
+    pub expected_bucket_owner: Option<AccountId>,
+    pub output_serialization: Option<OutputSerialization>,
+    pub sse_customer_key: Option<SseCustomerKey>,
+    pub sse_customer_key_md5: Option<SseCustomerKeyMd5>,
+    pub scan_range: Option<ScanRange>,
+    pub bucket: Option<BucketName>,
+    pub expression_type: Option<ExpressionType>,
+    pub key: Option<ObjectKey>,
+    pub input_serialization: Option<InputSerialization>,
+    pub request_progress: Option<RequestProgress>,
+    pub sse_customer_algorithm: Option<SseCustomerAlgorithm>,
+}
+impl SelectObjectContentRequest {
+    pub fn to_http_response(self) -> anyhow::Result<hyper::Response<hyper::Body>> {
+        anyhow::bail!("todo")
+    }
+}
+
+#[derive(Debug, Clone, Copy, Eq, Ord, PartialEq, PartialOrd, Hash)]
+pub enum ObjectAttributes {
+    CHECKSUM,
+    OBJECT_PARTS,
+    OBJECT_SIZE,
+    ETAG,
+    STORAGE_CLASS,
+}
+impl AsRef<str> for ObjectAttributes {
+    fn as_ref(&self) -> &str {
+        match self {
+            Self::CHECKSUM => "Checksum",
+            Self::OBJECT_PARTS => "ObjectParts",
+            Self::OBJECT_SIZE => "ObjectSize",
+            Self::ETAG => "ETag",
+            Self::STORAGE_CLASS => "StorageClass",
+        }
+    }
+}
+impl TryFrom<&str> for ObjectAttributes {
+    type Error = String;
+    fn try_from(s: &str) -> Result<Self, Self::Error> {
+        match s {
+            "Checksum" => Ok(Self::CHECKSUM),
+            "ObjectParts" => Ok(Self::OBJECT_PARTS),
+            "ObjectSize" => Ok(Self::OBJECT_SIZE),
+            "ETag" => Ok(Self::ETAG),
+            "StorageClass" => Ok(Self::STORAGE_CLASS),
+            _ => Err(format!("unknown enum value {}", s)),
+        }
+    }
+}
+
+pub type ContentEncoding = String;
+
+pub type Body = Vec<u8>;
+
+#[derive(Debug, Default, Clone)]
+pub struct GetObjectAclOutput {
+    pub grants: Option<Grants>,
+    pub owner: Option<Owner>,
+    pub request_charged: Option<RequestCharged>,
+}
+impl GetObjectAclOutput {
+    pub fn to_http_response(self) -> anyhow::Result<hyper::Response<hyper::Body>> {
+        anyhow::bail!("todo")
+    }
 }
 
 #[derive(Debug, Default, Clone)]
-pub struct DeleteBucketCors;
-impl OperationShape for DeleteBucketCors {
-    const NAME: &'static str = "DeleteBucketCors";
-    type Input = DeleteBucketCorsRequest;
+pub struct DeletedObject {
+    pub delete_marker_version_id: Option<DeleteMarkerVersionId>,
+    pub version_id: Option<ObjectVersionId>,
+    pub key: Option<ObjectKey>,
+    pub delete_marker: Option<DeleteMarker>,
+}
+impl DeletedObject {
+    pub fn to_http_response(self) -> anyhow::Result<hyper::Response<hyper::Body>> {
+        anyhow::bail!("todo")
+    }
+}
+
+#[derive(Debug, Default, Clone)]
+pub struct HeadObjectOutput {
+    pub checksum_crc32_c: Option<ChecksumCrc32c>,
+    pub content_disposition: Option<ContentDisposition>,
+    pub metadata: Option<Metadata>,
+    pub storage_class: Option<StorageClass>,
+    pub object_lock_retain_until_date: Option<ObjectLockRetainUntilDate>,
+    pub content_encoding: Option<ContentEncoding>,
+    pub expires: Option<Expires>,
+    pub object_lock_mode: Option<ObjectLockMode>,
+    pub parts_count: Option<PartsCount>,
+    pub last_modified: Option<LastModified>,
+    pub content_length: Option<ContentLength>,
+    pub bucket_key_enabled: Option<BucketKeyEnabled>,
+    pub checksum_sha1: Option<ChecksumSha1>,
+    pub request_charged: Option<RequestCharged>,
+    pub sse_customer_algorithm: Option<SseCustomerAlgorithm>,
+    pub replication_status: Option<ReplicationStatus>,
+    pub archive_status: Option<ArchiveStatus>,
+    pub delete_marker: Option<DeleteMarker>,
+    pub cache_control: Option<CacheControl>,
+    pub e_tag: Option<ETag>,
+    pub website_redirect_location: Option<WebsiteRedirectLocation>,
+    pub content_type: Option<ContentType>,
+    pub missing_meta: Option<MissingMeta>,
+    pub version_id: Option<ObjectVersionId>,
+    pub checksum_sha256: Option<ChecksumSha256>,
+    pub server_side_encryption: Option<ServerSideEncryption>,
+    pub checksum_crc32: Option<ChecksumCrc32>,
+    pub expiration: Option<Expiration>,
+    pub accept_ranges: Option<AcceptRanges>,
+    pub content_language: Option<ContentLanguage>,
+    pub restore: Option<Restore>,
+    pub sse_customer_key_md5: Option<SseCustomerKeyMd5>,
+    pub ssekms_key_id: Option<SsekmsKeyId>,
+    pub object_lock_legal_hold_status: Option<ObjectLockLegalHoldStatus>,
+}
+impl HeadObjectOutput {
+    pub fn to_http_response(self) -> anyhow::Result<hyper::Response<hyper::Body>> {
+        anyhow::bail!("todo")
+    }
+}
+
+#[derive(Debug, Default, Clone)]
+pub struct GetBucketEncryptionRequest {
+    pub expected_bucket_owner: Option<AccountId>,
+    pub bucket: Option<BucketName>,
+}
+impl GetBucketEncryptionRequest {
+    pub fn to_http_response(self) -> anyhow::Result<hyper::Response<hyper::Body>> {
+        anyhow::bail!("todo")
+    }
+}
+
+#[derive(Debug, Default, Clone)]
+pub struct DeleteBucketIntelligentTieringConfiguration;
+impl OperationShape for DeleteBucketIntelligentTieringConfiguration {
+    const NAME: &'static str = "DeleteBucketIntelligentTieringConfiguration";
+    type Input = DeleteBucketIntelligentTieringConfigurationRequest;
     type Output = ();
     type Error = ();
 }
 
-pub type SseCustomerKey = String;
+#[derive(Debug, Default, Clone)]
+pub struct GetBucketOwnershipControlsOutput {
+    pub ownership_controls: Option<OwnershipControls>,
+}
+impl GetBucketOwnershipControlsOutput {
+    pub fn to_http_response(self) -> anyhow::Result<hyper::Response<hyper::Body>> {
+        anyhow::bail!("todo")
+    }
+}
 
 #[derive(Debug, Default, Clone)]
-pub struct PutObjectLegalHold;
-impl OperationShape for PutObjectLegalHold {
-    const NAME: &'static str = "PutObjectLegalHold";
-    type Input = PutObjectLegalHoldRequest;
-    type Output = PutObjectLegalHoldOutput;
+pub struct ListObjectVersionsRequest {
+    pub prefix: Option<Prefix>,
+    pub bucket: Option<BucketName>,
+    pub delimiter: Option<Delimiter>,
+    pub encoding_type: Option<EncodingType>,
+    pub key_marker: Option<KeyMarker>,
+    pub version_id_marker: Option<VersionIdMarker>,
+    pub max_keys: Option<MaxKeys>,
+    pub expected_bucket_owner: Option<AccountId>,
+}
+impl ListObjectVersionsRequest {
+    pub fn to_http_response(self) -> anyhow::Result<hyper::Response<hyper::Body>> {
+        anyhow::bail!("todo")
+    }
+}
+
+#[derive(Debug, Default, Clone)]
+pub struct Encryption {
+    pub kms_key_id: Option<SsekmsKeyId>,
+    pub encryption_type: Option<ServerSideEncryption>,
+    pub kms_context: Option<KmsContext>,
+}
+impl Encryption {
+    pub fn to_http_response(self) -> anyhow::Result<hyper::Response<hyper::Body>> {
+        anyhow::bail!("todo")
+    }
+}
+
+#[derive(Debug, Clone, Copy, Eq, Ord, PartialEq, PartialOrd, Hash)]
+pub enum ObjectCannedAcl {
+    aws_exec_read,
+    public_read,
+    bucket_owner_full_control,
+    private,
+    bucket_owner_read,
+    public_read_write,
+    authenticated_read,
+}
+impl AsRef<str> for ObjectCannedAcl {
+    fn as_ref(&self) -> &str {
+        match self {
+            Self::aws_exec_read => "aws-exec-read",
+            Self::public_read => "public-read",
+            Self::bucket_owner_full_control => "bucket-owner-full-control",
+            Self::private => "private",
+            Self::bucket_owner_read => "bucket-owner-read",
+            Self::public_read_write => "public-read-write",
+            Self::authenticated_read => "authenticated-read",
+        }
+    }
+}
+impl TryFrom<&str> for ObjectCannedAcl {
+    type Error = String;
+    fn try_from(s: &str) -> Result<Self, Self::Error> {
+        match s {
+            "aws-exec-read" => Ok(Self::aws_exec_read),
+            "public-read" => Ok(Self::public_read),
+            "bucket-owner-full-control" => Ok(Self::bucket_owner_full_control),
+            "private" => Ok(Self::private),
+            "bucket-owner-read" => Ok(Self::bucket_owner_read),
+            "public-read-write" => Ok(Self::public_read_write),
+            "authenticated-read" => Ok(Self::authenticated_read),
+            _ => Err(format!("unknown enum value {}", s)),
+        }
+    }
+}
+
+#[derive(Debug, Default, Clone)]
+pub struct DeletePublicAccessBlockRequest {
+    pub bucket: Option<BucketName>,
+    pub expected_bucket_owner: Option<AccountId>,
+}
+impl DeletePublicAccessBlockRequest {
+    pub fn to_http_response(self) -> anyhow::Result<hyper::Response<hyper::Body>> {
+        anyhow::bail!("todo")
+    }
+}
+
+pub type BytesProcessed = i64;
+
+pub type PartsCount = i32;
+
+#[derive(Debug, Default, Clone)]
+pub struct AccelerateConfiguration {
+    pub status: Option<BucketAccelerateStatus>,
+}
+impl AccelerateConfiguration {
+    pub fn to_http_response(self) -> anyhow::Result<hyper::Response<hyper::Body>> {
+        anyhow::bail!("todo")
+    }
+}
+
+#[derive(Debug, Default, Clone)]
+pub struct ContinuationEvent {}
+impl ContinuationEvent {
+    pub fn to_http_response(self) -> anyhow::Result<hyper::Response<hyper::Body>> {
+        anyhow::bail!("todo")
+    }
+}
+
+#[derive(Debug, Default, Clone)]
+pub struct CopyObjectOutput {
+    pub copy_object_result: Option<CopyObjectResult>,
+    pub ssekms_encryption_context: Option<SsekmsEncryptionContext>,
+    pub server_side_encryption: Option<ServerSideEncryption>,
+    pub sse_customer_key_md5: Option<SseCustomerKeyMd5>,
+    pub bucket_key_enabled: Option<BucketKeyEnabled>,
+    pub sse_customer_algorithm: Option<SseCustomerAlgorithm>,
+    pub expiration: Option<Expiration>,
+    pub request_charged: Option<RequestCharged>,
+    pub ssekms_key_id: Option<SsekmsKeyId>,
+    pub copy_source_version_id: Option<CopySourceVersionId>,
+    pub version_id: Option<ObjectVersionId>,
+}
+impl CopyObjectOutput {
+    pub fn to_http_response(self) -> anyhow::Result<hyper::Response<hyper::Body>> {
+        anyhow::bail!("todo")
+    }
+}
+
+pub type Prefix = String;
+
+#[derive(Debug, Default, Clone)]
+pub struct CreateBucketConfiguration {
+    pub location_constraint: Option<BucketLocationConstraint>,
+}
+impl CreateBucketConfiguration {
+    pub fn to_http_response(self) -> anyhow::Result<hyper::Response<hyper::Body>> {
+        anyhow::bail!("todo")
+    }
+}
+
+#[derive(Debug, Default, Clone)]
+pub struct DeletePublicAccessBlock;
+impl OperationShape for DeletePublicAccessBlock {
+    const NAME: &'static str = "DeletePublicAccessBlock";
+    type Input = DeletePublicAccessBlockRequest;
+    type Output = ();
     type Error = ();
 }
 
-pub type IfMatch = String;
-
-pub type AccessPointArn = String;
-
 #[derive(Debug, Default, Clone)]
-pub struct NoncurrentVersionExpiration {
-    pub newer_noncurrent_versions: Option<VersionCount>,
-    pub noncurrent_days: Option<Days>,
+pub struct RequestProgress {
+    pub enabled: Option<EnableRequestProgress>,
 }
-impl NoncurrentVersionExpiration {
+impl RequestProgress {
     pub fn to_http_response(self) -> anyhow::Result<hyper::Response<hyper::Body>> {
         anyhow::bail!("todo")
     }
 }
 
 #[derive(Debug, Default, Clone)]
-pub struct ReplicationTimeValue {
-    pub minutes: Option<Minutes>,
+pub struct UploadPartCopyOutput {
+    pub sse_customer_algorithm: Option<SseCustomerAlgorithm>,
+    pub bucket_key_enabled: Option<BucketKeyEnabled>,
+    pub sse_customer_key_md5: Option<SseCustomerKeyMd5>,
+    pub ssekms_key_id: Option<SsekmsKeyId>,
+    pub copy_part_result: Option<CopyPartResult>,
+    pub server_side_encryption: Option<ServerSideEncryption>,
+    pub copy_source_version_id: Option<CopySourceVersionId>,
+    pub request_charged: Option<RequestCharged>,
 }
-impl ReplicationTimeValue {
+impl UploadPartCopyOutput {
+    pub fn to_http_response(self) -> anyhow::Result<hyper::Response<hyper::Body>> {
+        anyhow::bail!("todo")
+    }
+}
+
+pub type Value = String;
+
+#[derive(Debug, Clone, Copy, Eq, Ord, PartialEq, PartialOrd, Hash)]
+pub enum Protocol {
+    https,
+    http,
+}
+impl AsRef<str> for Protocol {
+    fn as_ref(&self) -> &str {
+        match self {
+            Self::https => "https",
+            Self::http => "http",
+        }
+    }
+}
+impl TryFrom<&str> for Protocol {
+    type Error = String;
+    fn try_from(s: &str) -> Result<Self, Self::Error> {
+        match s {
+            "https" => Ok(Self::https),
+            "http" => Ok(Self::http),
+            _ => Err(format!("unknown enum value {}", s)),
+        }
+    }
+}
+
+#[derive(Debug, Clone, Copy, Eq, Ord, PartialEq, PartialOrd, Hash)]
+pub enum DeleteMarkerReplicationStatus {
+    Disabled,
+    Enabled,
+}
+impl AsRef<str> for DeleteMarkerReplicationStatus {
+    fn as_ref(&self) -> &str {
+        match self {
+            Self::Disabled => "Disabled",
+            Self::Enabled => "Enabled",
+        }
+    }
+}
+impl TryFrom<&str> for DeleteMarkerReplicationStatus {
+    type Error = String;
+    fn try_from(s: &str) -> Result<Self, Self::Error> {
+        match s {
+            "Disabled" => Ok(Self::Disabled),
+            "Enabled" => Ok(Self::Enabled),
+            _ => Err(format!("unknown enum value {}", s)),
+        }
+    }
+}
+
+#[derive(Debug, Default, Clone)]
+pub struct CopyObjectRequest {
+    pub ssekms_key_id: Option<SsekmsKeyId>,
+    pub grant_full_control: Option<GrantFullControl>,
+    pub grant_read_acp: Option<GrantReadAcp>,
+    pub copy_source_sse_customer_key: Option<CopySourceSseCustomerKey>,
+    pub object_lock_mode: Option<ObjectLockMode>,
+    pub content_language: Option<ContentLanguage>,
+    pub content_type: Option<ContentType>,
+    pub grant_read: Option<GrantRead>,
+    pub sse_customer_key: Option<SseCustomerKey>,
+    pub object_lock_retain_until_date: Option<ObjectLockRetainUntilDate>,
+    pub server_side_encryption: Option<ServerSideEncryption>,
+    pub cache_control: Option<CacheControl>,
+    pub expected_bucket_owner: Option<AccountId>,
+    pub key: Option<ObjectKey>,
+    pub copy_source_sse_customer_algorithm: Option<CopySourceSseCustomerAlgorithm>,
+    pub copy_source: Option<CopySource>,
+    pub bucket_key_enabled: Option<BucketKeyEnabled>,
+    pub expires: Option<Expires>,
+    pub metadata_directive: Option<MetadataDirective>,
+    pub ssekms_encryption_context: Option<SsekmsEncryptionContext>,
+    pub acl: Option<ObjectCannedAcl>,
+    pub request_payer: Option<RequestPayer>,
+    pub copy_source_if_match: Option<CopySourceIfMatch>,
+    pub content_encoding: Option<ContentEncoding>,
+    pub copy_source_sse_customer_key_md5: Option<CopySourceSseCustomerKeyMd5>,
+    pub checksum_algorithm: Option<ChecksumAlgorithm>,
+    pub copy_source_if_none_match: Option<CopySourceIfNoneMatch>,
+    pub metadata: Option<Metadata>,
+    pub website_redirect_location: Option<WebsiteRedirectLocation>,
+    pub bucket: Option<BucketName>,
+    pub object_lock_legal_hold_status: Option<ObjectLockLegalHoldStatus>,
+    pub copy_source_if_unmodified_since: Option<CopySourceIfUnmodifiedSince>,
+    pub copy_source_if_modified_since: Option<CopySourceIfModifiedSince>,
+    pub expected_source_bucket_owner: Option<AccountId>,
+    pub sse_customer_key_md5: Option<SseCustomerKeyMd5>,
+    pub tagging: Option<TaggingHeader>,
+    pub grant_write_acp: Option<GrantWriteAcp>,
+    pub content_disposition: Option<ContentDisposition>,
+    pub sse_customer_algorithm: Option<SseCustomerAlgorithm>,
+    pub tagging_directive: Option<TaggingDirective>,
+    pub storage_class: Option<StorageClass>,
+}
+impl CopyObjectRequest {
+    pub fn to_http_response(self) -> anyhow::Result<hyper::Response<hyper::Body>> {
+        anyhow::bail!("todo")
+    }
+}
+
+pub type ObjectKey = String;
+
+#[derive(Debug, Clone, Copy, Eq, Ord, PartialEq, PartialOrd, Hash)]
+pub enum ObjectLockLegalHoldStatus {
+    ON,
+    OFF,
+}
+impl AsRef<str> for ObjectLockLegalHoldStatus {
+    fn as_ref(&self) -> &str {
+        match self {
+            Self::ON => "ON",
+            Self::OFF => "OFF",
+        }
+    }
+}
+impl TryFrom<&str> for ObjectLockLegalHoldStatus {
+    type Error = String;
+    fn try_from(s: &str) -> Result<Self, Self::Error> {
+        match s {
+            "ON" => Ok(Self::ON),
+            "OFF" => Ok(Self::OFF),
+            _ => Err(format!("unknown enum value {}", s)),
+        }
+    }
+}
+
+#[derive(Debug, Clone, Copy, Eq, Ord, PartialEq, PartialOrd, Hash)]
+pub enum AnalyticsS3ExportFileFormat {
+    CSV,
+}
+impl AsRef<str> for AnalyticsS3ExportFileFormat {
+    fn as_ref(&self) -> &str {
+        match self {
+            Self::CSV => "CSV",
+        }
+    }
+}
+impl TryFrom<&str> for AnalyticsS3ExportFileFormat {
+    type Error = String;
+    fn try_from(s: &str) -> Result<Self, Self::Error> {
+        match s {
+            "CSV" => Ok(Self::CSV),
+            _ => Err(format!("unknown enum value {}", s)),
+        }
+    }
+}
+
+#[derive(Debug, Default, Clone)]
+pub struct DeleteBucketRequest {
+    pub expected_bucket_owner: Option<AccountId>,
+    pub bucket: Option<BucketName>,
+}
+impl DeleteBucketRequest {
     pub fn to_http_response(self) -> anyhow::Result<hyper::Response<hyper::Body>> {
         anyhow::bail!("todo")
     }
 }
 
 #[derive(Debug, Default, Clone)]
-pub struct PublicAccessBlockConfiguration {
-    pub restrict_public_buckets: Option<Setting>,
-    pub ignore_public_acls: Option<Setting>,
-    pub block_public_policy: Option<Setting>,
-    pub block_public_acls: Option<Setting>,
+pub struct PolicyStatus {
+    pub is_public: Option<IsPublic>,
 }
-impl PublicAccessBlockConfiguration {
+impl PolicyStatus {
+    pub fn to_http_response(self) -> anyhow::Result<hyper::Response<hyper::Body>> {
+        anyhow::bail!("todo")
+    }
+}
+
+pub type ContentLanguage = String;
+
+pub type CopySourceIfModifiedSince = String;
+
+pub type CopySourceSseCustomerKeyMd5 = String;
+
+#[derive(Debug, Default, Clone)]
+pub struct GetBucketCors;
+impl OperationShape for GetBucketCors {
+    const NAME: &'static str = "GetBucketCors";
+    type Input = GetBucketCorsRequest;
+    type Output = GetBucketCorsOutput;
+    type Error = ();
+}
+
+#[derive(Debug, Default, Clone)]
+pub struct RedirectAllRequestsTo {
+    pub protocol: Option<Protocol>,
+    pub host_name: Option<HostName>,
+}
+impl RedirectAllRequestsTo {
     pub fn to_http_response(self) -> anyhow::Result<hyper::Response<hyper::Body>> {
         anyhow::bail!("todo")
     }
 }
 
 #[derive(Debug, Default, Clone)]
-pub struct CopyObjectResult {
-    pub last_modified: Option<LastModified>,
-    pub checksum_crc32_c: Option<ChecksumCrc32c>,
-    pub checksum_sha256: Option<ChecksumSha256>,
-    pub checksum_sha1: Option<ChecksumSha1>,
-    pub checksum_crc32: Option<ChecksumCrc32>,
-    pub e_tag: Option<ETag>,
+pub struct GetBucketAcl;
+impl OperationShape for GetBucketAcl {
+    const NAME: &'static str = "GetBucketAcl";
+    type Input = GetBucketAclRequest;
+    type Output = GetBucketAclOutput;
+    type Error = ();
 }
-impl CopyObjectResult {
+
+#[derive(Debug, Default, Clone)]
+pub struct RestoreObjectOutput {
+    pub restore_output_path: Option<RestoreOutputPath>,
+    pub request_charged: Option<RequestCharged>,
+}
+impl RestoreObjectOutput {
     pub fn to_http_response(self) -> anyhow::Result<hyper::Response<hyper::Body>> {
         anyhow::bail!("todo")
     }
 }
 
 #[derive(Debug, Default, Clone)]
-pub struct Stats {
-    pub bytes_processed: Option<BytesProcessed>,
-    pub bytes_returned: Option<BytesReturned>,
-    pub bytes_scanned: Option<BytesScanned>,
+pub struct RecordsEvent {
+    pub payload: Option<Body>,
 }
-impl Stats {
+impl RecordsEvent {
     pub fn to_http_response(self) -> anyhow::Result<hyper::Response<hyper::Body>> {
         anyhow::bail!("todo")
     }
+}
+
+#[derive(Debug, Default, Clone)]
+pub struct RestoreObject;
+impl OperationShape for RestoreObject {
+    const NAME: &'static str = "RestoreObject";
+    type Input = RestoreObjectRequest;
+    type Output = RestoreObjectOutput;
+    type Error = ();
+}
+
+#[derive(Debug, Default, Clone)]
+pub struct ListBucketInventoryConfigurationsOutput {
+    pub continuation_token: Option<Token>,
+    pub inventory_configuration_list: Option<InventoryConfigurationList>,
+    pub next_continuation_token: Option<NextToken>,
+    pub is_truncated: Option<IsTruncated>,
+}
+impl ListBucketInventoryConfigurationsOutput {
+    pub fn to_http_response(self) -> anyhow::Result<hyper::Response<hyper::Body>> {
+        anyhow::bail!("todo")
+    }
+}
+
+#[derive(Debug, Default, Clone)]
+pub struct PutObjectTagging;
+impl OperationShape for PutObjectTagging {
+    const NAME: &'static str = "PutObjectTagging";
+    type Input = PutObjectTaggingRequest;
+    type Output = PutObjectTaggingOutput;
+    type Error = ();
+}
+
+#[derive(Debug, Default, Clone)]
+pub struct GetBucketInventoryConfiguration;
+impl OperationShape for GetBucketInventoryConfiguration {
+    const NAME: &'static str = "GetBucketInventoryConfiguration";
+    type Input = GetBucketInventoryConfigurationRequest;
+    type Output = GetBucketInventoryConfigurationOutput;
+    type Error = ();
+}
+
+#[derive(Debug, Clone, Copy, Eq, Ord, PartialEq, PartialOrd, Hash)]
+pub enum ObjectStorageClass {
+    STANDARD,
+    GLACIER,
+    REDUCED_REDUNDANCY,
+    ONEZONE_IA,
+    GLACIER_IR,
+    STANDARD_IA,
+    DEEP_ARCHIVE,
+    INTELLIGENT_TIERING,
+    OUTPOSTS,
+}
+impl AsRef<str> for ObjectStorageClass {
+    fn as_ref(&self) -> &str {
+        match self {
+            Self::STANDARD => "STANDARD",
+            Self::GLACIER => "GLACIER",
+            Self::REDUCED_REDUNDANCY => "REDUCED_REDUNDANCY",
+            Self::ONEZONE_IA => "ONEZONE_IA",
+            Self::GLACIER_IR => "GLACIER_IR",
+            Self::STANDARD_IA => "STANDARD_IA",
+            Self::DEEP_ARCHIVE => "DEEP_ARCHIVE",
+            Self::INTELLIGENT_TIERING => "INTELLIGENT_TIERING",
+            Self::OUTPOSTS => "OUTPOSTS",
+        }
+    }
+}
+impl TryFrom<&str> for ObjectStorageClass {
+    type Error = String;
+    fn try_from(s: &str) -> Result<Self, Self::Error> {
+        match s {
+            "STANDARD" => Ok(Self::STANDARD),
+            "GLACIER" => Ok(Self::GLACIER),
+            "REDUCED_REDUNDANCY" => Ok(Self::REDUCED_REDUNDANCY),
+            "ONEZONE_IA" => Ok(Self::ONEZONE_IA),
+            "GLACIER_IR" => Ok(Self::GLACIER_IR),
+            "STANDARD_IA" => Ok(Self::STANDARD_IA),
+            "DEEP_ARCHIVE" => Ok(Self::DEEP_ARCHIVE),
+            "INTELLIGENT_TIERING" => Ok(Self::INTELLIGENT_TIERING),
+            "OUTPOSTS" => Ok(Self::OUTPOSTS),
+            _ => Err(format!("unknown enum value {}", s)),
+        }
+    }
+}
+
+pub type Grants = Vec<Grant>;
+
+#[derive(Debug, Default, Clone)]
+pub struct GetBucketLocationOutput {
+    pub location_constraint: Option<BucketLocationConstraint>,
+}
+impl GetBucketLocationOutput {
+    pub fn to_http_response(self) -> anyhow::Result<hyper::Response<hyper::Body>> {
+        anyhow::bail!("todo")
+    }
+}
+
+#[derive(Debug, Default, Clone)]
+pub struct PutObjectLegalHoldRequest {
+    pub request_payer: Option<RequestPayer>,
+    pub version_id: Option<ObjectVersionId>,
+    pub bucket: Option<BucketName>,
+    pub checksum_algorithm: Option<ChecksumAlgorithm>,
+    pub key: Option<ObjectKey>,
+    pub content_md5: Option<ContentMd5>,
+    pub expected_bucket_owner: Option<AccountId>,
+    pub legal_hold: Option<ObjectLockLegalHold>,
+}
+impl PutObjectLegalHoldRequest {
+    pub fn to_http_response(self) -> anyhow::Result<hyper::Response<hyper::Body>> {
+        anyhow::bail!("todo")
+    }
+}
+
+pub type IsPublic = bool;
+
+#[derive(Debug, Default, Clone)]
+pub struct ObjectLockRetention {
+    pub mode: Option<ObjectLockRetentionMode>,
+    pub retain_until_date: Option<Date>,
+}
+impl ObjectLockRetention {
+    pub fn to_http_response(self) -> anyhow::Result<hyper::Response<hyper::Body>> {
+        anyhow::bail!("todo")
+    }
+}
+
+#[derive(Debug, Default, Clone)]
+pub struct CreateBucketOutput {
+    pub location: Option<Location>,
+}
+impl CreateBucketOutput {
+    pub fn to_http_response(self) -> anyhow::Result<hyper::Response<hyper::Body>> {
+        anyhow::bail!("todo")
+    }
+}
+
+#[derive(Debug, Default, Clone)]
+pub struct GetBucketEncryption;
+impl OperationShape for GetBucketEncryption {
+    const NAME: &'static str = "GetBucketEncryption";
+    type Input = GetBucketEncryptionRequest;
+    type Output = GetBucketEncryptionOutput;
+    type Error = ();
+}
+
+#[derive(Debug, Default, Clone)]
+pub struct ObjectLockLegalHold {
+    pub status: Option<ObjectLockLegalHoldStatus>,
+}
+impl ObjectLockLegalHold {
+    pub fn to_http_response(self) -> anyhow::Result<hyper::Response<hyper::Body>> {
+        anyhow::bail!("todo")
+    }
+}
+
+#[derive(Debug, Default, Clone)]
+pub struct QueueConfiguration {
+    pub queue_arn: Option<QueueArn>,
+    pub filter: Option<NotificationConfigurationFilter>,
+    pub id: Option<NotificationId>,
+    pub events: Option<EventList>,
+}
+impl QueueConfiguration {
+    pub fn to_http_response(self) -> anyhow::Result<hyper::Response<hyper::Body>> {
+        anyhow::bail!("todo")
+    }
+}
+
+#[derive(Debug, Default, Clone)]
+pub struct ServerSideEncryptionConfiguration {
+    pub rules: Option<ServerSideEncryptionRules>,
+}
+impl ServerSideEncryptionConfiguration {
+    pub fn to_http_response(self) -> anyhow::Result<hyper::Response<hyper::Body>> {
+        anyhow::bail!("todo")
+    }
+}
+
+#[derive(Debug, Default, Clone)]
+pub struct AbortMultipartUpload;
+impl OperationShape for AbortMultipartUpload {
+    const NAME: &'static str = "AbortMultipartUpload";
+    type Input = AbortMultipartUploadRequest;
+    type Output = AbortMultipartUploadOutput;
+    type Error = ();
 }
 
 #[derive(Debug, Clone, Copy, Eq, Ord, PartialEq, PartialOrd, Hash)]
@@ -5373,17 +5771,75 @@ impl TryFrom<&str> for Event {
 }
 
 #[derive(Debug, Default, Clone)]
-pub struct GetObjectTaggingOutput {
-    pub version_id: Option<ObjectVersionId>,
-    pub tag_set: Option<TagSet>,
+pub struct InputSerialization {
+    pub csv: Option<CsvInput>,
+    pub compression_type: Option<CompressionType>,
+    pub parquet: Option<ParquetInput>,
+    pub json: Option<JsonInput>,
 }
-impl GetObjectTaggingOutput {
+impl InputSerialization {
     pub fn to_http_response(self) -> anyhow::Result<hyper::Response<hyper::Body>> {
         anyhow::bail!("todo")
     }
 }
 
-pub type TagSet = Vec<Tag>;
+pub type Parts = Vec<Part>;
+
+pub type ContentRange = String;
+
+#[derive(Debug, Default, Clone)]
+pub struct DeleteBucketTagging;
+impl OperationShape for DeleteBucketTagging {
+    const NAME: &'static str = "DeleteBucketTagging";
+    type Input = DeleteBucketTaggingRequest;
+    type Output = ();
+    type Error = ();
+}
+
+pub type DeleteMarker = bool;
+
+#[derive(Debug, Default, Clone)]
+pub struct GetBucketLocationRequest {
+    pub bucket: Option<BucketName>,
+    pub expected_bucket_owner: Option<AccountId>,
+}
+impl GetBucketLocationRequest {
+    pub fn to_http_response(self) -> anyhow::Result<hyper::Response<hyper::Body>> {
+        anyhow::bail!("todo")
+    }
+}
+
+#[derive(Debug, Default, Clone)]
+pub struct PutBucketOwnershipControls;
+impl OperationShape for PutBucketOwnershipControls {
+    const NAME: &'static str = "PutBucketOwnershipControls";
+    type Input = PutBucketOwnershipControlsRequest;
+    type Output = ();
+    type Error = ();
+}
+
+#[derive(Debug, Default, Clone)]
+pub struct DeleteObjectTaggingRequest {
+    pub expected_bucket_owner: Option<AccountId>,
+    pub key: Option<ObjectKey>,
+    pub version_id: Option<ObjectVersionId>,
+    pub bucket: Option<BucketName>,
+}
+impl DeleteObjectTaggingRequest {
+    pub fn to_http_response(self) -> anyhow::Result<hyper::Response<hyper::Body>> {
+        anyhow::bail!("todo")
+    }
+}
+
+#[derive(Debug, Default, Clone)]
+pub struct EncryptionConfiguration {
+    pub replica_kms_key_id: Option<ReplicaKmsKeyId>,
+}
+impl EncryptionConfiguration {
+    pub fn to_http_response(self) -> anyhow::Result<hyper::Response<hyper::Body>> {
+        anyhow::bail!("todo")
+    }
+}
 
 #[derive(Debug, Clone, Copy, Eq, Ord, PartialEq, PartialOrd, Hash)]
 pub enum ExpirationStatus {
@@ -5410,6 +5866,68 @@ impl TryFrom<&str> for ExpirationStatus {
 }
 
 #[derive(Debug, Default, Clone)]
+pub struct DeleteBucketOwnershipControls;
+impl OperationShape for DeleteBucketOwnershipControls {
+    const NAME: &'static str = "DeleteBucketOwnershipControls";
+    type Input = DeleteBucketOwnershipControlsRequest;
+    type Output = ();
+    type Error = ();
+}
+
+#[derive(Debug, Clone, Copy, Eq, Ord, PartialEq, PartialOrd, Hash)]
+pub enum ObjectOwnership {
+    ObjectWriter,
+    BucketOwnerEnforced,
+    BucketOwnerPreferred,
+}
+impl AsRef<str> for ObjectOwnership {
+    fn as_ref(&self) -> &str {
+        match self {
+            Self::ObjectWriter => "ObjectWriter",
+            Self::BucketOwnerEnforced => "BucketOwnerEnforced",
+            Self::BucketOwnerPreferred => "BucketOwnerPreferred",
+        }
+    }
+}
+impl TryFrom<&str> for ObjectOwnership {
+    type Error = String;
+    fn try_from(s: &str) -> Result<Self, Self::Error> {
+        match s {
+            "ObjectWriter" => Ok(Self::ObjectWriter),
+            "BucketOwnerEnforced" => Ok(Self::BucketOwnerEnforced),
+            "BucketOwnerPreferred" => Ok(Self::BucketOwnerPreferred),
+            _ => Err(format!("unknown enum value {}", s)),
+        }
+    }
+}
+
+pub type Setting = bool;
+
+pub type AcceptRanges = String;
+
+#[derive(Debug, Default, Clone)]
+pub struct OwnershipControlsRule {
+    pub object_ownership: Option<ObjectOwnership>,
+}
+impl OwnershipControlsRule {
+    pub fn to_http_response(self) -> anyhow::Result<hyper::Response<hyper::Body>> {
+        anyhow::bail!("todo")
+    }
+}
+
+pub type TaggingHeader = String;
+
+#[derive(Debug, Default, Clone)]
+pub struct DeleteMarkerReplication {
+    pub status: Option<DeleteMarkerReplicationStatus>,
+}
+impl DeleteMarkerReplication {
+    pub fn to_http_response(self) -> anyhow::Result<hyper::Response<hyper::Body>> {
+        anyhow::bail!("todo")
+    }
+}
+
+#[derive(Debug, Default, Clone)]
 pub struct GetBucketMetricsConfiguration;
 impl OperationShape for GetBucketMetricsConfiguration {
     const NAME: &'static str = "GetBucketMetricsConfiguration";
@@ -5418,32 +5936,403 @@ impl OperationShape for GetBucketMetricsConfiguration {
     type Error = ();
 }
 
-pub type IfUnmodifiedSince = String;
-
-pub type LambdaFunctionConfigurationList = Vec<LambdaFunctionConfiguration>;
-
-pub type MaxKeys = i32;
-
-pub type ContentLanguage = String;
+pub type GrantWrite = String;
 
 #[derive(Debug, Default, Clone)]
-pub struct GetBucketVersioningOutput {
-    pub status: Option<BucketVersioningStatus>,
-    pub mfa_delete: Option<MfaDeleteStatus>,
+pub struct PutBucketAnalyticsConfigurationRequest {
+    pub bucket: Option<BucketName>,
+    pub analytics_configuration: Option<AnalyticsConfiguration>,
+    pub expected_bucket_owner: Option<AccountId>,
+    pub id: Option<AnalyticsId>,
 }
-impl GetBucketVersioningOutput {
+impl PutBucketAnalyticsConfigurationRequest {
     pub fn to_http_response(self) -> anyhow::Result<hyper::Response<hyper::Body>> {
         anyhow::bail!("todo")
     }
 }
 
-pub type VersionCount = i32;
+#[derive(Debug, Default, Clone)]
+pub struct UploadPart;
+impl OperationShape for UploadPart {
+    const NAME: &'static str = "UploadPart";
+    type Input = UploadPartRequest;
+    type Output = UploadPartOutput;
+    type Error = ();
+}
+
+#[derive(Debug, Default, Clone)]
+pub struct CsvInput {
+    pub allow_quoted_record_delimiter: Option<AllowQuotedRecordDelimiter>,
+    pub comments: Option<Comments>,
+    pub quote_character: Option<QuoteCharacter>,
+    pub record_delimiter: Option<RecordDelimiter>,
+    pub file_header_info: Option<FileHeaderInfo>,
+    pub field_delimiter: Option<FieldDelimiter>,
+    pub quote_escape_character: Option<QuoteEscapeCharacter>,
+}
+impl CsvInput {
+    pub fn to_http_response(self) -> anyhow::Result<hyper::Response<hyper::Body>> {
+        anyhow::bail!("todo")
+    }
+}
+
+#[derive(Debug, Default, Clone)]
+pub struct GetBucketVersioning;
+impl OperationShape for GetBucketVersioning {
+    const NAME: &'static str = "GetBucketVersioning";
+    type Input = GetBucketVersioningRequest;
+    type Output = GetBucketVersioningOutput;
+    type Error = ();
+}
+
+#[derive(Debug, Clone, Copy, Eq, Ord, PartialEq, PartialOrd, Hash)]
+pub enum IntelligentTieringStatus {
+    Disabled,
+    Enabled,
+}
+impl AsRef<str> for IntelligentTieringStatus {
+    fn as_ref(&self) -> &str {
+        match self {
+            Self::Disabled => "Disabled",
+            Self::Enabled => "Enabled",
+        }
+    }
+}
+impl TryFrom<&str> for IntelligentTieringStatus {
+    type Error = String;
+    fn try_from(s: &str) -> Result<Self, Self::Error> {
+        match s {
+            "Disabled" => Ok(Self::Disabled),
+            "Enabled" => Ok(Self::Enabled),
+            _ => Err(format!("unknown enum value {}", s)),
+        }
+    }
+}
+
+#[derive(Debug, Default, Clone)]
+pub struct ListBucketAnalyticsConfigurationsOutput {
+    pub analytics_configuration_list: Option<AnalyticsConfigurationList>,
+    pub is_truncated: Option<IsTruncated>,
+    pub next_continuation_token: Option<NextToken>,
+    pub continuation_token: Option<Token>,
+}
+impl ListBucketAnalyticsConfigurationsOutput {
+    pub fn to_http_response(self) -> anyhow::Result<hyper::Response<hyper::Body>> {
+        anyhow::bail!("todo")
+    }
+}
+
+pub type ChecksumSha256 = String;
+
+#[derive(Debug, Default, Clone)]
+pub struct GetObjectTorrent;
+impl OperationShape for GetObjectTorrent {
+    const NAME: &'static str = "GetObjectTorrent";
+    type Input = GetObjectTorrentRequest;
+    type Output = GetObjectTorrentOutput;
+    type Error = ();
+}
+
+pub type MaxKeys = i32;
+
+#[derive(Debug, Default, Clone)]
+pub struct PutBucketCorsRequest {
+    pub cors_configuration: Option<CorsConfiguration>,
+    pub expected_bucket_owner: Option<AccountId>,
+    pub content_md5: Option<ContentMd5>,
+    pub bucket: Option<BucketName>,
+    pub checksum_algorithm: Option<ChecksumAlgorithm>,
+}
+impl PutBucketCorsRequest {
+    pub fn to_http_response(self) -> anyhow::Result<hyper::Response<hyper::Body>> {
+        anyhow::bail!("todo")
+    }
+}
+
+pub type TargetBucket = String;
+
+#[derive(Debug, Default, Clone)]
+pub struct InventoryConfiguration {
+    pub id: Option<InventoryId>,
+    pub destination: Option<InventoryDestination>,
+    pub included_object_versions: Option<InventoryIncludedObjectVersions>,
+    pub filter: Option<InventoryFilter>,
+    pub optional_fields: Option<InventoryOptionalFields>,
+    pub is_enabled: Option<IsEnabled>,
+    pub schedule: Option<InventorySchedule>,
+}
+impl InventoryConfiguration {
+    pub fn to_http_response(self) -> anyhow::Result<hyper::Response<hyper::Body>> {
+        anyhow::bail!("todo")
+    }
+}
+
+pub type NextToken = String;
+
+pub type TopicArn = String;
+
+#[derive(Debug, Default, Clone)]
+pub struct GetBucketAnalyticsConfigurationOutput {
+    pub analytics_configuration: Option<AnalyticsConfiguration>,
+}
+impl GetBucketAnalyticsConfigurationOutput {
+    pub fn to_http_response(self) -> anyhow::Result<hyper::Response<hyper::Body>> {
+        anyhow::bail!("todo")
+    }
+}
+
+#[derive(Debug, Default, Clone)]
+pub struct ListBucketAnalyticsConfigurationsRequest {
+    pub continuation_token: Option<Token>,
+    pub bucket: Option<BucketName>,
+    pub expected_bucket_owner: Option<AccountId>,
+}
+impl ListBucketAnalyticsConfigurationsRequest {
+    pub fn to_http_response(self) -> anyhow::Result<hyper::Response<hyper::Body>> {
+        anyhow::bail!("todo")
+    }
+}
+
+#[derive(Debug, Default, Clone)]
+pub struct ListBucketMetricsConfigurationsRequest {
+    pub expected_bucket_owner: Option<AccountId>,
+    pub continuation_token: Option<Token>,
+    pub bucket: Option<BucketName>,
+}
+impl ListBucketMetricsConfigurationsRequest {
+    pub fn to_http_response(self) -> anyhow::Result<hyper::Response<hyper::Body>> {
+        anyhow::bail!("todo")
+    }
+}
+
+#[derive(Debug, Default, Clone)]
+pub struct ObjectAlreadyInActiveTierError {}
+impl ObjectAlreadyInActiveTierError {
+    pub fn to_http_response(self) -> anyhow::Result<hyper::Response<hyper::Body>> {
+        anyhow::bail!("todo")
+    }
+}
+
+#[derive(Debug, Default, Clone)]
+pub struct S3KeyFilter {
+    pub filter_rules: Option<FilterRuleList>,
+}
+impl S3KeyFilter {
+    pub fn to_http_response(self) -> anyhow::Result<hyper::Response<hyper::Body>> {
+        anyhow::bail!("todo")
+    }
+}
+
+#[derive(Debug, Default, Clone)]
+pub struct Tag {
+    pub key: Option<ObjectKey>,
+    pub value: Option<Value>,
+}
+impl Tag {
+    pub fn to_http_response(self) -> anyhow::Result<hyper::Response<hyper::Body>> {
+        anyhow::bail!("todo")
+    }
+}
+
+#[derive(Debug, Default, Clone)]
+pub struct AnalyticsConfiguration {
+    pub storage_class_analysis: Option<StorageClassAnalysis>,
+    pub filter: Option<AnalyticsFilter>,
+    pub id: Option<AnalyticsId>,
+}
+impl AnalyticsConfiguration {
+    pub fn to_http_response(self) -> anyhow::Result<hyper::Response<hyper::Body>> {
+        anyhow::bail!("todo")
+    }
+}
+
+#[derive(Debug, Default, Clone)]
+pub struct PutBucketEncryptionRequest {
+    pub checksum_algorithm: Option<ChecksumAlgorithm>,
+    pub expected_bucket_owner: Option<AccountId>,
+    pub bucket: Option<BucketName>,
+    pub server_side_encryption_configuration: Option<ServerSideEncryptionConfiguration>,
+    pub content_md5: Option<ContentMd5>,
+}
+impl PutBucketEncryptionRequest {
+    pub fn to_http_response(self) -> anyhow::Result<hyper::Response<hyper::Body>> {
+        anyhow::bail!("todo")
+    }
+}
+
+#[derive(Debug, Default, Clone)]
+pub struct GetBucketMetricsConfigurationRequest {
+    pub bucket: Option<BucketName>,
+    pub expected_bucket_owner: Option<AccountId>,
+    pub id: Option<MetricsId>,
+}
+impl GetBucketMetricsConfigurationRequest {
+    pub fn to_http_response(self) -> anyhow::Result<hyper::Response<hyper::Body>> {
+        anyhow::bail!("todo")
+    }
+}
+
+#[derive(Debug, Default, Clone)]
+pub struct PutBucketEncryption;
+impl OperationShape for PutBucketEncryption {
+    const NAME: &'static str = "PutBucketEncryption";
+    type Input = PutBucketEncryptionRequest;
+    type Output = ();
+    type Error = ();
+}
+
+pub type CacheControl = String;
+
+pub type EmailAddress = String;
+
+#[derive(Debug, Default, Clone)]
+pub struct LambdaFunctionConfiguration {
+    pub filter: Option<NotificationConfigurationFilter>,
+    pub id: Option<NotificationId>,
+    pub lambda_function_arn: Option<LambdaFunctionArn>,
+    pub events: Option<EventList>,
+}
+impl LambdaFunctionConfiguration {
+    pub fn to_http_response(self) -> anyhow::Result<hyper::Response<hyper::Body>> {
+        anyhow::bail!("todo")
+    }
+}
+
+#[derive(Debug, Default, Clone)]
+pub struct CreateBucket;
+impl OperationShape for CreateBucket {
+    const NAME: &'static str = "CreateBucket";
+    type Input = CreateBucketRequest;
+    type Output = CreateBucketOutput;
+    type Error = ();
+}
+
+#[derive(Debug, Default, Clone)]
+pub struct DeleteBucketInventoryConfiguration;
+impl OperationShape for DeleteBucketInventoryConfiguration {
+    const NAME: &'static str = "DeleteBucketInventoryConfiguration";
+    type Input = DeleteBucketInventoryConfigurationRequest;
+    type Output = ();
+    type Error = ();
+}
+
+#[derive(Debug, Default, Clone)]
+pub struct GetBucketLifecycleConfiguration;
+impl OperationShape for GetBucketLifecycleConfiguration {
+    const NAME: &'static str = "GetBucketLifecycleConfiguration";
+    type Input = GetBucketLifecycleConfigurationRequest;
+    type Output = GetBucketLifecycleConfigurationOutput;
+    type Error = ();
+}
+
+#[derive(Debug, Default, Clone)]
+pub struct GetObjectLegalHoldRequest {
+    pub request_payer: Option<RequestPayer>,
+    pub bucket: Option<BucketName>,
+    pub version_id: Option<ObjectVersionId>,
+    pub expected_bucket_owner: Option<AccountId>,
+    pub key: Option<ObjectKey>,
+}
+impl GetObjectLegalHoldRequest {
+    pub fn to_http_response(self) -> anyhow::Result<hyper::Response<hyper::Body>> {
+        anyhow::bail!("todo")
+    }
+}
+
+#[derive(Debug, Default, Clone)]
+pub struct PutBucketAcl;
+impl OperationShape for PutBucketAcl {
+    const NAME: &'static str = "PutBucketAcl";
+    type Input = PutBucketAclRequest;
+    type Output = ();
+    type Error = ();
+}
+
+#[derive(Debug, Default, Clone)]
+pub struct CorsConfiguration {
+    pub cors_rules: Option<CorsRules>,
+}
+impl CorsConfiguration {
+    pub fn to_http_response(self) -> anyhow::Result<hyper::Response<hyper::Body>> {
+        anyhow::bail!("todo")
+    }
+}
+
+pub type QueueArn = String;
+
+#[derive(Debug, Default, Clone)]
+pub struct ListBucketsOutput {
+    pub buckets: Option<Buckets>,
+    pub owner: Option<Owner>,
+}
+impl ListBucketsOutput {
+    pub fn to_http_response(self) -> anyhow::Result<hyper::Response<hyper::Body>> {
+        anyhow::bail!("todo")
+    }
+}
+
+#[derive(Debug, Default, Clone)]
+pub struct LifecycleExpiration {
+    pub date: Option<Date>,
+    pub expired_object_delete_marker: Option<ExpiredObjectDeleteMarker>,
+    pub days: Option<Days>,
+}
+impl LifecycleExpiration {
+    pub fn to_http_response(self) -> anyhow::Result<hyper::Response<hyper::Body>> {
+        anyhow::bail!("todo")
+    }
+}
+
+pub type ObjectLockRetainUntilDate = String;
+
+#[derive(Debug, Default, Clone)]
+pub struct PutObjectAclRequest {
+    pub grant_read: Option<GrantRead>,
+    pub acl: Option<ObjectCannedAcl>,
+    pub expected_bucket_owner: Option<AccountId>,
+    pub grant_full_control: Option<GrantFullControl>,
+    pub access_control_policy: Option<AccessControlPolicy>,
+    pub request_payer: Option<RequestPayer>,
+    pub version_id: Option<ObjectVersionId>,
+    pub grant_write_acp: Option<GrantWriteAcp>,
+    pub key: Option<ObjectKey>,
+    pub grant_read_acp: Option<GrantReadAcp>,
+    pub grant_write: Option<GrantWrite>,
+    pub checksum_algorithm: Option<ChecksumAlgorithm>,
+    pub bucket: Option<BucketName>,
+    pub content_md5: Option<ContentMd5>,
+}
+impl PutObjectAclRequest {
+    pub fn to_http_response(self) -> anyhow::Result<hyper::Response<hyper::Body>> {
+        anyhow::bail!("todo")
+    }
+}
+
+#[derive(Debug, Default, Clone)]
+pub struct RoutingRule {
+    pub condition: Option<Condition>,
+    pub redirect: Option<Redirect>,
+}
+impl RoutingRule {
+    pub fn to_http_response(self) -> anyhow::Result<hyper::Response<hyper::Body>> {
+        anyhow::bail!("todo")
+    }
+}
+
+#[derive(Debug, Default, Clone)]
+pub struct PutBucketPolicy;
+impl OperationShape for PutBucketPolicy {
+    const NAME: &'static str = "PutBucketPolicy";
+    type Input = PutBucketPolicyRequest;
+    type Output = ();
+    type Error = ();
+}
 
 #[derive(Debug, Default, Clone)]
 pub struct DeleteObjectOutput {
     pub version_id: Option<ObjectVersionId>,
-    pub request_charged: Option<RequestCharged>,
     pub delete_marker: Option<DeleteMarker>,
+    pub request_charged: Option<RequestCharged>,
 }
 impl DeleteObjectOutput {
     pub fn to_http_response(self) -> anyhow::Result<hyper::Response<hyper::Body>> {
@@ -5452,43 +6341,89 @@ impl DeleteObjectOutput {
 }
 
 #[derive(Debug, Default, Clone)]
-pub struct Redirect {
-    pub host_name: Option<HostName>,
-    pub replace_key_with: Option<ReplaceKeyWith>,
-    pub replace_key_prefix_with: Option<ReplaceKeyPrefixWith>,
-    pub protocol: Option<Protocol>,
-    pub http_redirect_code: Option<HttpRedirectCode>,
+pub struct PutObjectLockConfigurationOutput {
+    pub request_charged: Option<RequestCharged>,
 }
-impl Redirect {
+impl PutObjectLockConfigurationOutput {
     pub fn to_http_response(self) -> anyhow::Result<hyper::Response<hyper::Body>> {
         anyhow::bail!("todo")
     }
 }
 
 #[derive(Debug, Default, Clone)]
-pub struct ErrorDocument {
-    pub key: Option<ObjectKey>,
+pub struct VersioningConfiguration {
+    pub status: Option<BucketVersioningStatus>,
+    pub mfa_delete: Option<MfaDelete>,
 }
-impl ErrorDocument {
+impl VersioningConfiguration {
     pub fn to_http_response(self) -> anyhow::Result<hyper::Response<hyper::Body>> {
         anyhow::bail!("todo")
     }
 }
 
-pub type ObjectSizeGreaterThanBytes = i64;
+pub type StreamingBlob = Arc<hyper::Body>;
+
+pub type GrantFullControl = String;
 
 #[derive(Debug, Default, Clone)]
-pub struct ReplicationTime {
-    pub time: Option<ReplicationTimeValue>,
-    pub status: Option<ReplicationTimeStatus>,
+pub struct InventorySchedule {
+    pub frequency: Option<InventoryFrequency>,
 }
-impl ReplicationTime {
+impl InventorySchedule {
     pub fn to_http_response(self) -> anyhow::Result<hyper::Response<hyper::Body>> {
         anyhow::bail!("todo")
     }
 }
 
-pub type ResponseContentEncoding = String;
+pub type IsLatest = bool;
+
+pub type GrantRead = String;
+
+#[derive(Debug, Default, Clone)]
+pub struct ListMultipartUploads;
+impl OperationShape for ListMultipartUploads {
+    const NAME: &'static str = "ListMultipartUploads";
+    type Input = ListMultipartUploadsRequest;
+    type Output = ListMultipartUploadsOutput;
+    type Error = ();
+}
+
+#[derive(Debug, Default, Clone)]
+pub struct PutBucketIntelligentTieringConfigurationRequest {
+    pub id: Option<IntelligentTieringId>,
+    pub intelligent_tiering_configuration: Option<IntelligentTieringConfiguration>,
+    pub bucket: Option<BucketName>,
+}
+impl PutBucketIntelligentTieringConfigurationRequest {
+    pub fn to_http_response(self) -> anyhow::Result<hyper::Response<hyper::Body>> {
+        anyhow::bail!("todo")
+    }
+}
+
+pub type RoutingRules = Vec<RoutingRule>;
+
+pub type TopicConfigurationList = Vec<TopicConfiguration>;
+
+#[derive(Debug, Default, Clone)]
+pub struct ProgressEvent {
+    pub details: Option<Progress>,
+}
+impl ProgressEvent {
+    pub fn to_http_response(self) -> anyhow::Result<hyper::Response<hyper::Body>> {
+        anyhow::bail!("todo")
+    }
+}
+
+#[derive(Debug, Default, Clone)]
+pub struct CompleteMultipartUpload;
+impl OperationShape for CompleteMultipartUpload {
+    const NAME: &'static str = "CompleteMultipartUpload";
+    type Input = CompleteMultipartUploadRequest;
+    type Output = CompleteMultipartUploadOutput;
+    type Error = ();
+}
+
+pub type DeleteMarkerVersionId = String;
 
 #[derive(Debug, Default, Clone)]
 pub struct HeadBucket;
@@ -5500,134 +6435,15 @@ impl OperationShape for HeadBucket {
 }
 
 #[derive(Debug, Default, Clone)]
-pub struct GetBucketLifecycleConfigurationRequest {
-    pub expected_bucket_owner: Option<AccountId>,
+pub struct GetBucketIntelligentTieringConfigurationRequest {
+    pub id: Option<IntelligentTieringId>,
     pub bucket: Option<BucketName>,
 }
-impl GetBucketLifecycleConfigurationRequest {
+impl GetBucketIntelligentTieringConfigurationRequest {
     pub fn to_http_response(self) -> anyhow::Result<hyper::Response<hyper::Body>> {
         anyhow::bail!("todo")
     }
 }
-
-pub type InventoryConfigurationList = Vec<InventoryConfiguration>;
-
-#[derive(Debug, Default, Clone)]
-pub struct NoSuchUpload {}
-impl NoSuchUpload {
-    pub fn to_http_response(self) -> anyhow::Result<hyper::Response<hyper::Body>> {
-        anyhow::bail!("todo")
-    }
-}
-
-#[derive(Debug, Clone, Copy, Eq, Ord, PartialEq, PartialOrd, Hash)]
-pub enum CompressionType {
-    GZIP,
-    NONE,
-    BZIP2,
-}
-impl AsRef<str> for CompressionType {
-    fn as_ref(&self) -> &str {
-        match self {
-            Self::GZIP => "GZIP",
-            Self::NONE => "NONE",
-            Self::BZIP2 => "BZIP2",
-        }
-    }
-}
-impl TryFrom<&str> for CompressionType {
-    type Error = String;
-    fn try_from(s: &str) -> Result<Self, Self::Error> {
-        match s {
-            "GZIP" => Ok(Self::GZIP),
-            "NONE" => Ok(Self::NONE),
-            "BZIP2" => Ok(Self::BZIP2),
-            _ => Err(format!("unknown enum value {}", s)),
-        }
-    }
-}
-
-#[derive(Debug, Default, Clone)]
-pub struct GetObjectAclOutput {
-    pub owner: Option<Owner>,
-    pub request_charged: Option<RequestCharged>,
-    pub grants: Option<Grants>,
-}
-impl GetObjectAclOutput {
-    pub fn to_http_response(self) -> anyhow::Result<hyper::Response<hyper::Body>> {
-        anyhow::bail!("todo")
-    }
-}
-
-#[derive(Debug, Default, Clone)]
-pub struct GetBucketLocation;
-impl OperationShape for GetBucketLocation {
-    const NAME: &'static str = "GetBucketLocation";
-    type Input = GetBucketLocationRequest;
-    type Output = GetBucketLocationOutput;
-    type Error = ();
-}
-
-pub type CopySourceSseCustomerKeyMd5 = String;
-
-#[derive(Debug, Default, Clone)]
-pub struct DeletePublicAccessBlock;
-impl OperationShape for DeletePublicAccessBlock {
-    const NAME: &'static str = "DeletePublicAccessBlock";
-    type Input = DeletePublicAccessBlockRequest;
-    type Output = ();
-    type Error = ();
-}
-
-pub type Priority = i32;
-
-#[derive(Debug, Default, Clone)]
-pub struct ReplicationConfiguration {
-    pub role: Option<Role>,
-    pub rules: Option<ReplicationRules>,
-}
-impl ReplicationConfiguration {
-    pub fn to_http_response(self) -> anyhow::Result<hyper::Response<hyper::Body>> {
-        anyhow::bail!("todo")
-    }
-}
-
-pub type ReplicationRules = Vec<ReplicationRule>;
-
-#[derive(Debug, Default, Clone)]
-pub struct DeleteBucketAnalyticsConfiguration;
-impl OperationShape for DeleteBucketAnalyticsConfiguration {
-    const NAME: &'static str = "DeleteBucketAnalyticsConfiguration";
-    type Input = DeleteBucketAnalyticsConfigurationRequest;
-    type Output = ();
-    type Error = ();
-}
-
-#[derive(Debug, Clone, Copy, Eq, Ord, PartialEq, PartialOrd, Hash)]
-pub enum MetricsStatus {
-    Disabled,
-    Enabled,
-}
-impl AsRef<str> for MetricsStatus {
-    fn as_ref(&self) -> &str {
-        match self {
-            Self::Disabled => "Disabled",
-            Self::Enabled => "Enabled",
-        }
-    }
-}
-impl TryFrom<&str> for MetricsStatus {
-    type Error = String;
-    fn try_from(s: &str) -> Result<Self, Self::Error> {
-        match s {
-            "Disabled" => Ok(Self::Disabled),
-            "Enabled" => Ok(Self::Enabled),
-            _ => Err(format!("unknown enum value {}", s)),
-        }
-    }
-}
-
-pub type Grants = Vec<Grant>;
 
 #[derive(Debug, Clone, Copy, Eq, Ord, PartialEq, PartialOrd, Hash)]
 pub enum IntelligentTieringAccessTier {
@@ -5653,11 +6469,318 @@ impl TryFrom<&str> for IntelligentTieringAccessTier {
     }
 }
 
-pub type AllowedOrigins = Vec<AllowedOrigin>;
+#[derive(Debug, Default, Clone)]
+pub struct EndEvent {}
+impl EndEvent {
+    pub fn to_http_response(self) -> anyhow::Result<hyper::Response<hyper::Body>> {
+        anyhow::bail!("todo")
+    }
+}
 
-pub type NextUploadIdMarker = String;
+pub type BytesScanned = i64;
 
-pub type AccountId = String;
+#[derive(Debug, Default, Clone)]
+pub struct ListObjectVersionsOutput {
+    pub key_marker: Option<KeyMarker>,
+    pub delete_markers: Option<DeleteMarkers>,
+    pub versions: Option<ObjectVersionList>,
+    pub name: Option<BucketName>,
+    pub next_key_marker: Option<NextKeyMarker>,
+    pub delimiter: Option<Delimiter>,
+    pub encoding_type: Option<EncodingType>,
+    pub prefix: Option<Prefix>,
+    pub is_truncated: Option<IsTruncated>,
+    pub max_keys: Option<MaxKeys>,
+    pub common_prefixes: Option<CommonPrefixList>,
+    pub version_id_marker: Option<VersionIdMarker>,
+    pub next_version_id_marker: Option<NextVersionIdMarker>,
+}
+impl ListObjectVersionsOutput {
+    pub fn to_http_response(self) -> anyhow::Result<hyper::Response<hyper::Body>> {
+        anyhow::bail!("todo")
+    }
+}
+
+#[derive(Debug, Clone, Copy, Eq, Ord, PartialEq, PartialOrd, Hash)]
+pub enum BucketAccelerateStatus {
+    Enabled,
+    Suspended,
+}
+impl AsRef<str> for BucketAccelerateStatus {
+    fn as_ref(&self) -> &str {
+        match self {
+            Self::Enabled => "Enabled",
+            Self::Suspended => "Suspended",
+        }
+    }
+}
+impl TryFrom<&str> for BucketAccelerateStatus {
+    type Error = String;
+    fn try_from(s: &str) -> Result<Self, Self::Error> {
+        match s {
+            "Enabled" => Ok(Self::Enabled),
+            "Suspended" => Ok(Self::Suspended),
+            _ => Err(format!("unknown enum value {}", s)),
+        }
+    }
+}
+
+#[derive(Debug, Default, Clone)]
+pub struct NoncurrentVersionExpiration {
+    pub newer_noncurrent_versions: Option<VersionCount>,
+    pub noncurrent_days: Option<Days>,
+}
+impl NoncurrentVersionExpiration {
+    pub fn to_http_response(self) -> anyhow::Result<hyper::Response<hyper::Body>> {
+        anyhow::bail!("todo")
+    }
+}
+
+#[derive(Debug, Default, Clone)]
+pub struct PutBucketAccelerateConfiguration;
+impl OperationShape for PutBucketAccelerateConfiguration {
+    const NAME: &'static str = "PutBucketAccelerateConfiguration";
+    type Input = PutBucketAccelerateConfigurationRequest;
+    type Output = ();
+    type Error = ();
+}
+
+#[derive(Debug, Clone, Copy, Eq, Ord, PartialEq, PartialOrd, Hash)]
+pub enum ChecksumAlgorithm {
+    SHA256,
+    SHA1,
+    CRC32C,
+    CRC32,
+}
+impl AsRef<str> for ChecksumAlgorithm {
+    fn as_ref(&self) -> &str {
+        match self {
+            Self::SHA256 => "SHA256",
+            Self::SHA1 => "SHA1",
+            Self::CRC32C => "CRC32C",
+            Self::CRC32 => "CRC32",
+        }
+    }
+}
+impl TryFrom<&str> for ChecksumAlgorithm {
+    type Error = String;
+    fn try_from(s: &str) -> Result<Self, Self::Error> {
+        match s {
+            "SHA256" => Ok(Self::SHA256),
+            "SHA1" => Ok(Self::SHA1),
+            "CRC32C" => Ok(Self::CRC32C),
+            "CRC32" => Ok(Self::CRC32),
+            _ => Err(format!("unknown enum value {}", s)),
+        }
+    }
+}
+
+#[derive(Debug, Clone, Copy, Eq, Ord, PartialEq, PartialOrd, Hash)]
+pub enum CompressionType {
+    BZIP2,
+    NONE,
+    GZIP,
+}
+impl AsRef<str> for CompressionType {
+    fn as_ref(&self) -> &str {
+        match self {
+            Self::BZIP2 => "BZIP2",
+            Self::NONE => "NONE",
+            Self::GZIP => "GZIP",
+        }
+    }
+}
+impl TryFrom<&str> for CompressionType {
+    type Error = String;
+    fn try_from(s: &str) -> Result<Self, Self::Error> {
+        match s {
+            "BZIP2" => Ok(Self::BZIP2),
+            "NONE" => Ok(Self::NONE),
+            "GZIP" => Ok(Self::GZIP),
+            _ => Err(format!("unknown enum value {}", s)),
+        }
+    }
+}
+
+#[derive(Debug, Default, Clone)]
+pub struct HeadObject;
+impl OperationShape for HeadObject {
+    const NAME: &'static str = "HeadObject";
+    type Input = HeadObjectRequest;
+    type Output = HeadObjectOutput;
+    type Error = ();
+}
+
+pub type IfModifiedSince = String;
+
+#[derive(Debug, Default, Clone)]
+pub struct PutBucketCors;
+impl OperationShape for PutBucketCors {
+    const NAME: &'static str = "PutBucketCors";
+    type Input = PutBucketCorsRequest;
+    type Output = ();
+    type Error = ();
+}
+
+#[derive(Debug, Clone, Copy, Eq, Ord, PartialEq, PartialOrd, Hash)]
+pub enum ReplicationRuleStatus {
+    Enabled,
+    Disabled,
+}
+impl AsRef<str> for ReplicationRuleStatus {
+    fn as_ref(&self) -> &str {
+        match self {
+            Self::Enabled => "Enabled",
+            Self::Disabled => "Disabled",
+        }
+    }
+}
+impl TryFrom<&str> for ReplicationRuleStatus {
+    type Error = String;
+    fn try_from(s: &str) -> Result<Self, Self::Error> {
+        match s {
+            "Enabled" => Ok(Self::Enabled),
+            "Disabled" => Ok(Self::Disabled),
+            _ => Err(format!("unknown enum value {}", s)),
+        }
+    }
+}
+
+#[derive(Debug, Default, Clone)]
+pub struct GetBucketMetricsConfigurationOutput {
+    pub metrics_configuration: Option<MetricsConfiguration>,
+}
+impl GetBucketMetricsConfigurationOutput {
+    pub fn to_http_response(self) -> anyhow::Result<hyper::Response<hyper::Body>> {
+        anyhow::bail!("todo")
+    }
+}
+
+#[derive(Debug, Default, Clone)]
+pub struct StatsEvent {
+    pub details: Option<Stats>,
+}
+impl StatsEvent {
+    pub fn to_http_response(self) -> anyhow::Result<hyper::Response<hyper::Body>> {
+        anyhow::bail!("todo")
+    }
+}
+
+pub type CopySourceIfUnmodifiedSince = String;
+
+#[derive(Debug, Default, Clone)]
+pub struct ListObjectVersions;
+impl OperationShape for ListObjectVersions {
+    const NAME: &'static str = "ListObjectVersions";
+    type Input = ListObjectVersionsRequest;
+    type Output = ListObjectVersionsOutput;
+    type Error = ();
+}
+
+pub type MaxUploads = i32;
+
+pub type CommonPrefixList = Vec<CommonPrefix>;
+
+pub type ObjectList = Vec<Object>;
+
+#[derive(Debug, Default, Clone)]
+pub struct GetObjectLegalHold;
+impl OperationShape for GetObjectLegalHold {
+    const NAME: &'static str = "GetObjectLegalHold";
+    type Input = GetObjectLegalHoldRequest;
+    type Output = GetObjectLegalHoldOutput;
+    type Error = ();
+}
+
+#[derive(Debug, Default, Clone)]
+pub struct DeleteBucketReplication;
+impl OperationShape for DeleteBucketReplication {
+    const NAME: &'static str = "DeleteBucketReplication";
+    type Input = DeleteBucketReplicationRequest;
+    type Output = ();
+    type Error = ();
+}
+
+pub type Buckets = Vec<Bucket>;
+
+pub type FieldDelimiter = String;
+
+pub type IsEnabled = bool;
+
+pub type ObjectIdentifierList = Vec<ObjectIdentifier>;
+
+#[derive(Debug, Default, Clone)]
+pub struct GetBucketLogging;
+impl OperationShape for GetBucketLogging {
+    const NAME: &'static str = "GetBucketLogging";
+    type Input = GetBucketLoggingRequest;
+    type Output = GetBucketLoggingOutput;
+    type Error = ();
+}
+
+#[derive(Debug, Default, Clone)]
+pub struct GetBucketReplicationOutput {
+    pub replication_configuration: Option<ReplicationConfiguration>,
+}
+impl GetBucketReplicationOutput {
+    pub fn to_http_response(self) -> anyhow::Result<hyper::Response<hyper::Body>> {
+        anyhow::bail!("todo")
+    }
+}
+
+#[derive(Debug, Default, Clone)]
+pub struct ListMultipartUploadsRequest {
+    pub max_uploads: Option<MaxUploads>,
+    pub expected_bucket_owner: Option<AccountId>,
+    pub key_marker: Option<KeyMarker>,
+    pub encoding_type: Option<EncodingType>,
+    pub bucket: Option<BucketName>,
+    pub upload_id_marker: Option<UploadIdMarker>,
+    pub prefix: Option<Prefix>,
+    pub delimiter: Option<Delimiter>,
+}
+impl ListMultipartUploadsRequest {
+    pub fn to_http_response(self) -> anyhow::Result<hyper::Response<hyper::Body>> {
+        anyhow::bail!("todo")
+    }
+}
+
+pub type PartNumber = i32;
+
+#[derive(Debug, Default, Clone)]
+pub struct PutBucketInventoryConfiguration;
+impl OperationShape for PutBucketInventoryConfiguration {
+    const NAME: &'static str = "PutBucketInventoryConfiguration";
+    type Input = PutBucketInventoryConfigurationRequest;
+    type Output = ();
+    type Error = ();
+}
+
+#[derive(Debug, Clone, Copy, Eq, Ord, PartialEq, PartialOrd, Hash)]
+pub enum InventoryIncludedObjectVersions {
+    All,
+    Current,
+}
+impl AsRef<str> for InventoryIncludedObjectVersions {
+    fn as_ref(&self) -> &str {
+        match self {
+            Self::All => "All",
+            Self::Current => "Current",
+        }
+    }
+}
+impl TryFrom<&str> for InventoryIncludedObjectVersions {
+    type Error = String;
+    fn try_from(s: &str) -> Result<Self, Self::Error> {
+        match s {
+            "All" => Ok(Self::All),
+            "Current" => Ok(Self::Current),
+            _ => Err(format!("unknown enum value {}", s)),
+        }
+    }
+}
+
+pub type SsekmsEncryptionContext = String;
 
 #[derive(Debug, Default, Clone)]
 pub struct RequestPaymentConfiguration {
@@ -5670,825 +6793,16 @@ impl RequestPaymentConfiguration {
 }
 
 #[derive(Debug, Default, Clone)]
-pub struct IndexDocument {
-    pub suffix: Option<Suffix>,
-}
-impl IndexDocument {
-    pub fn to_http_response(self) -> anyhow::Result<hyper::Response<hyper::Body>> {
-        anyhow::bail!("todo")
-    }
-}
-
-#[derive(Debug, Default, Clone)]
-pub struct DeleteBucketTagging;
-impl OperationShape for DeleteBucketTagging {
-    const NAME: &'static str = "DeleteBucketTagging";
-    type Input = DeleteBucketTaggingRequest;
-    type Output = ();
-    type Error = ();
-}
-
-pub type AbortDate = String;
-
-#[derive(Debug, Default, Clone)]
-pub struct BucketAlreadyExists {}
-impl BucketAlreadyExists {
-    pub fn to_http_response(self) -> anyhow::Result<hyper::Response<hyper::Body>> {
-        anyhow::bail!("todo")
-    }
-}
-
-#[derive(Debug, Default, Clone)]
-pub struct GetObjectAttributes;
-impl OperationShape for GetObjectAttributes {
-    const NAME: &'static str = "GetObjectAttributes";
-    type Input = GetObjectAttributesRequest;
-    type Output = GetObjectAttributesOutput;
-    type Error = ();
-}
-
-#[derive(Debug, Clone, Copy, Eq, Ord, PartialEq, PartialOrd, Hash)]
-pub enum Permission {
-    WRITE_ACP,
-    WRITE,
-    READ_ACP,
-    FULL_CONTROL,
-    READ,
-}
-impl AsRef<str> for Permission {
-    fn as_ref(&self) -> &str {
-        match self {
-            Self::WRITE_ACP => "WRITE_ACP",
-            Self::WRITE => "WRITE",
-            Self::READ_ACP => "READ_ACP",
-            Self::FULL_CONTROL => "FULL_CONTROL",
-            Self::READ => "READ",
-        }
-    }
-}
-impl TryFrom<&str> for Permission {
-    type Error = String;
-    fn try_from(s: &str) -> Result<Self, Self::Error> {
-        match s {
-            "WRITE_ACP" => Ok(Self::WRITE_ACP),
-            "WRITE" => Ok(Self::WRITE),
-            "READ_ACP" => Ok(Self::READ_ACP),
-            "FULL_CONTROL" => Ok(Self::FULL_CONTROL),
-            "READ" => Ok(Self::READ),
-            _ => Err(format!("unknown enum value {}", s)),
-        }
-    }
-}
-
-pub type LastModified = String;
-
-pub type EventList = Vec<Event>;
-
-pub type QueueArn = String;
-
-#[derive(Debug, Default, Clone)]
-pub struct GetBucketTaggingOutput {
-    pub tag_set: Option<TagSet>,
-}
-impl GetBucketTaggingOutput {
-    pub fn to_http_response(self) -> anyhow::Result<hyper::Response<hyper::Body>> {
-        anyhow::bail!("todo")
-    }
-}
-
-#[derive(Debug, Default, Clone)]
-pub struct Tiering {
-    pub days: Option<IntelligentTieringDays>,
-    pub access_tier: Option<IntelligentTieringAccessTier>,
-}
-impl Tiering {
-    pub fn to_http_response(self) -> anyhow::Result<hyper::Response<hyper::Body>> {
-        anyhow::bail!("todo")
-    }
-}
-
-#[derive(Debug, Default, Clone)]
-pub struct DeleteBucketEncryptionRequest {
-    pub bucket: Option<BucketName>,
-    pub expected_bucket_owner: Option<AccountId>,
-}
-impl DeleteBucketEncryptionRequest {
-    pub fn to_http_response(self) -> anyhow::Result<hyper::Response<hyper::Body>> {
-        anyhow::bail!("todo")
-    }
-}
-
-pub type TargetPrefix = String;
-
-pub type Restore = String;
-
-pub type BytesReturned = i64;
-
-#[derive(Debug, Clone, Copy, Eq, Ord, PartialEq, PartialOrd, Hash)]
-pub enum ObjectLockMode {
-    COMPLIANCE,
-    GOVERNANCE,
-}
-impl AsRef<str> for ObjectLockMode {
-    fn as_ref(&self) -> &str {
-        match self {
-            Self::COMPLIANCE => "COMPLIANCE",
-            Self::GOVERNANCE => "GOVERNANCE",
-        }
-    }
-}
-impl TryFrom<&str> for ObjectLockMode {
-    type Error = String;
-    fn try_from(s: &str) -> Result<Self, Self::Error> {
-        match s {
-            "COMPLIANCE" => Ok(Self::COMPLIANCE),
-            "GOVERNANCE" => Ok(Self::GOVERNANCE),
-            _ => Err(format!("unknown enum value {}", s)),
-        }
-    }
-}
-
-#[derive(Debug, Default, Clone)]
-pub struct GetBucketInventoryConfigurationRequest {
-    pub expected_bucket_owner: Option<AccountId>,
-    pub id: Option<InventoryId>,
-    pub bucket: Option<BucketName>,
-}
-impl GetBucketInventoryConfigurationRequest {
-    pub fn to_http_response(self) -> anyhow::Result<hyper::Response<hyper::Body>> {
-        anyhow::bail!("todo")
-    }
-}
-
-#[derive(Debug, Default, Clone)]
-pub struct GetBucketNotificationConfiguration;
-impl OperationShape for GetBucketNotificationConfiguration {
-    const NAME: &'static str = "GetBucketNotificationConfiguration";
-    type Input = GetBucketNotificationConfigurationRequest;
-    type Output = NotificationConfiguration;
-    type Error = ();
-}
-
-pub type ChecksumSha1 = String;
-
-#[derive(Debug, Default, Clone)]
-pub struct DeleteBucketAnalyticsConfigurationRequest {
-    pub expected_bucket_owner: Option<AccountId>,
-    pub id: Option<AnalyticsId>,
-    pub bucket: Option<BucketName>,
-}
-impl DeleteBucketAnalyticsConfigurationRequest {
-    pub fn to_http_response(self) -> anyhow::Result<hyper::Response<hyper::Body>> {
-        anyhow::bail!("todo")
-    }
-}
-
-#[derive(Debug, Clone, Copy, Eq, Ord, PartialEq, PartialOrd, Hash)]
-pub enum InventoryFormat {
-    CSV,
-    ORC,
-    Parquet,
-}
-impl AsRef<str> for InventoryFormat {
-    fn as_ref(&self) -> &str {
-        match self {
-            Self::CSV => "CSV",
-            Self::ORC => "ORC",
-            Self::Parquet => "Parquet",
-        }
-    }
-}
-impl TryFrom<&str> for InventoryFormat {
-    type Error = String;
-    fn try_from(s: &str) -> Result<Self, Self::Error> {
-        match s {
-            "CSV" => Ok(Self::CSV),
-            "ORC" => Ok(Self::ORC),
-            "Parquet" => Ok(Self::Parquet),
-            _ => Err(format!("unknown enum value {}", s)),
-        }
-    }
-}
-
-pub type CreationDate = String;
-
-#[derive(Debug, Default, Clone)]
-pub struct ExistingObjectReplication {
-    pub status: Option<ExistingObjectReplicationStatus>,
-}
-impl ExistingObjectReplication {
-    pub fn to_http_response(self) -> anyhow::Result<hyper::Response<hyper::Body>> {
-        anyhow::bail!("todo")
-    }
-}
-
-pub type CopySourceRange = String;
-
-#[derive(Debug, Default, Clone)]
-pub struct GetObjectAclRequest {
-    pub request_payer: Option<RequestPayer>,
-    pub key: Option<ObjectKey>,
-    pub version_id: Option<ObjectVersionId>,
-    pub expected_bucket_owner: Option<AccountId>,
-    pub bucket: Option<BucketName>,
-}
-impl GetObjectAclRequest {
-    pub fn to_http_response(self) -> anyhow::Result<hyper::Response<hyper::Body>> {
-        anyhow::bail!("todo")
-    }
-}
-
-pub type LambdaFunctionArn = String;
-
-#[derive(Debug, Default, Clone)]
-pub struct Tag {
-    pub value: Option<Value>,
-    pub key: Option<ObjectKey>,
-}
-impl Tag {
-    pub fn to_http_response(self) -> anyhow::Result<hyper::Response<hyper::Body>> {
-        anyhow::bail!("todo")
-    }
-}
-
-#[derive(Debug, Default, Clone)]
-pub struct Checksum {
-    pub checksum_sha1: Option<ChecksumSha1>,
-    pub checksum_crc32: Option<ChecksumCrc32>,
-    pub checksum_crc32_c: Option<ChecksumCrc32c>,
-    pub checksum_sha256: Option<ChecksumSha256>,
-}
-impl Checksum {
-    pub fn to_http_response(self) -> anyhow::Result<hyper::Response<hyper::Body>> {
-        anyhow::bail!("todo")
-    }
-}
-
-pub type Expires = String;
-
-#[derive(Debug, Default, Clone)]
-pub struct RestoreObjectOutput {
-    pub request_charged: Option<RequestCharged>,
-    pub restore_output_path: Option<RestoreOutputPath>,
-}
-impl RestoreObjectOutput {
-    pub fn to_http_response(self) -> anyhow::Result<hyper::Response<hyper::Body>> {
-        anyhow::bail!("todo")
-    }
-}
-
-#[derive(Debug, Default, Clone)]
-pub struct ReplicationRuleAndOperator {
-    pub tags: Option<TagSet>,
-    pub prefix: Option<Prefix>,
-}
-impl ReplicationRuleAndOperator {
-    pub fn to_http_response(self) -> anyhow::Result<hyper::Response<hyper::Body>> {
-        anyhow::bail!("todo")
-    }
-}
-
-#[derive(Debug, Default, Clone)]
-pub struct PutObjectAclOutput {
-    pub request_charged: Option<RequestCharged>,
-}
-impl PutObjectAclOutput {
-    pub fn to_http_response(self) -> anyhow::Result<hyper::Response<hyper::Body>> {
-        anyhow::bail!("todo")
-    }
-}
-
-#[derive(Debug, Default, Clone)]
-pub struct PutObjectTaggingOutput {
-    pub version_id: Option<ObjectVersionId>,
-}
-impl PutObjectTaggingOutput {
-    pub fn to_http_response(self) -> anyhow::Result<hyper::Response<hyper::Body>> {
-        anyhow::bail!("todo")
-    }
-}
-
-#[derive(Debug, Default, Clone)]
-pub struct BucketLoggingStatus {
-    pub logging_enabled: Option<LoggingEnabled>,
-}
-impl BucketLoggingStatus {
-    pub fn to_http_response(self) -> anyhow::Result<hyper::Response<hyper::Body>> {
-        anyhow::bail!("todo")
-    }
-}
-
-#[derive(Debug, Default, Clone)]
-pub struct ListObjectsRequest {
-    pub max_keys: Option<MaxKeys>,
-    pub expected_bucket_owner: Option<AccountId>,
-    pub encoding_type: Option<EncodingType>,
-    pub delimiter: Option<Delimiter>,
-    pub bucket: Option<BucketName>,
-    pub marker: Option<Marker>,
-    pub prefix: Option<Prefix>,
-    pub request_payer: Option<RequestPayer>,
-}
-impl ListObjectsRequest {
-    pub fn to_http_response(self) -> anyhow::Result<hyper::Response<hyper::Body>> {
-        anyhow::bail!("todo")
-    }
-}
-
-#[derive(Debug, Default, Clone)]
-pub struct LambdaFunctionConfiguration {
-    pub filter: Option<NotificationConfigurationFilter>,
-    pub events: Option<EventList>,
-    pub lambda_function_arn: Option<LambdaFunctionArn>,
-    pub id: Option<NotificationId>,
-}
-impl LambdaFunctionConfiguration {
-    pub fn to_http_response(self) -> anyhow::Result<hyper::Response<hyper::Body>> {
-        anyhow::bail!("todo")
-    }
-}
-
-#[derive(Debug, Default, Clone)]
-pub struct ListObjectsV2Request {
-    pub max_keys: Option<MaxKeys>,
-    pub request_payer: Option<RequestPayer>,
-    pub expected_bucket_owner: Option<AccountId>,
-    pub start_after: Option<StartAfter>,
-    pub prefix: Option<Prefix>,
-    pub bucket: Option<BucketName>,
-    pub delimiter: Option<Delimiter>,
-    pub encoding_type: Option<EncodingType>,
-    pub continuation_token: Option<Token>,
-    pub fetch_owner: Option<FetchOwner>,
-}
-impl ListObjectsV2Request {
-    pub fn to_http_response(self) -> anyhow::Result<hyper::Response<hyper::Body>> {
-        anyhow::bail!("todo")
-    }
-}
-
-#[derive(Debug, Clone, Copy, Eq, Ord, PartialEq, PartialOrd, Hash)]
-pub enum ServerSideEncryption {
-    aws_kms,
-    AES256,
-}
-impl AsRef<str> for ServerSideEncryption {
-    fn as_ref(&self) -> &str {
-        match self {
-            Self::aws_kms => "aws:kms",
-            Self::AES256 => "AES256",
-        }
-    }
-}
-impl TryFrom<&str> for ServerSideEncryption {
-    type Error = String;
-    fn try_from(s: &str) -> Result<Self, Self::Error> {
-        match s {
-            "aws:kms" => Ok(Self::aws_kms),
-            "AES256" => Ok(Self::AES256),
-            _ => Err(format!("unknown enum value {}", s)),
-        }
-    }
-}
-
-#[derive(Debug, Clone, Copy, Eq, Ord, PartialEq, PartialOrd, Hash)]
-pub enum BucketVersioningStatus {
-    Enabled,
-    Suspended,
-}
-impl AsRef<str> for BucketVersioningStatus {
-    fn as_ref(&self) -> &str {
-        match self {
-            Self::Enabled => "Enabled",
-            Self::Suspended => "Suspended",
-        }
-    }
-}
-impl TryFrom<&str> for BucketVersioningStatus {
-    type Error = String;
-    fn try_from(s: &str) -> Result<Self, Self::Error> {
-        match s {
-            "Enabled" => Ok(Self::Enabled),
-            "Suspended" => Ok(Self::Suspended),
-            _ => Err(format!("unknown enum value {}", s)),
-        }
-    }
-}
-
-pub type HostName = String;
-
-pub type ReplicaKmsKeyId = String;
-
-#[derive(Debug, Default, Clone)]
-pub struct PutBucketEncryptionRequest {
-    pub bucket: Option<BucketName>,
-    pub expected_bucket_owner: Option<AccountId>,
-    pub checksum_algorithm: Option<ChecksumAlgorithm>,
-    pub content_md5: Option<ContentMd5>,
-    pub server_side_encryption_configuration: Option<ServerSideEncryptionConfiguration>,
-}
-impl PutBucketEncryptionRequest {
-    pub fn to_http_response(self) -> anyhow::Result<hyper::Response<hyper::Body>> {
-        anyhow::bail!("todo")
-    }
-}
-
-#[derive(Debug, Default, Clone)]
-pub struct CompleteMultipartUpload;
-impl OperationShape for CompleteMultipartUpload {
-    const NAME: &'static str = "CompleteMultipartUpload";
-    type Input = CompleteMultipartUploadRequest;
-    type Output = CompleteMultipartUploadOutput;
-    type Error = ();
-}
-
-#[derive(Debug, Clone, Copy, Eq, Ord, PartialEq, PartialOrd, Hash)]
-pub enum DeleteMarkerReplicationStatus {
-    Enabled,
-    Disabled,
-}
-impl AsRef<str> for DeleteMarkerReplicationStatus {
-    fn as_ref(&self) -> &str {
-        match self {
-            Self::Enabled => "Enabled",
-            Self::Disabled => "Disabled",
-        }
-    }
-}
-impl TryFrom<&str> for DeleteMarkerReplicationStatus {
-    type Error = String;
-    fn try_from(s: &str) -> Result<Self, Self::Error> {
-        match s {
-            "Enabled" => Ok(Self::Enabled),
-            "Disabled" => Ok(Self::Disabled),
-            _ => Err(format!("unknown enum value {}", s)),
-        }
-    }
-}
-
-pub type Size = i64;
-
-#[derive(Debug, Default, Clone)]
-pub struct AccessControlTranslation {
-    pub owner: Option<OwnerOverride>,
-}
-impl AccessControlTranslation {
-    pub fn to_http_response(self) -> anyhow::Result<hyper::Response<hyper::Body>> {
-        anyhow::bail!("todo")
-    }
-}
-
-pub type AnalyticsConfigurationList = Vec<AnalyticsConfiguration>;
-
-pub type PartNumber = i32;
-
-#[derive(Debug, Default, Clone)]
-pub struct Bucket {
-    pub name: Option<BucketName>,
-    pub creation_date: Option<CreationDate>,
-}
-impl Bucket {
-    pub fn to_http_response(self) -> anyhow::Result<hyper::Response<hyper::Body>> {
-        anyhow::bail!("todo")
-    }
-}
-
-#[derive(Debug, Clone, Copy, Eq, Ord, PartialEq, PartialOrd, Hash)]
-pub enum ReplicationStatus {
-    COMPLETE,
-    PENDING,
-    FAILED,
-    REPLICA,
-}
-impl AsRef<str> for ReplicationStatus {
-    fn as_ref(&self) -> &str {
-        match self {
-            Self::COMPLETE => "COMPLETE",
-            Self::PENDING => "PENDING",
-            Self::FAILED => "FAILED",
-            Self::REPLICA => "REPLICA",
-        }
-    }
-}
-impl TryFrom<&str> for ReplicationStatus {
-    type Error = String;
-    fn try_from(s: &str) -> Result<Self, Self::Error> {
-        match s {
-            "COMPLETE" => Ok(Self::COMPLETE),
-            "PENDING" => Ok(Self::PENDING),
-            "FAILED" => Ok(Self::FAILED),
-            "REPLICA" => Ok(Self::REPLICA),
-            _ => Err(format!("unknown enum value {}", s)),
-        }
-    }
-}
-
-#[derive(Debug, Default, Clone)]
-pub struct ListObjectsV2;
-impl OperationShape for ListObjectsV2 {
-    const NAME: &'static str = "ListObjectsV2";
-    type Input = ListObjectsV2Request;
-    type Output = ListObjectsV2Output;
-    type Error = ();
-}
-
-pub type NextMarker = String;
-
-pub type RequestRoute = String;
-
-pub type ChecksumSha256 = String;
-
-pub type TargetBucket = String;
-
-pub type AcceptRanges = String;
-
-#[derive(Debug, Default, Clone)]
-pub struct GetBucketReplicationOutput {
-    pub replication_configuration: Option<ReplicationConfiguration>,
-}
-impl GetBucketReplicationOutput {
-    pub fn to_http_response(self) -> anyhow::Result<hyper::Response<hyper::Body>> {
-        anyhow::bail!("todo")
-    }
-}
-
-pub type ObjectVersionId = String;
-
-#[derive(Debug, Default, Clone)]
-pub struct DeletedObject {
-    pub delete_marker: Option<DeleteMarker>,
-    pub delete_marker_version_id: Option<DeleteMarkerVersionId>,
-    pub key: Option<ObjectKey>,
-    pub version_id: Option<ObjectVersionId>,
-}
-impl DeletedObject {
-    pub fn to_http_response(self) -> anyhow::Result<hyper::Response<hyper::Body>> {
-        anyhow::bail!("todo")
-    }
-}
-
-#[derive(Debug, Default, Clone)]
-pub struct GetObjectAttributesRequest {
-    pub request_payer: Option<RequestPayer>,
-    pub part_number_marker: Option<PartNumberMarker>,
-    pub bucket: Option<BucketName>,
-    pub sse_customer_algorithm: Option<SseCustomerAlgorithm>,
-    pub max_parts: Option<MaxParts>,
-    pub key: Option<ObjectKey>,
-    pub sse_customer_key_md5: Option<SseCustomerKeyMd5>,
-    pub expected_bucket_owner: Option<AccountId>,
-    pub sse_customer_key: Option<SseCustomerKey>,
-    pub object_attributes: Option<ObjectAttributesList>,
-    pub version_id: Option<ObjectVersionId>,
-}
-impl GetObjectAttributesRequest {
-    pub fn to_http_response(self) -> anyhow::Result<hyper::Response<hyper::Body>> {
-        anyhow::bail!("todo")
-    }
-}
-
-#[derive(Debug, Default, Clone)]
-pub struct PutBucketPolicy;
-impl OperationShape for PutBucketPolicy {
-    const NAME: &'static str = "PutBucketPolicy";
-    type Input = PutBucketPolicyRequest;
-    type Output = ();
-    type Error = ();
-}
-
-#[derive(Debug, Default, Clone)]
-pub struct GetBucketAnalyticsConfigurationRequest {
-    pub id: Option<AnalyticsId>,
-    pub expected_bucket_owner: Option<AccountId>,
-    pub bucket: Option<BucketName>,
-}
-impl GetBucketAnalyticsConfigurationRequest {
-    pub fn to_http_response(self) -> anyhow::Result<hyper::Response<hyper::Body>> {
-        anyhow::bail!("todo")
-    }
-}
-
-#[derive(Debug, Default, Clone)]
-pub struct DeleteBucketMetricsConfigurationRequest {
-    pub expected_bucket_owner: Option<AccountId>,
-    pub id: Option<MetricsId>,
-    pub bucket: Option<BucketName>,
-}
-impl DeleteBucketMetricsConfigurationRequest {
-    pub fn to_http_response(self) -> anyhow::Result<hyper::Response<hyper::Body>> {
-        anyhow::bail!("todo")
-    }
-}
-
-#[derive(Debug, Default, Clone)]
-pub struct DeleteObjectTaggingOutput {
-    pub version_id: Option<ObjectVersionId>,
-}
-impl DeleteObjectTaggingOutput {
-    pub fn to_http_response(self) -> anyhow::Result<hyper::Response<hyper::Body>> {
-        anyhow::bail!("todo")
-    }
-}
-
-#[derive(Debug, Default, Clone)]
-pub struct PutBucketAnalyticsConfigurationRequest {
-    pub id: Option<AnalyticsId>,
-    pub analytics_configuration: Option<AnalyticsConfiguration>,
-    pub bucket: Option<BucketName>,
-    pub expected_bucket_owner: Option<AccountId>,
-}
-impl PutBucketAnalyticsConfigurationRequest {
-    pub fn to_http_response(self) -> anyhow::Result<hyper::Response<hyper::Body>> {
-        anyhow::bail!("todo")
-    }
-}
-
-#[derive(Debug, Default, Clone)]
-pub struct AbortIncompleteMultipartUpload {
-    pub days_after_initiation: Option<DaysAfterInitiation>,
-}
-impl AbortIncompleteMultipartUpload {
-    pub fn to_http_response(self) -> anyhow::Result<hyper::Response<hyper::Body>> {
-        anyhow::bail!("todo")
-    }
-}
-
-#[derive(Debug, Default, Clone)]
-pub struct PutObjectAcl;
-impl OperationShape for PutObjectAcl {
-    const NAME: &'static str = "PutObjectAcl";
-    type Input = PutObjectAclRequest;
-    type Output = PutObjectAclOutput;
-    type Error = ();
-}
-
-#[derive(Debug, Default, Clone)]
-pub struct PutPublicAccessBlock;
-impl OperationShape for PutPublicAccessBlock {
-    const NAME: &'static str = "PutPublicAccessBlock";
-    type Input = PutPublicAccessBlockRequest;
-    type Output = ();
-    type Error = ();
-}
-
-#[derive(Debug, Default, Clone)]
-pub struct GetBucketRequestPaymentRequest {
-    pub bucket: Option<BucketName>,
-    pub expected_bucket_owner: Option<AccountId>,
-}
-impl GetBucketRequestPaymentRequest {
-    pub fn to_http_response(self) -> anyhow::Result<hyper::Response<hyper::Body>> {
-        anyhow::bail!("todo")
-    }
-}
-
-#[derive(Debug, Default, Clone)]
-pub struct MetadataEntry {
-    pub name: Option<MetadataKey>,
-    pub value: Option<MetadataValue>,
-}
-impl MetadataEntry {
-    pub fn to_http_response(self) -> anyhow::Result<hyper::Response<hyper::Body>> {
-        anyhow::bail!("todo")
-    }
-}
-
-pub type QueueConfigurationList = Vec<QueueConfiguration>;
-
-pub type Minutes = i32;
-
-#[derive(Debug, Default, Clone)]
 pub struct PutBucketRequestPaymentRequest {
-    pub content_md5: Option<ContentMd5>,
-    pub request_payment_configuration: Option<RequestPaymentConfiguration>,
     pub bucket: Option<BucketName>,
-    pub checksum_algorithm: Option<ChecksumAlgorithm>,
+    pub request_payment_configuration: Option<RequestPaymentConfiguration>,
+    pub content_md5: Option<ContentMd5>,
     pub expected_bucket_owner: Option<AccountId>,
+    pub checksum_algorithm: Option<ChecksumAlgorithm>,
 }
 impl PutBucketRequestPaymentRequest {
     pub fn to_http_response(self) -> anyhow::Result<hyper::Response<hyper::Body>> {
         anyhow::bail!("todo")
-    }
-}
-
-#[derive(Debug, Default, Clone)]
-pub struct MultipartUpload {
-    pub upload_id: Option<MultipartUploadId>,
-    pub initiator: Option<Initiator>,
-    pub initiated: Option<Initiated>,
-    pub checksum_algorithm: Option<ChecksumAlgorithm>,
-    pub key: Option<ObjectKey>,
-    pub owner: Option<Owner>,
-    pub storage_class: Option<StorageClass>,
-}
-impl MultipartUpload {
-    pub fn to_http_response(self) -> anyhow::Result<hyper::Response<hyper::Body>> {
-        anyhow::bail!("todo")
-    }
-}
-
-pub type GrantReadAcp = String;
-
-pub type NoncurrentVersionTransitionList = Vec<NoncurrentVersionTransition>;
-
-pub type AllowedHeader = String;
-
-pub type MaxAgeSeconds = i32;
-
-pub type ObjectSizeLessThanBytes = i64;
-
-#[derive(Debug, Default, Clone)]
-pub struct S3KeyFilter {
-    pub filter_rules: Option<FilterRuleList>,
-}
-impl S3KeyFilter {
-    pub fn to_http_response(self) -> anyhow::Result<hyper::Response<hyper::Body>> {
-        anyhow::bail!("todo")
-    }
-}
-
-#[derive(Debug, Default, Clone)]
-pub struct GetBucketVersioningRequest {
-    pub bucket: Option<BucketName>,
-    pub expected_bucket_owner: Option<AccountId>,
-}
-impl GetBucketVersioningRequest {
-    pub fn to_http_response(self) -> anyhow::Result<hyper::Response<hyper::Body>> {
-        anyhow::bail!("todo")
-    }
-}
-
-#[derive(Debug, Default, Clone)]
-pub struct GetObjectTorrent;
-impl OperationShape for GetObjectTorrent {
-    const NAME: &'static str = "GetObjectTorrent";
-    type Input = GetObjectTorrentRequest;
-    type Output = GetObjectTorrentOutput;
-    type Error = ();
-}
-
-#[derive(Debug, Default, Clone)]
-pub struct GetBucketCorsOutput {
-    pub cors_rules: Option<CorsRules>,
-}
-impl GetBucketCorsOutput {
-    pub fn to_http_response(self) -> anyhow::Result<hyper::Response<hyper::Body>> {
-        anyhow::bail!("todo")
-    }
-}
-
-#[derive(Debug, Default, Clone)]
-pub struct OutputLocation {
-    pub s3: Option<S3Location>,
-}
-impl OutputLocation {
-    pub fn to_http_response(self) -> anyhow::Result<hyper::Response<hyper::Body>> {
-        anyhow::bail!("todo")
-    }
-}
-
-#[derive(Debug, Default, Clone)]
-pub struct ParquetInput {}
-impl ParquetInput {
-    pub fn to_http_response(self) -> anyhow::Result<hyper::Response<hyper::Body>> {
-        anyhow::bail!("todo")
-    }
-}
-
-pub type PartsCount = i32;
-
-#[derive(Debug, Default, Clone)]
-pub struct RedirectAllRequestsTo {
-    pub host_name: Option<HostName>,
-    pub protocol: Option<Protocol>,
-}
-impl RedirectAllRequestsTo {
-    pub fn to_http_response(self) -> anyhow::Result<hyper::Response<hyper::Body>> {
-        anyhow::bail!("todo")
-    }
-}
-
-#[derive(Debug, Clone, Copy, Eq, Ord, PartialEq, PartialOrd, Hash)]
-pub enum ReplicationRuleStatus {
-    Disabled,
-    Enabled,
-}
-impl AsRef<str> for ReplicationRuleStatus {
-    fn as_ref(&self) -> &str {
-        match self {
-            Self::Disabled => "Disabled",
-            Self::Enabled => "Enabled",
-        }
-    }
-}
-impl TryFrom<&str> for ReplicationRuleStatus {
-    type Error = String;
-    fn try_from(s: &str) -> Result<Self, Self::Error> {
-        match s {
-            "Disabled" => Ok(Self::Disabled),
-            "Enabled" => Ok(Self::Enabled),
-            _ => Err(format!("unknown enum value {}", s)),
-        }
     }
 }
 
@@ -6504,353 +6818,39 @@ impl Transition {
     }
 }
 
+pub type ResponseContentDisposition = String;
+
+pub type SseCustomerAlgorithm = String;
+
+pub type IfUnmodifiedSince = String;
+
 #[derive(Debug, Default, Clone)]
-pub struct GetBucketAclRequest {
-    pub bucket: Option<BucketName>,
-    pub expected_bucket_owner: Option<AccountId>,
+pub struct MultipartUpload {
+    pub key: Option<ObjectKey>,
+    pub storage_class: Option<StorageClass>,
+    pub owner: Option<Owner>,
+    pub checksum_algorithm: Option<ChecksumAlgorithm>,
+    pub initiator: Option<Initiator>,
+    pub initiated: Option<Initiated>,
+    pub upload_id: Option<MultipartUploadId>,
 }
-impl GetBucketAclRequest {
+impl MultipartUpload {
     pub fn to_http_response(self) -> anyhow::Result<hyper::Response<hyper::Body>> {
         anyhow::bail!("todo")
     }
 }
 
-#[derive(Debug, Default, Clone)]
-pub struct DeleteBucketIntelligentTieringConfigurationRequest {
-    pub id: Option<IntelligentTieringId>,
-    pub bucket: Option<BucketName>,
-}
-impl DeleteBucketIntelligentTieringConfigurationRequest {
-    pub fn to_http_response(self) -> anyhow::Result<hyper::Response<hyper::Body>> {
-        anyhow::bail!("todo")
-    }
-}
+pub type TagCount = i32;
 
 #[derive(Debug, Default, Clone)]
-pub struct QueueConfiguration {
-    pub id: Option<NotificationId>,
-    pub filter: Option<NotificationConfigurationFilter>,
-    pub queue_arn: Option<QueueArn>,
-    pub events: Option<EventList>,
-}
-impl QueueConfiguration {
-    pub fn to_http_response(self) -> anyhow::Result<hyper::Response<hyper::Body>> {
-        anyhow::bail!("todo")
-    }
-}
-
-#[derive(Debug, Default, Clone)]
-pub struct NoncurrentVersionTransition {
-    pub noncurrent_days: Option<Days>,
-    pub storage_class: Option<TransitionStorageClass>,
-    pub newer_noncurrent_versions: Option<VersionCount>,
-}
-impl NoncurrentVersionTransition {
-    pub fn to_http_response(self) -> anyhow::Result<hyper::Response<hyper::Body>> {
-        anyhow::bail!("todo")
-    }
-}
-
-#[derive(Debug, Default, Clone)]
-pub struct DeleteBucketTaggingRequest {
-    pub bucket: Option<BucketName>,
-    pub expected_bucket_owner: Option<AccountId>,
-}
-impl DeleteBucketTaggingRequest {
-    pub fn to_http_response(self) -> anyhow::Result<hyper::Response<hyper::Body>> {
-        anyhow::bail!("todo")
-    }
-}
-
-#[derive(Debug, Default, Clone)]
-pub struct GetBucketLifecycleConfiguration;
-impl OperationShape for GetBucketLifecycleConfiguration {
-    const NAME: &'static str = "GetBucketLifecycleConfiguration";
-    type Input = GetBucketLifecycleConfigurationRequest;
-    type Output = GetBucketLifecycleConfigurationOutput;
-    type Error = ();
-}
-
-pub type Days = i32;
-
-#[derive(Debug, Default, Clone)]
-pub struct GetBucketPolicy;
-impl OperationShape for GetBucketPolicy {
-    const NAME: &'static str = "GetBucketPolicy";
-    type Input = GetBucketPolicyRequest;
-    type Output = GetBucketPolicyOutput;
-    type Error = ();
-}
-
-pub type IsEnabled = bool;
-
-#[derive(Debug, Default, Clone)]
-pub struct JsonOutput {
+pub struct CsvOutput {
+    pub quote_character: Option<QuoteCharacter>,
+    pub quote_fields: Option<QuoteFields>,
     pub record_delimiter: Option<RecordDelimiter>,
+    pub field_delimiter: Option<FieldDelimiter>,
+    pub quote_escape_character: Option<QuoteEscapeCharacter>,
 }
-impl JsonOutput {
-    pub fn to_http_response(self) -> anyhow::Result<hyper::Response<hyper::Body>> {
-        anyhow::bail!("todo")
-    }
-}
-
-pub type QuoteEscapeCharacter = String;
-
-#[derive(Debug, Default, Clone)]
-pub struct RecordsEvent {
-    pub payload: Option<Body>,
-}
-impl RecordsEvent {
-    pub fn to_http_response(self) -> anyhow::Result<hyper::Response<hyper::Body>> {
-        anyhow::bail!("todo")
-    }
-}
-
-#[derive(Debug, Clone)]
-pub enum ReplicationRuleFilter {
-    And(ReplicationRuleAndOperator),
-    Prefix(Prefix),
-    Tag(Tag),
-}
-
-#[derive(Debug, Default, Clone)]
-pub struct GetBucketAnalyticsConfiguration;
-impl OperationShape for GetBucketAnalyticsConfiguration {
-    const NAME: &'static str = "GetBucketAnalyticsConfiguration";
-    type Input = GetBucketAnalyticsConfigurationRequest;
-    type Output = GetBucketAnalyticsConfigurationOutput;
-    type Error = ();
-}
-
-#[derive(Debug, Clone, Copy, Eq, Ord, PartialEq, PartialOrd, Hash)]
-pub enum InventoryIncludedObjectVersions {
-    Current,
-    All,
-}
-impl AsRef<str> for InventoryIncludedObjectVersions {
-    fn as_ref(&self) -> &str {
-        match self {
-            Self::Current => "Current",
-            Self::All => "All",
-        }
-    }
-}
-impl TryFrom<&str> for InventoryIncludedObjectVersions {
-    type Error = String;
-    fn try_from(s: &str) -> Result<Self, Self::Error> {
-        match s {
-            "Current" => Ok(Self::Current),
-            "All" => Ok(Self::All),
-            _ => Err(format!("unknown enum value {}", s)),
-        }
-    }
-}
-
-pub type AbortRuleId = String;
-
-#[derive(Debug, Default, Clone)]
-pub struct GetBucketPolicyOutput {
-    pub policy: Option<Policy>,
-}
-impl GetBucketPolicyOutput {
-    pub fn to_http_response(self) -> anyhow::Result<hyper::Response<hyper::Body>> {
-        anyhow::bail!("todo")
-    }
-}
-
-#[derive(Debug, Default, Clone)]
-pub struct ListBucketInventoryConfigurations;
-impl OperationShape for ListBucketInventoryConfigurations {
-    const NAME: &'static str = "ListBucketInventoryConfigurations";
-    type Input = ListBucketInventoryConfigurationsRequest;
-    type Output = ListBucketInventoryConfigurationsOutput;
-    type Error = ();
-}
-
-#[derive(Debug, Default, Clone)]
-pub struct PutBucketNotificationConfiguration;
-impl OperationShape for PutBucketNotificationConfiguration {
-    const NAME: &'static str = "PutBucketNotificationConfiguration";
-    type Input = PutBucketNotificationConfigurationRequest;
-    type Output = ();
-    type Error = ();
-}
-
-#[derive(Debug, Clone, Copy, Eq, Ord, PartialEq, PartialOrd, Hash)]
-pub enum InventoryOptionalField {
-    Size,
-    LastModifiedDate,
-    StorageClass,
-    ObjectLockLegalHoldStatus,
-    ETag,
-    EncryptionStatus,
-    BucketKeyStatus,
-    IsMultipartUploaded,
-    ObjectLockMode,
-    ObjectLockRetainUntilDate,
-    ChecksumAlgorithm,
-    IntelligentTieringAccessTier,
-    ReplicationStatus,
-}
-impl AsRef<str> for InventoryOptionalField {
-    fn as_ref(&self) -> &str {
-        match self {
-            Self::Size => "Size",
-            Self::LastModifiedDate => "LastModifiedDate",
-            Self::StorageClass => "StorageClass",
-            Self::ObjectLockLegalHoldStatus => "ObjectLockLegalHoldStatus",
-            Self::ETag => "ETag",
-            Self::EncryptionStatus => "EncryptionStatus",
-            Self::BucketKeyStatus => "BucketKeyStatus",
-            Self::IsMultipartUploaded => "IsMultipartUploaded",
-            Self::ObjectLockMode => "ObjectLockMode",
-            Self::ObjectLockRetainUntilDate => "ObjectLockRetainUntilDate",
-            Self::ChecksumAlgorithm => "ChecksumAlgorithm",
-            Self::IntelligentTieringAccessTier => "IntelligentTieringAccessTier",
-            Self::ReplicationStatus => "ReplicationStatus",
-        }
-    }
-}
-impl TryFrom<&str> for InventoryOptionalField {
-    type Error = String;
-    fn try_from(s: &str) -> Result<Self, Self::Error> {
-        match s {
-            "Size" => Ok(Self::Size),
-            "LastModifiedDate" => Ok(Self::LastModifiedDate),
-            "StorageClass" => Ok(Self::StorageClass),
-            "ObjectLockLegalHoldStatus" => Ok(Self::ObjectLockLegalHoldStatus),
-            "ETag" => Ok(Self::ETag),
-            "EncryptionStatus" => Ok(Self::EncryptionStatus),
-            "BucketKeyStatus" => Ok(Self::BucketKeyStatus),
-            "IsMultipartUploaded" => Ok(Self::IsMultipartUploaded),
-            "ObjectLockMode" => Ok(Self::ObjectLockMode),
-            "ObjectLockRetainUntilDate" => Ok(Self::ObjectLockRetainUntilDate),
-            "ChecksumAlgorithm" => Ok(Self::ChecksumAlgorithm),
-            "IntelligentTieringAccessTier" => Ok(Self::IntelligentTieringAccessTier),
-            "ReplicationStatus" => Ok(Self::ReplicationStatus),
-            _ => Err(format!("unknown enum value {}", s)),
-        }
-    }
-}
-
-pub type EnableRequestProgress = bool;
-
-#[derive(Debug, Clone, Copy, Eq, Ord, PartialEq, PartialOrd, Hash)]
-pub enum OwnerOverride {
-    Destination,
-}
-impl AsRef<str> for OwnerOverride {
-    fn as_ref(&self) -> &str {
-        match self {
-            Self::Destination => "Destination",
-        }
-    }
-}
-impl TryFrom<&str> for OwnerOverride {
-    type Error = String;
-    fn try_from(s: &str) -> Result<Self, Self::Error> {
-        match s {
-            "Destination" => Ok(Self::Destination),
-            _ => Err(format!("unknown enum value {}", s)),
-        }
-    }
-}
-
-pub type ResponseExpires = String;
-
-#[derive(Debug, Default, Clone)]
-pub struct VersioningConfiguration {
-    pub mfa_delete: Option<MfaDelete>,
-    pub status: Option<BucketVersioningStatus>,
-}
-impl VersioningConfiguration {
-    pub fn to_http_response(self) -> anyhow::Result<hyper::Response<hyper::Body>> {
-        anyhow::bail!("todo")
-    }
-}
-
-#[derive(Debug, Default, Clone)]
-pub struct PutObjectTagging;
-impl OperationShape for PutObjectTagging {
-    const NAME: &'static str = "PutObjectTagging";
-    type Input = PutObjectTaggingRequest;
-    type Output = PutObjectTaggingOutput;
-    type Error = ();
-}
-
-#[derive(Debug, Default, Clone)]
-pub struct PutBucketVersioningRequest {
-    pub checksum_algorithm: Option<ChecksumAlgorithm>,
-    pub mfa: Option<Mfa>,
-    pub bucket: Option<BucketName>,
-    pub versioning_configuration: Option<VersioningConfiguration>,
-    pub expected_bucket_owner: Option<AccountId>,
-    pub content_md5: Option<ContentMd5>,
-}
-impl PutBucketVersioningRequest {
-    pub fn to_http_response(self) -> anyhow::Result<hyper::Response<hyper::Body>> {
-        anyhow::bail!("todo")
-    }
-}
-
-#[derive(Debug, Default, Clone)]
-pub struct InventoryConfiguration {
-    pub filter: Option<InventoryFilter>,
-    pub id: Option<InventoryId>,
-    pub included_object_versions: Option<InventoryIncludedObjectVersions>,
-    pub is_enabled: Option<IsEnabled>,
-    pub destination: Option<InventoryDestination>,
-    pub optional_fields: Option<InventoryOptionalFields>,
-    pub schedule: Option<InventorySchedule>,
-}
-impl InventoryConfiguration {
-    pub fn to_http_response(self) -> anyhow::Result<hyper::Response<hyper::Body>> {
-        anyhow::bail!("todo")
-    }
-}
-
-#[derive(Debug, Default, Clone)]
-pub struct PutObjectLockConfigurationRequest {
-    pub checksum_algorithm: Option<ChecksumAlgorithm>,
-    pub token: Option<ObjectLockToken>,
-    pub bucket: Option<BucketName>,
-    pub expected_bucket_owner: Option<AccountId>,
-    pub request_payer: Option<RequestPayer>,
-    pub content_md5: Option<ContentMd5>,
-    pub object_lock_configuration: Option<ObjectLockConfiguration>,
-}
-impl PutObjectLockConfigurationRequest {
-    pub fn to_http_response(self) -> anyhow::Result<hyper::Response<hyper::Body>> {
-        anyhow::bail!("todo")
-    }
-}
-
-#[derive(Debug, Default, Clone)]
-pub struct InventoryDestination {
-    pub s3_bucket_destination: Option<InventoryS3BucketDestination>,
-}
-impl InventoryDestination {
-    pub fn to_http_response(self) -> anyhow::Result<hyper::Response<hyper::Body>> {
-        anyhow::bail!("todo")
-    }
-}
-
-#[derive(Debug, Default, Clone)]
-pub struct OwnershipControls {
-    pub rules: Option<OwnershipControlsRules>,
-}
-impl OwnershipControls {
-    pub fn to_http_response(self) -> anyhow::Result<hyper::Response<hyper::Body>> {
-        anyhow::bail!("todo")
-    }
-}
-
-#[derive(Debug, Default, Clone)]
-pub struct TargetGrant {
-    pub permission: Option<BucketLogsPermission>,
-    pub grantee: Option<Grantee>,
-}
-impl TargetGrant {
+impl CsvOutput {
     pub fn to_http_response(self) -> anyhow::Result<hyper::Response<hyper::Body>> {
         anyhow::bail!("todo")
     }
