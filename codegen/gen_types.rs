@@ -1,6 +1,6 @@
 use crate::codegen::smithy_model::*;
 use crate::codegen::utils::CodeWriter;
-use proc_macro2::TokenStream;
+use proc_macro2::{Ident, TokenStream};
 use quote::{format_ident, quote, ToTokens};
 use std::path::Path;
 
@@ -22,45 +22,69 @@ impl<'a> GenTypes<'a> {
         for (_key, shape) in self.model.shapes.iter() {
             self.write_shape_type(shape);
         }
-        self.write_ops_enum_and_macros();
         self.writer.done();
     }
 
     fn write_header(&mut self) {
         self.writer.write_code(quote! {
+
             #![allow(unused)]
             #![allow(non_camel_case_types)]
+            use crate::common::OpService;
             use std::str::FromStr;
             use std::collections::HashMap;
             use std::collections::HashSet;
             use std::sync::Arc;
-            use aws_smithy_http_server::operation::OperationShape;
+            use aws_smithy_http_server::operation::{
+                Operation, OperationShape, OperationService, IntoService, Handler};
+            use aws_smithy_http_server::response::IntoResponse;
+            use aws_smithy_http_server::proto::rest_xml::RestXml;
+            use aws_smithy_http_server::body::BoxBody;
+
         });
     }
 
     fn write_shape_type(&mut self, shape: &SmithyShape) {
         let ident = shape.ident();
         match shape.typ {
-            SmithyType::Service => {}
-            // SmithyType::Document => {}
-            // SmithyType::Resource => {}
+            SmithyType::Service => {
+                let members = shape.members.values().map(|m| m.ident());
+                let ops = shape
+                    .members
+                    .values()
+                    .map(|m| self.model.get_shape_of(m).ident());
+                self.writer.write_code(quote! {
+
+                    #[derive(Debug, Default, Clone)]
+                    pub struct #ident {
+                        #(pub #members: Option<OpService<#ops>>, )*
+                    }
+
+                });
+            }
+
             SmithyType::Operation => {
                 let input = self.get_member_type(shape, "input");
                 let output = self.get_member_type(shape, "output");
                 let name = &shape.name;
                 self.writer.write_code(quote! {
+
                     #[derive(Debug, Default, Clone)]
-                    pub struct #ident {
-                        pub input: <Self as OperationShape>::Input,
-                        pub output: <Self as OperationShape>::Output,
-                        pub error: Option<<Self as OperationShape>::Error>,
-                    }
+                    pub struct #ident;
+
                     impl OperationShape for #ident {
                         const NAME: &'static str = #name;
                         type Input = #input;
                         type Output = #output;
                         type Error = ();
                     }
+
+                    // impl IntoResponse<RestXml> for <#ident as OperationShape>::Output {
+                    //     fn into_response(self) -> hyper::Response<BoxBody> {
+                    //         hyper::Response::new(BoxBody::default())
+                    //     }
+                    // }
+
                 });
             }
 
@@ -71,10 +95,18 @@ impl<'a> GenTypes<'a> {
                     .values()
                     .map(|m| self.model.get_shape_of(m).ident());
                 self.writer.write_code(quote! {
+
                     #[derive(Debug, Default, Clone)]
                     pub struct #ident {
                         #(pub #members: Option<#types>,)*
                     }
+
+                    impl #ident {
+                        pub fn to_http_response(self) -> anyhow::Result<hyper::Response<hyper::Body>> {
+                            anyhow::bail!("todo")
+                        }
+                    }
+
                 });
             }
 
@@ -102,6 +134,10 @@ impl<'a> GenTypes<'a> {
                 self.write_shape_type_union(shape);
             }
 
+            SmithyType::Enum => {
+                self.write_shape_type_enum(shape);
+            }
+
             SmithyType::Blob => {
                 let type_name = if shape.has_trait(SM_STREAMING) {
                     quote! { Arc<hyper::Body> }
@@ -121,13 +157,15 @@ impl<'a> GenTypes<'a> {
             }
 
             SmithyType::String => {
-                if shape.has_trait(SM_ENUM) {
-                    self.write_shape_type_enum(shape);
+                if shape.has_trait(SM_ENUM_TRAIT) {
+                    self.write_shape_string_enum(shape);
                 } else {
                     self.write_shape_type_primitive(shape);
                 }
             }
 
+            // SmithyType::Document => {}
+            // SmithyType::Resource => {}
             _ => {
                 self.write_shape_type_primitive(shape);
             }
@@ -159,8 +197,23 @@ impl<'a> GenTypes<'a> {
 
     fn write_shape_type_enum(&mut self, shape: &SmithyShape) {
         let ident = shape.ident();
-        let enum_spec = shape.get_trait_value(SM_ENUM);
+        let names: Vec<_> = shape
+            .members
+            .keys()
+            .map(|k| format_ident!("{}", k))
+            .collect();
+        let values: Vec<_> = shape
+            .members
+            .values()
+            .map(|m| m.get_trait(SM_ENUM_VALUE))
+            .collect();
+        self._write_enum(ident, names, values);
+    }
+
+    fn write_shape_string_enum(&mut self, shape: &SmithyShape) {
         let mut i = 0;
+        let enum_spec = shape.get_trait_value(SM_ENUM_TRAIT);
+        let ident = shape.ident();
         let names: Vec<_> = enum_spec
             .as_array()
             .unwrap()
@@ -176,8 +229,12 @@ impl<'a> GenTypes<'a> {
             .iter()
             .map(|i| i["value"].as_str().unwrap_or(""))
             .collect();
+        self._write_enum(ident, names, values);
+    }
+
+    fn _write_enum(&mut self, ident: Ident, names: Vec<Ident>, values: Vec<&str>) {
         self.writer.write_code(quote! {
-            #[derive(Debug, Clone, Copy, Eq, PartialEq)]
+            #[derive(Debug, Clone, Copy, Eq, Ord, PartialEq, PartialOrd, Hash)]
             pub enum #ident {
                 #(#names,)*
             }
@@ -202,10 +259,11 @@ impl<'a> GenTypes<'a> {
 
     fn get_member_type(&mut self, shape: &SmithyShape, member_name: &str) -> TokenStream {
         if let Some(m) = shape.members.get(member_name) {
-            self.model.get_shape_of(m).ident().to_token_stream()
-        } else {
-            quote! { () }
+            if m.target != SM_UNIT_TYPE {
+                return self.model.get_shape_of(m).ident().to_token_stream();
+            }
         }
+        quote! { () }
     }
 
     fn get_primitive_type(&mut self, shape: &SmithyShape) -> TokenStream {
@@ -220,49 +278,5 @@ impl<'a> GenTypes<'a> {
             SmithyType::String => quote! { String },
             _ => panic!("non primitive shape {} type {:?}", shape.name, shape.typ,),
         }
-    }
-
-    fn write_ops_enum_and_macros(&mut self) {
-        // Generate the basic enum of operation kinds + macros to quickly generate code for each operation.
-        // The enum is flat - meaning it defines no attached state to any of the operations.
-        // It might be interesting to consider a more complex enum if needed by the daemon,
-        // or perhaps that would instead go to it's own enum, with auto-generated-mapping to this one.
-        let ops_names: Vec<_> = self.model.iter_ops().map(|op| op.ident()).collect();
-
-        self.writer.write_code(quote! {
-
-            #[derive(Debug, Clone, Copy, Eq, PartialEq)]
-            pub enum S3Ops {
-                #(#ops_names),*
-            }
-
-            /// This macro calls a provided $macro for each S3 operation to generate code per op.
-            macro_rules! generate_ops_code {
-                ($macro:ident) => {
-                    #( $macro!(#ops_names); )*
-                }
-            }
-
-            /// This macro calls a provided $macro for each S3 operation to generate item per op.
-            macro_rules! generate_ops_items {
-                ($macro:ident) => {
-                    #( $macro!(#ops_names); )*
-                }
-            }
-
-            /// This macro matches a variable of S3Ops type and expands the provided $macro
-            /// for each S3 operation to generate code handler per op.
-            macro_rules! generate_ops_match {
-                ($macro:ident, $op:expr) => {
-                    match ($op) {
-                        #( S3Ops::#ops_names => { $macro!(#ops_names) }, )*
-                    }
-                }
-            }
-
-            pub(crate) use generate_ops_code;
-            pub(crate) use generate_ops_items;
-            pub(crate) use generate_ops_match;
-        });
     }
 }

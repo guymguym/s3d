@@ -80,7 +80,12 @@ impl SmithyShape {
             }
         }
         // TODO json["errors"].as_array()
-        // TODO json["operations"].as_array()
+        if let Some(operations) = json["operations"].as_array() {
+            for op in operations {
+                let name = unprefix(op["target"].as_str().unwrap());
+                members.insert(name.to_owned(), SmithyMember::new(&name, op));
+            }
+        }
         Self {
             key: key.to_string(),
             name: camel(&unprefix(key)),
@@ -91,6 +96,14 @@ impl SmithyShape {
     }
     pub fn ident(&self) -> Ident {
         format_ident!("{}", self.name)
+    }
+    pub fn snake_ident(&self) -> Ident {
+        let s = snake(&self.name);
+        if syn::parse_str::<Ident>(&s).is_err() {
+            format_ident!("r#{}", s)
+        } else {
+            format_ident!("{}", s)
+        }
     }
     pub fn _get_type(&self) -> &str {
         self.typ.as_ref()
@@ -127,7 +140,7 @@ impl SmithyMember {
             format_ident!("{}", self.snake)
         }
     }
-    pub fn set_ident(&self) -> Ident {
+    pub fn _set_ident(&self) -> Ident {
         format_ident!("set_{}", self.snake)
     }
     pub fn _get_ident(&self) -> Ident {
@@ -180,7 +193,7 @@ impl FromJson for SmithyMemberMap {
 pub trait SmithyTraits {
     fn set_trait(&mut self, t: &str);
     fn has_trait(&self, t: &str) -> bool;
-    fn get_trait(&self, t: &str) -> String;
+    fn get_trait(&self, t: &str) -> &str;
     fn get_trait_value(&self, t: &str) -> Value;
     fn has_http_trait(&self) -> bool {
         self.has_trait(SM_HTTP_LABEL)
@@ -219,12 +232,11 @@ impl<T: SmithyTraitor> SmithyTraits for T {
             .as_object()
             .map_or(false, |o| o.contains_key(t))
     }
-    fn get_trait(&self, t: &str) -> String {
+    fn get_trait(&self, t: &str) -> &str {
         self.traits()
             .as_object()
             .and_then(|o| o.get(t))
             .and_then(|v| v.as_str())
-            .map(|s| s.to_string())
             .unwrap_or_default()
     }
     fn get_trait_value(&self, t: &str) -> Value {
@@ -339,6 +351,7 @@ pub enum SmithyType {
     Map,
     Structure,
     Union,
+    Enum,
     // service-shapes
     Service,
     Operation,
@@ -346,7 +359,7 @@ pub enum SmithyType {
 }
 
 impl SmithyType {
-    pub fn is_always_required(&self) -> bool {
+    pub fn _is_always_required(&self) -> bool {
         match self {
             SmithyType::Blob
             | SmithyType::Boolean
@@ -394,6 +407,7 @@ impl AsRef<str> for SmithyType {
             SmithyType::Map => SM_TYPE_MAP,
             SmithyType::Structure => SM_TYPE_STRUCTURE,
             SmithyType::Union => SM_TYPE_UNION,
+            SmithyType::Enum => SM_TYPE_ENUM,
             // service-shapes
             SmithyType::Service => SM_TYPE_SERVICE,
             SmithyType::Operation => SM_TYPE_OPERATION,
@@ -427,6 +441,7 @@ impl From<&str> for SmithyType {
             SM_TYPE_MAP => SmithyType::Map,
             SM_TYPE_STRUCTURE => SmithyType::Structure,
             SM_TYPE_UNION => SmithyType::Union,
+            SM_TYPE_ENUM => SmithyType::Enum,
             // service-shapes
             SM_TYPE_SERVICE => SmithyType::Service,
             SM_TYPE_OPERATION => SmithyType::Operation,
@@ -458,6 +473,7 @@ const SM_TYPE_SET: &str = "set";
 const SM_TYPE_MAP: &str = "map";
 const SM_TYPE_STRUCTURE: &str = "structure";
 const SM_TYPE_UNION: &str = "union";
+const SM_TYPE_ENUM: &str = "enum";
 // service-shapes
 const SM_TYPE_SERVICE: &str = "service";
 const SM_TYPE_OPERATION: &str = "operation";
@@ -465,11 +481,14 @@ const SM_TYPE_RESOURCE: &str = "resource";
 
 // smithy traits used in s3.json:
 const _SM_PREFIX: &str = "smithy.api#";
-pub const SM_ENUM: &str = "smithy.api#enum";
-pub const SM_REQUIRED: &str = "smithy.api#required";
+pub const SM_UNIT_TYPE: &str = "smithy.api#Unit";
+pub const SM_ENUM_VALUE: &str = "smithy.api#enumValue";
+pub const SM_ENUM_TRAIT: &str = "smithy.api#enum";
+const _SM_REQUIRED: &str = "smithy.api#required";
+const _SM_ERROR: &str = "smithy.api#error";
+#[allow(unused)]
 const SM_DOC: &str = "smithy.api#documentation";
 #[allow(unused)]
-const _SM_ERROR: &str = "smithy.api#error";
 const _SM_HTTP: &str = "smithy.api#http";
 #[allow(unused)]
 const SM_HTTP_LABEL: &str = "smithy.api#httpLabel";
@@ -477,7 +496,8 @@ const SM_HTTP_LABEL: &str = "smithy.api#httpLabel";
 const SM_HTTP_QUERY: &str = "smithy.api#httpQuery";
 #[allow(unused)]
 const SM_HTTP_HEADER: &str = "smithy.api#httpHeader";
-const _SM_HTTP_PAYLOAD: &str = "smithy.api#httpPayload";
+#[allow(unused)]
+const SM_HTTP_PAYLOAD: &str = "smithy.api#httpPayload";
 #[allow(unused)]
 const SM_HTTP_PREFIX_HEADERS: &str = "smithy.api#httpPrefixHeaders";
 const _SM_HTTP_CHECKSUM_REQUIRED: &str = "smithy.api#httpChecksumRequired";

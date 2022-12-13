@@ -18,9 +18,7 @@
 mod codegen;
 
 use crate::{
-    codegen::gen_cli::GenCLI,
-    codegen::gen_client::GenClient,
-    codegen::gen_http::GenHttp,
+    codegen::gen_ops::GenOps,
     codegen::gen_types::GenTypes,
     codegen::smithy_model::{FromJson, SmithyModel},
 };
@@ -30,26 +28,30 @@ use std::path::Path;
 /// See https://doc.rust-lang.org/cargo/reference/build-scripts.html
 fn main() {
     println!("cargo:warning=build codegen starting...");
-    let src_path = Path::new("codegen/");
-    let model_path = Path::new("smithy-rs/aws/sdk/aws-models/s3.json");
-
-    // TODO should use OUT_DIR for output, but for now we keep them under src/codegen just to ease debugging
-    // let out_dir = env::var("OUT_DIR").expect("OUT_DIR env is not defined");
-    // let out_path = Path::new(&out_dir);
-    let out_path = Path::new("src/codegen/");
-
-    // printing out cargo directives
     println!("cargo:rerun-if-changed=build.rs");
-    println!("cargo:rerun-if-changed={}", src_path.display());
-    println!("cargo:rerun-if-changed={}", out_path.display());
-    println!("cargo:rerun-if-changed={}", model_path.display());
+    println!("cargo:rerun-if-changed=codegen/");
 
-    // load the smithy model and invoke code generators
-    let model = SmithyModel::from_json_file(&model_path);
-    GenTypes::new(&model, &out_path.join("s3_types.rs")).generate();
-    GenHttp::new(&model, &out_path.join("s3_http.rs")).generate();
-    GenClient::new(&model, &out_path.join("s3_client.rs")).generate();
-    GenCLI::new(&model, &out_path.join("s3_cli.rs")).generate();
+    for model_name in ["s3", "sts", "iam"] {
+        let model_file = format!("smithy-rs/aws/sdk/aws-models/{}.json", model_name);
+        let out_dir = format!("src/codegen/{}", model_name);
+        println!("cargo:warning=build codegen for model {}.", model_file);
+
+        // we could should use OUT_DIR for temporary build output,
+        // but for now we keep the output in source control under src/codegen just to ease debugging.
+        // let out_dir = env::var("OUT_DIR").expect("OUT_DIR env is not defined");
+
+        println!("cargo:rerun-if-changed={}", model_file);
+
+        // load the smithy model and invoke code generators
+        let model_path = Path::new(&model_file);
+        let out_path = Path::new(&out_dir);
+        let model = SmithyModel::from_json_file(&model_path);
+
+        GenTypes::new(&model, &out_path.join("types.rs")).generate();
+        GenOps::new(&model, &out_path.join("ops.rs")).generate();
+        // GenCLI::new(&model, &out_path.join("cli.rs")).generate();
+        // GenClient::new(&model, &out_path.join("client.rs")).generate();
+    }
 
     println!("cargo:warning=build codegen done.");
 }

@@ -39,7 +39,7 @@ impl TagCmd {
         if tagging.tag_set().is_none() {
             if key.is_empty() {
                 let res = s3.get_bucket_tagging().bucket(bucket).send().await?;
-                info!("{:#?}", res);
+                log::info!("{:#?}", res);
             } else {
                 let res = s3
                     .get_object_tagging()
@@ -47,7 +47,7 @@ impl TagCmd {
                     .key(key)
                     .send()
                     .await?;
-                info!("{:#?}", res);
+                log::info!("{:#?}", res);
             }
         } else {
             if key.is_empty() {
@@ -57,7 +57,7 @@ impl TagCmd {
                     .tagging(tagging)
                     .send()
                     .await?;
-                info!("{:#?}", res);
+                log::info!("{:#?}", res);
             } else {
                 let res = s3
                     .put_object_tagging()
@@ -66,7 +66,7 @@ impl TagCmd {
                     .tagging(tagging)
                     .send()
                     .await?;
-                info!("{:#?}", res);
+                log::info!("{:#?}", res);
             }
         }
 

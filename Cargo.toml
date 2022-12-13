@@ -1,7 +1,6 @@
 ## https://doc.rust-lang.org/cargo/reference/manifest.html
 
 [package]
-
 name = "s3d"
 version = "0.0.1"
 authors = ["guymguym"]
@@ -10,34 +9,24 @@ description = "s3d is a daemon for data access using S3 API. A modern cousin of 
 homepage = "https://s3d.rs"
 repository = "https://github.com/s3d-rs/s3d"
 license = "Apache-2.0"
-keywords = ["s3", "edge", "object", "storage", "bucket"]
-categories = ["database-implementations", "filesystem", "web-programming::http-server"]
-
+keywords = ["s3", "object", "storage", "bucket"]
+categories = [
+    "database-implementations",
+    "filesystem",
+    "web-programming::http-server",
+]
+[badges]
+maintenance = { status = "experimental" }
+[profile.dev]
+panic = 'abort'
 [features]
-
-# enable features by default
-default = ["fuse"]
+# list of feature names that are enabled by default
+default = []
 # The fuse feature requires `sudo apt-get install -y fuse libfuse-dev pkg-config` or equivalent
 # when enabled it requires the optional dependency on crate `fuser`.
 fuse = ["fuser"]
 
-[badges]
-
-maintenance = { status = "experimental" }
-
-[profile.dev]
-
-# When running in development we want to abort on panic
-# to make it easier to debug. Use `export RUST_BACKTRACE=1` to print stack traces.
-panic = 'abort'
-
-[build-dependencies]
-
-syn = "1.0.105"
-quote = "1.0.21"
-proc-macro2 = "1.0.47"
-serde = { version = "1.0.148", features = ["derive"] }
-serde_json = "1.0.89"
+###############################################################################
 
 [dependencies]
 
@@ -45,68 +34,62 @@ serde_json = "1.0.89"
 
 hyper = { version = "0.14.23", features = ["full"] }
 tower = { version = "0.4.13", features = ["full"] }
-tokio = { version = "1.22.0", features = ["full"] }
+tokio = { version = "1.23.0", features = ["full"] }
 tokio-stream = "0.1.11"
 libc = "0.2.138"
 log = "0.4.17"
 env_logger = "0.10.0"
 
-## Rust related crates
-
+## rust-lang addons
 quote = "1.0.21"
 paste = "1.0.9"
 anyhow = "1.0.66"
 async-trait = "0.1.59"
 proc-macro2 = "1.0.47"
 lazy_static = "1.4.0"
+derive_builder = "0.12.0"
 
-## General purpose crates
-
+## utility crates
+envy = "0.4.2"
 bytes = "1.3.0"
-base64 = "0.13.1"
+base64 = "0.20.0"
 chrono = "0.4.23"
+clap = { version = "4.0.29", features = ["derive", "cargo"] }
+clap_complete = "4.0.6"
 url = "2.3.1"
 urlencoding = "2.1.2"
 uuid = { version = "1.2.2", features = ["v4"] }
-clap = { version = "4.0.29", features = ["derive", "cargo"] }
-clap_complete = "4.0.6"
-
-## Encoding/decoding crates
-
-serde = { version = "1.0.148", features = ["derive"] }
+serde = { version = "1.0.150", features = ["derive"] }
 serde_yaml = "0.9.14"
-envy = "0.4.2"
-# serde_json = "1.0.89"
-# quick-xml = "0.26.0" # seems to be more popular than other serde_xml* crates
+serde_json = "1.0.89"
+quick-xml = "0.26.0" # seems to be more popular than other serde_xml* crates
 
-## Optional features crates
-
+## optional features crates
 fuser = { version = "0.11.1", optional = true }
 
-## aws smithy crates
-
+## aws crates
 aws-config = "0.51.0"
 aws-endpoint = "0.51.0"
 aws-http = "0.51.0"
 aws-sig-auth = "0.51.0"
 aws-sigv4 = "0.51.0"
-aws-smithy-async = { version = "0.51.0", features = ["rt-tokio"] }
-aws-smithy-client = { version = "0.51.0", features = ["client-hyper"] }
-aws-smithy-http = "0.51.0"
-aws-smithy-http-server = "0.51.1"
-aws-smithy-http-tower = "0.51.0"
-aws-smithy-types = "0.51.0"
-aws-smithy-xml = "0.51.0"
+aws-smithy-async = { version = "0.52.0", features = ["rt-tokio"] }
+aws-smithy-client = { version = "0.52.0", features = ["client-hyper"] }
+aws-smithy-http = "0.52.0"
+aws-smithy-http-server = "0.52.0"
+aws-smithy-http-tower = "0.52.0"
+aws-smithy-types = "0.52.0"
+aws-smithy-xml = "0.52.0"
 aws-types = "0.51.0"
 aws-sdk-s3 = "0.21.0"
 
-# aws-sdk-s3 = "0.0.0-local"
-# s3d-smithy-codegen-server-s3 = "0.0.1"
 
+###############################################################################
 ## patching to use local overides of the smithy-rs crates
 ## can also be added in another file `.cargo/config.toml`
 ## see https://doc.rust-lang.org/cargo/reference/overriding-dependencies.html
-
+# aws-sdk-s3 = "0.0.0-local"
+# s3d-smithy-codegen-server-s3 = "0.0.1"
 # [patch.crates-io]
 # aws-config = { path = "smithy-rs/s3d/build/crates/aws-config" }
 # aws-endpoint = { path = "smithy-rs/s3d/build/crates/aws-endpoint" }
@@ -127,3 +110,13 @@ aws-sdk-s3 = "0.21.0"
 # aws-types = { path = "smithy-rs/s3d/build/crates/aws-types" }
 # aws-sdk-s3 = { path = "smithy-rs/s3d/build/crates/s3", version = "0.0.0-local" }
 # s3d-smithy-codegen-server-s3 = { path = "smithy-rs/s3d/build/crates/s3d-smithy-codegen-server-s3", version = "0.0.1" }
+###############################################################################
+
+
+[build-dependencies]
+
+syn = "1.0.105"
+quote = "1.0.21"
+proc-macro2 = "1.0.47"
+serde_json = "1.0.89"
+serde = { version = "1.0.150", features = ["derive"] }

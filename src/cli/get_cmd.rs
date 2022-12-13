@@ -18,11 +18,11 @@ impl GetCmd {
         let (bucket, key) = parse_bucket_and_key(&self.bucket_and_key)?;
         let mut res = s3.get_object().bucket(bucket).key(key).send().await?;
 
-        info!("{:#?}", res);
+        log::info!("{:#?}", res);
 
         let num_bytes = pipe_stream_to_outfile_or_stdout(&mut res.body, self.outfile.as_deref()).await?;
 
-        info!("Received {} bytes", num_bytes);
+        log::info!("Received {} bytes", num_bytes);
 
         Ok(())
     }

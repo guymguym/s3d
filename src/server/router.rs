@@ -1,7 +1,3 @@
-//! This module resolves S3 resources to ops.
-//! Currently written by hand which is difficult to maintain long term.
-//! TODO This module should be generated from https://github.com/awslabs/smithy-rs.
-
 use crate::codegen::s3_types::S3Ops;
 use hyper::Method;
 

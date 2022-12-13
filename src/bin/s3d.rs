@@ -22,7 +22,7 @@ pub async fn main() -> anyhow::Result<()> {
     //     s3d::daemon::fuse::Fuse::start_fuse_mount().await?;
     // }
 
-    s3d::daemon::server::serve().await?;
+    s3d::server::server::serve().await?;
     Ok(())
 }
 

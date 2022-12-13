@@ -24,8 +24,8 @@ impl PutCmd {
             .body(body)
             .send()
             .await?;
-        info!("{:#?}", res);
 
+        log::info!("{:#?}", res);
         Ok(())
     }
 }
